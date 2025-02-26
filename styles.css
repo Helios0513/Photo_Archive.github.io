@@ -15,6 +15,7 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     overflow: hidden;
+    align-items: center; /* 내부 요소를 가운데 정렬 */
 }
 
 .profile {
@@ -22,7 +23,10 @@ body {
     background-color: #333;
     color: #fff;
     padding: 20px;
-    text-align: center;
+    text-align: center; /* 텍스트 가운데 정렬 */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 내부 요소를 가운데 정렬 */
 }
 
 .profile-img {
@@ -66,18 +70,21 @@ body {
 
 .main-content {
     padding: 20px;
+    width: 100%; /* 메인 콘텐츠 너비 설정 */
 }
 
 .main-content h1 {
     font-size: 36px;
     color: #333;
     margin-bottom: 20px;
+    text-align: center; /* 제목 가운데 정렬 */
 }
 
 .main-content p {
     font-size: 18px;
     color: #666;
     line-height: 1.6;
+    text-align: center; /* 텍스트 가운데 정렬 */
 }
 
 .photo-container {
@@ -102,12 +109,14 @@ img {
     margin-top: 10px;
     font-size: 14px;
     color: #666;
+    text-align: center; /* 텍스트 가운데 정렬 */
 }
 
 /* 데스크톱 스타일 */
 @media (min-width: 768px) {
     .container {
         flex-direction: row; /* 데스크톱에서는 가로로 배치 */
+        align-items: flex-start; /* 데스크톱에서는 기본 정렬 사용 */
     }
 
     .profile {
