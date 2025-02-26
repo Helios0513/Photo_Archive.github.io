@@ -13,7 +13,9 @@ body {
     margin: 0 auto;
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden; /* border-radius 제거 */
+    border-radius: 10px;
+    overflow: hidden;
+    align-items: center; /* 내부 요소를 가운데 정렬 */
 }
 
 .profile {
@@ -25,13 +27,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center; /* 내부 요소를 가운데 정렬 */
-    border-radius: 0; /* 둥근 모서리 제거 */
 }
 
 .profile-img {
     width: 100px;
     height: 100px;
-    border-radius: 50%; /* 프로필 사진은 원형 유지 */
+    border-radius: 50%;
     margin-bottom: 15px;
 }
 
@@ -120,7 +121,6 @@ img {
 
     .profile {
         width: 250px; /* 데스크톱에서는 좌측에 고정 너비 */
-        border-radius: 0; /* 둥근 모서리 제거 */
     }
 
     .main-content {
