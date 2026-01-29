@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>사진 업로드 관리자</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .upload-box { max-width: 500px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; }
+        input, button, textarea { width: 100%; margin-bottom: 10px; padding: 10px; box-sizing: border-box; }
+        button { background-color: #333; color: white; cursor: pointer; border: none; }
+        #status { color: blue; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="upload-box">
+        <h2>📷 새 사진 올리기</h2>
+        <input type="password" id="token" placeholder="깃허브 토큰(비밀 열쇠)을 입력하세요">
+        <input type="file" id="fileInput" accept="image/*">
+        <textarea id="photoInfo" placeholder="사진 설명 입력 (예: Nikon Z fc ...)"></textarea>
+        <button onclick="startUpload()">업로드 시작</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function startUpload() {
+            const token = document.getElementById('token').value;
+            const fileInput = document.getElementById('fileInput').files[0];
+            const info = document.getElementById('photoInfo').value;
+            const status = document.getElementById('status');
+
+            if (!token || !fileInput) return alert("토큰과 파일을 확인해주세요!");
+            status.innerText = "업로드 중... (잠시만 기다려주세요)";
+
+            try {
+                // 1. 이미지를 Base64로 변환
+                const reader = new FileReader();
+                reader.readAsDataURL(fileInput);
+                reader.onload = async () => {
+                    const content = reader.result.split(',')[1];
+                    const fileName = fileInput.name;
+                    const repo = "Helios0513/Photo Archive.github.io"; // <--- 수정 필요!
+
+                    // 2. 이미지 저장소(images/digital/)에 업로드
+                    await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
+                        method: "PUT",
+                        headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: "사진 업로드", content: content })
+                    });
+
+                    // 3. photos.json 장부 업데이트
+                    const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
+                        headers: { "Authorization": `token ${token}` }
+                    });
+                    const fileData = await res.json();
+                    const currentPhotos = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+                    
+                    currentPhotos.push({ filename: fileName, info: info });
+                    
+                    await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
+                        method: "PUT",
+                        headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            message: "장부 업데이트",
+                            content: btoa(unescape(encodeURIComponent(JSON.stringify(currentPhotos, null, 2)))),
+                            sha: fileData.sha
+                        })
+                    });
+
+                    status.innerText = "✅ 업로드 성공! 1~2분 뒤 사이트에 반영됩니다.";
+                };
+            } catch (e) {
+                status.innerText = "❌ 실패: " + e.message;
+            }
+        }
+    </script>
+</body>
+</html>
