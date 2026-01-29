@@ -38,7 +38,7 @@
                 reader.onload = async () => {
                     const content = reader.result.split(',')[1];
                     const fileName = fileInput.name;
-                    const repo = "Helios0513/Photo Archive.github.io"; // <--- 수정 필요!
+                    const repo = "Helios0513/Photo_Archive.github.io"; // <--- 수정 필요!
 
                     // 2. 이미지 저장소(images/digital/)에 업로드
                     await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
