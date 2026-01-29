@@ -6,7 +6,6 @@
     <title>digital photos</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* 하단 푸터 스타일링 */
         footer {
             margin-top: 80px;
             padding: 40px 20px;
@@ -14,21 +13,26 @@
             border-top: 1px solid #eee;
             clear: both;
         }
+        /* 프로필 링크 스타일: 링크처럼 보이지 않게 처리 */
+        .profile-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            cursor: default; /* 마우스 커서가 손가락으로 변하지 않게 하여 비밀 유지 */
+        }
         .admin-link {
-            color: #f9f9f9; /* 배경색과 거의 비슷하게 설정하여 평소엔 안 보이게 함 */
+            color: #f9f9f9;
             text-decoration: none;
             font-size: 0.7rem;
-            cursor: default;
-        }
-        .admin-link:hover {
-            color: #ddd; /* 마우스를 올렸을 때만 살짝 보임 */
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="profile">
-            <img src="images/KakaoTalk_20240406_232152395.jpg" alt="프로필 사진" class="profile-img">
+            <a href="upload.html" class="profile-link">
+                <img src="images/KakaoTalk_20240406_232152395.jpg" alt="프로필 사진" class="profile-img">
+            </a>
             <h2>Hamihamoo</h2>
             <p>Amateur Photographer</p>
             <nav>
@@ -41,8 +45,7 @@
 
         <div class="main-content">
             <h1>digital photos</h1>
-            <div id="photo-list">
-                </div>
+            <div id="photo-list"></div>
 
             <footer>
                 <p style="color: #999; font-size: 0.85rem; margin-bottom: 10px;">&copy; 2024 Hamihamoo. All rights reserved.</p>
@@ -52,7 +55,6 @@
     </div>
 
     <script>
-        // 장부(photos.json)를 읽어서 화면에 그려주는 로봇 코드
         fetch('photos.json')
             .then(response => {
                 if (!response.ok) throw new Error('장부를 찾을 수 없습니다.');
@@ -60,7 +62,6 @@
             })
             .then(data => {
                 const container = document.getElementById('photo-list');
-                // 최신 사진이 위로 오게 순서를 뒤집음 (복사본을 만들어 뒤집는 것이 안전함)
                 [...data].reverse().forEach(photo => {
                     const div = document.createElement('div');
                     div.className = 'photo-container';
