@@ -103,19 +103,27 @@
             reader.readAsDataURL(file);
         });
 
-        // [함수 3] 사진 목록 불러오기 (여기가 아까 에러 났던 부분!)
+        // [함수 3] 사진 목록 불러오기 (에러 수정됨)
         async function loadPhotoList() {
             const token = document.getElementById('token').value;
             if (!token) return alert("토큰을 입력해주세요!");
             const listDiv = document.getElementById('photoList');
             listDiv.innerHTML = "<p style='text-align:center;'>로딩 중...</p>";
+            
             try {
+                // Cache-Control 헤더를 제거하여 CORS 에러 방지
                 const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
-                    headers: { "Authorization": `token ${token}`, "Cache-Control": "no-cache" } 
+                    headers: { "Authorization": `token ${token}` } 
                 });
+                
+                if (!res.ok) throw new Error("데이터를 가져오지 못했습니다.");
+                
                 const data = await res.json();
+                // 깃허브 API 응답은 Base64이므로 디코딩 처리
                 window.allPhotos = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+                
                 listDiv.innerHTML = "";
+                // 최신순으로 보여주기 위해 뒤집어서 렌더링
                 window.allPhotos.slice().reverse().forEach((p, index) => {
                     const realIndex = window.allPhotos.length - 1 - index;
                     const item = document.createElement('div');
@@ -133,12 +141,16 @@
                     `;
                     listDiv.appendChild(item);
                 });
-            } catch (e) { listDiv.innerHTML = "❌ 목록 로드 실패: " + e.message; }
+            } catch (e) { 
+                listDiv.innerHTML = "❌ 목록 로드 실패: " + e.message; 
+            }
         }
 
-        // [함수 4] 수정 및 삭제 로직
+        // [함수 4] 공통 저장 로직
         async function saveJson(token, msg, data) {
-            const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { headers: { "Authorization": `token ${token}` } });
+            const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
+                headers: { "Authorization": `token ${token}` } 
+            });
             const fileData = await res.json();
             await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
                 method: "PUT",
@@ -167,26 +179,28 @@
             window.allPhotos.splice(index, 1);
             await saveJson(token, `Delete ${fileName}`, window.allPhotos);
             try {
-                const fileRes = await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, { headers: { "Authorization": `token ${token}` } });
+                const fileRes = await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, { 
+                    headers: { "Authorization": `token ${token}` } 
+                });
                 const fileData = await fileRes.json();
                 await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
                     method: "DELETE",
                     headers: { "Authorization": `token ${token}` },
                     body: JSON.stringify({ message: `Delete ${fileName}`, sha: fileData.sha })
                 });
-            } catch(e) { console.log("파일 삭제 생략"); }
+            } catch(e) { console.log("이미지 파일 삭제 실패 또는 이미 없음"); }
             alert("삭제 완료!");
             loadPhotoList();
         }
 
-        // [함수 5] 업로드 메인 로직
+        // [함수 5] 업로드 핸들러
         async function handleUpload() {
             const token = document.getElementById('token').value;
             const fileInput = document.getElementById('fileInput').files[0];
             const info = document.getElementById('photoInfo').value;
             const status = document.getElementById('status');
             if (!token || !fileInput) return alert("토큰과 사진을 선택해주세요!");
-            status.innerText = "⏳ 최적화 및 업로드 중...";
+            status.innerText = "⏳ 사진 최적화 중...";
             try {
                 const optimizedBlob = await new Promise(resolve => {
                     const reader = new FileReader();
@@ -207,17 +221,25 @@
                 const reader = new FileReader();
                 reader.readAsDataURL(optimizedBlob);
                 reader.onload = async () => {
+                    status.innerText = "📤 깃허브에 전송 중...";
                     const content = reader.result.split(',')[1];
                     const fileName = fileInput.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                    
+                    // 1. 이미지 업로드
                     await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
                         method: "PUT",
                         headers: { "Authorization": `token ${token}` },
                         body: JSON.stringify({ message: `Upload: ${fileName}`, content: content })
                     });
-                    const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { headers: { "Authorization": `token ${token}` } });
+                    
+                    // 2. 장부 업데이트
+                    const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
+                        headers: { "Authorization": `token ${token}` } 
+                    });
                     const fileData = await res.json();
                     const photos = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
                     photos.push({ filename: fileName, info: info, color: detectedColor });
+                    
                     await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
                         method: "PUT",
                         headers: { "Authorization": `token ${token}` },
@@ -227,7 +249,7 @@
                             sha: fileData.sha
                         })
                     });
-                    status.innerText = "✅ 업로드 성공!";
+                    status.innerText = "✅ 성공! 1분 뒤 반영됩니다.";
                     loadPhotoList();
                 };
             } catch (e) { status.innerText = "❌ 실패: " + e.message; }
