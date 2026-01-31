@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>사진 통합 관리 시스템 (날짜 자동 기록)</title>
+    <title>사진 통합 관리 시스템 (과거 날짜 수정 기능)</title>
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     <link rel="stylesheet" href="styles.css">
     <style>
@@ -13,6 +13,8 @@
         button:hover { background-color: #555; }
         #status { color: blue; font-weight: bold; text-align: center; margin-top: 10px; white-space: pre-wrap; }
         .info-msg { font-size: 0.8rem; color: #666; margin-bottom: 15px; text-align: center; }
+        
+        /* 관리 섹션 스타일 */
         .manage-section { max-width: 600px; margin: 50px auto; font-family: sans-serif; }
         .photo-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; gap: 15px; background: #fff; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
         .photo-item img { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; background: #f9f9f9; }
@@ -44,7 +46,7 @@
     </div>
 
     <div class="manage-section">
-        <h2>📂 기존 사진 관리</h2>
+        <h2>📂 기존 사진 관리 (날짜 수정)</h2>
         <button class="refresh-btn" onclick="loadPhotoList()">🔄 목록 불러오기 / 새로고침</button>
         <div id="photoList">
             <p style="text-align: center; color: #999;">토큰 입력 후 [목록 불러오기]를 눌러주세요.</p>
@@ -54,7 +56,7 @@
     <script>
         const repo = "Helios0513/Photo_Archive.github.io";
 
-        // 파일 선택 시 EXIF 정보 및 날짜 추출
+        // [1] EXIF 데이터 추출 로직
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -62,7 +64,6 @@
             status.innerText = "🔍 촬영 날짜 및 정보 분석 중...";
             
             EXIF.getData(file, function() {
-                // 1. 촬영 정보 추출
                 const model = EXIF.getTag(this, "Model") || "Unknown Camera";
                 const fl = EXIF.getTag(this, "FocalLength");
                 const fn = EXIF.getTag(this, "FNumber");
@@ -74,24 +75,20 @@
                 
                 document.getElementById('photoInfo').value = `${model} ${focal} ${fVal}, ${shutter}s iso ${iso}`;
 
-                // 2. 촬영 날짜 추출 (DateTimeOriginal)
                 const exifDate = EXIF.getTag(this, "DateTimeOriginal");
                 const dateInput = document.getElementById('photoDate');
                 
                 if (exifDate) {
-                    // EXIF 날짜 형식 "YYYY:MM:DD HH:MM:SS"을 "YYYY-MM-DD"로 변환
                     const parts = exifDate.split(" ")[0].split(":");
                     dateInput.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
                 } else {
-                    // 날짜 정보가 없으면 오늘 날짜를 기본값으로 설정
                     dateInput.value = new Date().toISOString().substring(0, 10);
                 }
-                
                 status.innerText = "✅ 정보 분석 완료 (날짜를 확인해 주세요)";
             });
         });
 
-        // 목록 불러오기 (날짜 정보 표시 포함)
+        // [2] 사진 목록 로드 및 렌더링
         async function loadPhotoList() {
             const token = document.getElementById('token').value;
             if (!token) return alert("토큰을 입력해주세요!");
@@ -104,6 +101,7 @@
                 });
                 if (!res.ok) throw new Error("장부를 불러오지 못했습니다.");
                 const data = await res.json();
+                // 깃허브 API의 base64 디코딩 처리
                 window.allPhotos = JSON.parse(decodeURIComponent(escape(atob(data.content))));
                 renderList();
             } catch (e) { listDiv.innerHTML = "❌ 로드 실패: " + e.message; }
@@ -112,6 +110,7 @@
         function renderList() {
             const listDiv = document.getElementById('photoList');
             listDiv.innerHTML = "";
+            // 최신 사진이 위로 오게 역순 출력
             window.allPhotos.slice().reverse().forEach((p, index) => {
                 const realIndex = window.allPhotos.length - 1 - index;
                 const item = document.createElement('div');
@@ -119,12 +118,13 @@
                 item.innerHTML = `
                     <img src="images/digital/${p.filename}" alt="">
                     <div class="photo-info-edit">
+                        <label style="font-size:0.7rem; color:#888;">날짜 수정:</label>
                         <input type="date" id="edit-date-${realIndex}" value="${p.date || ''}">
                         <input type="text" id="edit-info-${realIndex}" value="${p.info}">
-                        <small>${p.filename}</small>
+                        <small style="color:#bbb;">${p.filename}</small>
                     </div>
                     <div class="btn-group">
-                        <button class="edit-btn" onclick="updateInfo(${realIndex})">수정</button>
+                        <button class="edit-btn" onclick="updateInfo(${realIndex})">저장</button>
                         <button class="delete-btn" onclick="deletePhoto(${realIndex}, '${p.filename}')">삭제</button>
                     </div>
                 `;
@@ -132,10 +132,14 @@
             });
         }
 
+        // [3] 공통 JSON 저장 로직 (SHA 자동 갱신)
         async function saveJson(token, msg, data) {
-            const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { headers: { "Authorization": `token ${token}` } });
+            const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
+                headers: { "Authorization": `token ${token}` } 
+            });
             const fileData = await res.json();
-            await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
+            
+            const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
                 method: "PUT",
                 headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -144,49 +148,67 @@
                     sha: fileData.sha
                 })
             });
+            if (!putRes.ok) throw new Error("JSON 저장 실패");
         }
 
+        // [4] 개별 정보 수정 저장 (날짜 포함)
         async function updateInfo(index) {
             const token = document.getElementById('token').value;
             const newInfo = document.getElementById(`edit-info-${index}`).value;
             const newDate = document.getElementById(`edit-date-${index}`).value;
-            if(!confirm("정보를 수정하시겠습니까?")) return;
             
+            if(!confirm("해당 사진의 날짜와 정보를 수정하시겠습니까?")) return;
+            
+            // 기존 데이터 업데이트
             window.allPhotos[index].info = newInfo;
-            window.allPhotos[index].date = newDate; // 수정된 날짜 저장
+            window.allPhotos[index].date = newDate;
             
-            await saveJson(token, "Update photo info and date", window.allPhotos);
-            alert("수정되었습니다.");
-            loadPhotoList();
+            try {
+                await saveJson(token, `Update info/date for ${window.allPhotos[index].filename}`, window.allPhotos);
+                alert("성공적으로 수정되었습니다.");
+                loadPhotoList();
+            } catch(e) { alert("수정 실패: " + e.message); }
         }
 
+        // [5] 사진 삭제 로직
         async function deletePhoto(index, fileName) {
             const token = document.getElementById('token').value;
             if(!confirm("정말 이 사진을 삭제하시겠습니까?")) return;
+            
+            const targetPhoto = window.allPhotos[index];
             window.allPhotos.splice(index, 1);
-            await saveJson(token, `Delete ${fileName}`, window.allPhotos);
+            
             try {
-                const fileRes = await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, { headers: { "Authorization": `token ${token}` } });
-                const fileData = await fileRes.json();
-                await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
-                    method: "DELETE",
-                    headers: { "Authorization": `token ${token}` },
-                    body: JSON.stringify({ message: `Delete file: ${fileName}`, sha: fileData.sha })
+                // 1. JSON 업데이트
+                await saveJson(token, `Delete ${fileName} from photos.json`, window.allPhotos);
+                
+                // 2. 실제 이미지 파일 삭제
+                const fileRes = await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, { 
+                    headers: { "Authorization": `token ${token}` } 
                 });
-            } catch(e) { }
-            alert("삭제가 완료되었습니다.");
-            loadPhotoList();
+                if (fileRes.ok) {
+                    const fileData = await fileRes.json();
+                    await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
+                        method: "DELETE",
+                        headers: { "Authorization": `token ${token}` },
+                        body: JSON.stringify({ message: `Delete file: ${fileName}`, sha: fileData.sha })
+                    });
+                }
+                alert("삭제가 완료되었습니다.");
+                loadPhotoList();
+            } catch(e) { alert("삭제 처리 중 오류: " + e.message); }
         }
 
+        // [6] 신규 사진 업로드 로직
         async function handleUpload() {
             const token = document.getElementById('token').value;
             const fileInput = document.getElementById('fileInput').files[0];
             const info = document.getElementById('photoInfo').value;
-            const date = document.getElementById('photoDate').value; // 선택된 날짜 가져오기
+            const date = document.getElementById('photoDate').value;
             const status = document.getElementById('status');
             
-            if (!token || !fileInput) return alert("토큰 입력과 파일 선택을 확인해주세요!");
-            if (!date) return alert("날짜를 선택해주세요!");
+            if (!token || !fileInput) return alert("토큰과 파일을 확인해주세요!");
+            if (!date) return alert("촬영 날짜를 입력해주세요!");
             
             status.innerText = "⏳ 이미지 최적화 중...";
             try {
@@ -211,37 +233,28 @@
                 reader.readAsDataURL(optimizedBlob);
                 reader.onload = async () => {
                     const content = reader.result.split(',')[1];
-                    const fileName = fileInput.name.replace(/\.[^/.]+$/, "") + ".jpg";
-                    status.innerText = "📤 깃허브 서버로 업로드 중...";
+                    const fileName = fileInput.name.replace(/\.[^/.]+$/, "") + "_" + Date.now() + ".jpg";
                     
-                    // 이미지 파일 업로드
+                    status.innerText = "📤 깃허브로 전송 중...";
+                    
+                    // 1. 이미지 업로드
                     await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
                         method: "PUT",
                         headers: { "Authorization": `token ${token}` },
                         body: JSON.stringify({ message: `Upload: ${fileName}`, content: content })
                     });
                     
-                    // 장부(photos.json) 업데이트
-                    const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { headers: { "Authorization": `token ${token}` } });
+                    // 2. JSON에 데이터 추가 (날짜 포함)
+                    const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
+                        headers: { "Authorization": `token ${token}` } 
+                    });
                     const fileData = await res.json();
                     const photos = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
                     
-                    // 신규 항목 추가 (날짜 포함)
-                    photos.push({ 
-                        filename: fileName, 
-                        info: info, 
-                        date: date 
-                    });
+                    photos.push({ filename: fileName, info: info, date: date });
                     
-                    await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
-                        method: "PUT",
-                        headers: { "Authorization": `token ${token}` },
-                        body: JSON.stringify({
-                            message: `Add ${fileName} with date ${date}`,
-                            content: btoa(unescape(encodeURIComponent(JSON.stringify(photos, null, 2)))),
-                            sha: fileData.sha
-                        })
-                    });
+                    await saveJson(token, `Add ${fileName} (${date})`, photos);
+                    
                     status.innerText = "✅ 업로드 성공!";
                     loadPhotoList();
                 };
