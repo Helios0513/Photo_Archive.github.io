@@ -23,6 +23,9 @@
         .edit-btn { background-color: #28a745; }
         .delete-btn { background-color: #dc3545; }
         .refresh-btn { background-color: #007bff; margin-bottom: 20px; }
+        /* 자동 분석 버튼 전용 색상 */
+        .auto-btn { background-color: #6f42c1; margin-bottom: 20px; margin-left: 5px; }
+        .auto-btn:hover { background-color: #59359a; }
     </style>
 </head>
 <body>
@@ -39,9 +42,12 @@
 
     <div class="manage-section">
         <h2>📂 기존 사진 관리</h2>
-        <button class="refresh-btn" onclick="loadPhotoList()">🔄 목록 불러오기 / 새로고침</button>
+        <div style="display: flex;">
+            <button class="refresh-btn" onclick="loadPhotoList()">🔄 목록 불러오기</button>
+            <button class="refresh-btn auto-btn" onclick="autoAnalyzeExistingPhotos()">⚡ 기존 사진 색상 자동 분석</button>
+        </div>
         <div id="photoList">
-            <p style="text-align: center; color: #999;">토큰 입력 후 위 버튼을 눌러주세요.</p>
+            <p style="text-align: center; color: #999;">토큰 입력 후 [목록 불러오기]를 눌러주세요.</p>
         </div>
     </div>
 
@@ -49,7 +55,7 @@
         let detectedColor = "None";
         const repo = "Helios0513/Photo_Archive.github.io";
 
-        // [함수 1] 색상 분석
+        // [함수 1] 색상 분석 로직
         function analyzeColor(img) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -103,54 +109,93 @@
             reader.readAsDataURL(file);
         });
 
-        // [함수 3] 사진 목록 불러오기 (에러 수정됨)
+        // [함수 3] 사진 목록 불러오기
         async function loadPhotoList() {
             const token = document.getElementById('token').value;
             if (!token) return alert("토큰을 입력해주세요!");
             const listDiv = document.getElementById('photoList');
             listDiv.innerHTML = "<p style='text-align:center;'>로딩 중...</p>";
-            
             try {
-                // Cache-Control 헤더를 제거하여 CORS 에러 방지
                 const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
                     headers: { "Authorization": `token ${token}` } 
                 });
-                
-                if (!res.ok) throw new Error("데이터를 가져오지 못했습니다.");
-                
+                if (!res.ok) throw new Error("데이터 로드 실패");
                 const data = await res.json();
-                // 깃허브 API 응답은 Base64이므로 디코딩 처리
                 window.allPhotos = JSON.parse(decodeURIComponent(escape(atob(data.content))));
-                
-                listDiv.innerHTML = "";
-                // 최신순으로 보여주기 위해 뒤집어서 렌더링
-                window.allPhotos.slice().reverse().forEach((p, index) => {
-                    const realIndex = window.allPhotos.length - 1 - index;
-                    const item = document.createElement('div');
-                    item.className = 'photo-item';
-                    item.innerHTML = `
-                        <img src="images/digital/${p.filename}" onerror="this.src='https://via.placeholder.com/80x60'">
-                        <div class="photo-info-edit">
-                            <input type="text" id="edit-info-${realIndex}" value="${p.info}">
-                            <small>${p.filename} | <b>${p.color || 'None'}</b></small>
-                        </div>
-                        <div class="btn-group">
-                            <button class="edit-btn" onclick="updateInfo(${realIndex})">수정</button>
-                            <button class="delete-btn" onclick="deletePhoto(${realIndex}, '${p.filename}')">삭제</button>
-                        </div>
-                    `;
-                    listDiv.appendChild(item);
-                });
-            } catch (e) { 
-                listDiv.innerHTML = "❌ 목록 로드 실패: " + e.message; 
+                renderList();
+            } catch (e) { listDiv.innerHTML = "❌ 목록 로드 실패: " + e.message; }
+        }
+
+        // 목록 렌더링 함수 분리
+        function renderList() {
+            const listDiv = document.getElementById('photoList');
+            listDiv.innerHTML = "";
+            window.allPhotos.slice().reverse().forEach((p, index) => {
+                const realIndex = window.allPhotos.length - 1 - index;
+                const item = document.createElement('div');
+                item.className = 'photo-item';
+                item.innerHTML = `
+                    <img src="images/digital/${p.filename}" onerror="this.src='https://via.placeholder.com/80x60'">
+                    <div class="photo-info-edit">
+                        <input type="text" id="edit-info-${realIndex}" value="${p.info}">
+                        <small>${p.filename} | <b>${p.color || '<span style="color:red">색상 없음</span>'}</b></small>
+                    </div>
+                    <div class="btn-group">
+                        <button class="edit-btn" onclick="updateInfo(${realIndex})">수정</button>
+                        <button class="delete-btn" onclick="deletePhoto(${realIndex}, '${p.filename}')">삭제</button>
+                    </div>
+                `;
+                listDiv.appendChild(item);
+            });
+        }
+
+        // [신규 기능] 기존 사진 자동 분석
+        async function autoAnalyzeExistingPhotos() {
+            const token = document.getElementById('token').value;
+            if (!token) return alert("토큰을 입력해주세요!");
+            if (!window.allPhotos) return alert("먼저 [목록 불러오기]를 눌러주세요!");
+
+            const status = document.getElementById('status');
+            let updatedCount = 0;
+            status.innerText = "⏳ 기존 사진 색상 분석을 시작합니다 (브라우저 성능에 따라 수십 초 소요)...";
+
+            for (let photo of window.allPhotos) {
+                // 색상이 없거나 None인 것만 분석
+                if (!photo.color || photo.color === "None") {
+                    try {
+                        status.innerText = `🔍 분석 중: ${photo.filename}`;
+                        const img = new Image();
+                        img.crossOrigin = "Anonymous"; // 깃허브 페이지 설정에 따라 필요할 수 있음
+                        img.src = `https://helios0513.github.io/Photo_Archive.github.io/images/digital/${photo.filename}`;
+                        
+                        await new Promise((resolve) => {
+                            img.onload = () => {
+                                photo.color = analyzeColor(img);
+                                updatedCount++;
+                                resolve();
+                            };
+                            img.onerror = () => {
+                                console.log(photo.filename + " 분석 건너뜀 (이미지 로드 실패)");
+                                resolve();
+                            };
+                        });
+                    } catch (e) { console.error(e); }
+                }
+            }
+
+            if (updatedCount > 0) {
+                status.innerText = `💾 ${updatedCount}개 분석 완료! 장부 업데이트 중...`;
+                await saveJson(token, `Batch analyze ${updatedCount} colors`, window.allPhotos);
+                status.innerText = `✅ 총 ${updatedCount}개의 사진 색상을 저장했습니다!`;
+                renderList();
+            } else {
+                status.innerText = "✅ 모든 사진에 이미 색상 정보가 있습니다.";
             }
         }
 
-        // [함수 4] 공통 저장 로직
+        // [함수 4] 저장/수정/삭제 로직
         async function saveJson(token, msg, data) {
-            const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
-                headers: { "Authorization": `token ${token}` } 
-            });
+            const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { headers: { "Authorization": `token ${token}` } });
             const fileData = await res.json();
             await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
                 method: "PUT",
@@ -175,25 +220,23 @@
 
         async function deletePhoto(index, fileName) {
             const token = document.getElementById('token').value;
-            if(!confirm("정말 삭제하시겠습니까? 이미지 파일도 삭제됩니다.")) return;
+            if(!confirm("정말 삭제하시겠습니까?")) return;
             window.allPhotos.splice(index, 1);
             await saveJson(token, `Delete ${fileName}`, window.allPhotos);
             try {
-                const fileRes = await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, { 
-                    headers: { "Authorization": `token ${token}` } 
-                });
+                const fileRes = await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, { headers: { "Authorization": `token ${token}` } });
                 const fileData = await fileRes.json();
                 await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
                     method: "DELETE",
                     headers: { "Authorization": `token ${token}` },
                     body: JSON.stringify({ message: `Delete ${fileName}`, sha: fileData.sha })
                 });
-            } catch(e) { console.log("이미지 파일 삭제 실패 또는 이미 없음"); }
+            } catch(e) { }
             alert("삭제 완료!");
             loadPhotoList();
         }
 
-        // [함수 5] 업로드 핸들러
+        // [함수 5] 업로드 메인 로직
         async function handleUpload() {
             const token = document.getElementById('token').value;
             const fileInput = document.getElementById('fileInput').files[0];
@@ -221,25 +264,17 @@
                 const reader = new FileReader();
                 reader.readAsDataURL(optimizedBlob);
                 reader.onload = async () => {
-                    status.innerText = "📤 깃허브에 전송 중...";
                     const content = reader.result.split(',')[1];
                     const fileName = fileInput.name.replace(/\.[^/.]+$/, "") + ".jpg";
-                    
-                    // 1. 이미지 업로드
                     await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
                         method: "PUT",
                         headers: { "Authorization": `token ${token}` },
                         body: JSON.stringify({ message: `Upload: ${fileName}`, content: content })
                     });
-                    
-                    // 2. 장부 업데이트
-                    const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
-                        headers: { "Authorization": `token ${token}` } 
-                    });
+                    const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { headers: { "Authorization": `token ${token}` } });
                     const fileData = await res.json();
                     const photos = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
                     photos.push({ filename: fileName, info: info, color: detectedColor });
-                    
                     await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
                         method: "PUT",
                         headers: { "Authorization": `token ${token}` },
