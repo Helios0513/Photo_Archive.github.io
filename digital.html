@@ -25,16 +25,17 @@
             font-size: 0.7rem;
         }
 
-        /* ✨ 날짜 그룹 헤더 스타일 */
+        /* ✨ 날짜 그룹 헤더 스타일 (여백 보정 완료) */
         .date-header {
             width: 100%;
-            padding: 30px 10px 10px 0;
+            padding: 40px 20px 10px 20px; /* 상 40px, 좌우 20px 여백으로 가독성 확보 */
             margin-top: 20px;
             border-bottom: 2px solid #333;
             font-size: 1.1rem;
             font-weight: bold;
             color: #333;
             clear: both;
+            box-sizing: border-box; /* 패딩이 너비를 넘지 않도록 설정 */
         }
 
         /* ✨ 스마트 날짜 내비게이션 (오른쪽 플로팅) */
@@ -112,6 +113,7 @@
         @media (max-width: 600px) {
             #date-nav { right: 5px; padding: 10px 5px; }
             .nav-item { font-size: 0.6rem; }
+            .date-header { padding: 35px 15px 10px 15px; } /* 모바일은 여백 살짝 조절 */
         }
     </style>
 </head>
@@ -174,18 +176,15 @@
 
                     // 2. 날짜가 바뀌면 헤더 추가 및 네비게이션 아이템 추가
                     if (currentDate !== lastDate) {
-                        // 날짜 헤더 생성
                         const header = document.createElement('div');
                         header.className = 'date-header';
-                        header.id = "date-" + currentDate; // 이동용 ID
+                        header.id = "date-" + currentDate;
                         header.innerText = currentDate;
                         container.appendChild(header);
 
-                        // 내비게이션 아이템 생성 (사진이 있는 날짜만)
                         if (currentDate !== "날짜 미상") {
                             const navItem = document.createElement('a');
                             navItem.className = 'nav-item';
-                            // "2024-05-13" -> "05.13" 짧게 표시
                             navItem.innerText = currentDate.substring(5).replace('-', '.');
                             navItem.onclick = () => {
                                 document.getElementById("date-" + currentDate).scrollIntoView({ behavior: 'smooth' });
@@ -214,7 +213,6 @@
                 document.getElementById('photo-list').innerHTML = "<p style='text-align:center; color:#999;'>사진을 불러오는 중 오류가 발생했습니다.</p>";
             });
 
-        // ✨ Lightbox 제어 함수
         function openLightbox(src) {
             const lightbox = document.getElementById('lightbox');
             const lightboxImg = document.getElementById('lightbox-img');
