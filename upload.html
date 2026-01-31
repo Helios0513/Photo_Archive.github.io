@@ -2,68 +2,125 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>사진 업로드 관리자 (EXIF 자동 추출)</title>
+    <title>사진 통합 관리 시스템 (업로드/수정/삭제)</title>
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     <link rel="stylesheet" href="styles.css">
     <style>
-        .upload-box { max-width: 500px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; font-family: sans-serif; }
+        .upload-box { max-width: 600px; margin: 30px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; font-family: sans-serif; background: white; }
         input, button, textarea { width: 100%; margin-bottom: 10px; padding: 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
         button { background-color: #333; color: white; cursor: pointer; border: none; font-weight: bold; }
+        button:hover { background-color: #555; }
         #status { color: blue; font-weight: bold; text-align: center; margin-top: 10px; white-space: pre-wrap; }
         .info-msg { font-size: 0.8rem; color: #666; margin-bottom: 10px; text-align: center; }
+        
+        /* 색상 미리보기 */
+        .color-preview { height: 25px; border-radius: 5px; margin-bottom: 10px; display: none; text-align: center; color: white; font-size: 0.85rem; line-height: 25px; font-weight: bold; }
+
+        /* 관리 목록 스타일 */
+        .manage-section { max-width: 600px; margin: 50px auto; font-family: sans-serif; }
+        .photo-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; gap: 15px; background: #fff; border-radius: 8px; margin-bottom: 10px; }
+        .photo-item img { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; }
+        .photo-info-edit { flex-grow: 1; }
+        .photo-info-edit input { margin-bottom: 5px; padding: 8px; font-size: 0.85rem; }
+        .btn-group { display: flex; gap: 5px; }
+        .btn-group button { width: 50px; padding: 5px; font-size: 0.75rem; margin-bottom: 0; }
+        .edit-btn { background-color: #28a745; }
+        .delete-btn { background-color: #dc3545; }
+        .refresh-btn { background-color: #007bff; margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <div class="upload-box">
         <h2>📷 새 사진 올리기</h2>
-        <p class="info-msg">사진을 선택하면 카메라 정보가 자동으로 추출됩니다.</p>
+        <p class="info-msg">사진을 선택하면 EXIF 정보와 테마 색상을 자동으로 추출합니다.</p>
         <input type="password" id="token" placeholder="깃허브 토큰 입력">
         <input type="file" id="fileInput" accept="image/*">
+        
+        <div id="colorPreview" class="color-preview"></div>
+        
         <textarea id="photoInfo" rows="3" placeholder="사진을 선택하면 정보가 자동으로 입력됩니다."></textarea>
         <button onclick="handleUpload()">업로드 시작</button>
         <div id="status"></div>
     </div>
 
+    <div class="manage-section">
+        <h2>📂 기존 사진 관리</h2>
+        <button class="refresh-btn" onclick="loadPhotoList()">🔄 목록 불러오기 / 새로고침</button>
+        <div id="photoList">
+            <p style="text-align: center; color: #999;">토큰 입력 후 위 버튼을 눌러주세요.</p>
+        </div>
+    </div>
+
     <script>
-        // 파일 선택 시 EXIF 정보를 읽어와서 텍스트박스에 채워주는 함수
+        let detectedColor = "None";
+        const repo = "Helios0513/Photo_Archive.github.io";
+
+        // 색상 분석 함수
+        function analyzeColor(img) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 50; canvas.height = 50;
+            ctx.drawImage(img, 0, 0, 50, 50);
+            const data = ctx.getImageData(0, 0, 50, 50).data;
+            let r=0, g=0, b=0;
+            for(let i=0; i<data.length; i+=4) { r += data[i]; g += data[i+1]; b += data[i+2]; }
+            r = Math.floor(r/(data.length/4)); g = Math.floor(g/(data.length/4)); b = Math.floor(b/(data.length/4));
+            const hsp = Math.sqrt(0.299*(r*r) + 0.587*(g*g) + 0.114*(b*b));
+            if (hsp > 200) return "White";
+            if (hsp < 50) return "Black";
+            const max = Math.max(r, g, b);
+            if (max - Math.min(r, g, b) < 20) return "Gray";
+            if (max === r) return "Red";
+            if (max === g) return "Green";
+            return "Blue";
+        }
+
+        // 파일 선택 시 처리 (EXIF + Color)
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
             const status = document.getElementById('status');
-            status.innerText = "🔍 메타데이터 읽는 중...";
+            status.innerText = "🔍 정보를 추출하는 중...";
 
-            EXIF.getData(file, function() {
-                const model = EXIF.getTag(this, "Model") || "Unknown Camera";
-                const focalLength = EXIF.getTag(this, "FocalLength");
-                const fNumber = EXIF.getTag(this, "FNumber");
-                const exposureTime = EXIF.getTag(this, "ExposureTime");
-                const iso = EXIF.getTag(this, "ISOSpeedRatings");
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    // 1. 색상 분석
+                    detectedColor = analyzeColor(img);
+                    const cp = document.getElementById('colorPreview');
+                    cp.style.display = 'block';
+                    cp.style.backgroundColor = detectedColor.toLowerCase();
+                    cp.style.color = (detectedColor === "White" || detectedColor === "Gray") ? "black" : "white";
+                    cp.innerText = `분석된 테마 색상: ${detectedColor}`;
 
-                // 화각 처리 (예: 50mm)
-                const focal = focalLength ? Math.round(focalLength) + "mm" : "";
-
-                // 셔터스피드 분수 변환 (예: 0.000625 -> 1/1600)
-                let shutter = exposureTime;
-                if (exposureTime && exposureTime < 1) {
-                    shutter = `1/${Math.round(1/exposureTime)}`;
-                } else if (exposureTime >= 1) {
-                    shutter = Math.round(exposureTime * 10) / 10;
-                }
-
-                // 조리개 값 소수점 정리 (예: f5.6)
-                const fVal = fNumber ? `f${Math.round(fNumber * 10) / 10}` : "";
-
-                // 작가님의 수정 요청 틀: [카메라] [화각] [조리개], [셔터스피드]s iso [ISO]
-                // 결과 예시: NIKON Z 5 50mm f5.6, 1/1600s iso 320
-                const infoText = `${model} ${focal} ${fVal}, ${shutter}s iso ${iso}`;
-                
-                document.getElementById('photoInfo').value = infoText;
-                status.innerText = "✅ 정보 추출 완료!";
-            });
+                    // 2. EXIF 추출
+                    EXIF.getData(file, function() {
+                        const model = EXIF.getTag(this, "Model") || "Unknown Camera";
+                        const focalLength = EXIF.getTag(this, "FocalLength");
+                        const fNumber = EXIF.getTag(this, "FNumber");
+                        const exposureTime = EXIF.getTag(this, "ExposureTime");
+                        const iso = EXIF.getTag(this, "ISOSpeedRatings");
+                        const focal = focalLength ? Math.round(focalLength) + "mm" : "";
+                        let shutter = exposureTime;
+                        if (exposureTime && exposureTime < 1) {
+                            shutter = `1/${Math.round(1/exposureTime)}`;
+                        } else if (exposureTime >= 1) {
+                            shutter = Math.round(exposureTime * 10) / 10;
+                        }
+                        const fVal = fNumber ? `f${Math.round(fNumber * 10) / 10}` : "";
+                        
+                        document.getElementById('photoInfo').value = `${model} ${focal} ${fVal}, ${shutter}s iso ${iso}`;
+                        status.innerText = "✅ 추출 완료!";
+                    });
+                };
+            };
+            reader.readAsDataURL(file);
         });
 
-        // 이미지 리사이징 함수 (기존 유지)
+        // 리사이징 및 업로드
         async function resizeImage(file, maxWidth = 1920) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -105,7 +162,6 @@
                 reader.onload = async () => {
                     const content = reader.result.split(',')[1];
                     const fileName = fileInput.name.replace(/\.[^/.]+$/, "") + ".jpg";
-                    const repo = "Helios0513/Photo_Archive.github.io";
 
                     const imgRes = await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
                         method: "PUT",
@@ -121,25 +177,76 @@
                     const fileData = await res.json();
                     const currentPhotos = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
                     
-                    currentPhotos.push({ filename: fileName, info: info });
+                    // 색상 정보 포함하여 저장
+                    currentPhotos.push({ filename: fileName, info: info, color: detectedColor });
                     
                     await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
                         method: "PUT",
                         headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            message: "Update photos.json",
+                            message: `Add ${fileName} with color ${detectedColor}`,
                             content: btoa(unescape(encodeURIComponent(JSON.stringify(currentPhotos, null, 2)))),
                             sha: fileData.sha
                         })
                     });
 
-                    status.innerText = "✅ 성공! 1분 뒤 반영됩니다.";
+                    status.innerText = "✅ 성공! 목록을 새로고침합니다.";
                     document.getElementById('fileInput').value = "";
+                    loadPhotoList(); 
                 };
-            } catch (e) {
-                status.innerText = "❌ 실패: " + e.message;
-            }
+            } catch (e) { status.innerText = "❌ 실패: " + e.message; }
         }
-    </script>
-</body>
-</html>
+
+        // 목록 관리 기능
+        async function loadPhotoList() {
+            const token = document.getElementById('token').value;
+            if (!token) return alert("토큰을 먼저 입력해주세요.");
+            const listDiv = document.getElementById('photoList');
+            listDiv.innerHTML = "<p style='text-align:center;'>데이터 불러오는 중...</p>";
+
+            try {
+                const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { headers: { "Authorization": `token ${token}` } });
+                const data = await res.json();
+                window.allPhotos = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+                
+                listDiv.innerHTML = "";
+                window.allPhotos.slice().reverse().forEach((p, index) => {
+                    const realIndex = window.allPhotos.length - 1 - index;
+                    const item = document.createElement('div');
+                    item.className = 'photo-item';
+                    item.innerHTML = `
+                        <img src="images/digital/${p.filename}">
+                        <div class="photo-info-edit">
+                            <input type="text" id="edit-info-${realIndex}" value="${p.info}">
+                            <small>${p.filename} | <b>${p.color || 'None'}</b></small>
+                        </div>
+                        <div class="btn-group">
+                            <button class="edit-btn" onclick="updateInfo(${realIndex})">수정</button>
+                            <button class="delete-btn" onclick="deletePhoto(${realIndex}, '${p.filename}')">삭제</button>
+                        </div>
+                    `;
+                    listDiv.appendChild(item);
+                });
+            } catch (e) { listDiv.innerHTML = "❌ 목록 로드 실패: " + e.message; }
+        }
+
+        async function updateInfo(index) {
+            const token = document.getElementById('token').value;
+            const newInfo = document.getElementById(`edit-info-${index}`).value;
+            if(!confirm("수정하시겠습니까?")) return;
+
+            window.allPhotos[index].info = newInfo;
+            await saveJson(token, "Update photo info", window.allPhotos);
+            alert("수정 완료!");
+            loadPhotoList();
+        }
+
+        async function deletePhoto(index, fileName) {
+            const token = document.getElementById('token').value;
+            if(!confirm("정말 삭제하시겠습니까? 이미지 파일도 함께 삭제됩니다.")) return;
+
+            // 1. 장부에서 삭제
+            window.allPhotos.splice(index, 1);
+            await saveJson(token, `Delete ${fileName}`, window.allPhotos);
+
+            // 2. 실제 파일 삭제
