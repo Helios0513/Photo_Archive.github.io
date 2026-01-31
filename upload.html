@@ -16,7 +16,7 @@
 <body>
     <div class="upload-box">
         <h2>📷 새 사진 올리기</h2>
-        <p class="info-msg">사진을 선택하면 EXIF 정보가 자동으로 추출됩니다.</p>
+        <p class="info-msg">사진을 선택하면 카메라 정보가 자동으로 추출됩니다.</p>
         <input type="password" id="token" placeholder="깃허브 토큰 입력">
         <input type="file" id="fileInput" accept="image/*">
         <textarea id="photoInfo" rows="3" placeholder="사진을 선택하면 정보가 자동으로 입력됩니다."></textarea>
@@ -35,19 +35,15 @@
 
             EXIF.getData(file, function() {
                 const model = EXIF.getTag(this, "Model") || "Unknown Camera";
-                let lens = EXIF.getTag(this, "LensModel") || "Unknown Lens";
                 const focalLength = EXIF.getTag(this, "FocalLength");
                 const fNumber = EXIF.getTag(this, "FNumber");
                 const exposureTime = EXIF.getTag(this, "ExposureTime");
                 const iso = EXIF.getTag(this, "ISOSpeedRatings");
 
-                // 렌즈 이름에서 불필요한 따옴표 제거
-                lens = lens.replace(/"/g, "");
-
-                // 화각 처리 (예: 50)
+                // 화각 처리 (예: 50mm)
                 const focal = focalLength ? Math.round(focalLength) + "mm" : "";
 
-                // 셔터스피드 분수 변환 (예: 0.003125 -> 1/320)
+                // 셔터스피드 분수 변환 (예: 0.000625 -> 1/1600)
                 let shutter = exposureTime;
                 if (exposureTime && exposureTime < 1) {
                     shutter = `1/${Math.round(1/exposureTime)}`;
@@ -55,15 +51,15 @@
                     shutter = Math.round(exposureTime * 10) / 10;
                 }
 
-                // 조리개 값 소수점 정리
+                // 조리개 값 소수점 정리 (예: f5.6)
                 const fVal = fNumber ? `f${Math.round(fNumber * 10) / 10}` : "";
 
-                // 작가님의 요청 틀: [카메라] [렌즈명] [화각] [조리개], [셔터스피드]s iso [ISO]
-                // Nikon Z 5 Nikkor Z 50mm f6.3, 1/320s iso 320
-                const infoText = `${model} ${lens} ${focal} ${fVal}, ${shutter}s iso ${iso}`;
+                // 작가님의 수정 요청 틀: [카메라] [화각] [조리개], [셔터스피드]s iso [ISO]
+                // 결과 예시: NIKON Z 5 50mm f5.6, 1/1600s iso 320
+                const infoText = `${model} ${focal} ${fVal}, ${shutter}s iso ${iso}`;
                 
                 document.getElementById('photoInfo').value = infoText;
-                status.innerText = "✅ 메타데이터 추출 완료!";
+                status.innerText = "✅ 정보 추출 완료!";
             });
         });
 
@@ -114,10 +110,10 @@
                     const imgRes = await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
                         method: "PUT",
                         headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: `Upload optimized: ${fileName}`, content: content })
+                        body: JSON.stringify({ message: `Upload: ${fileName}`, content: content })
                     });
 
-                    if (!imgRes.ok) throw new Error("이미지 업로드 실패 (이미 같은 이름의 파일이 있을 수 있습니다)");
+                    if (!imgRes.ok) throw new Error("이미지 업로드 실패");
 
                     const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
                         headers: { "Authorization": `token ${token}` }
