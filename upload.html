@@ -2,16 +2,17 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>사진 통합 관리 시스템 (업로드/수정/삭제)</title>
+    <title>사진 통합 관리 시스템 (날짜 자동 기록)</title>
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     <link rel="stylesheet" href="styles.css">
     <style>
         .upload-box { max-width: 600px; margin: 30px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; font-family: sans-serif; background: white; }
         input, button, textarea { width: 100%; margin-bottom: 10px; padding: 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
+        label { font-size: 0.85rem; color: #555; margin-bottom: 5px; display: block; font-weight: bold; }
         button { background-color: #333; color: white; cursor: pointer; border: none; font-weight: bold; }
         button:hover { background-color: #555; }
         #status { color: blue; font-weight: bold; text-align: center; margin-top: 10px; white-space: pre-wrap; }
-        .info-msg { font-size: 0.8rem; color: #666; margin-bottom: 10px; text-align: center; }
+        .info-msg { font-size: 0.8rem; color: #666; margin-bottom: 15px; text-align: center; }
         .manage-section { max-width: 600px; margin: 50px auto; font-family: sans-serif; }
         .photo-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; gap: 15px; background: #fff; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
         .photo-item img { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; background: #f9f9f9; }
@@ -27,10 +28,17 @@
 <body>
     <div class="upload-box">
         <h2>📷 새 사진 올리기</h2>
-        <p class="info-msg">사진을 선택하면 촬영 정보(EXIF)를 자동으로 추출합니다.</p>
+        <p class="info-msg">사진을 선택하면 촬영 정보와 날짜를 자동으로 가져옵니다.</p>
+        
         <input type="password" id="token" placeholder="깃허브 토큰 입력">
         <input type="file" id="fileInput" accept="image/*">
-        <textarea id="photoInfo" rows="3" placeholder="사진을 선택하면 정보가 자동으로 입력됩니다."></textarea>
+        
+        <label for="photoDate">📅 촬영 날짜 확인/수정</label>
+        <input type="date" id="photoDate">
+        
+        <label for="photoInfo">📝 사진 상세 정보</label>
+        <textarea id="photoInfo" rows="3" placeholder="카메라 정보가 여기에 입력됩니다."></textarea>
+        
         <button onclick="handleUpload()">업로드 시작</button>
         <div id="status"></div>
     </div>
@@ -46,14 +54,15 @@
     <script>
         const repo = "Helios0513/Photo_Archive.github.io";
 
-        // 파일 선택 시 EXIF 정보 추출
+        // 파일 선택 시 EXIF 정보 및 날짜 추출
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
             const status = document.getElementById('status');
-            status.innerText = "🔍 촬영 정보 분석 중...";
+            status.innerText = "🔍 촬영 날짜 및 정보 분석 중...";
             
             EXIF.getData(file, function() {
+                // 1. 촬영 정보 추출
                 const model = EXIF.getTag(this, "Model") || "Unknown Camera";
                 const fl = EXIF.getTag(this, "FocalLength");
                 const fn = EXIF.getTag(this, "FNumber");
@@ -64,11 +73,25 @@
                 const fVal = fn ? `f${Math.round(fn * 10) / 10}` : "";
                 
                 document.getElementById('photoInfo').value = `${model} ${focal} ${fVal}, ${shutter}s iso ${iso}`;
-                status.innerText = "✅ 업로드 준비 완료";
+
+                // 2. 촬영 날짜 추출 (DateTimeOriginal)
+                const exifDate = EXIF.getTag(this, "DateTimeOriginal");
+                const dateInput = document.getElementById('photoDate');
+                
+                if (exifDate) {
+                    // EXIF 날짜 형식 "YYYY:MM:DD HH:MM:SS"을 "YYYY-MM-DD"로 변환
+                    const parts = exifDate.split(" ")[0].split(":");
+                    dateInput.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
+                } else {
+                    // 날짜 정보가 없으면 오늘 날짜를 기본값으로 설정
+                    dateInput.value = new Date().toISOString().substring(0, 10);
+                }
+                
+                status.innerText = "✅ 정보 분석 완료 (날짜를 확인해 주세요)";
             });
         });
 
-        // 목록 불러오기
+        // 목록 불러오기 (날짜 정보 표시 포함)
         async function loadPhotoList() {
             const token = document.getElementById('token').value;
             if (!token) return alert("토큰을 입력해주세요!");
@@ -93,10 +116,10 @@
                 const realIndex = window.allPhotos.length - 1 - index;
                 const item = document.createElement('div');
                 item.className = 'photo-item';
-                // onerror 시 불필요한 외부 요청(placeholder)을 하지 않도록 수정
                 item.innerHTML = `
                     <img src="images/digital/${p.filename}" alt="">
                     <div class="photo-info-edit">
+                        <input type="date" id="edit-date-${realIndex}" value="${p.date || ''}">
                         <input type="text" id="edit-info-${realIndex}" value="${p.info}">
                         <small>${p.filename}</small>
                     </div>
@@ -109,7 +132,6 @@
             });
         }
 
-        // 공통 저장 함수
         async function saveJson(token, msg, data) {
             const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { headers: { "Authorization": `token ${token}` } });
             const fileData = await res.json();
@@ -127,9 +149,13 @@
         async function updateInfo(index) {
             const token = document.getElementById('token').value;
             const newInfo = document.getElementById(`edit-info-${index}`).value;
+            const newDate = document.getElementById(`edit-date-${index}`).value;
             if(!confirm("정보를 수정하시겠습니까?")) return;
+            
             window.allPhotos[index].info = newInfo;
-            await saveJson(token, "Update info", window.allPhotos);
+            window.allPhotos[index].date = newDate; // 수정된 날짜 저장
+            
+            await saveJson(token, "Update photo info and date", window.allPhotos);
             alert("수정되었습니다.");
             loadPhotoList();
         }
@@ -156,8 +182,11 @@
             const token = document.getElementById('token').value;
             const fileInput = document.getElementById('fileInput').files[0];
             const info = document.getElementById('photoInfo').value;
+            const date = document.getElementById('photoDate').value; // 선택된 날짜 가져오기
             const status = document.getElementById('status');
+            
             if (!token || !fileInput) return alert("토큰 입력과 파일 선택을 확인해주세요!");
+            if (!date) return alert("날짜를 선택해주세요!");
             
             status.innerText = "⏳ 이미지 최적화 중...";
             try {
@@ -185,24 +214,30 @@
                     const fileName = fileInput.name.replace(/\.[^/.]+$/, "") + ".jpg";
                     status.innerText = "📤 깃허브 서버로 업로드 중...";
                     
+                    // 이미지 파일 업로드
                     await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
                         method: "PUT",
                         headers: { "Authorization": `token ${token}` },
                         body: JSON.stringify({ message: `Upload: ${fileName}`, content: content })
                     });
                     
+                    // 장부(photos.json) 업데이트
                     const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { headers: { "Authorization": `token ${token}` } });
                     const fileData = await res.json();
                     const photos = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
                     
-                    // color 정보를 아예 추가하지 않음
-                    photos.push({ filename: fileName, info: info });
+                    // 신규 항목 추가 (날짜 포함)
+                    photos.push({ 
+                        filename: fileName, 
+                        info: info, 
+                        date: date 
+                    });
                     
                     await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
                         method: "PUT",
                         headers: { "Authorization": `token ${token}` },
                         body: JSON.stringify({
-                            message: `Add ${fileName} to list`,
+                            message: `Add ${fileName} with date ${date}`,
                             content: btoa(unescape(encodeURIComponent(JSON.stringify(photos, null, 2)))),
                             sha: fileData.sha
                         })
