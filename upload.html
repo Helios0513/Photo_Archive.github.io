@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>사진 통합 관리 시스템 (일괄 날짜 수정)</title>
+    <title>사진 통합 관리 시스템 (과거 날짜 수정 기능)</title>
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     <link rel="stylesheet" href="styles.css">
     <style>
@@ -14,50 +14,40 @@
         #status { color: blue; font-weight: bold; text-align: center; margin-top: 10px; white-space: pre-wrap; }
         .info-msg { font-size: 0.8rem; color: #666; margin-bottom: 15px; text-align: center; }
         
+        /* 관리 섹션 스타일 */
         .manage-section { max-width: 600px; margin: 50px auto; font-family: sans-serif; }
-        
-        /* 일괄 저장 바 스타일 */
-        .batch-action-bar {
-            position: sticky; top: 10px; z-index: 100;
-            background: #f0f7ff; padding: 15px; border: 2px solid #007bff; 
-            border-radius: 10px; margin-bottom: 20px; display: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .batch-btn { background-color: #007bff; margin: 0; }
-
         .photo-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; gap: 15px; background: #fff; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
         .photo-item img { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; background: #f9f9f9; }
         .photo-info-edit { flex-grow: 1; }
         .photo-info-edit input { margin-bottom: 5px; padding: 8px; font-size: 0.85rem; width: 100%; }
         .btn-group { display: flex; gap: 5px; }
         .btn-group button { width: auto; padding: 6px 12px; font-size: 0.75rem; margin-bottom: 0; }
+        .edit-btn { background-color: #28a745; }
         .delete-btn { background-color: #dc3545; }
-        .refresh-btn { background-color: #6c757d; margin-bottom: 10px; width: 100%; }
+        .refresh-btn { background-color: #007bff; margin-bottom: 20px; width: 100%; }
     </style>
 </head>
 <body>
     <div class="upload-box">
         <h2>📷 새 사진 올리기</h2>
         <p class="info-msg">사진을 선택하면 촬영 정보와 날짜를 자동으로 가져옵니다.</p>
+        
         <input type="password" id="token" placeholder="깃허브 토큰 입력">
         <input type="file" id="fileInput" accept="image/*">
+        
         <label for="photoDate">📅 촬영 날짜 확인/수정</label>
         <input type="date" id="photoDate">
+        
         <label for="photoInfo">📝 사진 상세 정보</label>
         <textarea id="photoInfo" rows="3" placeholder="카메라 정보가 여기에 입력됩니다."></textarea>
+        
         <button onclick="handleUpload()">업로드 시작</button>
         <div id="status"></div>
     </div>
 
     <div class="manage-section">
-        <h2>📂 기존 사진 관리</h2>
+        <h2>📂 기존 사진 관리 (날짜 수정)</h2>
         <button class="refresh-btn" onclick="loadPhotoList()">🔄 목록 불러오기 / 새로고침</button>
-        
-        <div id="batchBar" class="batch-action-bar">
-            <div style="flex:1; font-size: 0.85rem;"><strong>💡 편집 모드:</strong> 날짜/정보를 수정한 후 저장하세요.</div>
-            <button class="batch-btn" onclick="saveAllChanges()">✅ 모든 변경사항 저장</button>
-        </div>
-
         <div id="photoList">
             <p style="text-align: center; color: #999;">토큰 입력 후 [목록 불러오기]를 눌러주세요.</p>
         </div>
@@ -66,10 +56,13 @@
     <script>
         const repo = "Helios0513/Photo_Archive.github.io";
 
-        // [1] EXIF 추출 (기존 유지)
+        // [1] EXIF 데이터 추출 로직
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
+            const status = document.getElementById('status');
+            status.innerText = "🔍 촬영 날짜 및 정보 분석 중...";
+            
             EXIF.getData(file, function() {
                 const model = EXIF.getTag(this, "Model") || "Unknown Camera";
                 const fl = EXIF.getTag(this, "FocalLength");
@@ -79,18 +72,23 @@
                 const focal = fl ? Math.round(fl) + "mm" : "";
                 let shutter = et < 1 ? `1/${Math.round(1/et)}` : (et ? Math.round(et * 10) / 10 : "");
                 const fVal = fn ? `f${Math.round(fn * 10) / 10}` : "";
+                
                 document.getElementById('photoInfo').value = `${model} ${focal} ${fVal}, ${shutter}s iso ${iso}`;
+
                 const exifDate = EXIF.getTag(this, "DateTimeOriginal");
+                const dateInput = document.getElementById('photoDate');
+                
                 if (exifDate) {
                     const parts = exifDate.split(" ")[0].split(":");
-                    document.getElementById('photoDate').value = `${parts[0]}-${parts[1]}-${parts[2]}`;
+                    dateInput.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
                 } else {
-                    document.getElementById('photoDate').value = new Date().toISOString().substring(0, 10);
+                    dateInput.value = new Date().toISOString().substring(0, 10);
                 }
+                status.innerText = "✅ 정보 분석 완료 (날짜를 확인해 주세요)";
             });
         });
 
-        // [2] 목록 불러오기
+        // [2] 사진 목록 로드 및 렌더링
         async function loadPhotoList() {
             const token = document.getElementById('token').value;
             if (!token) return alert("토큰을 입력해주세요!");
@@ -101,9 +99,10 @@
                 const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
                     headers: { "Authorization": `token ${token}` } 
                 });
+                if (!res.ok) throw new Error("장부를 불러오지 못했습니다.");
                 const data = await res.json();
+                // 깃허브 API의 base64 디코딩 처리
                 window.allPhotos = JSON.parse(decodeURIComponent(escape(atob(data.content))));
-                document.getElementById('batchBar').style.display = 'flex';
                 renderList();
             } catch (e) { listDiv.innerHTML = "❌ 로드 실패: " + e.message; }
         }
@@ -111,18 +110,21 @@
         function renderList() {
             const listDiv = document.getElementById('photoList');
             listDiv.innerHTML = "";
+            // 최신 사진이 위로 오게 역순 출력
             window.allPhotos.slice().reverse().forEach((p, index) => {
                 const realIndex = window.allPhotos.length - 1 - index;
                 const item = document.createElement('div');
                 item.className = 'photo-item';
                 item.innerHTML = `
-                    <img src="images/digital/${p.filename}">
+                    <img src="images/digital/${p.filename}" alt="">
                     <div class="photo-info-edit">
-                        <input type="date" class="edit-date" data-index="${realIndex}" value="${p.date || ''}">
-                        <input type="text" class="edit-info" data-index="${realIndex}" value="${p.info}">
-                        <small>${p.filename}</small>
+                        <label style="font-size:0.7rem; color:#888;">날짜 수정:</label>
+                        <input type="date" id="edit-date-${realIndex}" value="${p.date || ''}">
+                        <input type="text" id="edit-info-${realIndex}" value="${p.info}">
+                        <small style="color:#bbb;">${p.filename}</small>
                     </div>
                     <div class="btn-group">
+                        <button class="edit-btn" onclick="updateInfo(${realIndex})">저장</button>
                         <button class="delete-btn" onclick="deletePhoto(${realIndex}, '${p.filename}')">삭제</button>
                     </div>
                 `;
@@ -130,39 +132,14 @@
             });
         }
 
-        // [3] ✨ 신규: 일괄 저장 기능
-        async function saveAllChanges() {
-            const token = document.getElementById('token').value;
-            if(!confirm("입력한 모든 날짜와 정보를 한 번에 저장하시겠습니까?")) return;
-
-            // 현재 화면의 입력값들을 실제 데이터 배열(allPhotos)에 반영
-            const dateInputs = document.querySelectorAll('.edit-date');
-            const infoInputs = document.querySelectorAll('.edit-info');
-
-            dateInputs.forEach(input => {
-                const idx = input.getAttribute('data-index');
-                window.allPhotos[idx].date = input.value;
-            });
-            infoInputs.forEach(input => {
-                const idx = input.getAttribute('data-index');
-                window.allPhotos[idx].info = input.value;
-            });
-
-            try {
-                document.getElementById('status').innerText = "⏳ 전체 데이터 일괄 저장 중...";
-                await saveJson(token, "Batch update photo dates and info", window.allPhotos);
-                alert("모든 변경사항이 안전하게 저장되었습니다.");
-                loadPhotoList();
-            } catch(e) { alert("일괄 저장 실패: " + e.message); }
-        }
-
-        // [4] 공통 JSON 저장 로직
+        // [3] 공통 JSON 저장 로직 (SHA 자동 갱신)
         async function saveJson(token, msg, data) {
             const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
                 headers: { "Authorization": `token ${token}` } 
             });
             const fileData = await res.json();
-            await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
+            
+            const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
                 method: "PUT",
                 headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -171,15 +148,41 @@
                     sha: fileData.sha
                 })
             });
+            if (!putRes.ok) throw new Error("JSON 저장 실패");
+        }
+
+        // [4] 개별 정보 수정 저장 (날짜 포함)
+        async function updateInfo(index) {
+            const token = document.getElementById('token').value;
+            const newInfo = document.getElementById(`edit-info-${index}`).value;
+            const newDate = document.getElementById(`edit-date-${index}`).value;
+            
+            if(!confirm("해당 사진의 날짜와 정보를 수정하시겠습니까?")) return;
+            
+            // 기존 데이터 업데이트
+            window.allPhotos[index].info = newInfo;
+            window.allPhotos[index].date = newDate;
+            
+            try {
+                await saveJson(token, `Update info/date for ${window.allPhotos[index].filename}`, window.allPhotos);
+                alert("성공적으로 수정되었습니다.");
+                loadPhotoList();
+            } catch(e) { alert("수정 실패: " + e.message); }
         }
 
         // [5] 사진 삭제 로직
         async function deletePhoto(index, fileName) {
             const token = document.getElementById('token').value;
             if(!confirm("정말 이 사진을 삭제하시겠습니까?")) return;
+            
+            const targetPhoto = window.allPhotos[index];
             window.allPhotos.splice(index, 1);
+            
             try {
-                await saveJson(token, `Delete ${fileName}`, window.allPhotos);
+                // 1. JSON 업데이트
+                await saveJson(token, `Delete ${fileName} from photos.json`, window.allPhotos);
+                
+                // 2. 실제 이미지 파일 삭제
                 const fileRes = await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, { 
                     headers: { "Authorization": `token ${token}` } 
                 });
@@ -191,22 +194,23 @@
                         body: JSON.stringify({ message: `Delete file: ${fileName}`, sha: fileData.sha })
                     });
                 }
-                alert("삭제 완료.");
+                alert("삭제가 완료되었습니다.");
                 loadPhotoList();
-            } catch(e) { }
+            } catch(e) { alert("삭제 처리 중 오류: " + e.message); }
         }
 
-        // [6] 업로드 로직
+        // [6] 신규 사진 업로드 로직
         async function handleUpload() {
             const token = document.getElementById('token').value;
             const fileInput = document.getElementById('fileInput').files[0];
             const info = document.getElementById('photoInfo').value;
             const date = document.getElementById('photoDate').value;
-            if (!token || !fileInput || !date) return alert("토큰, 파일, 날짜를 모두 확인해주세요!");
-            
             const status = document.getElementById('status');
-            status.innerText = "⏳ 업로드 중...";
             
+            if (!token || !fileInput) return alert("토큰과 파일을 확인해주세요!");
+            if (!date) return alert("촬영 날짜를 입력해주세요!");
+            
+            status.innerText = "⏳ 이미지 최적화 중...";
             try {
                 const optimizedBlob = await new Promise(resolve => {
                     const reader = new FileReader();
@@ -231,20 +235,26 @@
                     const content = reader.result.split(',')[1];
                     const fileName = fileInput.name.replace(/\.[^/.]+$/, "") + "_" + Date.now() + ".jpg";
                     
+                    status.innerText = "📤 깃허브로 전송 중...";
+                    
+                    // 1. 이미지 업로드
                     await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
                         method: "PUT",
                         headers: { "Authorization": `token ${token}` },
                         body: JSON.stringify({ message: `Upload: ${fileName}`, content: content })
                     });
                     
+                    // 2. JSON에 데이터 추가 (날짜 포함)
                     const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
                         headers: { "Authorization": `token ${token}` } 
                     });
                     const fileData = await res.json();
                     const photos = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+                    
                     photos.push({ filename: fileName, info: info, date: date });
                     
-                    await saveJson(token, `Add ${fileName}`, photos);
+                    await saveJson(token, `Add ${fileName} (${date})`, photos);
+                    
                     status.innerText = "✅ 업로드 성공!";
                     loadPhotoList();
                 };
