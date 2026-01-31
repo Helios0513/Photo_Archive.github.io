@@ -25,19 +25,60 @@
             font-size: 0.7rem;
         }
 
-        /* ✨ Lightbox 스타일 (중앙 정렬 보정) */
+        /* ✨ 날짜 그룹 헤더 스타일 */
+        .date-header {
+            width: 100%;
+            padding: 30px 10px 10px 0;
+            margin-top: 20px;
+            border-bottom: 2px solid #333;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            clear: both;
+        }
+
+        /* ✨ 스마트 날짜 내비게이션 (오른쪽 플로팅) */
+        #date-nav {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 12px 8px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid #ddd;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            font-size: 0.7rem;
+            color: #666;
+            text-decoration: none;
+            text-align: center;
+            transition: 0.2s;
+            cursor: pointer;
+            padding: 2px 0;
+        }
+
+        .nav-item:hover { color: #000; font-weight: bold; transform: scale(1.1); }
+
+        /* ✨ Lightbox 스타일 */
         #lightbox {
             display: none; 
             position: fixed;
             top: 0;
-            left: 0; /* 왼쪽 끝에 딱 붙임 */
-            width: 100vw; /* 부모 요소를 무시하고 전체 화면 폭 사용 */
-            height: 100vh; /* 전체 화면 높이 사용 */
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             background-color: rgba(0, 0, 0, 0.95);
             z-index: 10000;
             cursor: pointer;
-            
-            /* 중앙 정렬의 핵심 */
             justify-content: center;
             align-items: center;
             margin: 0;
@@ -45,7 +86,7 @@
         }
 
         #lightbox img {
-            max-width: 90%; /* 모바일에서 좌우 여백 확보 */
+            max-width: 90%;
             max-height: 85%;
             object-fit: contain;
             display: block;
@@ -59,13 +100,18 @@
             to { transform: scale(1); opacity: 1; }
         }
 
-        /* 사진에 마우스 올렸을 때 커서 변경 */
         .photo-container img {
             cursor: zoom-in;
             transition: opacity 0.3s;
         }
         .photo-container img:hover {
             opacity: 0.9;
+        }
+
+        /* 모바일 대응 내비게이션 위치 조정 */
+        @media (max-width: 600px) {
+            #date-nav { right: 5px; padding: 10px 5px; }
+            .nav-item { font-size: 0.6rem; }
         }
     </style>
 </head>
@@ -87,6 +133,9 @@
 
         <div class="main-content">
             <h1>digital photos</h1>
+            
+            <div id="date-nav"></div>
+
             <div id="photo-list"></div>
 
             <footer>
@@ -101,7 +150,7 @@
     </div>
 
     <script>
-        // 사진 목록 로드
+        // 사진 목록 로드 및 그룹화
         fetch('photos.json')
             .then(response => {
                 if (!response.ok) throw new Error('장부를 찾을 수 없습니다.');
@@ -109,7 +158,45 @@
             })
             .then(data => {
                 const container = document.getElementById('photo-list');
-                [...data].reverse().forEach(photo => {
+                const nav = document.getElementById('date-nav');
+                
+                // 1. 날짜순 정렬 (최신 촬영일이 위로)
+                const sortedData = [...data].sort((a, b) => {
+                    const dateA = a.date || "0000-00-00";
+                    const dateB = b.date || "0000-00-00";
+                    return dateB.localeCompare(dateA);
+                });
+
+                let lastDate = "";
+
+                sortedData.forEach(photo => {
+                    const currentDate = photo.date || "날짜 미상";
+
+                    // 2. 날짜가 바뀌면 헤더 추가 및 네비게이션 아이템 추가
+                    if (currentDate !== lastDate) {
+                        // 날짜 헤더 생성
+                        const header = document.createElement('div');
+                        header.className = 'date-header';
+                        header.id = "date-" + currentDate; // 이동용 ID
+                        header.innerText = currentDate;
+                        container.appendChild(header);
+
+                        // 내비게이션 아이템 생성 (사진이 있는 날짜만)
+                        if (currentDate !== "날짜 미상") {
+                            const navItem = document.createElement('a');
+                            navItem.className = 'nav-item';
+                            // "2024-05-13" -> "05.13" 짧게 표시
+                            navItem.innerText = currentDate.substring(5).replace('-', '.');
+                            navItem.onclick = () => {
+                                document.getElementById("date-" + currentDate).scrollIntoView({ behavior: 'smooth' });
+                            };
+                            nav.appendChild(navItem);
+                        }
+                        
+                        lastDate = currentDate;
+                    }
+
+                    // 3. 사진 아이템 생성
                     const div = document.createElement('div');
                     div.className = 'photo-container';
                     div.innerHTML = `
@@ -127,14 +214,12 @@
                 document.getElementById('photo-list').innerHTML = "<p style='text-align:center; color:#999;'>사진을 불러오는 중 오류가 발생했습니다.</p>";
             });
 
-        // ✨ Lightbox 제어 함수 (flex로 중앙 정렬)
+        // ✨ Lightbox 제어 함수
         function openLightbox(src) {
             const lightbox = document.getElementById('lightbox');
             const lightboxImg = document.getElementById('lightbox-img');
-            
             lightboxImg.src = src;
-            lightbox.style.display = 'flex'; // block 대신 flex 사용
-            
+            lightbox.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
 
@@ -144,7 +229,6 @@
             document.body.style.overflow = 'auto';
         }
 
-        // ESC 키 누르면 닫기
         document.addEventListener('keydown', function(e) {
             if (e.key === "Escape") closeLightbox();
         });
