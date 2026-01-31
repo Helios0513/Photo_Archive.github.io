@@ -2,28 +2,72 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>사진 업로드 관리자 (자동 최적화)</title>
+    <title>사진 업로드 관리자 (EXIF 자동 추출)</title>
+    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     <link rel="stylesheet" href="styles.css">
     <style>
         .upload-box { max-width: 500px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; font-family: sans-serif; }
         input, button, textarea { width: 100%; margin-bottom: 10px; padding: 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
         button { background-color: #333; color: white; cursor: pointer; border: none; font-weight: bold; }
         #status { color: blue; font-weight: bold; text-align: center; margin-top: 10px; white-space: pre-wrap; }
+        .info-msg { font-size: 0.8rem; color: #666; margin-bottom: 10px; text-align: center; }
     </style>
 </head>
 <body>
     <div class="upload-box">
         <h2>📷 새 사진 올리기</h2>
-        <p style="font-size: 0.8rem; color: #666;">원본을 선택하면 자동으로 크기를 줄여 업로드합니다.</p>
+        <p class="info-msg">사진을 선택하면 EXIF 정보가 자동으로 추출됩니다.</p>
         <input type="password" id="token" placeholder="깃허브 토큰 입력">
         <input type="file" id="fileInput" accept="image/*">
-        <textarea id="photoInfo" rows="3" placeholder="사진 설명 입력"></textarea>
+        <textarea id="photoInfo" rows="3" placeholder="사진을 선택하면 정보가 자동으로 입력됩니다."></textarea>
         <button onclick="handleUpload()">업로드 시작</button>
         <div id="status"></div>
     </div>
 
     <script>
-        // 이미지 리사이징 함수
+        // 파일 선택 시 EXIF 정보를 읽어와서 텍스트박스에 채워주는 함수
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const status = document.getElementById('status');
+            status.innerText = "🔍 메타데이터 읽는 중...";
+
+            EXIF.getData(file, function() {
+                const model = EXIF.getTag(this, "Model") || "Unknown Camera";
+                let lens = EXIF.getTag(this, "LensModel") || "Unknown Lens";
+                const focalLength = EXIF.getTag(this, "FocalLength");
+                const fNumber = EXIF.getTag(this, "FNumber");
+                const exposureTime = EXIF.getTag(this, "ExposureTime");
+                const iso = EXIF.getTag(this, "ISOSpeedRatings");
+
+                // 렌즈 이름에서 불필요한 따옴표 제거
+                lens = lens.replace(/"/g, "");
+
+                // 화각 처리 (예: 50)
+                const focal = focalLength ? Math.round(focalLength) + "mm" : "";
+
+                // 셔터스피드 분수 변환 (예: 0.003125 -> 1/320)
+                let shutter = exposureTime;
+                if (exposureTime && exposureTime < 1) {
+                    shutter = `1/${Math.round(1/exposureTime)}`;
+                } else if (exposureTime >= 1) {
+                    shutter = Math.round(exposureTime * 10) / 10;
+                }
+
+                // 조리개 값 소수점 정리
+                const fVal = fNumber ? `f${Math.round(fNumber * 10) / 10}` : "";
+
+                // 작가님의 요청 틀: [카메라] [렌즈명] [화각] [조리개], [셔터스피드]s iso [ISO]
+                // Nikon Z 5 Nikkor Z 50mm f6.3, 1/320s iso 320
+                const infoText = `${model} ${lens} ${focal} ${fVal}, ${shutter}s iso ${iso}`;
+                
+                document.getElementById('photoInfo').value = infoText;
+                status.innerText = "✅ 메타데이터 추출 완료!";
+            });
+        });
+
+        // 이미지 리사이징 함수 (기존 유지)
         async function resizeImage(file, maxWidth = 1920) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -59,18 +103,14 @@
             status.innerText = "⏳ 사진 최적화 및 업로드 중...";
 
             try {
-                // 1. 이미지 최적화 (리사이징)
                 const optimizedBlob = await resizeImage(fileInput);
-                
-                // 2. Blob을 Base64로 변환
                 const reader = new FileReader();
                 reader.readAsDataURL(optimizedBlob);
                 reader.onload = async () => {
                     const content = reader.result.split(',')[1];
-                    const fileName = fileInput.name.replace(/\.[^/.]+$/, "") + ".jpg"; // 확장자를 jpg로 통일
+                    const fileName = fileInput.name.replace(/\.[^/.]+$/, "") + ".jpg";
                     const repo = "Helios0513/Photo_Archive.github.io";
 
-                    // 3. 사진 파일 업로드
                     const imgRes = await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
                         method: "PUT",
                         headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
@@ -79,7 +119,6 @@
 
                     if (!imgRes.ok) throw new Error("이미지 업로드 실패 (이미 같은 이름의 파일이 있을 수 있습니다)");
 
-                    // 4. 장부 업데이트
                     const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
                         headers: { "Authorization": `token ${token}` }
                     });
@@ -100,7 +139,6 @@
 
                     status.innerText = "✅ 성공! 1분 뒤 반영됩니다.";
                     document.getElementById('fileInput').value = "";
-                    document.getElementById('photoInfo').value = "";
                 };
             } catch (e) {
                 status.innerText = "❌ 실패: " + e.message;
