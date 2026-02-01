@@ -38,15 +38,17 @@
             box-sizing: border-box;
         }
 
-        /* ✨ 우측 상단 날짜 선택 버튼 */
-        .date-selector-container {
+        /* ✨ 우측 상단 컨트롤 영역 (버튼들 정렬) */
+        .controls-container {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 2000;
+            display: flex;
+            gap: 10px; /* 버튼 사이 간격 */
         }
 
-        #date-select-btn {
+        .control-btn {
             background: #333;
             color: white;
             border: none;
@@ -61,7 +63,7 @@
             gap: 8px;
         }
 
-        #date-select-btn:hover { background: #000; transform: translateY(-2px); }
+        .control-btn:hover { background: #000; transform: translateY(-2px); }
 
         #date-dropdown {
             display: none;
@@ -87,7 +89,6 @@
             transition: 0.2s;
             border-bottom: 1px solid #f9f9f9;
         }
-
         .dropdown-item:last-child { border-bottom: none; }
         .dropdown-item:hover { background: #f5f5f5; color: #000; }
 
@@ -119,10 +120,9 @@
             cursor: pointer;
             padding: 2px 0;
         }
-
         .nav-item:hover { color: #000; font-weight: bold; transform: scale(1.1); }
 
-        /* ✨ Lightbox (확대창) 스타일 수정 */
+        /* ✨ Lightbox (확대창) 및 랜덤 컨트롤 */
         #lightbox {
             display: none; 
             position: fixed;
@@ -130,18 +130,16 @@
             width: 100vw; height: 100vh;
             background-color: rgba(0, 0, 0, 0.95);
             z-index: 10000;
-            cursor: pointer;
             justify-content: center; align-items: center;
         }
 
-        /* 이미지와 설명을 감싸는 박스 */
         .lightbox-wrapper {
             position: relative;
             max-width: 90%;
             max-height: 85%;
             display: flex;
             flex-direction: column;
-            align-items: flex-end; /* 설명을 오른쪽으로 정렬 */
+            align-items: flex-end;
         }
 
         #lightbox img {
@@ -149,23 +147,38 @@
             object-fit: contain;
             box-shadow: 0 0 30px rgba(0,0,0,0.8);
             animation: zoomIn 0.25s ease-out;
+            cursor: zoom-out;
         }
 
-        /* 📸 우측 하단 설명창 스타일 추가 */
         #lightbox-caption {
             color: white;
             background: rgba(0, 0, 0, 0.6);
             padding: 10px 15px;
             border-radius: 8px;
             font-size: 0.85rem;
-            margin-top: -50px; /* 이미지 겹치게 위로 살짝 올림 */
-            margin-right: 15px; /* 오른쪽 여백 */
+            margin-top: -50px;
+            margin-right: 15px;
             z-index: 10001;
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255,255,255,0.1);
             text-align: right;
             line-height: 1.4;
-            pointer-events: none; /* 클릭 방해 금지 */
+            pointer-events: none;
+        }
+
+        /* PC용 다음 사진 화살표 */
+        #next-btn {
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 3rem;
+            cursor: pointer;
+            padding: 20px;
+            display: none; /* 랜덤모드일 때만 보이게 JS에서 조절 */
         }
 
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -177,19 +190,25 @@
             #date-nav { right: 5px; padding: 10px 5px; }
             .nav-item { font-size: 0.6rem; }
             .date-header { padding: 35px 15px 10px 15px; }
-            .date-selector-container { top: 15px; right: 15px; }
-            #date-select-btn { padding: 8px 14px; font-size: 0.75rem; }
+            .controls-container { top: 15px; right: 15px; }
+            .control-btn { padding: 8px 14px; font-size: 0.75rem; }
             #lightbox-caption { font-size: 0.75rem; margin-top: -40px; }
+            #next-btn { display: none !important; } /* 모바일은 스와이프로 대체 */
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="date-selector-container">
-            <button id="date-select-btn" onclick="toggleDropdown()">
-                📅 Archive Menu ▾
+        <div class="controls-container">
+            <button class="control-btn" onclick="openRandomPhoto()">
+                🎲 Random Photo
             </button>
-            <div id="date-dropdown"></div>
+            <div style="position: relative;">
+                <button id="date-select-btn" class="control-btn" onclick="toggleDropdown()">
+                    📅 Archive Menu ▾
+                </button>
+                <div id="date-dropdown"></div>
+            </div>
         </div>
 
         <div class="profile">
@@ -219,14 +238,18 @@
         </div>
     </div>
 
-    <div id="lightbox" onclick="closeLightbox()">
+    <div id="lightbox">
         <div class="lightbox-wrapper">
-            <img id="lightbox-img" src="" alt="확대된 사진">
+            <img id="lightbox-img" src="" alt="확대된 사진" onclick="closeLightbox()">
             <div id="lightbox-caption"></div>
+            <button id="next-btn" onclick="openRandomPhoto()">❯</button>
         </div>
     </div>
 
     <script>
+        let allPhotos = []; // 랜덤 기능을 위해 모든 사진 데이터를 저장할 변수
+        let isRandomMode = false;
+
         function toggleDropdown() {
             const dropdown = document.getElementById('date-dropdown');
             dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
@@ -242,6 +265,7 @@
         fetch('photos.json')
             .then(response => response.json())
             .then(data => {
+                allPhotos = data; // 사진 데이터 복사
                 const container = document.getElementById('photo-list');
                 const nav = document.getElementById('date-nav');
                 const dropdown = document.getElementById('date-dropdown');
@@ -286,7 +310,6 @@
                     const div = document.createElement('div');
                     div.className = 'photo-container';
                     
-                    // ✨ 핵심 수정: 클릭 시 src뿐만 아니라 info와 date를 함께 전달
                     const infoText = photo.info || "";
                     const fullCaption = `${currentDate} | ${infoText}`;
                     
@@ -294,7 +317,7 @@
                         <img src="images/digital/${photo.filename}" 
                              alt="사진" 
                              loading="lazy" 
-                             onclick="openLightbox(this.src, '${fullCaption.replace(/'/g, "\\'")}')">
+                             onclick="openLightbox('images/digital/${photo.filename}', '${fullCaption.replace(/'/g, "\\'")}', false)">
                         <div class="photo-info">${photo.info}</div>
                     `;
                     container.appendChild(div);
@@ -302,14 +325,27 @@
             })
             .catch(error => console.error('Error:', error));
 
-        // ✨ 핵심 수정: 설명을 파라미터로 받아서 화면에 표시
-        function openLightbox(src, caption) {
+        // 🎲 랜덤 사진 선택 및 열기 함수
+        function openRandomPhoto() {
+            if (allPhotos.length === 0) return;
+            const randomIndex = Math.floor(Math.random() * allPhotos.length);
+            const photo = allPhotos[randomIndex];
+            const fullCaption = `${photo.date || "날짜 미상"} | ${photo.info || ""}`;
+            openLightbox(`images/digital/${photo.filename}`, fullCaption, true);
+        }
+
+        function openLightbox(src, caption, randomMode) {
+            isRandomMode = randomMode;
             const lightbox = document.getElementById('lightbox');
             const lightboxImg = document.getElementById('lightbox-img');
             const lightboxCap = document.getElementById('lightbox-caption');
+            const nextBtn = document.getElementById('next-btn');
             
             lightboxImg.src = src;
-            lightboxCap.innerText = caption; // 설명 텍스트 넣기
+            lightboxCap.innerText = caption;
+            
+            // 랜덤 모드일 때만 화살표 표시
+            nextBtn.style.display = randomMode ? 'block' : 'none';
             
             lightbox.style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -318,9 +354,34 @@
         function closeLightbox() {
             document.getElementById('lightbox').style.display = 'none';
             document.body.style.overflow = 'auto';
+            isRandomMode = false;
         }
 
-        document.addEventListener('keydown', (e) => { if (e.key === "Escape") closeLightbox(); });
+        // 📱 모바일 스와이프 기능 (왼쪽으로 밀면 다음 랜덤 사진)
+        let touchstartX = 0;
+        let touchendX = 0;
+
+        document.getElementById('lightbox').addEventListener('touchstart', e => {
+            touchstartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.getElementById('lightbox').addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            handleGesture();
+        }, false);
+
+        function handleGesture() {
+            if (!isRandomMode) return; // 랜덤 모드일 때만 작동
+            if (touchstartX - touchendX > 50) { // 왼쪽으로 밀었을 때
+                openRandomPhoto();
+            }
+        }
+
+        // 키보드 이벤트 (Esc는 닫기, 오른쪽 화살표는 다음 랜덤)
+        document.addEventListener('keydown', (e) => { 
+            if (e.key === "Escape") closeLightbox(); 
+            if (isRandomMode && e.key === "ArrowRight") openRandomPhoto();
+        });
     </script>
 </body>
 </html>
