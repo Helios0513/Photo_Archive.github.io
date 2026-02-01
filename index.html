@@ -26,9 +26,15 @@
         }
         .btn-save { background-color: #333; color: white; }
         .btn-cancel { background-color: #eee; color: #666; }
-        .profile-img { cursor: pointer; transition: opacity 0.3s; }
-        .profile-img:hover { opacity: 0.8; }
-        .edit-hint { font-size: 0.7rem; color: #999; margin-top: 5px; cursor: pointer; }
+        
+        /* 프로필 요소들에 마우스 올리면 클릭 가능함을 표시 */
+        .profile-img, #displayName, #displayDescription { 
+            cursor: pointer; 
+            transition: opacity 0.3s; 
+        }
+        .profile-img:hover, #displayName:hover, #displayDescription:hover { 
+            opacity: 0.7; 
+        }
     </style>
 </head>
 <body>
@@ -37,7 +43,6 @@
             <img src="images/KakaoTalk_20240406_232152395.jpg" alt="프로필 사진" class="profile-img" id="displayProfileImg" onclick="openProfileEdit()">
             <h2 id="displayName" onclick="openProfileEdit()">Hamihamoo</h2>
             <p id="displayDescription" onclick="openProfileEdit()">Amateur Photographer</p>
-            <div class="edit-hint" onclick="openProfileEdit()">[ 프로필 수정하기 ]</div>
             
             <nav>
                 <ul>
@@ -76,7 +81,6 @@
     <script>
         const repo = "Helios0513/Photo_Archive.github.io";
 
-        // 1. 페이지 로드 시 profile.json에서 데이터 불러오기
         async function loadProfile() {
             try {
                 const res = await fetch(`https://api.github.com/repos/${repo}/contents/profile.json`);
@@ -88,17 +92,15 @@
                     if(profile.name) document.getElementById('displayName').innerText = profile.name;
                     if(profile.description) document.getElementById('displayDescription').innerText = profile.description;
                     
-                    // 수정창에도 미리 채워넣기
                     document.getElementById('editName').value = profile.name || "Hamihamoo";
                     document.getElementById('editDescription').value = profile.description || "Amateur Photographer";
                 }
-            } catch (e) { console.log("기존 프로필이 없거나 불러오지 못했습니다."); }
+            } catch (e) { console.log("기존 프로필 로드 실패"); }
         }
 
         function openProfileEdit() { document.getElementById('profileModal').style.display = 'block'; }
         function closeProfileEdit() { document.getElementById('profileModal').style.display = 'none'; }
 
-        // 2. 프로필 저장 로직
         async function saveProfile() {
             const token = document.getElementById('profileToken').value;
             const fileInput = document.getElementById('profileFile');
@@ -111,12 +113,10 @@
 
             try {
                 let currentImgPath = document.getElementById('displayProfileImg').src.split('?')[0];
-                // 절대경로일 경우 상대경로로 변환
                 if(currentImgPath.includes('images/')) {
                     currentImgPath = "images/" + currentImgPath.split('images/')[1];
                 }
 
-                // 사진을 새로 선택한 경우 업로드
                 if (fileInput.files.length > 0) {
                     const file = fileInput.files[0];
                     const base64 = await new Promise(resolve => {
@@ -136,7 +136,6 @@
                     currentImgPath = newPath;
                 }
 
-                // profile.json 업데이트
                 const profileData = { profileImage: currentImgPath, name: newName, description: newDesc };
                 const res = await fetch(`https://api.github.com/repos/${repo}/contents/profile.json`, {
                     headers: { "Authorization": `token ${token}` }
