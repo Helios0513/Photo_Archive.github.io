@@ -5,226 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>digital photos</title>
     <link rel="stylesheet" href="styles.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
-        footer {
-            margin-top: 80px;
-            padding: 40px 20px;
-            text-align: center;
-            border-top: 1px solid #eee;
-            clear: both;
-        }
-        .profile-link {
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            cursor: default;
-        }
-        .admin-link {
-            color: #f9f9f9;
-            text-decoration: none;
-            font-size: 0.7rem;
-        }
-
-        /* ✨ 날짜 그룹 헤더 스타일 */
-        .date-header {
-            width: 100%;
-            padding: 40px 20px 10px 20px; 
-            margin-top: 20px;
-            border-bottom: 2px solid #333;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #333;
-            clear: both;
-            box-sizing: border-box;
-        }
-
-        /* ✨ 우측 상단 컨트롤 영역 (버튼들 정렬) */
-        .controls-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 2000;
-            display: flex;
-            gap: 10px; /* 버튼 사이 간격 */
-        }
-
-        .control-btn {
-            background: #333;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 25px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
+        /* --- 기존 스타일 유지 --- */
+        footer { margin-top: 80px; padding: 40px 20px; text-align: center; border-top: 1px solid #eee; clear: both; }
+        .profile-link { text-decoration: none; color: inherit; display: block; cursor: default; }
+        .admin-link { color: #f9f9f9; text-decoration: none; font-size: 0.7rem; }
+        .date-header { width: 100%; padding: 40px 20px 10px 20px; margin-top: 20px; border-bottom: 2px solid #333; font-size: 1.1rem; font-weight: bold; color: #333; clear: both; box-sizing: border-box; }
+        .controls-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; gap: 10px; }
+        .control-btn { background: #333; color: white; border: none; padding: 10px 18px; border-radius: 25px; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.3s; display: flex; align-items: center; gap: 8px; }
         .control-btn:hover { background: #000; transform: translateY(-2px); }
-
-        #date-dropdown {
-            display: none;
-            position: absolute;
-            top: 45px;
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            width: 160px;
-            max-height: 350px;
-            overflow-y: auto;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            padding: 10px 0;
-            z-index: 2001;
-        }
-
-        .dropdown-item {
-            padding: 10px 20px;
-            font-size: 0.85rem;
-            color: #555;
-            cursor: pointer;
-            transition: 0.2s;
-            border-bottom: 1px solid #f9f9f9;
-        }
-        .dropdown-item:last-child { border-bottom: none; }
+        #date-dropdown { display: none; position: absolute; top: 45px; right: 0; background: white; border: 1px solid #ddd; border-radius: 12px; width: 160px; max-height: 350px; overflow-y: auto; box-shadow: 0 8px 20px rgba(0,0,0,0.15); padding: 10px 0; z-index: 2001; }
+        .dropdown-item { padding: 10px 20px; font-size: 0.85rem; color: #555; cursor: pointer; transition: 0.2s; border-bottom: 1px solid #f9f9f9; }
         .dropdown-item:hover { background: #f5f5f5; color: #000; }
-
-        /* ✨ 우측 사이드 날짜 내비게이션 */
-        #date-nav {
-            position: fixed;
-            right: 20px;
-            top: 55%; 
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.5); 
-            padding: 12px 8px;
-            border-radius: 15px;
-            backdrop-filter: blur(5px);
-            border: 1px solid #ddd;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        .nav-item {
-            font-size: 0.7rem;
-            color: #888;
-            text-decoration: none;
-            text-align: center;
-            transition: 0.2s;
-            cursor: pointer;
-            padding: 2px 0;
-        }
-        .nav-item:hover { color: #000; font-weight: bold; transform: scale(1.1); }
-
-        /* ✨ Lightbox (확대창) 스타일 최적화 */
-        #lightbox {
-            display: none; 
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background-color: rgba(0, 0, 0, 0.95);
-            z-index: 10000;
-            justify-content: center; 
-            align-items: center;
-            flex-direction: column; /* 사진과 설명을 세로로 배치 */
-        }
-
-        .lightbox-wrapper {
-            position: relative;
-            max-width: 90%;
-            max-height: 80%; /* 설명창 공간 확보를 위해 살짝 줄임 */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #lightbox img {
-            max-width: 100%; 
-            max-height: 75vh; /* 화면 높이의 75%만 차지하도록 설정 */
-            object-fit: contain;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
-            animation: zoomIn 0.25s ease-out;
-            cursor: zoom-out;
-        }
-
-        /* 📸 설명창 스타일 개선 (사진 아래로 분리) */
-        #lightbox-caption {
-            color: #efefef;
-            background: none;
-            padding: 15px 10px;
-            font-size: 0.9rem;
-            text-align: center; /* 설명을 가운데로 */
-            width: 100%;
-            line-height: 1.5;
-            pointer-events: none;
-        }
-
-        /* PC용 다음 사진 화살표 */
-        #next-btn {
-            position: absolute;
-            right: -80px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: white;
-            font-size: 3.5rem;
-            cursor: pointer;
-            padding: 20px;
-            display: none;
-            opacity: 0.6;
-            transition: 0.3s;
-        }
-        #next-btn:hover { opacity: 1; transform: translateY(-50%) scale(1.1); }
-
-        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .photo-container img { cursor: zoom-in; transition: opacity 0.3s; }
+        #date-nav { position: fixed; right: 20px; top: 55%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 1000; background: rgba(255, 255, 255, 0.5); padding: 12px 8px; border-radius: 15px; backdrop-filter: blur(5px); border: 1px solid #ddd; max-height: 60vh; overflow-y: auto; }
+        .nav-item { font-size: 0.7rem; color: #888; text-decoration: none; text-align: center; cursor: pointer; }
+        .nav-item:hover { color: #000; font-weight: bold; }
+        .photo-container img { cursor: zoom-in; transition: opacity 0.3s; width: 100%; max-width: 1000px; }
         .photo-container img:hover { opacity: 0.9; }
 
-        /* 📱 모바일 최적화 */
+        /* --- ✨ 라이트박스 & 소통 기능 스타일 추가/수정 --- */
+        #lightbox { 
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background-color: rgba(0, 0, 0, 0.98); z-index: 10000; overflow-y: auto; padding: 40px 0; 
+        }
+        .lightbox-wrapper { display: flex; flex-direction: column; align-items: center; width: 90%; max-width: 800px; margin: 0 auto; position: relative; }
+        #lightbox img { max-width: 100%; max-height: 70vh; object-fit: contain; box-shadow: 0 0 30px rgba(0,0,0,0.5); cursor: zoom-out; }
+        #lightbox-caption { color: #efefef; padding: 20px 10px; font-size: 0.9rem; text-align: center; }
+        
+        /* ❤️ 좋아요 섹션 */
+        .like-section { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; color: white; }
+        .like-btn { background: none; border: none; color: #555; font-size: 2.2rem; cursor: pointer; transition: 0.2s; padding: 0; line-height: 1; }
+        .like-btn.active { color: #ff4757; transform: scale(1.2); }
+        .like-count { font-size: 1.2rem; font-weight: bold; }
+
+        /* 💬 댓글 섹션 */
+        .comment-section { width: 100%; background: rgba(255,255,255,0.05); padding: 25px; border-radius: 15px; box-sizing: border-box; }
+        .comment-form { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+        .comment-input-row { display: flex; gap: 10px; }
+        .comment-form input { background: #222; border: 1px solid #444; color: white; padding: 10px 15px; border-radius: 8px; font-size: 0.9rem; }
+        .nickname-input { width: 30%; }
+        .text-input { flex-grow: 1; }
+        .comment-submit { background: #eee; color: #222; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .comment-submit:hover { background: #fff; }
+        
+        .comment-list { width: 100%; display: flex; flex-direction: column; gap: 15px; text-align: left; }
+        .comment-item { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; }
+        .comment-nickname { font-weight: bold; font-size: 0.85rem; color: #aaa; margin-bottom: 5px; }
+        .comment-text { font-size: 0.95rem; color: #eee; line-height: 1.5; }
+
+        #next-btn { position: absolute; right: -60px; top: 35vh; background: none; border: none; color: white; font-size: 3rem; cursor: pointer; opacity: 0.5; }
+        #next-btn:hover { opacity: 1; }
+
         @media (max-width: 768px) {
-            #date-nav { right: 5px; padding: 10px 5px; }
-            .nav-item { font-size: 0.6rem; }
-            .date-header { padding: 35px 15px 10px 15px; }
-            .controls-container { top: 15px; right: 15px; }
-            .control-btn { padding: 8px 14px; font-size: 0.75rem; }
-            
-            /* 모바일에서 사진 가리지 않게 크기 대폭 조절 */
-            #lightbox img { max-height: 65vh; }
-            #lightbox-caption { 
-                font-size: 0.8rem; 
-                margin-top: 10px; 
-                background: rgba(255,255,255,0.05); /* 글자 가독성을 위해 살짝 배경색 */
-                border-radius: 8px;
-            }
-            #next-btn { display: none !important; } /* 모바일은 스와이프 전용 */
+            .nickname-input { width: 40%; }
+            #next-btn { display: none !important; }
+            .controls-container { right: 10px; top: 10px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="controls-container">
-            <button class="control-btn" onclick="openRandomPhoto()">
-                🎲 Random Photo
-            </button>
+            <button class="control-btn" onclick="openRandomPhoto()">🎲 Random Photo</button>
             <div style="position: relative;">
-                <button id="date-select-btn" class="control-btn" onclick="toggleDropdown()">
-                    📅 Archive Menu ▾
-                </button>
+                <button id="date-select-btn" class="control-btn" onclick="toggleDropdown()">📅 Archive Menu ▾</button>
                 <div id="date-dropdown"></div>
             </div>
         </div>
 
         <div class="profile">
             <a href="upload.html" class="profile-link">
-                <img src="images/KakaoTalk_20240406_232152395.jpg" alt="프로필 사진" class="profile-img">
+                <img src="images/KakaoTalk_20240406_232152395.jpg" alt="프로필" class="profile-img">
             </a>
             <h2>Hamihamoo</h2>
             <p>Amateur Photographer</p>
@@ -238,12 +93,10 @@
 
         <div class="main-content">
             <h1>digital photos</h1>
-            
             <div id="date-nav"></div>
             <div id="photo-list"></div>
-
             <footer>
-                <p style="color: #999; font-size: 0.85rem; margin-bottom: 10px;">&copy; 2024 Hamihamoo. All rights reserved.</p>
+                <p style="color: #999; font-size: 0.85rem;">&copy; 2024 Hamihamoo. All rights reserved.</p>
                 <a href="upload.html" class="admin-link">Admin Login</a>
             </footer>
         </div>
@@ -251,47 +104,69 @@
 
     <div id="lightbox">
         <div class="lightbox-wrapper">
-            <img id="lightbox-img" src="" alt="확대된 사진" onclick="closeLightbox()">
+            <img id="lightbox-img" src="" alt="확대사진" onclick="closeLightbox()">
             <div id="lightbox-caption"></div>
             <button id="next-btn" onclick="openRandomPhoto()">❯</button>
+
+            <div class="like-section">
+                <button id="like-btn" class="like-btn" onclick="toggleLike()">❤</button>
+                <span id="like-count" class="like-count">0</span>
+            </div>
+
+            <div class="comment-section">
+                <div class="comment-form">
+                    <div class="comment-input-row">
+                        <input type="text" id="nickname" class="nickname-input" placeholder="닉네임">
+                        <input type="text" id="comment-text" class="text-input" placeholder="댓글을 남겨보세요...">
+                    </div>
+                    <button class="comment-submit" onclick="submitComment()">댓글 등록</button>
+                </div>
+                <div id="comment-list" class="comment-list"></div>
+            </div>
+            
+            <button onclick="closeLightbox()" style="margin: 40px 0; color: #666; background: none; border: none; cursor: pointer;">닫기 (ESC)</button>
         </div>
     </div>
 
     <script>
+        // 1. Firebase 초기화 (Hamihamoo님의 설정값)
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7ZAZN43x_hYitRyEgcXnjeyIfYr9OyUQ",
+            authDomain: "my-photo-web-9b97a.firebaseapp.com",
+            projectId: "my-photo-web-9b97a",
+            storageBucket: "my-photo-web-9b97a.firebasestorage.app",
+            messagingSenderId: "719108728610",
+            appId: "1:719108728610:web:6e289f800ca5e19815677b"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         let allPhotos = [];
         let isRandomMode = false;
+        let currentPhotoId = "";
+        let unsubscribeComments = null;
 
+        // 드롭다운 토글
         function toggleDropdown() {
             const dropdown = document.getElementById('date-dropdown');
             dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
         }
 
-        window.onclick = function(event) {
-            if (!event.target.matches('#date-select-btn')) {
-                const dropdown = document.getElementById('date-dropdown');
-                if (dropdown && dropdown.style.display === 'block') dropdown.style.display = 'none';
-            }
-        }
-
+        // 사진 목록 불러오기
         fetch('photos.json')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 allPhotos = data;
                 const container = document.getElementById('photo-list');
                 const nav = document.getElementById('date-nav');
                 const dropdown = document.getElementById('date-dropdown');
                 
-                const sortedData = [...data].sort((a, b) => {
-                    const dateA = a.date || "0000-00-00";
-                    const dateB = b.date || "0000-00-00";
-                    return dateB.localeCompare(dateA);
-                });
+                const sortedData = [...data].sort((a,b) => (b.date || "").localeCompare(a.date || ""));
 
                 let lastDate = "";
-
                 sortedData.forEach(photo => {
                     const currentDate = photo.date || "날짜 미상";
-
                     if (currentDate !== lastDate) {
                         const header = document.createElement('div');
                         header.className = 'date-header';
@@ -302,17 +177,13 @@
                         const navItem = document.createElement('a');
                         navItem.className = 'nav-item';
                         navItem.innerText = currentDate === "날짜 미상" ? "?" : currentDate.substring(5).replace('-', '.');
-                        navItem.onclick = () => {
-                            document.getElementById("date-" + currentDate).scrollIntoView({ behavior: 'smooth' });
-                        };
+                        navItem.onclick = () => document.getElementById("date-" + currentDate).scrollIntoView({ behavior: 'smooth' });
                         nav.appendChild(navItem);
 
                         const dropItem = document.createElement('div');
                         dropItem.className = 'dropdown-item';
                         dropItem.innerText = currentDate;
-                        dropItem.onclick = () => {
-                            document.getElementById("date-" + currentDate).scrollIntoView({ behavior: 'smooth' });
-                        };
+                        dropItem.onclick = () => document.getElementById("date-" + currentDate).scrollIntoView({ behavior: 'smooth' });
                         dropdown.appendChild(dropItem);
                         
                         lastDate = currentDate;
@@ -320,75 +191,103 @@
 
                     const div = document.createElement('div');
                     div.className = 'photo-container';
-                    
-                    const infoText = photo.info || "";
-                    const fullCaption = `${currentDate} | ${infoText}`;
-                    
+                    const fullCaption = `${currentDate} | ${photo.info || ""}`;
                     div.innerHTML = `
-                        <img src="images/digital/${photo.filename}" 
-                             alt="사진" 
-                             loading="lazy" 
-                             onclick="openLightbox('images/digital/${photo.filename}', '${fullCaption.replace(/'/g, "\\'")}', false)">
-                        <div class="photo-info">${photo.info}</div>
+                        <img src="images/digital/${photo.filename}" loading="lazy" 
+                             onclick="openLightbox('${photo.filename}', '${fullCaption.replace(/'/g, "\\'")}', false)">
+                        <div class="photo-info" style="margin-bottom:30px; color:#666; font-size:0.9rem;">${photo.info || ""}</div>
                     `;
                     container.appendChild(div);
                 });
-            })
-            .catch(error => console.error('Error:', error));
+            });
 
-        function openRandomPhoto() {
-            if (allPhotos.length === 0) return;
-            const randomIndex = Math.floor(Math.random() * allPhotos.length);
-            const photo = allPhotos[randomIndex];
-            const fullCaption = `${photo.date || "날짜 미상"} | ${photo.info || ""}`;
-            openLightbox(`images/digital/${photo.filename}`, fullCaption, true);
+        // 통합 라이트박스 열기
+        async function openLightbox(filename, caption, randomMode) {
+            isRandomMode = randomMode;
+            currentPhotoId = filename.replace(/\./g, '_'); 
+            
+            const lightbox = document.getElementById('lightbox');
+            document.getElementById('lightbox-img').src = "images/digital/" + filename;
+            document.getElementById('lightbox-caption').innerText = caption;
+            document.getElementById('next-btn').style.display = randomMode ? 'block' : 'none';
+            
+            lightbox.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+
+            // ❤️ 실시간 좋아요 연동
+            db.collection("photoStats").doc(currentPhotoId).onSnapshot((doc) => {
+                document.getElementById('like-count').innerText = doc.exists ? (doc.data().likes || 0) : 0;
+            });
+
+            // 💬 실시간 댓글 연동
+            if (unsubscribeComments) unsubscribeComments();
+            unsubscribeComments = db.collection("comments")
+                .where("photoId", "==", currentPhotoId)
+                .orderBy("timestamp", "asc")
+                .onSnapshot((snapshot) => {
+                    const listDiv = document.getElementById('comment-list');
+                    listDiv.innerHTML = "";
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const item = document.createElement('div');
+                        item.className = 'comment-item';
+                        item.innerHTML = `<div class="comment-nickname">${data.nickname}</div><div class="comment-text">${data.text}</div>`;
+                        listDiv.appendChild(item);
+                    });
+                });
         }
 
-        function openLightbox(src, caption, randomMode) {
-            isRandomMode = randomMode;
-            const lightbox = document.getElementById('lightbox');
-            const lightboxImg = document.getElementById('lightbox-img');
-            const lightboxCap = document.getElementById('lightbox-caption');
-            const nextBtn = document.getElementById('next-btn');
+        // 좋아요 기능
+        async function toggleLike() {
+            const docRef = db.collection("photoStats").doc(currentPhotoId);
+            const doc = await docRef.get();
+            if (!doc.exists) { await docRef.set({ likes: 1 }); } 
+            else { await docRef.update({ likes: firebase.firestore.FieldValue.increment(1) }); }
             
-            lightboxImg.src = src;
-            lightboxCap.innerText = caption;
-            
-            nextBtn.style.display = randomMode ? 'block' : 'none';
-            
-            lightbox.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+            const btn = document.getElementById('like-btn');
+            btn.classList.add('active');
+            setTimeout(() => btn.classList.remove('active'), 300);
+        }
+
+        // 댓글 등록
+        async function submitComment() {
+            const nick = document.getElementById('nickname').value;
+            const text = document.getElementById('comment-text').value;
+            if (!nick || !text) return alert("닉네임과 내용을 입력해주세요!");
+
+            await db.collection("comments").add({
+                photoId: currentPhotoId,
+                nickname: nick,
+                text: text,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            document.getElementById('comment-text').value = "";
         }
 
         function closeLightbox() {
             document.getElementById('lightbox').style.display = 'none';
             document.body.style.overflow = 'auto';
-            isRandomMode = false;
+            if (unsubscribeComments) unsubscribeComments();
         }
 
-        let touchstartX = 0;
-        let touchendX = 0;
-
-        document.getElementById('lightbox').addEventListener('touchstart', e => {
-            touchstartX = e.changedTouches[0].screenX;
-        }, false);
-
-        document.getElementById('lightbox').addEventListener('touchend', e => {
-            touchendX = e.changedTouches[0].screenX;
-            handleGesture();
-        }, false);
-
-        function handleGesture() {
-            if (!isRandomMode) return;
-            if (touchstartX - touchendX > 50) { // 왼쪽으로 스와이프
-                openRandomPhoto();
-            }
+        function openRandomPhoto() {
+            const target = allPhotos[Math.floor(Math.random() * allPhotos.length)];
+            const caption = `${target.date || "날짜 미상"} | ${target.info || ""}`;
+            openLightbox(target.filename, caption, true);
         }
 
-        document.addEventListener('keydown', (e) => { 
-            if (e.key === "Escape") closeLightbox(); 
-            if (isRandomMode && e.key === "ArrowRight") openRandomPhoto();
+        // 이벤트 리스너
+        window.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeLightbox();
+            if (isRandomMode && e.key === 'ArrowRight') openRandomPhoto();
         });
+
+        window.onclick = function(event) {
+            if (!event.target.matches('#date-select-btn')) {
+                const dropdown = document.getElementById('date-dropdown');
+                if (dropdown && dropdown.style.display === 'block') dropdown.style.display = 'none';
+            }
+        };
     </script>
 </body>
 </html>
