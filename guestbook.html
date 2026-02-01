@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>guestbook - Hamihamoo</title>
+    <link rel="stylesheet" href="styles.css"> <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* 방명록 페이지 전용 깔끔한 디자인 */
+        .guestbook-box { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        .write-area { 
+            background: #fdfdfd; 
+            border: 1px solid #eee; 
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .write-area input, .write-area textarea {
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .write-area button {
+            width: 100%; 
+            padding: 12px; 
+            background: #333; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .write-area button:hover { background: #000; }
+
+        .msg-item { 
+            border-bottom: 1px solid #f0f0f0; 
+            padding: 20px 5px; 
+            animation: fadeIn 0.6s ease;
+        }
+        .msg-info { font-size: 0.85rem; margin-bottom: 8px; color: #333; }
+        .msg-name { font-weight: bold; margin-right: 10px; }
+        .msg-date { color: #ccc; font-size: 0.75rem; }
+        .msg-text { line-height: 1.6; color: #555; white-space: pre-wrap; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="profile">
+            <a href="index.html"><img src="images/KakaoTalk_20240406_232152395.jpg" class="profile-img"></a>
+            <h2>Hamihamoo</h2>
+            <nav>
+                <ul>
+                    <li><a href="index.html">main page</a></li>
+                    <li><a href="digital.html">digital photos</a></li>
+                    <li><a href="film.html">film photos</a></li>
+                    <li><a href="guestbook.html">guestbook</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <h1>Guestbook</h1>
+            <p style="text-align: center; color: #999; margin-bottom: 30px;">따뜻한 한마디를 남겨주세요.</p>
+
+            <div class="guestbook-box">
+                <div class="write-area">
+                    <input type="text" id="nickname" placeholder="이름 (닉네임)">
+                    <textarea id="message" rows="4" placeholder="내용을 입력해주세요."></textarea>
+                    <button onclick="sendMsg()">글 남기기</button>
+                </div>
+
+                <div id="message-list"></div>
+            </div>
+            
+            <footer><p>&copy; 2024 Hamihamoo. All rights reserved.</p></footer>
+        </div>
+    </div>
+
+    <script>
+        // 파이어베이스 설정
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7ZAZN43x_hYitRyEgcXnjeyIfYr9OyUQ",
+            authDomain: "my-photo-web-9b97a.firebaseapp.com",
+            projectId: "my-photo-web-9b97a",
+            storageBucket: "my-photo-web-9b97a.firebasestorage.app",
+            messagingSenderId: "719108728610",
+            appId: "1:719108728610:web:6e289f800ca5e19815677b"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // 1. 글 저장하기 함수
+        async function sendMsg() {
+            const nick = document.getElementById('nickname').value;
+            const text = document.getElementById('message').value;
+
+            if (!nick || !text) { alert("이름과 내용을 모두 적어주세요!"); return; }
+
+            await db.collection("guestbook").add({
+                nickname: nick,
+                message: text,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            document.getElementById('message').value = ""; // 입력창 비우기
+        }
+
+        // 2. 글 목록 실시간으로 가져와서 화면에 그리기
+        db.collection("guestbook").orderBy("timestamp", "desc").onSnapshot((snap) => {
+            const listDiv = document.getElementById('message-list');
+            listDiv.innerHTML = ""; // 일단 싹 지우고 새로 그리기
+
+            snap.forEach((doc) => {
+                const data = doc.data();
+                // 날짜 예쁘게 바꾸기
+                const dateObj = data.timestamp ? data.timestamp.toDate() : new Date();
+                const dateStr = dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                listDiv.innerHTML += `
+                    <div class="msg-item">
+                        <div class="msg-info">
+                            <span class="msg-name">${data.nickname}</span>
+                            <span class="msg-date">${dateStr}</span>
+                        </div>
+                        <div class="msg-text">${data.message}</div>
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>
