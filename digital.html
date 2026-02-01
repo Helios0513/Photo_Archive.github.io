@@ -122,7 +122,7 @@
         }
         .nav-item:hover { color: #000; font-weight: bold; transform: scale(1.1); }
 
-        /* ✨ Lightbox (확대창) 및 랜덤 컨트롤 */
+        /* ✨ Lightbox (확대창) 스타일 최적화 */
         #lightbox {
             display: none; 
             position: fixed;
@@ -130,70 +130,81 @@
             width: 100vw; height: 100vh;
             background-color: rgba(0, 0, 0, 0.95);
             z-index: 10000;
-            justify-content: center; align-items: center;
+            justify-content: center; 
+            align-items: center;
+            flex-direction: column; /* 사진과 설명을 세로로 배치 */
         }
 
         .lightbox-wrapper {
             position: relative;
             max-width: 90%;
-            max-height: 85%;
+            max-height: 80%; /* 설명창 공간 확보를 위해 살짝 줄임 */
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
+            align-items: center;
         }
 
         #lightbox img {
-            max-width: 100%; max-height: 85vh;
+            max-width: 100%; 
+            max-height: 75vh; /* 화면 높이의 75%만 차지하도록 설정 */
             object-fit: contain;
             box-shadow: 0 0 30px rgba(0,0,0,0.8);
             animation: zoomIn 0.25s ease-out;
             cursor: zoom-out;
         }
 
+        /* 📸 설명창 스타일 개선 (사진 아래로 분리) */
         #lightbox-caption {
-            color: white;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            margin-top: -50px;
-            margin-right: 15px;
-            z-index: 10001;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.1);
-            text-align: right;
-            line-height: 1.4;
+            color: #efefef;
+            background: none;
+            padding: 15px 10px;
+            font-size: 0.9rem;
+            text-align: center; /* 설명을 가운데로 */
+            width: 100%;
+            line-height: 1.5;
             pointer-events: none;
         }
 
         /* PC용 다음 사진 화살표 */
         #next-btn {
             position: absolute;
-            right: -60px;
+            right: -80px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
             color: white;
-            font-size: 3rem;
+            font-size: 3.5rem;
             cursor: pointer;
             padding: 20px;
-            display: none; /* 랜덤모드일 때만 보이게 JS에서 조절 */
+            display: none;
+            opacity: 0.6;
+            transition: 0.3s;
         }
+        #next-btn:hover { opacity: 1; transform: translateY(-50%) scale(1.1); }
 
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         .photo-container img { cursor: zoom-in; transition: opacity 0.3s; }
         .photo-container img:hover { opacity: 0.9; }
 
-        @media (max-width: 600px) {
+        /* 📱 모바일 최적화 */
+        @media (max-width: 768px) {
             #date-nav { right: 5px; padding: 10px 5px; }
             .nav-item { font-size: 0.6rem; }
             .date-header { padding: 35px 15px 10px 15px; }
             .controls-container { top: 15px; right: 15px; }
             .control-btn { padding: 8px 14px; font-size: 0.75rem; }
-            #lightbox-caption { font-size: 0.75rem; margin-top: -40px; }
-            #next-btn { display: none !important; } /* 모바일은 스와이프로 대체 */
+            
+            /* 모바일에서 사진 가리지 않게 크기 대폭 조절 */
+            #lightbox img { max-height: 65vh; }
+            #lightbox-caption { 
+                font-size: 0.8rem; 
+                margin-top: 10px; 
+                background: rgba(255,255,255,0.05); /* 글자 가독성을 위해 살짝 배경색 */
+                border-radius: 8px;
+            }
+            #next-btn { display: none !important; } /* 모바일은 스와이프 전용 */
         }
     </style>
 </head>
@@ -247,7 +258,7 @@
     </div>
 
     <script>
-        let allPhotos = []; // 랜덤 기능을 위해 모든 사진 데이터를 저장할 변수
+        let allPhotos = [];
         let isRandomMode = false;
 
         function toggleDropdown() {
@@ -265,7 +276,7 @@
         fetch('photos.json')
             .then(response => response.json())
             .then(data => {
-                allPhotos = data; // 사진 데이터 복사
+                allPhotos = data;
                 const container = document.getElementById('photo-list');
                 const nav = document.getElementById('date-nav');
                 const dropdown = document.getElementById('date-dropdown');
@@ -325,7 +336,6 @@
             })
             .catch(error => console.error('Error:', error));
 
-        // 🎲 랜덤 사진 선택 및 열기 함수
         function openRandomPhoto() {
             if (allPhotos.length === 0) return;
             const randomIndex = Math.floor(Math.random() * allPhotos.length);
@@ -344,7 +354,6 @@
             lightboxImg.src = src;
             lightboxCap.innerText = caption;
             
-            // 랜덤 모드일 때만 화살표 표시
             nextBtn.style.display = randomMode ? 'block' : 'none';
             
             lightbox.style.display = 'flex';
@@ -357,7 +366,6 @@
             isRandomMode = false;
         }
 
-        // 📱 모바일 스와이프 기능 (왼쪽으로 밀면 다음 랜덤 사진)
         let touchstartX = 0;
         let touchendX = 0;
 
@@ -371,13 +379,12 @@
         }, false);
 
         function handleGesture() {
-            if (!isRandomMode) return; // 랜덤 모드일 때만 작동
-            if (touchstartX - touchendX > 50) { // 왼쪽으로 밀었을 때
+            if (!isRandomMode) return;
+            if (touchstartX - touchendX > 50) { // 왼쪽으로 스와이프
                 openRandomPhoto();
             }
         }
 
-        // 키보드 이벤트 (Esc는 닫기, 오른쪽 화살표는 다음 랜덤)
         document.addEventListener('keydown', (e) => { 
             if (e.key === "Escape") closeLightbox(); 
             if (isRandomMode && e.key === "ArrowRight") openRandomPhoto();
