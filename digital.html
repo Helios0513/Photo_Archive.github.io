@@ -25,7 +25,7 @@
             font-size: 0.7rem;
         }
 
-        /* ✨ 날짜 그룹 헤더 스타일 (여백 보정 완료) */
+        /* ✨ 날짜 그룹 헤더 스타일 */
         .date-header {
             width: 100%;
             padding: 40px 20px 10px 20px; 
@@ -38,7 +38,7 @@
             box-sizing: border-box;
         }
 
-        /* ✨ [NEW] 우측 상단 날짜 선택 버튼 */
+        /* ✨ 우측 상단 날짜 선택 버튼 */
         .date-selector-container {
             position: fixed;
             top: 20px;
@@ -63,7 +63,6 @@
 
         #date-select-btn:hover { background: #000; transform: translateY(-2px); }
 
-        /* 드롭다운 메뉴 */
         #date-dropdown {
             display: none;
             position: absolute;
@@ -92,7 +91,7 @@
         .dropdown-item:last-child { border-bottom: none; }
         .dropdown-item:hover { background: #f5f5f5; color: #000; }
 
-        /* ✨ 우측 사이드 날짜 내비게이션 (기존 유지 및 반투명 조정) */
+        /* ✨ 우측 사이드 날짜 내비게이션 */
         #date-nav {
             position: fixed;
             right: 20px;
@@ -123,7 +122,7 @@
 
         .nav-item:hover { color: #000; font-weight: bold; transform: scale(1.1); }
 
-        /* ✨ Lightbox 스타일 */
+        /* ✨ Lightbox (확대창) 스타일 수정 */
         #lightbox {
             display: none; 
             position: fixed;
@@ -135,12 +134,38 @@
             justify-content: center; align-items: center;
         }
 
+        /* 이미지와 설명을 감싸는 박스 */
+        .lightbox-wrapper {
+            position: relative;
+            max-width: 90%;
+            max-height: 85%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* 설명을 오른쪽으로 정렬 */
+        }
+
         #lightbox img {
-            max-width: 90%; max-height: 85%;
+            max-width: 100%; max-height: 85vh;
             object-fit: contain;
-            display: block; margin: auto;
             box-shadow: 0 0 30px rgba(0,0,0,0.8);
             animation: zoomIn 0.25s ease-out;
+        }
+
+        /* 📸 우측 하단 설명창 스타일 추가 */
+        #lightbox-caption {
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-top: -50px; /* 이미지 겹치게 위로 살짝 올림 */
+            margin-right: 15px; /* 오른쪽 여백 */
+            z-index: 10001;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: right;
+            line-height: 1.4;
+            pointer-events: none; /* 클릭 방해 금지 */
         }
 
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -154,6 +179,7 @@
             .date-header { padding: 35px 15px 10px 15px; }
             .date-selector-container { top: 15px; right: 15px; }
             #date-select-btn { padding: 8px 14px; font-size: 0.75rem; }
+            #lightbox-caption { font-size: 0.75rem; margin-top: -40px; }
         }
     </style>
 </head>
@@ -194,25 +220,25 @@
     </div>
 
     <div id="lightbox" onclick="closeLightbox()">
-        <img id="lightbox-img" src="" alt="확대된 사진">
+        <div class="lightbox-wrapper">
+            <img id="lightbox-img" src="" alt="확대된 사진">
+            <div id="lightbox-caption"></div>
+        </div>
     </div>
 
     <script>
-        // 드롭다운 토글 함수
         function toggleDropdown() {
             const dropdown = document.getElementById('date-dropdown');
             dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
         }
 
-        // 메뉴 바깥 클릭 시 닫기
         window.onclick = function(event) {
             if (!event.target.matches('#date-select-btn')) {
                 const dropdown = document.getElementById('date-dropdown');
-                if (dropdown.style.display === 'block') dropdown.style.display = 'none';
+                if (dropdown && dropdown.style.display === 'block') dropdown.style.display = 'none';
             }
         }
 
-        // 사진 로드 및 내비게이션 생성
         fetch('photos.json')
             .then(response => response.json())
             .then(data => {
@@ -232,14 +258,12 @@
                     const currentDate = photo.date || "날짜 미상";
 
                     if (currentDate !== lastDate) {
-                        // 1. 날짜 구분 헤더
                         const header = document.createElement('div');
                         header.className = 'date-header';
                         header.id = "date-" + currentDate;
                         header.innerText = currentDate;
                         container.appendChild(header);
 
-                        // 2. 우측 사이드 바 아이템
                         const navItem = document.createElement('a');
                         navItem.className = 'nav-item';
                         navItem.innerText = currentDate === "날짜 미상" ? "?" : currentDate.substring(5).replace('-', '.');
@@ -248,7 +272,6 @@
                         };
                         nav.appendChild(navItem);
 
-                        // 3. 상단 드롭다운 아이템
                         const dropItem = document.createElement('div');
                         dropItem.className = 'dropdown-item';
                         dropItem.innerText = currentDate;
@@ -260,14 +283,18 @@
                         lastDate = currentDate;
                     }
 
-                    // 사진 카드
                     const div = document.createElement('div');
                     div.className = 'photo-container';
+                    
+                    // ✨ 핵심 수정: 클릭 시 src뿐만 아니라 info와 date를 함께 전달
+                    const infoText = photo.info || "";
+                    const fullCaption = `${currentDate} | ${infoText}`;
+                    
                     div.innerHTML = `
                         <img src="images/digital/${photo.filename}" 
                              alt="사진" 
                              loading="lazy" 
-                             onclick="openLightbox(this.src)">
+                             onclick="openLightbox(this.src, '${fullCaption.replace(/'/g, "\\'")}')">
                         <div class="photo-info">${photo.info}</div>
                     `;
                     container.appendChild(div);
@@ -275,9 +302,15 @@
             })
             .catch(error => console.error('Error:', error));
 
-        function openLightbox(src) {
+        // ✨ 핵심 수정: 설명을 파라미터로 받아서 화면에 표시
+        function openLightbox(src, caption) {
             const lightbox = document.getElementById('lightbox');
-            document.getElementById('lightbox-img').src = src;
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxCap = document.getElementById('lightbox-caption');
+            
+            lightboxImg.src = src;
+            lightboxCap.innerText = caption; // 설명 텍스트 넣기
+            
             lightbox.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
