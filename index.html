@@ -5,14 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photo Archive</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 프로필 수정 모달 스타일 */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(0,0,0,0.7);
+        }
+        .modal-content {
+            background-color: #fff; margin: 10% auto; padding: 25px;
+            border-radius: 15px; width: 90%; max-width: 400px; font-family: sans-serif;
+        }
+        .modal-content h3 { margin-top: 0; color: #333; }
+        .modal-content input, .modal-content textarea {
+            width: 100%; margin-bottom: 15px; padding: 10px;
+            box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .modal-content button {
+            width: 100%; padding: 12px; border: none; border-radius: 8px;
+            cursor: pointer; font-weight: bold; margin-bottom: 5px;
+        }
+        .btn-save { background-color: #333; color: white; }
+        .btn-cancel { background-color: #eee; color: #666; }
+        .profile-img { cursor: pointer; transition: opacity 0.3s; }
+        .profile-img:hover { opacity: 0.8; }
+        .edit-hint { font-size: 0.7rem; color: #999; margin-top: 5px; cursor: pointer; }
+    </style>
 </head>
 <body>
     <div class="container">
-        <!-- 프로필 섹션 -->
         <div class="profile">
-            <img src="images/KakaoTalk_20240406_232152395.jpg" alt="프로필 사진" class="profile-img">
-            <h2>Hamihamoo</h2>
-            <p>Amateur Photographer</p>
+            <img src="images/KakaoTalk_20240406_232152395.jpg" alt="프로필 사진" class="profile-img" id="displayProfileImg" onclick="openProfileEdit()">
+            <h2 id="displayName" onclick="openProfileEdit()">Hamihamoo</h2>
+            <p id="displayDescription" onclick="openProfileEdit()">Amateur Photographer</p>
+            <div class="edit-hint" onclick="openProfileEdit()">[ 프로필 수정하기 ]</div>
+            
             <nav>
                 <ul>
                     <li><a href="digital.html">Digital Photos</a></li>
@@ -21,11 +47,129 @@
             </nav>
         </div>
 
-        <!-- 메인 콘텐츠 섹션 -->
         <div class="main-content">
             <h1>Photo Archive</h1>
             <p>Hi! This is my personal Photo Archive.</p>
         </div>
     </div>
+
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <h3>👤 프로필 수정</h3>
+            <input type="password" id="profileToken" placeholder="깃허브 토큰 입력">
+            
+            <label style="font-size: 0.8rem; display: block; margin-bottom: 5px;">📸 새 프로필 사진 (선택사항)</label>
+            <input type="file" id="profileFile" accept="image/*">
+            
+            <label style="font-size: 0.8rem; display: block; margin-bottom: 5px;">이름</label>
+            <input type="text" id="editName" placeholder="이름">
+            
+            <label style="font-size: 0.8rem; display: block; margin-bottom: 5px;">자기소개</label>
+            <textarea id="editDescription" rows="3" placeholder="자기소개"></textarea>
+            
+            <button class="btn-save" onclick="saveProfile()">저장하기</button>
+            <button class="btn-cancel" onclick="closeProfileEdit()">취소</button>
+            <div id="uploadStatus" style="font-size: 0.8rem; text-align: center; margin-top: 10px; color: blue;"></div>
+        </div>
+    </div>
+
+    <script>
+        const repo = "Helios0513/Photo_Archive.github.io";
+
+        // 1. 페이지 로드 시 profile.json에서 데이터 불러오기
+        async function loadProfile() {
+            try {
+                const res = await fetch(`https://api.github.com/repos/${repo}/contents/profile.json`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const profile = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+                    
+                    if(profile.profileImage) document.getElementById('displayProfileImg').src = profile.profileImage + "?v=" + Date.now();
+                    if(profile.name) document.getElementById('displayName').innerText = profile.name;
+                    if(profile.description) document.getElementById('displayDescription').innerText = profile.description;
+                    
+                    // 수정창에도 미리 채워넣기
+                    document.getElementById('editName').value = profile.name || "Hamihamoo";
+                    document.getElementById('editDescription').value = profile.description || "Amateur Photographer";
+                }
+            } catch (e) { console.log("기존 프로필이 없거나 불러오지 못했습니다."); }
+        }
+
+        function openProfileEdit() { document.getElementById('profileModal').style.display = 'block'; }
+        function closeProfileEdit() { document.getElementById('profileModal').style.display = 'none'; }
+
+        // 2. 프로필 저장 로직
+        async function saveProfile() {
+            const token = document.getElementById('profileToken').value;
+            const fileInput = document.getElementById('profileFile');
+            const newName = document.getElementById('editName').value;
+            const newDesc = document.getElementById('editDescription').value;
+            const status = document.getElementById('uploadStatus');
+
+            if (!token) return alert("수정하려면 깃허브 토큰이 필요합니다.");
+            status.innerText = "⏳ 처리 중...";
+
+            try {
+                let currentImgPath = document.getElementById('displayProfileImg').src.split('?')[0];
+                // 절대경로일 경우 상대경로로 변환
+                if(currentImgPath.includes('images/')) {
+                    currentImgPath = "images/" + currentImgPath.split('images/')[1];
+                }
+
+                // 사진을 새로 선택한 경우 업로드
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const base64 = await new Promise(resolve => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result.split(',')[1]);
+                        reader.readAsDataURL(file);
+                    });
+                    
+                    const fileName = "profile_" + Date.now() + ".jpg";
+                    const newPath = "images/" + fileName;
+
+                    await fetch(`https://api.github.com/repos/${repo}/contents/${newPath}`, {
+                        method: "PUT",
+                        headers: { "Authorization": `token ${token}` },
+                        body: JSON.stringify({ message: "Update profile image", content: base64 })
+                    });
+                    currentImgPath = newPath;
+                }
+
+                // profile.json 업데이트
+                const profileData = { profileImage: currentImgPath, name: newName, description: newDesc };
+                const res = await fetch(`https://api.github.com/repos/${repo}/contents/profile.json`, {
+                    headers: { "Authorization": `token ${token}` }
+                });
+                
+                let sha = "";
+                if (res.ok) {
+                    const existingJson = await res.json();
+                    sha = existingJson.sha;
+                }
+
+                const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/profile.json`, {
+                    method: "PUT",
+                    headers: { "Authorization": `token ${token}` },
+                    body: JSON.stringify({
+                        message: "Update profile info",
+                        content: btoa(unescape(encodeURIComponent(JSON.stringify(profileData, null, 2)))),
+                        sha: sha
+                    })
+                });
+
+                if(putRes.ok) {
+                    alert("✅ 프로필이 성공적으로 변경되었습니다!");
+                    location.reload();
+                } else { throw new Error("JSON 저장 실패"); }
+
+            } catch (e) {
+                alert("❌ 실패: " + e.message);
+                status.innerText = "";
+            }
+        }
+
+        window.onload = loadProfile;
+    </script>
 </body>
 </html>
