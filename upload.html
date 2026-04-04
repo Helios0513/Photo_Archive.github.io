@@ -68,7 +68,7 @@
     <script>
         const repo = "Helios0513/Photo_Archive.github.io";
 
-        // [1] 목록 로드
+        // 목록 로드
         async function loadPhotoList() {
             const token = document.getElementById('token').value;
             if (!token) return alert("토큰을 입력해주세요!");
@@ -103,7 +103,7 @@
             });
         }
 
-        // [2] 일괄 날짜 추출 기능
+        // 일괄 날짜 추출 기능
         async function autoFillDates() {
             const status = document.getElementById('status');
             const dateInputs = document.querySelectorAll('.edit-date');
@@ -121,8 +121,8 @@
                             EXIF.getData(blob, function() {
                                 const exifDate = EXIF.getTag(this, "DateTimeOriginal");
                                 if (exifDate) {
-                                    const parts = exifDate.split(" ")[0].split(":");
-                                    input.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
+                                    const parts = exifDate.split(" ").split(":");
+                                    input.value = `${parts}-${parts}-${parts}`;
                                     input.style.border = "2px solid #ff9800";
                                     count++;
                                 }
@@ -135,7 +135,7 @@
             status.innerText = `✅ 분석 완료! ${count}개의 날짜 복구. [저장하기]를 눌러주세요.`;
         }
 
-        // [3] 다중 파일 업로드 로직 (핵심 수정 부분)
+        // 다중 파일 업로드 로직 (기능 유지 및 셔터스피드 추출 추가)
         async function handleUpload() {
             const token = document.getElementById('token').value;
             const fileInput = document.getElementById('fileInput');
@@ -147,36 +147,45 @@
             status.innerText = `⏳ 총 ${files.length}장의 사진 업로드 준비 중...`;
 
             try {
-                // 1. 최신 photos.json 가져오기
                 const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
                     headers: { "Authorization": `token ${token}` } 
                 });
                 const fileData = await res.json();
                 let photos = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
 
-                // 2. 파일별로 루프 돌며 처리
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     status.innerText = `📤 업로드 중 (${i + 1}/${files.length}): ${file.name}`;
 
-                    // EXIF 데이터 추출 (날짜 & 정보)
+                    // EXIF 데이터 추출 (셔터스피드 및 초점거리 보강)
                     const exifData = await new Promise(resolve => {
                         EXIF.getData(file, function() {
                             const date = EXIF.getTag(this, "DateTimeOriginal");
                             const model = EXIF.getTag(this, "Model") || "";
+                            const focal = EXIF.getTag(this, "FocalLength") ? `${Math.round(EXIF.getTag(this, "FocalLength"))}mm` : "";
                             const fNum = EXIF.getTag(this, "FNumber") ? `f${EXIF.getTag(this, "FNumber")}` : "";
+                            
+                            // 셔터스피드 계산 로직 추가
+                            const expTime = EXIF.getTag(this, "ExposureTime");
+                            let shutter = "";
+                            if (expTime) {
+                                shutter = expTime >= 1 ? `${expTime}s` : `1/${Math.round(1/expTime)}s`;
+                            }
+
                             const iso = EXIF.getTag(this, "ISOSpeedRatings") ? `iso ${EXIF.getTag(this, "ISOSpeedRatings")}` : "";
                             
                             let formattedDate = new Date().toISOString().substring(0, 10);
                             if (date) {
-                                const p = date.split(" ")[0].split(":");
-                                formattedDate = `${p[0]}-${p[1]}-${p[2]}`;
+                                const p = date.split(" ").split(":");
+                                formattedDate = `${p}-${p}-${p}`;
                             }
-                            resolve({ date: formattedDate, info: `${model} ${fNum} ${iso}`.trim() });
+                            
+                            // 기존 정보 조합에 셔터스피드와 mm 추가
+                            const infoString = `${model} ${focal} ${fNum}, ${shutter} ${iso}`.replace(/\s\s+/g, ' ').trim();
+                            resolve({ date: formattedDate, info: infoString });
                         });
                     });
 
-                    // 이미지 최적화 (1920px)
                     const optimizedBlob = await new Promise(resolve => {
                         const reader = new FileReader();
                         reader.readAsDataURL(file);
@@ -194,11 +203,10 @@
                         };
                     });
 
-                    // 깃허브에 이미지 파일 전송
                     const base64Content = await new Promise(resolve => {
                         const reader = new FileReader();
                         reader.readAsDataURL(optimizedBlob);
-                        reader.onload = () => resolve(reader.result.split(',')[1]);
+                        reader.onload = () => resolve(reader.result.split(','));
                     });
 
                     const fileName = file.name.replace(/\.[^/.]+$/, "") + "_" + Date.now() + ".jpg";
@@ -208,16 +216,14 @@
                         body: JSON.stringify({ message: `Upload: ${fileName}`, content: base64Content })
                     });
 
-                    // 리스트 데이터 추가
                     photos.push({ filename: fileName, info: exifData.info, date: exifData.date });
                 }
 
-                // 3. 최종 JSON 업데이트 (한 번만)
                 status.innerText = "💾 장부 업데이트 중...";
                 await saveJson(token, `Batch upload ${files.length} photos`, photos);
                 
                 status.innerText = `✅ 총 ${files.length}장 업로드 완료!`;
-                fileInput.value = ""; // 입력창 초기화
+                fileInput.value = ""; 
                 loadPhotoList();
 
             } catch (e) {
@@ -225,7 +231,7 @@
             }
         }
 
-        // [4] 일괄 저장 및 삭제 (기존 유지)
+        // 일괄 저장 및 삭제 (기존 유지)
         async function saveAllChanges() {
             const token = document.getElementById('token').value;
             const dateInputs = document.querySelectorAll('.edit-date');
