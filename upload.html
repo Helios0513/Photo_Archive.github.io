@@ -68,6 +68,7 @@
     <script>
         const repo = "Helios0513/Photo_Archive.github.io";
 
+        // 목록 로드 (기능 유지)
         async function loadPhotoList() {
             const token = document.getElementById('token').value;
             if (!token) return alert("토큰을 입력해주세요!");
@@ -102,6 +103,7 @@
             });
         }
 
+        // 일괄 날짜 추출 (에러 방지 강화)
         async function autoFillDates() {
             const status = document.getElementById('status');
             const dateInputs = document.querySelectorAll('.edit-date');
@@ -118,11 +120,14 @@
                         await new Promise((resolve) => {
                             EXIF.getData(blob, function() {
                                 const exifDate = EXIF.getTag(this, "DateTimeOriginal");
-                                if (exifDate && typeof exifDate === "string") {
-                                    const parts = exifDate.split(" ").split(":");
-                                    input.value = `${parts}-${parts}-${parts}`;
-                                    input.style.border = "2px solid #ff9800";
-                                    count++;
+                                if (exifDate) {
+                                    const dateStr = String(exifDate); // 안전하게 문자열 변환
+                                    const parts = dateStr.split(" ").split(":");
+                                    if(parts.length >= 3) {
+                                        input.value = `${parts}-${parts}-${parts}`;
+                                        input.style.border = "2px solid #ff9800";
+                                        count++;
+                                    }
                                 }
                                 resolve();
                             });
@@ -133,6 +138,7 @@
             status.innerText = `✅ 분석 완료! ${count}개의 날짜 복구. [저장하기]를 눌러주세요.`;
         }
 
+        // 다중 업로드 (순서: 카메라, 화각, 조리개, 셔터, ISO / 에러 해결)
         async function handleUpload() {
             const token = document.getElementById('token').value;
             const fileInput = document.getElementById('fileInput');
@@ -140,7 +146,6 @@
             const files = fileInput.files;
 
             if (!token || files.length === 0) return alert("토큰과 파일을 선택해주세요!");
-
             status.innerText = `⏳ 총 ${files.length}장의 사진 업로드 준비 중...`;
 
             try {
@@ -156,14 +161,16 @@
 
                     const exifData = await new Promise(resolve => {
                         EXIF.getData(file, function() {
-                            const date = EXIF.getTag(this, "DateTimeOriginal");
+                            const dateRaw = EXIF.getTag(this, "DateTimeOriginal");
                             
                             // 1. 카메라 이름
                             const model = EXIF.getTag(this, "Model") || "";
                             // 2. 화각 (mm)
-                            const focal = EXIF.getTag(this, "FocalLength") ? `${Math.round(EXIF.getTag(this, "FocalLength"))}mm` : "";
+                            const focalL = EXIF.getTag(this, "FocalLength");
+                            const focal = focalL ? `${Math.round(focalL)}mm` : "";
                             // 3. 조리개값 (f)
-                            const fNum = EXIF.getTag(this, "FNumber") ? `f${EXIF.getTag(this, "FNumber")}` : "";
+                            const fN = EXIF.getTag(this, "FNumber");
+                            const fNum = fN ? `f${fN}` : "";
                             // 4. 셔터스피드
                             const expTime = EXIF.getTag(this, "ExposureTime");
                             let shutter = "";
@@ -171,21 +178,26 @@
                                 shutter = expTime >= 1 ? `${expTime}s` : `1/${Math.round(1/expTime)}s`;
                             }
                             // 5. ISO
-                            const iso = EXIF.getTag(this, "ISOSpeedRatings") ? `iso ${EXIF.getTag(this, "ISOSpeedRatings")}` : "";
+                            const isoV = EXIF.getTag(this, "ISOSpeedRatings");
+                            const iso = isoV ? `iso ${isoV}` : "";
                             
-                            // 날짜 처리 (오류 방지 로직 포함)
+                            // 날짜 안전 처리 (스크린샷 에러 해결 포인트)
                             let formattedDate = new Date().toISOString().substring(0, 10);
-                            if (date && typeof date === "string") {
-                                const p = date.split(" ").split(":");
-                                formattedDate = `${p}-${p}-${p}`;
+                            if (dateRaw) {
+                                const dateStr = String(dateRaw);
+                                const p = dateStr.split(" ").split(":");
+                                if(p.length >= 3) {
+                                    formattedDate = `${p}-${p}-${p}`;
+                                }
                             }
                             
-                            // 요청하신 순서대로 조합: 카메라 이름 화각 조리개 셔터 ISO
+                            // 최종 정보 문자열 조합 (순서 고정)
                             const infoString = `${model} ${focal} ${fNum} ${shutter} ${iso}`.replace(/\s+/g, ' ').trim();
                             resolve({ date: formattedDate, info: infoString });
                         });
                     });
 
+                    // 이미지 리사이징 (기능 유지)
                     const optimizedBlob = await new Promise(resolve => {
                         const reader = new FileReader();
                         reader.readAsDataURL(file);
@@ -221,7 +233,6 @@
 
                 status.innerText = "💾 장부 업데이트 중...";
                 await saveJson(token, `Batch upload ${files.length} photos`, photos);
-                
                 status.innerText = `✅ 총 ${files.length}장 업로드 완료!`;
                 fileInput.value = ""; 
                 loadPhotoList();
