@@ -57,6 +57,7 @@
                 날짜가 없는 기존 사진들의 메타데이터를 분석하여 자동으로 날짜를 채웁니다.
             </p>
             <button class="magic-btn" onclick="autoFillDates()">🪄 기존 사진 날짜 일괄 추출하기</button>
+            <button class="magic-btn" onclick="normalizeMetadata()">🪄 기존 사진 메타데이터 일괄 정리하기</button>
             <button class="save-all-btn" onclick="saveAllChanges()">✅ 변경된 모든 내용 저장하기</button>
         </div>
 
@@ -126,6 +127,62 @@
             return "";
         }
 
+        function extractMetadataParts(infoText) {
+            const text = (infoText || "").replace(/,/g, " ").replace(/\s+/g, " ").trim();
+
+            const fMatch = text.match(/\bf\d+(\.\d+)?\b/i);
+            const shutterMatch = text.match(/\b\d+\/\d+s\b|\b\d+(\.\d+)?s\b/i);
+            const isoMatch = text.match(/\biso\s*\d+\b/i);
+
+            const fPart = fMatch ? fMatch[0] : "";
+            const shutterPart = shutterMatch ? shutterMatch[0] : "";
+            const isoPart = isoMatch ? isoMatch[0].replace(/\s+/g, " ") : "";
+
+            let cameraPart = text;
+            if (fMatch) {
+                cameraPart = text.substring(0, fMatch.index).trim();
+            }
+
+            cameraPart = cameraPart
+                .replace(/\bNikkor\b.*$/i, "")
+                .replace(/\bNIKKOR\b.*$/i, "")
+                .replace(/\s+/g, " ")
+                .trim();
+
+            return {
+                cameraPart,
+                fPart,
+                shutterPart,
+                isoPart
+            };
+        }
+
+        async function getExposureFromImage(fileName) {
+            const imgUrl = `images/digital/${fileName}`;
+            try {
+                const response = await fetch(imgUrl, { cache: "no-store" });
+                if (!response.ok) return "";
+                const blob = await response.blob();
+
+                return await new Promise((resolve) => {
+                    EXIF.getData(blob, function() {
+                        const exposureRaw = EXIF.getTag(this, "ExposureTime");
+                        resolve(formatExposureTime(exposureRaw));
+                    });
+                });
+            } catch (error) {
+                return "";
+            }
+        }
+
+        function buildNormalizedInfo(cameraPart, fPart, shutterPart, isoPart) {
+            return [cameraPart, fPart, shutterPart, isoPart]
+                .filter(value => value && String(value).trim() !== "")
+                .join(" ")
+                .replace(/\s+/g, " ")
+                .trim();
+        }
+
         // [1] 목록 로드
         async function loadPhotoList() {
             const token = document.getElementById('token').value;
@@ -193,7 +250,61 @@
             status.innerText = `✅ 분석 완료! ${count}개의 날짜 복구. [저장하기]를 눌러주세요.`;
         }
 
-        // [3] 다중 파일 업로드 로직
+        // [3] 기존 사진 메타데이터 일괄 정리 기능
+        async function normalizeMetadata() {
+            const status = document.getElementById('status');
+            const infoInputs = document.querySelectorAll('.edit-info');
+            let lensRemovedCount = 0;
+            let shutterAddedCount = 0;
+            let unchangedCount = 0;
+
+            status.innerText = "⏳ 기존 사진 메타데이터 정리 시작...";
+
+            for (let input of infoInputs) {
+                const idx = input.getAttribute('data-index');
+                const photo = window.allPhotos[idx];
+                const originalInfo = photo.info || "";
+
+                const originalParts = extractMetadataParts(originalInfo);
+
+                const hadLensText = /\bNikkor\b/i.test(originalInfo);
+                let shutterPart = originalParts.shutterPart;
+
+                if (!shutterPart) {
+                    const exifShutter = await getExposureFromImage(photo.filename);
+                    if (exifShutter) {
+                        shutterPart = exifShutter;
+                        shutterAddedCount++;
+                    }
+                }
+
+                const normalizedInfo = buildNormalizedInfo(
+                    originalParts.cameraPart,
+                    originalParts.fPart,
+                    shutterPart,
+                    originalParts.isoPart
+                );
+
+                if (hadLensText) {
+                    lensRemovedCount++;
+                }
+
+                if (normalizedInfo && normalizedInfo !== originalInfo.trim()) {
+                    input.value = normalizedInfo;
+                    input.style.border = "2px solid #ff9800";
+                } else {
+                    unchangedCount++;
+                }
+            }
+
+            status.innerText = `✅ 메타데이터 정리 완료!
+렌즈 이름 제거 처리: ${lensRemovedCount}개
+셔터스피드 추가 성공: ${shutterAddedCount}개
+변경 없음: ${unchangedCount}개
+[저장하기]를 눌러주세요.`;
+        }
+
+        // [4] 다중 파일 업로드 로직
         async function handleUpload() {
             const token = document.getElementById('token').value;
             const fileInput = document.getElementById('fileInput');
@@ -293,7 +404,7 @@
             }
         }
 
-        // [4] 일괄 저장 및 삭제 (기존 유지)
+        // [5] 일괄 저장 및 삭제 (기존 유지)
         async function saveAllChanges() {
             const token = document.getElementById('token').value;
             const dateInputs = document.querySelectorAll('.edit-date');
