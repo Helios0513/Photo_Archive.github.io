@@ -1,4 +1,419 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>photo analysis</title>
+<link rel="stylesheet" href="styles.css">
+
+<style>
+body.dark-mode {
+    background:#111;
+    color:#e9e9e9;
+}
+
+body.dark-mode .container {
+    background:#181818;
+    box-shadow:0 6px 20px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .main-content h1,
+body.dark-mode .main-content p,
+body.dark-mode .section-description,
+body.dark-mode .analysis-summary-text,
+body.dark-mode .insight-text,
+body.dark-mode .chart-label,
+body.dark-mode .chart-value,
+body.dark-mode .chart-note {
+    color:#e9e9e9;
+}
+
+.analysis-wrap {
+    width:100%;
+    max-width:980px;
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+}
+
+.analysis-hero {
+    width:100%;
+    background:linear-gradient(135deg, #f8f8f8, #ffffff);
+    padding:26px;
+    border-radius:20px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.07);
+    box-sizing:border-box;
+}
+
+body.dark-mode .analysis-hero {
+    background:linear-gradient(135deg, #1b1b1b, #202020);
+    box-shadow:0 8px 24px rgba(0,0,0,0.28);
+}
+
+.analysis-summary-title {
+    font-size:1.2rem;
+    font-weight:bold;
+    margin-bottom:12px;
+    color:#222;
+}
+
+body.dark-mode .analysis-summary-title {
+    color:#fff;
+}
+
+.analysis-summary-text {
+    font-size:1rem;
+    line-height:1.8;
+    color:#555;
+}
+
+.analysis-grid {
+    width:100%;
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:16px;
+}
+
+.analysis-card {
+    background:#fff;
+    padding:20px;
+    border-radius:18px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.08);
+    box-sizing:border-box;
+}
+
+body.dark-mode .analysis-card {
+    background:#1b1b1b;
+}
+
+.analysis-title {
+    font-size:0.9rem;
+    color:#888;
+    margin-bottom:8px;
+}
+
+.analysis-big {
+    font-size:1.9rem;
+    font-weight:bold;
+    color:#222;
+    line-height:1.2;
+}
+
+body.dark-mode .analysis-big {
+    color:#fff;
+}
+
+.analysis-sub {
+    margin-top:8px;
+    font-size:0.88rem;
+    color:#666;
+    line-height:1.5;
+}
+
+body.dark-mode .analysis-sub {
+    color:#cfcfcf;
+}
+
+.analysis-section {
+    background:#fff;
+    padding:22px;
+    border-radius:18px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.08);
+}
+
+body.dark-mode .analysis-section {
+    background:#1b1b1b;
+}
+
+.section-title {
+    font-size:1.1rem;
+    font-weight:bold;
+    margin-bottom:8px;
+    color:#222;
+}
+
+body.dark-mode .section-title {
+    color:#fff;
+}
+
+.section-description {
+    font-size:0.92rem;
+    color:#777;
+    margin-bottom:18px;
+    line-height:1.6;
+}
+
+.chart-group {
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.chart-row {
+    display:grid;
+    grid-template-columns: 120px 1fr 60px;
+    gap:12px;
+    align-items:center;
+}
+
+.chart-label {
+    font-size:0.9rem;
+    color:#444;
+    word-break:break-word;
+}
+
+.chart-track {
+    width:100%;
+    height:14px;
+    background:#efefef;
+    border-radius:999px;
+    overflow:hidden;
+    position:relative;
+}
+
+body.dark-mode .chart-track {
+    background:#2c2c2c;
+}
+
+.chart-fill {
+    height:100%;
+    border-radius:999px;
+}
+
+.chart-fill.aperture { background:linear-gradient(90deg, #444, #888); }
+.chart-fill.iso { background:linear-gradient(90deg, #6b7280, #9ca3af); }
+.chart-fill.color { background:linear-gradient(90deg, #f59e0b, #ef4444); }
+.chart-fill.month { background:linear-gradient(90deg, #3b82f6, #06b6d4); }
+
+.chart-value {
+    text-align:right;
+    font-size:0.88rem;
+    color:#666;
+}
+
+.insight-grid {
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:16px;
+}
+
+.insight-card {
+    background:#f8f8f8;
+    padding:18px;
+    border-radius:16px;
+}
+
+body.dark-mode .insight-card {
+    background:#232323;
+}
+
+.insight-title {
+    font-size:0.95rem;
+    font-weight:bold;
+    margin-bottom:8px;
+    color:#222;
+}
+
+body.dark-mode .insight-title {
+    color:#fff;
+}
+
+.insight-text {
+    font-size:0.92rem;
+    color:#555;
+    line-height:1.7;
+}
+
+.chart-note {
+    margin-top:12px;
+    font-size:0.82rem;
+    color:#888;
+}
+
+.topbar {
+    width:100%;
+    display:flex;
+    justify-content:flex-end;
+    margin-bottom:15px;
+}
+
+.top-btn {
+    background:#333;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:999px;
+    cursor:pointer;
+}
+
+body.dark-mode .top-btn {
+    background:#eee;
+    color:#111;
+}
+
+@media (max-width: 900px) {
+    .analysis-grid {
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+
+    .insight-grid {
+        grid-template-columns:1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .analysis-grid {
+        grid-template-columns:1fr;
+    }
+
+    .chart-row {
+        grid-template-columns: 88px 1fr 48px;
+        gap:8px;
+    }
+
+    .analysis-hero,
+    .analysis-card,
+    .analysis-section {
+        padding:16px;
+    }
+
+    .analysis-summary-text,
+    .insight-text,
+    .section-description {
+        font-size:0.88rem;
+    }
+
+    .analysis-big {
+        font-size:1.6rem;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="profile">
+        <img src="images/KakaoTalk_20240406_232152395.jpg" class="profile-img">
+        <h2>Hamihamoo</h2>
+        <p>Amateur Photographer</p>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">main page</a></li>
+                <li><a href="digital.html">digital photos</a></li>
+                <li><a href="film.html">film photos</a></li>
+                <li><a href="guestbook.html">guestbook</a></li>
+                <li><a href="colors.html">colors archive</a></li>
+                <li><a href="analysis.html">analysis</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <button class="top-btn" onclick="toggleDark()">🌙 Dark</button>
+        </div>
+
+        <h1>photo analysis</h1>
+        <p>내 사진들을 촬영 습관과 색감 중심으로 정리한 분석 페이지예요.</p>
+
+        <div class="analysis-wrap" id="analysis"></div>
+    </div>
+</div>
+
 <script>
+let photos = [];
+
+function toggleDark() {
+    document.body.classList.toggle("dark-mode");
+    localStorage.setItem("dark", document.body.classList.contains("dark-mode"));
+    updateDarkButtonText();
+}
+
+function updateDarkButtonText() {
+    const btn = document.querySelector(".top-btn");
+    if (!btn) return;
+    btn.innerHTML = document.body.classList.contains("dark-mode") ? "☀ Light" : "🌙 Dark";
+}
+
+if (localStorage.getItem("dark") === "true") {
+    document.body.classList.add("dark-mode");
+}
+updateDarkButtonText();
+
+fetch("photos.json")
+.then(res => res.json())
+.then(data => {
+    photos = data;
+    runAnalysis();
+})
+.catch(error => {
+    console.error(error);
+    const wrap = document.getElementById("analysis");
+    wrap.innerHTML = `
+        <section class="analysis-section">
+            <div class="section-title">Error</div>
+            <div class="section-description">분석 데이터를 불러오지 못했어요.</div>
+        </section>
+    `;
+});
+
+function sortEntries(obj) {
+    return Object.entries(obj).sort((a, b) => b[1] - a[1]);
+}
+
+function topN(obj, n) {
+    return sortEntries(obj).slice(0, n);
+}
+
+function parseShutter(info) {
+    if (!info) return null;
+    const match = info.match(/\b(\d+)\/(\d+)s\b|\b(\d+(\.\d+)?)s\b/i);
+    if (!match) return null;
+
+    if (match[1] && match[2]) {
+        return Number(match[1]) / Number(match[2]);
+    }
+
+    if (match[3]) {
+        return Number(match[3]);
+    }
+
+    return null;
+}
+
+function getShutterCategory(seconds) {
+    if (seconds === null) return "Unknown";
+    if (seconds <= 1 / 500) return "Fast";
+    if (seconds <= 1 / 60) return "Medium";
+    return "Slow";
+}
+
+function buildChartRows(entries, maxValue, typeClass, formatter) {
+    if (!entries.length) {
+        return `<div class="chart-note">표시할 데이터가 아직 충분하지 않아요.</div>`;
+    }
+
+    return entries.map(([label, value]) => {
+        const width = maxValue > 0 ? (value / maxValue) * 100 : 0;
+        return `
+            <div class="chart-row">
+                <div class="chart-label">${label}</div>
+                <div class="chart-track">
+                    <div class="chart-fill ${typeClass}" style="width:${width}%"></div>
+                </div>
+                <div class="chart-value">${formatter ? formatter(value) : value}</div>
+            </div>
+        `;
+    }).join("");
+}
+
+function percent(value, total) {
+    if (!total) return 0;
+    return value / total;
+}
+
 function runAnalysis() {
     const total = photos.length;
 
@@ -8,70 +423,110 @@ function runAnalysis() {
     let monthCount = {};
     let shutterCount = { Fast: 0, Medium: 0, Slow: 0, Unknown: 0 };
 
-    photos.forEach(p => {
-        const info = p.info || "";
+    photos.forEach(photo => {
+        const info = photo.info || "";
 
-        const f = info.match(/f\d+(\.\d+)?/i);
-        const iso = info.match(/iso\s*\d+/i);
+        const apertureMatch = info.match(/f\d+(\.\d+)?/i);
+        const isoMatch = info.match(/iso\s*\d+/i);
 
-        if (f) apertureCount[f[0]] = (apertureCount[f[0]] || 0) + 1;
-        if (iso) isoCount[iso[0].replace(/\s+/g, " ")] = (isoCount[iso[0].replace(/\s+/g, " ")] || 0) + 1;
+        if (apertureMatch) {
+            apertureCount[apertureMatch[0]] = (apertureCount[apertureMatch[0]] || 0) + 1;
+        }
 
-        const color = p.color || "Gray";
+        if (isoMatch) {
+            const isoText = isoMatch[0].replace(/\s+/g, " ");
+            isoCount[isoText] = (isoCount[isoText] || 0) + 1;
+        }
+
+        const color = photo.color || "Gray";
         colorCount[color] = (colorCount[color] || 0) + 1;
 
-        if (p.date) {
-            const month = p.date.substring(0, 7);
+        if (photo.date) {
+            const month = photo.date.substring(0, 7);
             monthCount[month] = (monthCount[month] || 0) + 1;
         }
 
         const shutterSeconds = parseShutter(info);
         const shutterCategory = getShutterCategory(shutterSeconds);
-        shutterCount[shutterCategory]++;
+        shutterCount[shutterCategory] = (shutterCount[shutterCategory] || 0) + 1;
     });
 
     const topApertures = topN(apertureCount, 5);
     const topIsos = topN(isoCount, 5);
-    const topColors = topN(colorCount, 5);
+    const topColors = topN(colorCount, 8);
     const topMonths = sortEntries(monthCount);
+    const shutterEntries = sortEntries(shutterCount).filter(([label, value]) => value > 0);
 
-    const mainAperture = topApertures[0]?.[0] || "-";
-    const mainIso = topIsos[0]?.[0] || "-";
-    const mainColor = topColors[0]?.[0] || "-";
-    const secondColor = topColors[1]?.[0] || "";
-    const busiestMonth = topMonths[0]?.[0] || "-";
+    const mainAperture = topApertures[0] ? topApertures[0][0] : "-";
+    const mainIso = topIsos[0] ? topIsos[0][0] : "-";
+    const mainColor = topColors[0] ? topColors[0][0] : "-";
+    const secondColor = topColors[1] ? topColors[1][0] : "";
+    const busiestMonth = topMonths[0] ? topMonths[0][0] : "-";
 
-    // 🔥 셔터 비율 계산
-    const totalShutter = shutterCount.Fast + shutterCount.Medium + shutterCount.Slow;
-    const fastRatio = shutterCount.Fast / totalShutter;
-    const slowRatio = shutterCount.Slow / totalShutter;
+    const apertureMax = topApertures[0] ? topApertures[0][1] : 0;
+    const isoMax = topIsos[0] ? topIsos[0][1] : 0;
+    const colorMax = topColors[0] ? topColors[0][1] : 0;
+    const monthMax = topMonths[0] ? topMonths[0][1] : 0;
+
+    const fastCount = shutterCount.Fast || 0;
+    const mediumCount = shutterCount.Medium || 0;
+    const slowCount = shutterCount.Slow || 0;
+    const knownShutterTotal = fastCount + mediumCount + slowCount;
+
+    const fastRatio = percent(fastCount, knownShutterTotal);
+    const mediumRatio = percent(mediumCount, knownShutterTotal);
+    const slowRatio = percent(slowCount, knownShutterTotal);
+
+    const darkColors = (colorCount.Black || 0) + (colorCount.Gray || 0) + (colorCount.Brown || 0);
+    const coolColors = (colorCount.Blue || 0) + (colorCount.Green || 0) + (colorCount.Purple || 0);
+    const warmColors = (colorCount.Red || 0) + (colorCount.Orange || 0) + (colorCount.Yellow || 0) + (colorCount.Pink || 0);
+    const colorTotal = Object.values(colorCount).reduce((sum, value) => sum + value, 0);
+
+    const darkRatio = percent(darkColors, colorTotal);
+    const coolRatio = percent(coolColors, colorTotal);
+    const warmRatio = percent(warmColors, colorTotal);
+
+    let summaryText = `
+        이 아카이브에서 드러나는 촬영 경향을 보면, 가장 자주 사용한 조리개는 <strong>${mainAperture}</strong>이고
+        가장 많이 기록된 감도는 <strong>${mainIso}</strong>입니다.
+        색감에서는 <strong>${mainColor}${secondColor ? " · " + secondColor : ""}</strong> 계열이 두드러지며,
+        촬영이 가장 활발했던 시기는 <strong>${busiestMonth}</strong>입니다.
+    `;
 
     let shootingStyleText = "";
-    if (fastRatio > 0.55) {
+    if (knownShutterTotal === 0) {
+        shootingStyleText = "셔터스피드 정보가 충분하지 않아 특정 촬영 경향을 단정하기는 어렵지만, 앞으로 데이터가 쌓일수록 더 분명한 흐름을 읽을 수 있습니다.";
+    } else if (fastRatio >= 0.55) {
         shootingStyleText = "빠른 셔터 사용 비중이 높아 순간 포착이나 움직임 제어에 집중하는 촬영 경향이 뚜렷하게 나타납니다.";
-    } else if (slowRatio > 0.4) {
-        shootingStyleText = "느린 셔터 활용이 비교적 많아 빛의 흐름과 분위기를 살리는 장면 중심의 촬영 경향이 보입니다.";
+    } else if (slowRatio >= 0.40) {
+        shootingStyleText = "느린 셔터 활용이 비교적 많아 빛의 흐름과 장면의 분위기를 살리는 방향의 촬영이 자주 나타납니다.";
+    } else if (mediumRatio >= 0.45) {
+        shootingStyleText = "중간 셔터 구간 사용이 중심을 이루어 일상적인 장면과 균형 잡힌 노출 감각을 선호하는 촬영 패턴이 보입니다.";
     } else {
-        shootingStyleText = "셔터스피드 사용이 특정 영역에 치우치지 않고 상황에 따라 유연하게 대응하는 촬영 방식이 특징입니다.";
+        shootingStyleText = "셔터스피드 사용이 특정 구간에 치우치지 않아, 상황에 따라 유연하게 대응하는 촬영 습관이 드러납니다.";
     }
 
-    // 🔥 색 분석 (상위 2개 기반)
     let colorStyleText = "";
-    if (["Black","Gray","Brown"].includes(mainColor)) {
-        colorStyleText = "어두운 계열 색감이 중심을 이루며 전체적으로 차분하고 절제된 분위기의 사진이 주를 이룹니다.";
-    } else if (["Blue","Green"].includes(mainColor)) {
-        colorStyleText = "차가운 색 계열이 두드러지며 공간감과 공기감이 강조된 장면이 자주 나타납니다.";
+    if (darkRatio >= 0.45) {
+        colorStyleText = "어두운 계열 색감이 중심을 이루며, 전체적으로 차분하고 무게감 있는 분위기의 사진이 많은 편입니다.";
+    } else if (coolRatio >= 0.40) {
+        colorStyleText = "차가운 계열 색이 비교적 강하게 나타나 공간감과 공기감이 살아 있는 장면이 자주 보입니다.";
+    } else if (warmRatio >= 0.40) {
+        colorStyleText = "따뜻한 계열 색감이 두드러져 장면의 분위기와 감정을 강조하는 방향의 사진이 많은 편입니다.";
     } else {
-        colorStyleText = "따뜻한 색감 비중이 높아 장면의 분위기와 감정을 강조하는 방향의 사진이 많습니다.";
+        colorStyleText = "특정 색 계열 하나로 치우치기보다 여러 톤이 고르게 섞여 있어, 장면에 따라 다양한 색 분위기를 탐색하는 경향이 보입니다.";
     }
 
-    // 🔥 요약 문장 업그레이드
-    const summaryText = `
-        이 아카이브에서 드러나는 촬영 경향을 보면, 주로 <strong>${mainAperture}</strong> 조리개와
-        <strong>${mainIso}</strong> 감도 설정이 반복적으로 사용되고 있습니다.
-        색감에서는 <strong>${mainColor}${secondColor ? " · " + secondColor : ""}</strong> 계열이 중심을 이루며,
-        촬영은 <strong>${busiestMonth}</strong> 시기에 가장 활발하게 이루어진 것으로 나타납니다.
-    `;
+    let archiveFocusText = "";
+    if (topMonths.length >= 2 && topMonths[0][1] >= topMonths[1][1] * 1.5) {
+        archiveFocusText = `촬영량은 ${busiestMonth}에 가장 강하게 집중되어 있으며, 이 시기가 현재 아카이브의 중심 흐름을 형성하고 있습니다.`;
+    } else if (topMonths.length > 0) {
+        archiveFocusText = `촬영은 특정 한 달에만 몰리기보다 비교적 분산되어 있으며, ${busiestMonth} 시기의 기록이 그중 가장 높은 비중을 차지합니다.`;
+    } else {
+        archiveFocusText = "촬영 시기 정보가 충분하지 않아 시기별 흐름을 뚜렷하게 읽기는 어렵습니다.";
+    }
+
+    const interpretationDescription = "이 아카이브에서 드러나는 촬영 경향과 스타일을 간단히 정리했습니다.";
 
     const wrap = document.getElementById("analysis");
 
@@ -81,15 +536,91 @@ function runAnalysis() {
             <div class="analysis-summary-text">${summaryText}</div>
         </section>
 
-        <!-- 기존 구조 그대로 유지 -->
-        ${wrap.innerHTML.split('<section class="analysis-grid">')[1] ? '<section class="analysis-grid">' + wrap.innerHTML.split('<section class="analysis-grid">')[1] : ''}
+        <section class="analysis-grid">
+            <div class="analysis-card">
+                <div class="analysis-title">Total Photos</div>
+                <div class="analysis-big">${total}</div>
+                <div class="analysis-sub">현재 아카이브에 저장된 전체 사진 수입니다.</div>
+            </div>
+
+            <div class="analysis-card">
+                <div class="analysis-title">Most Used Aperture</div>
+                <div class="analysis-big">${mainAperture}</div>
+                <div class="analysis-sub">가장 자주 등장한 조리개 값</div>
+            </div>
+
+            <div class="analysis-card">
+                <div class="analysis-title">Most Used ISO</div>
+                <div class="analysis-big">${mainIso.replace("iso ", "")}</div>
+                <div class="analysis-sub">가장 많이 기록된 감도 설정</div>
+            </div>
+
+            <div class="analysis-card">
+                <div class="analysis-title">Dominant Color</div>
+                <div class="analysis-big">${mainColor}</div>
+                <div class="analysis-sub">가장 많이 분류된 색상 계열</div>
+            </div>
+        </section>
+
+        <section class="analysis-section">
+            <div class="section-title">Aperture Preference</div>
+            <div class="section-description">자주 사용하는 조리개를 보면 선호하는 심도와 촬영 거리감의 경향을 알 수 있어요.</div>
+            <div class="chart-group">
+                ${buildChartRows(topApertures, apertureMax, "aperture")}
+            </div>
+        </section>
+
+        <section class="analysis-section">
+            <div class="section-title">ISO Pattern</div>
+            <div class="section-description">감도 사용 패턴은 빛 환경에 대한 대응 방식과 이미지 톤의 경향을 보여줘요.</div>
+            <div class="chart-group">
+                ${buildChartRows(topIsos, isoMax, "iso")}
+            </div>
+        </section>
+
+        <section class="analysis-section">
+            <div class="section-title">Color Distribution</div>
+            <div class="section-description">사진 전체에서 많이 나타나는 색 계열을 통해 작업 분위기의 중심 톤을 볼 수 있어요.</div>
+            <div class="chart-group">
+                ${buildChartRows(topColors, colorMax, "color")}
+            </div>
+        </section>
+
+        <section class="analysis-section">
+            <div class="section-title">Monthly Shooting Rhythm</div>
+            <div class="section-description">월별 촬영량을 보면 촬영이 집중된 시기와 아카이브의 흐름을 한눈에 볼 수 있어요.</div>
+            <div class="chart-group">
+                ${buildChartRows(topMonths, monthMax, "month")}
+            </div>
+        </section>
+
+        <section class="analysis-section">
+            <div class="section-title">Interpretation Notes</div>
+            <div class="section-description">${interpretationDescription}</div>
+            <div class="insight-grid">
+                <div class="insight-card">
+                    <div class="insight-title">Shutter Style</div>
+                    <div class="insight-text">${shootingStyleText}</div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-title">Color Mood</div>
+                    <div class="insight-text">${colorStyleText}</div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-title">Top Shutter Distribution</div>
+                    <div class="insight-text">
+                        ${shutterEntries.length ? shutterEntries.map(([label, value]) => `${label}: ${value}장`).join("<br>") : "셔터스피드 데이터가 아직 충분하지 않아요."}
+                    </div>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-title">Archive Focus</div>
+                    <div class="insight-text">${archiveFocusText}</div>
+                </div>
+            </div>
+        </section>
     `;
-
-    // 🔥 마지막 interpretation만 교체
-    document.querySelector(".analysis-section:last-child .section-description")
-        .innerText = "이 아카이브에서 드러나는 촬영 스타일과 색감 경향을 정리했습니다.";
-
-    document.querySelector(".insight-card:nth-child(1) .insight-text").innerText = shootingStyleText;
-    document.querySelector(".insight-card:nth-child(2) .insight-text").innerText = colorStyleText;
 }
 </script>
+
+</body>
+</html>
