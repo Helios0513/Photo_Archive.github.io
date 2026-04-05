@@ -27,13 +27,122 @@
         .btn-save { background-color: #333; color: white; }
         .btn-cancel { background-color: #eee; color: #666; }
         
-        /* 프로필 요소들에 마우스 올리면 클릭 가능함을 표시 */
         .profile-img, #displayName, #displayDescription { 
             cursor: pointer; 
             transition: opacity 0.3s; 
         }
         .profile-img:hover, #displayName:hover, #displayDescription:hover { 
             opacity: 0.7; 
+        }
+
+        /* 오늘의 사진 영역 */
+        .today-photo-section {
+            margin-top: 45px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .today-photo-title {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .today-photo-subtitle {
+            color: #888;
+            margin-bottom: 18px;
+            font-size: 0.95rem;
+        }
+
+        .today-photo-card {
+            max-width: 760px;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        .today-photo-image {
+            width: 100%;
+            display: block;
+            cursor: zoom-in;
+        }
+
+        .today-photo-info {
+            padding: 16px 18px 18px 18px;
+        }
+
+        .today-photo-date {
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .today-photo-meta {
+            color: #555;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .today-photo-empty {
+            color: #999;
+            font-size: 0.95rem;
+        }
+
+        /* 라이트박스 */
+        #todayLightbox {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            flex-direction: column;
+        }
+
+        #todayLightbox img {
+            max-width: 92vw;
+            max-height: 74vh;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.6);
+            cursor: zoom-out;
+        }
+
+        .today-lightbox-caption {
+            margin-top: 16px;
+            color: #efefef;
+            text-align: center;
+            line-height: 1.6;
+            max-width: 760px;
+            word-break: break-word;
+        }
+
+        @media (max-width: 768px) {
+            .today-photo-title {
+                font-size: 1.2rem;
+            }
+
+            .today-photo-subtitle {
+                font-size: 0.88rem;
+            }
+
+            .today-photo-info {
+                padding: 14px;
+            }
+
+            #todayLightbox img {
+                max-width: 94vw;
+                max-height: 62vh;
+            }
+
+            .today-lightbox-caption {
+                font-size: 0.9rem;
+                padding: 0 8px;
+            }
         }
     </style>
 </head>
@@ -45,17 +154,24 @@
             <p id="displayDescription" onclick="openProfileEdit()">Amateur Photographer</p>
             
             <nav>
-    <ul>
-        <li><a href="index.html">main page</a></li>
-        <li><a href="digital.html">digital photos</a></li>
-        <li><a href="film.html">film photos</a></li>
-        <li><a href="guestbook.html">guestbook</a></li> </ul>
-</nav>
+                <ul>
+                    <li><a href="index.html">main page</a></li>
+                    <li><a href="digital.html">digital photos</a></li>
+                    <li><a href="film.html">film photos</a></li>
+                    <li><a href="guestbook.html">guestbook</a></li>
+                </ul>
+            </nav>
         </div>
 
         <div class="main-content">
             <h1>Photo Archive</h1>
             <p>Hi! This is my personal Photo Archive.</p>
+
+            <section class="today-photo-section">
+                <h2 class="today-photo-title">Today's Photo</h2>
+                <p class="today-photo-subtitle">오늘 하루 동안 고정으로 보여지는 사진이에요.</p>
+                <div id="todayPhotoWrap" class="today-photo-empty">사진을 불러오는 중입니다...</div>
+            </section>
         </div>
     </div>
 
@@ -79,6 +195,11 @@
         </div>
     </div>
 
+    <div id="todayLightbox" onclick="closeTodayLightbox()">
+        <img id="todayLightboxImg" src="" alt="오늘의 사진 확대">
+        <div class="today-lightbox-caption" id="todayLightboxCaption"></div>
+    </div>
+
     <script>
         const repo = "Helios0513/Photo_Archive.github.io";
 
@@ -97,6 +218,66 @@
                     document.getElementById('editDescription').value = profile.description || "Amateur Photographer";
                 }
             } catch (e) { console.log("기존 프로필 로드 실패"); }
+        }
+
+        async function loadTodayPhoto() {
+            const wrap = document.getElementById('todayPhotoWrap');
+
+            try {
+                const res = await fetch('photos.json');
+                const photos = await res.json();
+
+                if (!Array.isArray(photos) || photos.length === 0) {
+                    wrap.innerHTML = `<div class="today-photo-empty">표시할 사진이 아직 없어요.</div>`;
+                    return;
+                }
+
+                const todayKey = new Date().toISOString().split('T')[0];
+                let seed = 0;
+                for (let i = 0; i < todayKey.length; i++) {
+                    seed += todayKey.charCodeAt(i);
+                }
+
+                const index = seed % photos.length;
+                const photo = photos[index];
+                const photoDate = photo.date || "날짜 미상";
+                const photoInfo = photo.info || "";
+
+                wrap.innerHTML = `
+                    <div class="today-photo-card">
+                        <img 
+                            src="images/digital/${photo.filename}" 
+                            alt="Today's Photo" 
+                            class="today-photo-image"
+                            loading="lazy"
+                            onclick="openTodayLightbox('images/digital/${photo.filename}', '${(photoDate + ' | ' + photoInfo).replace(/'/g, "\\'")}')"
+                        >
+                        <div class="today-photo-info">
+                            <div class="today-photo-date">${photoDate}</div>
+                            <div class="today-photo-meta">${photoInfo}</div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error(error);
+                wrap.innerHTML = `<div class="today-photo-empty">오늘의 사진을 불러오지 못했어요.</div>`;
+            }
+        }
+
+        function openTodayLightbox(src, caption) {
+            const lightbox = document.getElementById('todayLightbox');
+            const img = document.getElementById('todayLightboxImg');
+            const text = document.getElementById('todayLightboxCaption');
+
+            img.src = src;
+            text.innerText = caption;
+            lightbox.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTodayLightbox() {
+            document.getElementById('todayLightbox').style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
 
         function openProfileEdit() { document.getElementById('profileModal').style.display = 'block'; }
@@ -161,7 +342,9 @@
                 if(putRes.ok) {
                     alert("✅ 프로필이 성공적으로 변경되었습니다!");
                     location.reload();
-                } else { throw new Error("JSON 저장 실패"); }
+                } else {
+                    throw new Error("JSON 저장 실패");
+                }
 
             } catch (e) {
                 alert("❌ 실패: " + e.message);
@@ -169,7 +352,10 @@
             }
         }
 
-        window.onload = loadProfile;
+        window.onload = () => {
+            loadProfile();
+            loadTodayPhoto();
+        };
     </script>
 </body>
 </html>
