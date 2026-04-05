@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>guestbook - Hamihamoo</title>
-    <link rel="stylesheet" href="styles.css"> <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <style>
-        /* 방명록 페이지 전용 깔끔한 디자인 */
         .guestbook-box { 
             max-width: 600px; 
             margin: 0 auto; 
@@ -42,6 +42,25 @@
             transition: 0.2s;
         }
         .write-area button:hover { background: #000; }
+        .write-area button:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .helper-text {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: -2px;
+            margin-bottom: 12px;
+        }
+
+        .status-text {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 8px;
+            text-align: center;
+            min-height: 20px;
+        }
 
         .msg-item { 
             border-bottom: 1px solid #f0f0f0; 
@@ -51,7 +70,7 @@
         .msg-info { font-size: 0.85rem; margin-bottom: 8px; color: #333; }
         .msg-name { font-weight: bold; margin-right: 10px; }
         .msg-date { color: #ccc; font-size: 0.75rem; }
-        .msg-text { line-height: 1.6; color: #555; white-space: pre-wrap; }
+        .msg-text { line-height: 1.6; color: #555; white-space: pre-wrap; word-break: break-word; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -77,9 +96,11 @@
 
             <div class="guestbook-box">
                 <div class="write-area">
-                    <input type="text" id="nickname" placeholder="이름 (닉네임)">
-                    <textarea id="message" rows="4" placeholder="내용을 입력해주세요."></textarea>
-                    <button onclick="sendMsg()">글 남기기</button>
+                    <input type="text" id="nickname" placeholder="이름 (닉네임)" maxlength="20">
+                    <textarea id="message" rows="4" placeholder="내용을 입력해주세요." maxlength="500"></textarea>
+                    <div class="helper-text">닉네임 20자 이하 / 내용 500자 이하 / 링크 포함 글은 제한됩니다.</div>
+                    <button id="submitBtn" onclick="sendMsg()">글 남기기</button>
+                    <div id="status-text" class="status-text"></div>
                 </div>
 
                 <div id="message-list"></div>
@@ -90,7 +111,6 @@
     </div>
 
     <script>
-        // 파이어베이스 설정
         const firebaseConfig = {
             apiKey: "AIzaSyB7ZAZN43x_hYitRyEgcXnjeyIfYr9OyUQ",
             authDomain: "my-photo-web-9b97a.firebaseapp.com",
@@ -99,46 +119,127 @@
             messagingSenderId: "719108728610",
             appId: "1:719108728610:web:6e289f800ca5e19815677b"
         };
+
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 1. 글 저장하기 함수
-        async function sendMsg() {
-            const nick = document.getElementById('nickname').value;
-            const text = document.getElementById('message').value;
+        const submitBtn = document.getElementById('submitBtn');
+        const statusText = document.getElementById('status-text');
 
-            if (!nick || !text) { alert("이름과 내용을 모두 적어주세요!"); return; }
+        const blockedWords = [
+            "casino", "바카라", "토토", "도박", "성인", "야동", "porn", "sex",
+            "http://", "https://", "www.", ".com", ".net", ".kr", "bit.ly", "t.me"
+        ];
 
-            await db.collection("guestbook").add({
-                nickname: nick,
-                message: text,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            document.getElementById('message').value = ""; // 입력창 비우기
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
         }
 
-        // 2. 글 목록 실시간으로 가져와서 화면에 그리기
+        function containsBlockedWord(text) {
+            const lower = text.toLowerCase();
+            return blockedWords.some(word => lower.includes(word.toLowerCase()));
+        }
+
+        function isTooFast() {
+            const lastWriteTime = localStorage.getItem('guestbook_last_write_time');
+            if (!lastWriteTime) return false;
+
+            const now = Date.now();
+            const diff = now - Number(lastWriteTime);
+
+            return diff < 60000;
+        }
+
+        function saveWriteTime() {
+            localStorage.setItem('guestbook_last_write_time', String(Date.now()));
+        }
+
+        async function sendMsg() {
+            const nickInput = document.getElementById('nickname');
+            const messageInput = document.getElementById('message');
+
+            const nick = nickInput.value.trim();
+            const text = messageInput.value.trim();
+
+            if (!nick || !text) {
+                alert("이름과 내용을 모두 적어주세요!");
+                return;
+            }
+
+            if (nick.length > 20) {
+                alert("닉네임은 20자 이하로 입력해주세요.");
+                return;
+            }
+
+            if (text.length > 500) {
+                alert("내용은 500자 이하로 입력해주세요.");
+                return;
+            }
+
+            if (containsBlockedWord(nick) || containsBlockedWord(text)) {
+                alert("링크 또는 제한된 단어가 포함되어 있어 등록할 수 없습니다.");
+                return;
+            }
+
+            if (isTooFast()) {
+                alert("너무 빠르게 연속 등록할 수 없습니다. 1분 후 다시 시도해주세요.");
+                return;
+            }
+
+            try {
+                submitBtn.disabled = true;
+                statusText.innerText = "등록 중입니다...";
+
+                await db.collection("guestbook").add({
+                    nickname: nick,
+                    message: text,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                saveWriteTime();
+
+                nickInput.value = "";
+                messageInput.value = "";
+                statusText.innerText = "등록되었습니다.";
+            } catch (error) {
+                console.error(error);
+                statusText.innerText = "등록에 실패했습니다. 잠시 후 다시 시도해주세요.";
+                alert("등록에 실패했습니다.");
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+
         db.collection("guestbook").orderBy("timestamp", "desc").onSnapshot((snap) => {
             const listDiv = document.getElementById('message-list');
-            listDiv.innerHTML = ""; // 일단 싹 지우고 새로 그리기
+            listDiv.innerHTML = "";
 
             snap.forEach((doc) => {
                 const data = doc.data();
-                // 날짜 예쁘게 바꾸기
                 const dateObj = data.timestamp ? data.timestamp.toDate() : new Date();
-                const dateStr = dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const dateStr = dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const safeNickname = escapeHtml(data.nickname || "");
+                const safeMessage = escapeHtml(data.message || "");
 
                 listDiv.innerHTML += `
                     <div class="msg-item">
                         <div class="msg-info">
-                            <span class="msg-name">${data.nickname}</span>
+                            <span class="msg-name">${safeNickname}</span>
                             <span class="msg-date">${dateStr}</span>
                         </div>
-                        <div class="msg-text">${data.message}</div>
+                        <div class="msg-text">${safeMessage}</div>
                     </div>
                 `;
             });
+        }, (error) => {
+            console.error(error);
+            statusText.innerText = "방명록을 불러오는 중 문제가 발생했습니다.";
         });
     </script>
 </body>
