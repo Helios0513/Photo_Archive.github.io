@@ -6,6 +6,65 @@
     <title>digital photos</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+        body.dark-mode {
+            background: #111;
+            color: #e9e9e9;
+        }
+
+        body.dark-mode .container,
+        body.dark-mode .main-content,
+        body.dark-mode .profile,
+        body.dark-mode .photo-container,
+        body.dark-mode .date-header,
+        body.dark-mode footer {
+            background: transparent;
+            color: #e9e9e9;
+        }
+
+        body.dark-mode .date-header {
+            border-bottom: 2px solid #666;
+            color: #f1f1f1;
+        }
+
+        body.dark-mode #date-dropdown {
+            background: #1f1f1f;
+            border: 1px solid #444;
+        }
+
+        body.dark-mode .dropdown-item {
+            color: #ddd;
+            border-bottom: 1px solid #2d2d2d;
+        }
+
+        body.dark-mode .dropdown-item:hover {
+            background: #2a2a2a;
+            color: #fff;
+        }
+
+        body.dark-mode #date-nav {
+            background: rgba(35, 35, 35, 0.78);
+            border: 1px solid #444;
+        }
+
+        body.dark-mode .nav-item {
+            color: #bbb;
+        }
+
+        body.dark-mode .nav-item:hover {
+            color: #fff;
+        }
+
+        body.dark-mode .control-btn,
+        body.dark-mode #top-btn {
+            background: #f1f1f1;
+            color: #111;
+        }
+
+        body.dark-mode .control-btn:hover,
+        body.dark-mode #top-btn:hover {
+            background: #ffffff;
+        }
+
         footer {
             margin-top: 80px;
             padding: 40px 20px;
@@ -13,19 +72,24 @@
             border-top: 1px solid #eee;
             clear: both;
         }
+
+        body.dark-mode footer {
+            border-top: 1px solid #333;
+        }
+
         .profile-link {
             text-decoration: none;
             color: inherit;
             display: block;
             cursor: default;
         }
+
         .admin-link {
             color: #f9f9f9;
             text-decoration: none;
             font-size: 0.7rem;
         }
 
-        /* ✨ 날짜 그룹 헤더 스타일 */
         .date-header {
             width: 100%;
             padding: 40px 20px 10px 20px; 
@@ -38,14 +102,15 @@
             box-sizing: border-box;
         }
 
-        /* ✨ 우측 상단 컨트롤 영역 (버튼들 정렬) */
         .controls-container {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 2000;
             display: flex;
-            gap: 10px; /* 버튼 사이 간격 */
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         .control-btn {
@@ -89,10 +154,10 @@
             transition: 0.2s;
             border-bottom: 1px solid #f9f9f9;
         }
+
         .dropdown-item:last-child { border-bottom: none; }
         .dropdown-item:hover { background: #f5f5f5; color: #000; }
 
-        /* ✨ 우측 사이드 날짜 내비게이션 */
         #date-nav {
             position: fixed;
             right: 20px;
@@ -120,9 +185,32 @@
             cursor: pointer;
             padding: 2px 0;
         }
+
         .nav-item:hover { color: #000; font-weight: bold; transform: scale(1.1); }
 
-        /* ✨ Lightbox (확대창) 스타일 최적화 */
+        #top-btn {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 2200;
+            display: none;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 999px;
+            width: 52px;
+            height: 52px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            transition: 0.25s;
+        }
+
+        #top-btn:hover {
+            background: #000;
+            transform: translateY(-2px);
+        }
+
         #lightbox {
             display: none; 
             position: fixed;
@@ -132,13 +220,15 @@
             z-index: 10000;
             justify-content: center; 
             align-items: center;
-            flex-direction: column; /* 사진과 설명을 세로로 배치 */
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .lightbox-wrapper {
             position: relative;
-            max-width: 90%;
-            max-height: 80%; /* 설명창 공간 확보를 위해 살짝 줄임 */
+            max-width: 92%;
+            max-height: 92%;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -146,71 +236,163 @@
 
         #lightbox img {
             max-width: 100%; 
-            max-height: 75vh; /* 화면 높이의 75%만 차지하도록 설정 */
+            max-height: 65vh;
             object-fit: contain;
             box-shadow: 0 0 30px rgba(0,0,0,0.8);
             animation: zoomIn 0.25s ease-out;
             cursor: zoom-out;
+            border-radius: 10px;
         }
 
-        /* 📸 설명창 스타일 개선 (사진 아래로 분리) */
+        .lightbox-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .lightbox-control-btn {
+            background: rgba(255,255,255,0.12);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.22);
+            border-radius: 999px;
+            padding: 10px 16px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .lightbox-control-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
         #lightbox-caption {
             color: #efefef;
             background: none;
-            padding: 15px 10px;
+            padding: 14px 0 8px 0;
             font-size: 0.9rem;
-            text-align: center; /* 설명을 가운데로 */
+            text-align: center;
             width: 100%;
             line-height: 1.5;
             pointer-events: none;
         }
 
-        /* PC용 다음 사진 화살표 */
+        .info-card {
+            width: 100%;
+            margin-top: 8px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 14px;
+            box-sizing: border-box;
+        }
+
+        .info-card-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .info-chip {
+            background: rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 10px 12px;
+            text-align: center;
+        }
+
+        .info-chip-label {
+            font-size: 0.72rem;
+            color: #bdbdbd;
+            margin-bottom: 4px;
+        }
+
+        .info-chip-value {
+            font-size: 0.9rem;
+            color: #fff;
+            font-weight: bold;
+            word-break: break-word;
+        }
+
+        #prev-btn,
         #next-btn {
             position: absolute;
-            right: -80px;
-            top: 50%;
+            top: 42%;
             transform: translateY(-50%);
             background: none;
             border: none;
             color: white;
-            font-size: 3.5rem;
+            font-size: 3.2rem;
             cursor: pointer;
-            padding: 20px;
-            display: none;
-            opacity: 0.6;
-            transition: 0.3s;
+            padding: 16px;
+            opacity: 0.65;
+            transition: 0.25s;
         }
-        #next-btn:hover { opacity: 1; transform: translateY(-50%) scale(1.1); }
 
-        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        #prev-btn:hover,
+        #next-btn:hover {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.08);
+        }
+
+        #prev-btn { left: -80px; }
+        #next-btn { right: -80px; }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
 
         .photo-container img { cursor: zoom-in; transition: opacity 0.3s; }
         .photo-container img:hover { opacity: 0.9; }
 
-        /* 📱 모바일 최적화 */
         @media (max-width: 768px) {
             #date-nav { right: 5px; padding: 10px 5px; }
             .nav-item { font-size: 0.6rem; }
             .date-header { padding: 35px 15px 10px 15px; }
-            .controls-container { top: 15px; right: 15px; }
+            .controls-container { top: 15px; right: 15px; max-width: 80vw; }
             .control-btn { padding: 8px 14px; font-size: 0.75rem; }
-            
-            /* 모바일에서 사진 가리지 않게 크기 대폭 조절 */
-            #lightbox img { max-height: 65vh; }
+
+            #lightbox {
+                padding: 14px;
+            }
+
+            #lightbox img {
+                max-height: 52vh;
+            }
+
             #lightbox-caption { 
                 font-size: 0.8rem; 
-                margin-top: 10px; 
-                background: rgba(255,255,255,0.05); /* 글자 가독성을 위해 살짝 배경색 */
+                margin-top: 6px; 
+                background: rgba(255,255,255,0.05);
                 border-radius: 8px;
+                padding: 10px;
             }
-            #next-btn { display: none !important; } /* 모바일은 스와이프 전용 */
+
+            .info-card-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            #prev-btn,
+            #next-btn {
+                display: none !important;
+            }
+
+            #top-btn {
+                right: 16px;
+                bottom: 18px;
+                width: 48px;
+                height: 48px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="controls-container">
+            <button class="control-btn" onclick="toggleDarkMode()">
+                🌙 Dark
+            </button>
             <button class="control-btn" onclick="openRandomPhoto()">
                 🎲 Random Photo
             </button>
@@ -229,12 +411,13 @@
             <h2>Hamihamoo</h2>
             <p>Amateur Photographer</p>
             <nav>
-    <ul>
-        <li><a href="index.html">main page</a></li>
-        <li><a href="digital.html">digital photos</a></li>
-        <li><a href="film.html">film photos</a></li>
-        <li><a href="guestbook.html">guestbook</a></li> </ul>
-</nav>
+                <ul>
+                    <li><a href="index.html">main page</a></li>
+                    <li><a href="digital.html">digital photos</a></li>
+                    <li><a href="film.html">film photos</a></li>
+                    <li><a href="guestbook.html">guestbook</a></li>
+                </ul>
+            </nav>
         </div>
 
         <div class="main-content">
@@ -250,17 +433,54 @@
         </div>
     </div>
 
+    <button id="top-btn" onclick="scrollToTop()">↑</button>
+
     <div id="lightbox">
         <div class="lightbox-wrapper">
+            <button id="prev-btn" onclick="showPreviousPhoto()">❮</button>
             <img id="lightbox-img" src="" alt="확대된 사진" onclick="closeLightbox()">
+            <button id="next-btn" onclick="showNextPhoto()">❯</button>
             <div id="lightbox-caption"></div>
-            <button id="next-btn" onclick="openRandomPhoto()">❯</button>
+
+            <div class="info-card">
+                <div class="info-card-grid">
+                    <div class="info-chip">
+                        <div class="info-chip-label">Date</div>
+                        <div class="info-chip-value" id="card-date">-</div>
+                    </div>
+                    <div class="info-chip">
+                        <div class="info-chip-label">Camera</div>
+                        <div class="info-chip-value" id="card-camera">-</div>
+                    </div>
+                    <div class="info-chip">
+                        <div class="info-chip-label">Aperture</div>
+                        <div class="info-chip-value" id="card-aperture">-</div>
+                    </div>
+                    <div class="info-chip">
+                        <div class="info-chip-label">Shutter / ISO</div>
+                        <div class="info-chip-value" id="card-shutter-iso">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lightbox-controls">
+                <button class="lightbox-control-btn" id="slideshow-btn" onclick="toggleSlideshow()">▶ Slideshow</button>
+                <button class="lightbox-control-btn" onclick="showPreviousPhoto()">← Prev</button>
+                <button class="lightbox-control-btn" onclick="showNextPhoto()">Next →</button>
+            </div>
         </div>
     </div>
 
     <script>
         let allPhotos = [];
+        let displayedPhotos = [];
         let isRandomMode = false;
+        let currentLightboxIndex = -1;
+        let slideshowInterval = null;
+        let touchstartX = 0;
+        let touchendX = 0;
+
+        applySavedDarkMode();
 
         function toggleDropdown() {
             const dropdown = document.getElementById('date-dropdown');
@@ -272,6 +492,55 @@
                 const dropdown = document.getElementById('date-dropdown');
                 if (dropdown && dropdown.style.display === 'block') dropdown.style.display = 'none';
             }
+        };
+
+        function applySavedDarkMode() {
+            const savedMode = localStorage.getItem('photo_archive_dark_mode');
+            if (savedMode === 'on') {
+                document.body.classList.add('dark-mode');
+                updateDarkButtonText();
+            }
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem(
+                'photo_archive_dark_mode',
+                document.body.classList.contains('dark-mode') ? 'on' : 'off'
+            );
+            updateDarkButtonText();
+        }
+
+        function updateDarkButtonText() {
+            const button = document.querySelector('.controls-container .control-btn');
+            if (!button) return;
+            button.innerHTML = document.body.classList.contains('dark-mode') ? '☀ Light' : '🌙 Dark';
+        }
+
+        function parseInfo(infoText) {
+            const text = (infoText || '').trim();
+            const fMatch = text.match(/\bf\d+(\.\d+)?\b/i);
+            const shutterMatch = text.match(/\b\d+\/\d+s\b|\b\d+(\.\d+)?s\b/i);
+            const isoMatch = text.match(/\biso\s*\d+\b/i);
+
+            const aperture = fMatch ? fMatch[0] : '-';
+            const shutter = shutterMatch ? shutterMatch[0] : '';
+            const iso = isoMatch ? isoMatch[0].replace(/\s+/g, ' ') : '';
+
+            let camera = text;
+            if (fMatch) {
+                camera = text.substring(0, fMatch.index).trim();
+            }
+            if (!camera) camera = '-';
+
+            let shutterIso = [shutter, iso].filter(Boolean).join(' / ');
+            if (!shutterIso) shutterIso = '-';
+
+            return {
+                camera,
+                aperture,
+                shutterIso
+            };
         }
 
         fetch('photos.json')
@@ -288,9 +557,11 @@
                     return dateB.localeCompare(dateA);
                 });
 
+                displayedPhotos = sortedData;
+
                 let lastDate = "";
 
-                sortedData.forEach(photo => {
+                sortedData.forEach((photo, index) => {
                     const currentDate = photo.date || "날짜 미상";
 
                     if (currentDate !== lastDate) {
@@ -321,42 +592,60 @@
 
                     const div = document.createElement('div');
                     div.className = 'photo-container';
-                    
-                    const infoText = photo.info || "";
-                    const fullCaption = `${currentDate} | ${infoText}`;
-                    
-                    div.innerHTML = `
-                        <img src="images/digital/${photo.filename}" 
-                             alt="사진" 
-                             loading="lazy" 
-                             onclick="openLightbox('images/digital/${photo.filename}', '${fullCaption.replace(/'/g, "\\'")}', false)">
-                        <div class="photo-info">${photo.info}</div>
-                    `;
+
+                    const img = document.createElement('img');
+                    img.src = `images/digital/${photo.filename}`;
+                    img.alt = '사진';
+                    img.loading = 'lazy';
+                    img.addEventListener('click', () => openLightboxByIndex(index, false));
+
+                    const info = document.createElement('div');
+                    info.className = 'photo-info';
+                    info.innerText = photo.info || '';
+
+                    div.appendChild(img);
+                    div.appendChild(info);
                     container.appendChild(div);
                 });
             })
             .catch(error => console.error('Error:', error));
 
         function openRandomPhoto() {
-            if (allPhotos.length === 0) return;
-            const randomIndex = Math.floor(Math.random() * allPhotos.length);
-            const photo = allPhotos[randomIndex];
-            const fullCaption = `${photo.date || "날짜 미상"} | ${photo.info || ""}`;
-            openLightbox(`images/digital/${photo.filename}`, fullCaption, true);
+            if (displayedPhotos.length === 0) return;
+            const randomIndex = Math.floor(Math.random() * displayedPhotos.length);
+            openLightboxByIndex(randomIndex, true);
         }
 
-        function openLightbox(src, caption, randomMode) {
+        function openLightboxByIndex(index, randomMode) {
+            if (index < 0 || index >= displayedPhotos.length) return;
+
+            currentLightboxIndex = index;
             isRandomMode = randomMode;
+
+            const photo = displayedPhotos[index];
             const lightbox = document.getElementById('lightbox');
             const lightboxImg = document.getElementById('lightbox-img');
             const lightboxCap = document.getElementById('lightbox-caption');
+            const prevBtn = document.getElementById('prev-btn');
             const nextBtn = document.getElementById('next-btn');
-            
-            lightboxImg.src = src;
-            lightboxCap.innerText = caption;
-            
-            nextBtn.style.display = randomMode ? 'block' : 'none';
-            
+
+            const photoDate = photo.date || "날짜 미상";
+            const infoText = photo.info || "";
+            const fullCaption = `${photoDate} | ${infoText}`;
+
+            lightboxImg.src = `images/digital/${photo.filename}`;
+            lightboxCap.innerText = fullCaption;
+
+            const parsedInfo = parseInfo(infoText);
+            document.getElementById('card-date').innerText = photoDate;
+            document.getElementById('card-camera').innerText = parsedInfo.camera;
+            document.getElementById('card-aperture').innerText = parsedInfo.aperture;
+            document.getElementById('card-shutter-iso').innerText = parsedInfo.shutterIso;
+
+            prevBtn.style.display = randomMode ? 'none' : 'block';
+            nextBtn.style.display = randomMode ? 'block' : 'block';
+
+            updateSlideshowButtonText();
             lightbox.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
@@ -365,10 +654,65 @@
             document.getElementById('lightbox').style.display = 'none';
             document.body.style.overflow = 'auto';
             isRandomMode = false;
+            currentLightboxIndex = -1;
+            stopSlideshow();
         }
 
-        let touchstartX = 0;
-        let touchendX = 0;
+        function showNextPhoto() {
+            if (displayedPhotos.length === 0) return;
+
+            if (isRandomMode) {
+                openRandomPhoto();
+                return;
+            }
+
+            let nextIndex = currentLightboxIndex + 1;
+            if (nextIndex >= displayedPhotos.length) nextIndex = 0;
+            openLightboxByIndex(nextIndex, false);
+        }
+
+        function showPreviousPhoto() {
+            if (displayedPhotos.length === 0 || isRandomMode) return;
+
+            let prevIndex = currentLightboxIndex - 1;
+            if (prevIndex < 0) prevIndex = displayedPhotos.length - 1;
+            openLightboxByIndex(prevIndex, false);
+        }
+
+        function toggleSlideshow() {
+            if (slideshowInterval) {
+                stopSlideshow();
+            } else {
+                slideshowInterval = setInterval(() => {
+                    showNextPhoto();
+                }, 2500);
+                updateSlideshowButtonText();
+            }
+        }
+
+        function stopSlideshow() {
+            if (slideshowInterval) {
+                clearInterval(slideshowInterval);
+                slideshowInterval = null;
+                updateSlideshowButtonText();
+            }
+        }
+
+        function updateSlideshowButtonText() {
+            const btn = document.getElementById('slideshow-btn');
+            if (!btn) return;
+            btn.innerText = slideshowInterval ? '⏸ Stop Slideshow' : '▶ Slideshow';
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('scroll', () => {
+            const topBtn = document.getElementById('top-btn');
+            if (!topBtn) return;
+            topBtn.style.display = window.scrollY > 500 ? 'block' : 'none';
+        });
 
         document.getElementById('lightbox').addEventListener('touchstart', e => {
             touchstartX = e.changedTouches[0].screenX;
@@ -380,15 +724,44 @@
         }, false);
 
         function handleGesture() {
-            if (!isRandomMode) return;
-            if (touchstartX - touchendX > 50) { // 왼쪽으로 스와이프
+            const diff = touchstartX - touchendX;
+
+            if (Math.abs(diff) < 50) return;
+
+            if (isRandomMode) {
                 openRandomPhoto();
+                return;
+            }
+
+            if (diff > 0) {
+                showNextPhoto();
+            } else {
+                showPreviousPhoto();
             }
         }
 
         document.addEventListener('keydown', (e) => { 
-            if (e.key === "Escape") closeLightbox(); 
-            if (isRandomMode && e.key === "ArrowRight") openRandomPhoto();
+            const lightboxVisible = document.getElementById('lightbox').style.display === 'flex';
+
+            if (e.key === "Escape" && lightboxVisible) {
+                closeLightbox();
+                return;
+            }
+
+            if (!lightboxVisible) return;
+
+            if (e.key === "ArrowRight") {
+                showNextPhoto();
+            }
+
+            if (e.key === "ArrowLeft") {
+                showPreviousPhoto();
+            }
+
+            if (e.key === " ") {
+                e.preventDefault();
+                toggleSlideshow();
+            }
         });
     </script>
 </body>
