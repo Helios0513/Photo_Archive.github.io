@@ -68,6 +68,64 @@
     <script>
         const repo = "Helios0513/Photo_Archive.github.io";
 
+        function formatExposureTime(exposureValue) {
+            if (!exposureValue) return "";
+
+            if (typeof exposureValue === "string") {
+                const trimmed = exposureValue.trim();
+                if (!trimmed) return "";
+                return trimmed.endsWith("s") ? trimmed : `${trimmed}s`;
+            }
+
+            if (typeof exposureValue === "number") {
+                if (exposureValue >= 1) {
+                    return `${exposureValue}s`;
+                }
+                const denominator = Math.round(1 / exposureValue);
+                if (denominator > 0) {
+                    return `1/${denominator}s`;
+                }
+                return `${exposureValue}s`;
+            }
+
+            if (typeof exposureValue === "object") {
+                if (
+                    typeof exposureValue.numerator === "number" &&
+                    typeof exposureValue.denominator === "number" &&
+                    exposureValue.denominator !== 0
+                ) {
+                    if (exposureValue.numerator >= exposureValue.denominator) {
+                        const seconds = exposureValue.numerator / exposureValue.denominator;
+                        return `${seconds}s`;
+                    }
+                    return `${exposureValue.numerator}/${exposureValue.denominator}s`;
+                }
+
+                if (
+                    typeof exposureValue.numerator === "function" &&
+                    typeof exposureValue.denominator === "function"
+                ) {
+                    const numerator = exposureValue.numerator();
+                    const denominator = exposureValue.denominator();
+                    if (denominator) {
+                        if (numerator >= denominator) {
+                            const seconds = numerator / denominator;
+                            return `${seconds}s`;
+                        }
+                        return `${numerator}/${denominator}s`;
+                    }
+                }
+
+                if (typeof exposureValue.toString === "function") {
+                    const text = exposureValue.toString().trim();
+                    if (!text) return "";
+                    return text.endsWith("s") ? text : `${text}s`;
+                }
+            }
+
+            return "";
+        }
+
         // [1] 목록 로드
         async function loadPhotoList() {
             const token = document.getElementById('token').value;
@@ -135,7 +193,7 @@
             status.innerText = `✅ 분석 완료! ${count}개의 날짜 복구. [저장하기]를 눌러주세요.`;
         }
 
-        // [3] 다중 파일 업로드 로직 (핵심 수정 부분)
+        // [3] 다중 파일 업로드 로직
         async function handleUpload() {
             const token = document.getElementById('token').value;
             const fileInput = document.getElementById('fileInput');
@@ -164,15 +222,25 @@
                         EXIF.getData(file, function() {
                             const date = EXIF.getTag(this, "DateTimeOriginal");
                             const model = EXIF.getTag(this, "Model") || "";
-                            const fNum = EXIF.getTag(this, "FNumber") ? `f${EXIF.getTag(this, "FNumber")}` : "";
-                            const iso = EXIF.getTag(this, "ISOSpeedRatings") ? `iso ${EXIF.getTag(this, "ISOSpeedRatings")}` : "";
-                            
+                            const fNumberRaw = EXIF.getTag(this, "FNumber");
+                            const isoRaw = EXIF.getTag(this, "ISOSpeedRatings");
+                            const exposureRaw = EXIF.getTag(this, "ExposureTime");
+
+                            const fNum = fNumberRaw ? `f${fNumberRaw}` : "";
+                            const shutter = formatExposureTime(exposureRaw);
+                            const iso = isoRaw ? `iso ${isoRaw}` : "";
+
                             let formattedDate = new Date().toISOString().substring(0, 10);
                             if (date) {
                                 const p = date.split(" ")[0].split(":");
                                 formattedDate = `${p[0]}-${p[1]}-${p[2]}`;
                             }
-                            resolve({ date: formattedDate, info: `${model} ${fNum} ${iso}`.trim() });
+
+                            const info = [model, fNum, shutter, iso]
+                                .filter(value => value && String(value).trim() !== "")
+                                .join(" ");
+
+                            resolve({ date: formattedDate, info: info });
                         });
                     });
 
@@ -217,7 +285,7 @@
                 await saveJson(token, `Batch upload ${files.length} photos`, photos);
                 
                 status.innerText = `✅ 총 ${files.length}장 업로드 완료!`;
-                fileInput.value = ""; // 입력창 초기화
+                fileInput.value = "";
                 loadPhotoList();
 
             } catch (e) {
