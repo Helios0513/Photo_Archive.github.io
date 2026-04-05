@@ -8,19 +8,19 @@
   {
     "filename": "DSC_0706.jpeg",
     "info": "Nikon Z fc f9 1/400s iso 200",
-    "color": "Gray",
+    "color": "Black",
     "date": "2025-01-24"
   },
   {
     "filename": "DSC_0888.jpeg",
     "info": "Nikon Z fc f5 1/200s iso 1600",
-    "color": "Black",
+    "color": "Orange",
     "date": "2025-01-30"
   },
   {
     "filename": "DSC_0885.jpeg",
     "info": "Nikon Z fc f6.3 1/2000s iso 1600",
-    "color": "Gray",
+    "color": "Red",
     "date": "2025-01-30"
   },
   {
@@ -38,13 +38,13 @@
   {
     "filename": "DSC_1293.jpeg",
     "info": "Nikon Z fc f11 1/500s iso 800",
-    "color": "Gray",
+    "color": "Black",
     "date": "2025-02-19"
   },
   {
     "filename": "DSC_1374.jpeg",
     "info": "Nikon Z fc f6 1/6s iso 800",
-    "color": "Gray",
+    "color": "Orange",
     "date": "2025-02-19"
   },
   {
@@ -98,7 +98,7 @@
   {
     "filename": "IMG_4123.jpeg",
     "info": "Nikon Z fc f6.3 1/60s iso 4500",
-    "color": "Black",
+    "color": "Gray",
     "date": "2025-04-17"
   },
   {
@@ -110,7 +110,7 @@
   {
     "filename": "IMG_4125.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
-    "color": "Black",
+    "color": "Yellow",
     "date": "2025-04-17"
   },
   {
@@ -140,25 +140,25 @@
   {
     "filename": "IMG_4205.jpeg",
     "info": "Nikon Z fc f6.3 1/40s iso 2000",
-    "color": "Red",
+    "color": "Brown",
     "date": "2025-04-17"
   },
   {
     "filename": "IMG_4206.jpeg",
     "info": "Nikon Z fc f6.3 1/640s iso 2000",
-    "color": "Gray",
+    "color": "Black",
     "date": "2025-04-17"
   },
   {
     "filename": "IMG_4208.jpeg",
     "info": "Nikon Z fc f5.6 1/250s iso 160",
-    "color": "Gray",
+    "color": "Orange",
     "date": "2025-04-17"
   },
   {
     "filename": "IMG_4209.jpeg",
     "info": "Nikon Z fc f5.6 1/250s iso 140",
-    "color": "Gray",
+    "color": "Orange",
     "date": "2025-04-17"
   },
   {
@@ -176,7 +176,7 @@
   {
     "filename": "IMG_4404.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
-    "color": "Gray",
+    "color": "Blue",
     "date": "2025-03-30"
   },
   {
@@ -212,7 +212,7 @@
   {
     "filename": "IMG_4412.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
-    "color": "Gray",
+    "color": "Orange",
     "date": "2025-03-30"
   },
   {
@@ -254,13 +254,13 @@
   {
     "filename": "DSC_1797.jpeg",
     "info": "Nikon Z fc f5.3 1/3200s iso 2000",
-    "color": "Gray",
+    "color": "Black",
     "date": "2025-04-17"
   },
   {
     "filename": "DSC_1819.jpeg",
     "info": "Nikon Z fc f6.3 1/1600s iso 2000",
-    "color": "Gray",
+    "color": "Green",
     "date": "2025-04-17"
   },
   {
@@ -272,13 +272,13 @@
   {
     "filename": "DSC_1836.jpeg",
     "info": "Nikon Z fc f6.3 1/1600s iso 2000",
-    "color": "Gray",
+    "color": "Black",
     "date": "2025-04-17"
   },
   {
     "filename": "DSC_test.jpg",
     "info": "Nikon Z 5 f2 1/1000s iso 320",
-    "color": "Gray",
+    "color": "Blue",
     "date": "2025-11-22"
   },
   {
@@ -296,373 +296,445 @@
   {
     "filename": "DSC_0687.jpg",
     "info": "NIKON Z 5 86mm f5.6 1/400s iso 125",
-    "color": "Red",
+    "color": "Orange",
     "date": "2025-11-22"
   },
   {
     "filename": "DSC_0770.jpg",
     "info": "NIKON Z 5 120mm f4 1/640s iso 125",
-    "color": "Red",
+    "color": "Orange",
     "date": "2025-11-22"
   },
   {
     "filename": "DSC_0693.jpg",
     "info": "NIKON Z 5 93mm f4 1/15s iso 125",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "color": "Black"
   },
   {
     "filename": "DSC_0768.jpg",
     "info": "NIKON Z 5 120mm f4 1/640s iso 125",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "color": "Blue"
   },
   {
     "filename": "DSC_0629_1769879274483.jpg",
     "info": "NIKON Z 5 f5 iso 320",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "color": "Gray"
   },
   {
     "filename": "DSC_0643_1769879277148.jpg",
     "info": "NIKON Z 5 f6.3 iso 320",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "color": "Blue"
   },
   {
     "filename": "DSC_0675_1769879279259.jpg",
     "info": "NIKON Z 5 f6.3 iso 125",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "color": "Green"
   },
   {
     "filename": "DSC_0682_1769879281593.jpg",
     "info": "NIKON Z 5 f6.3 iso 125",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "color": "Red"
   },
   {
     "filename": "DSC_0776_1769879284033.jpg",
     "info": "NIKON Z 5 f4 iso 1800",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "color": "Black"
   },
   {
     "filename": "DSC_0780_1769879285847.jpg",
     "info": "NIKON Z 5 f4 iso 3200",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "color": "Black"
   },
   {
     "filename": "DSC_0095_1769882280475.jpg",
     "info": "NIKON Z 5 f4 iso 1000",
-    "date": "2025-10-05"
+    "date": "2025-10-05",
+    "color": "Orange"
   },
   {
     "filename": "DSC_0167_1769882282577.jpg",
     "info": "NIKON Z 5 f4 iso 400",
-    "date": "2025-10-11"
+    "date": "2025-10-11",
+    "color": "Blue"
   },
   {
     "filename": "DSC_0178_1769882284344.jpg",
     "info": "NIKON Z 5 f4.5 iso 400",
-    "date": "2025-10-11"
+    "date": "2025-10-11",
+    "color": "Black"
   },
   {
     "filename": "DSC_0237_1769882285710.jpg",
     "info": "NIKON Z 5 f2.8 iso 160",
-    "date": "2025-10-19"
+    "date": "2025-10-19",
+    "color": "Black"
   },
   {
     "filename": "DSC_0360_1769882287773.jpg",
     "info": "NIKON Z 5 f4 iso 160",
-    "date": "2025-10-25"
+    "date": "2025-10-25",
+    "color": "Blue"
   },
   {
     "filename": "DSC_0443_1769882289647.jpg",
     "info": "NIKON Z 5 f4 iso 160",
-    "date": "2025-10-25"
+    "date": "2025-10-25",
+    "color": "Yellow"
   },
   {
     "filename": "DSC_0445_1769882291122.jpg",
     "info": "NIKON Z 5 f6.3 iso 160",
-    "date": "2025-10-25"
+    "date": "2025-10-25",
+    "color": "Blue"
   },
   {
     "filename": "DSC_0456_1769882293039.jpg",
     "info": "NIKON Z 5 f6.3 iso 160",
-    "date": "2025-10-25"
+    "date": "2025-10-25",
+    "color": "Yellow"
   },
   {
     "filename": "DSC_0510_1769882294741.jpg",
     "info": "NIKON Z 5 f10 iso 320",
-    "date": "2025-10-25"
+    "date": "2025-10-25",
+    "color": "Black"
   },
   {
     "filename": "DSC_0524_1769882296049.jpg",
     "info": "NIKON Z 5 f8 iso 320",
-    "date": "2025-10-25"
+    "date": "2025-10-25",
+    "color": "Blue"
   },
   {
     "filename": "DSC_0546_1769882297198.jpg",
     "info": "NIKON Z 5 f10 iso 320",
-    "date": "2025-10-25"
+    "date": "2025-10-25",
+    "color": "Orange"
   },
   {
     "filename": "DSC_0859_1769883338751.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
-    "date": "2025-11-29"
+    "date": "2025-11-29",
+    "color": "Orange"
   },
   {
     "filename": "DSC_0905_1769883340516.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
-    "date": "2025-11-29"
+    "date": "2025-11-29",
+    "color": "Orange"
   },
   {
     "filename": "DSC_0924_1769883341899.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
-    "date": "2025-11-29"
+    "date": "2025-11-29",
+    "color": "Orange"
   },
   {
     "filename": "DSC_0925_1769883344001.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
-    "date": "2025-11-29"
+    "date": "2025-11-29",
+    "color": "Brown"
   },
   {
     "filename": "DSC_0955_1769883345947.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
-    "date": "2025-11-29"
+    "date": "2025-11-29",
+    "color": "Orange"
   },
   {
     "filename": "DSC_1061_1769930816328.jpg",
     "info": "NIKON Z 5 f8 iso 500",
-    "date": "2026-01-17"
+    "date": "2026-01-17",
+    "color": "Blue"
   },
   {
     "filename": "DSC_1062_1769930818302.jpg",
     "info": "NIKON Z 5 f8 iso 500",
-    "date": "2026-01-17"
+    "date": "2026-01-17",
+    "color": "Black"
   },
   {
     "filename": "DSC_1065_1769930820276.jpg",
     "info": "NIKON Z 5 f8 iso 500",
-    "date": "2026-01-17"
+    "date": "2026-01-17",
+    "color": "Orange"
   },
   {
     "filename": "DSC_1067_1769930822122.jpg",
     "info": "NIKON Z 5 f8 iso 500",
-    "date": "2026-01-17"
+    "date": "2026-01-17",
+    "color": "Green"
   },
   {
     "filename": "DSC_1074_1769930824140.jpg",
     "info": "NIKON Z 5 f8 iso 500",
-    "date": "2026-01-17"
+    "date": "2026-01-17",
+    "color": "Orange"
   },
   {
     "filename": "DSC_1094_1769930826161.jpg",
     "info": "NIKON Z 5 f8 iso 500",
-    "date": "2026-01-17"
+    "date": "2026-01-17",
+    "color": "Orange"
   },
   {
     "filename": "DSC_1111_1769930828074.jpg",
     "info": "NIKON Z 5 f11 iso 500",
-    "date": "2026-01-17"
+    "date": "2026-01-17",
+    "color": "Black"
   },
   {
     "filename": "DSC_1124_1769930829641.jpg",
     "info": "NIKON Z 5 f11 iso 500",
-    "date": "2026-01-17"
+    "date": "2026-01-17",
+    "color": "Blue"
   },
   {
     "filename": "DSC_0640_1770190316873.jpg",
     "info": "NIKON Z 5 f6.3 iso 320",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "color": "Orange"
   },
   {
     "filename": "DSC_1169_1772453697035.jpg",
     "info": "NIKON Z 5 f9 iso 500",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Red"
   },
   {
     "filename": "DSC_1172_1772453699509.jpg",
     "info": "NIKON Z 5 f5.6 iso 500",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Black"
   },
   {
     "filename": "DSC_1185_1772453702147.jpg",
     "info": "NIKON Z 5 f5 iso 500",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Orange"
   },
   {
     "filename": "DSC_1186_1772453704472.jpg",
     "info": "NIKON Z 5 f5 iso 500",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Gray"
   },
   {
     "filename": "DSC_1190_1772453706085.jpg",
     "info": "NIKON Z 5 f11 iso 500",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Black"
   },
   {
     "filename": "DSC_1203_1772453708233.jpg",
     "info": "NIKON Z 5 f11 iso 500",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Black"
   },
   {
     "filename": "DSC_1211_1772453710215.jpg",
     "info": "NIKON Z 5 f11 iso 500",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Yellow"
   },
   {
     "filename": "DSC_1215_1772453712930.jpg",
     "info": "NIKON Z 5 f11 iso 500",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Yellow"
   },
   {
     "filename": "DSC_1217_1772453715453.jpg",
     "info": "NIKON Z 5 f11 iso 500",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Yellow"
   },
   {
     "filename": "DSC_1228_1772453717725.jpg",
     "info": "NIKON Z 5 f4 iso 500",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Green"
   },
   {
     "filename": "DSC_1238_1772453719980.jpg",
     "info": "NIKON Z 5 f11 iso 500",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Gray"
   },
   {
     "filename": "DSC_1250_1772453723336.jpg",
     "info": "NIKON Z 5 f11 iso 500",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Yellow"
   },
   {
     "filename": "DSC_1252_1772453725783.jpg",
     "info": "NIKON Z 5 f11 iso 500",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Yellow"
   },
   {
     "filename": "DSC_1325_1772453729477.jpg",
     "info": "NIKON Z 5 f8 iso 200",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "White"
   },
   {
     "filename": "DSC_1330_1772453732422.jpg",
     "info": "NIKON Z 5 f8 iso 200",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Gray"
   },
   {
     "filename": "DSC_1337_1772453735702.jpg",
     "info": "NIKON Z 5 f8 iso 200",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Brown"
   },
   {
     "filename": "DSC_1340_1772453738937.jpg",
     "info": "NIKON Z 5 f4 iso 400",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "White"
   },
   {
     "filename": "DSC_1351_1772453741709.jpg",
     "info": "NIKON Z 5 f6.3 iso 400",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Brown"
   },
   {
     "filename": "DSC_1378_1772453745055.jpg",
     "info": "NIKON Z 5 f8 iso 400",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Blue"
   },
   {
     "filename": "DSC_1404_1772453747963.jpg",
     "info": "NIKON Z 5 f8 iso 100",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Blue"
   },
   {
     "filename": "DSC_1426_1772453751215.jpg",
     "info": "NIKON Z 5 f4 iso 4000",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Red"
   },
   {
     "filename": "DSC_1439_1772453753492.jpg",
     "info": "NIKON Z 5 f4 iso 250",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Blue"
   },
   {
     "filename": "DSC_1482_1772453756259.jpg",
     "info": "NIKON Z 5 f4 iso 1000",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Brown"
   },
   {
     "filename": "DSC_1549_1772453759554.jpg",
     "info": "NIKON Z 5 f4 iso 640",
-    "date": "2026-02-15"
+    "date": "2026-02-15",
+    "color": "Black"
   },
   {
     "filename": "DSC_1568_1772453762704.jpg",
     "info": "NIKON Z 5 f4 iso 1000",
-    "date": "2026-02-16"
+    "date": "2026-02-16",
+    "color": "Black"
   },
   {
     "filename": "DSC_1569_1772453766146.jpg",
     "info": "NIKON Z 5 f4 iso 3200",
-    "date": "2026-02-16"
+    "date": "2026-02-16",
+    "color": "Black"
   },
   {
     "filename": "DSC_1629_1772453769458.jpg",
     "info": "NIKON Z 5 f11 iso 250",
-    "date": "2026-02-17"
+    "date": "2026-02-17",
+    "color": "Blue"
   },
   {
     "filename": "DSC_1641_1772453775724.jpg",
     "info": "NIKON Z 5 f11 iso 250",
-    "date": "2026-02-17"
+    "date": "2026-02-17",
+    "color": "Blue"
   },
   {
     "filename": "DSC_1699_1772453778924.jpg",
     "info": "NIKON Z 5 f4 iso 250",
-    "date": "2026-02-17"
+    "date": "2026-02-17",
+    "color": "Blue"
   },
   {
     "filename": "DSC_1755_1775318453922.jpg",
     "info": "NIKON Z 5 f4.5 iso 200",
-    "date": "2026-03-21"
+    "date": "2026-03-21",
+    "color": "Black"
   },
   {
     "filename": "DSC_1776_1775318457082.jpg",
     "info": "NIKON Z 5 f4.5 iso 250",
-    "date": "2026-03-21"
+    "date": "2026-03-21",
+    "color": "Red"
   },
   {
     "filename": "DSC_1873_1775381912004.jpg",
     "info": "NIKON Z 5 f5.6 iso 500",
-    "date": "2026-04-04"
+    "date": "2026-04-04",
+    "color": "Yellow"
   },
   {
     "filename": "DSC_1870_1775383182426.jpg",
     "info": "NIKON Z 5 f5.6 1/2000s iso 500",
-    "date": "2026-04-04"
+    "date": "2026-04-04",
+    "color": "Yellow"
   },
   {
     "filename": "DSC_1846_1775384557014.jpg",
     "info": "NIKON Z 5 f9 1/320s iso 250",
-    "date": "2026-04-04"
+    "date": "2026-04-04",
+    "color": "White"
   },
   {
     "filename": "DSC_1847_1775384559624.jpg",
     "info": "NIKON Z 5 f9 1/640s iso 250",
-    "date": "2026-04-04"
+    "date": "2026-04-04",
+    "color": "White"
   },
   {
     "filename": "DSC_1848_1775384561971.jpg",
     "info": "NIKON Z 5 f9 1/500s iso 250",
-    "date": "2026-04-04"
+    "date": "2026-04-04",
+    "color": "White"
   },
   {
     "filename": "DSC_1856_1775384564610.jpg",
     "info": "NIKON Z 5 f4 1/800s iso 250",
-    "date": "2026-04-04"
+    "date": "2026-04-04",
+    "color": "White"
   },
   {
     "filename": "DSC_1861_1775384566966.jpg",
     "info": "NIKON Z 5 f4 1/2000s iso 250",
-    "date": "2026-04-04"
+    "date": "2026-04-04",
+    "color": "White"
   },
   {
     "filename": "DSC_1862_1775384568892.jpg",
     "info": "NIKON Z 5 f5.6 1/1600s iso 500",
-    "date": "2026-04-04"
+    "date": "2026-04-04",
+    "color": "White"
   }
 ]
