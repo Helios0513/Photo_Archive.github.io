@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         .upload-box { max-width: 600px; margin: 30px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; font-family: sans-serif; background: white; }
-        input, button, textarea { width: 100%; margin-bottom: 10px; padding: 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
+        input, button, textarea, select { width: 100%; margin-bottom: 10px; padding: 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
         label { font-size: 0.85rem; color: #555; margin-bottom: 5px; display: block; font-weight: bold; }
         button { background-color: #333; color: white; cursor: pointer; border: none; font-weight: bold; }
         button:hover { background-color: #555; }
@@ -26,9 +26,14 @@
         .photo-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; gap: 15px; background: #fff; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
         .photo-item img { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; background: #f9f9f9; }
         .photo-info-edit { flex-grow: 1; }
-        .photo-info-edit input { margin-bottom: 5px; padding: 8px; font-size: 0.85rem; width: 100%; }
+        .photo-info-edit input, .photo-info-edit select { margin-bottom: 5px; padding: 8px; font-size: 0.85rem; width: 100%; }
         .delete-btn { background-color: #dc3545; width: auto; padding: 6px 12px; font-size: 0.75rem; }
         .refresh-btn { background-color: #007bff; margin-bottom: 10px; }
+
+        @media (max-width: 768px) {
+            .photo-item { align-items: flex-start; }
+            .photo-item img { width: 70px; height: 52px; }
+        }
     </style>
 </head>
 <body>
@@ -69,6 +74,30 @@
 
     <script>
         const repo = "Helios0513/Photo_Archive.github.io";
+
+        const COLOR_OPTIONS = [
+            "Black",
+            "White",
+            "Gray",
+            "Brown",
+            "Red",
+            "Orange",
+            "Yellow",
+            "Green",
+            "Blue",
+            "Purple",
+            "Pink"
+        ];
+
+        function createColorSelect(selectedValue = "") {
+            const normalizedSelected = COLOR_OPTIONS.includes(selectedValue) ? selectedValue : "";
+            let optionsHtml = `<option value="">색상 선택</option>`;
+            optionsHtml += COLOR_OPTIONS.map(color => {
+                const selected = color === normalizedSelected ? "selected" : "";
+                return `<option value="${color}" ${selected}>${color}</option>`;
+            }).join("");
+            return `<select class="edit-color">${optionsHtml}</select>`;
+        }
 
         function formatExposureTime(exposureValue) {
             if (!exposureValue) return "";
@@ -184,33 +213,91 @@
                 .trim();
         }
 
-        function classifyColorFromRgb(r, g, b) {
+        function rgbToHsv(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+
             const max = Math.max(r, g, b);
             const min = Math.min(r, g, b);
             const diff = max - min;
-            const brightness = (r + g + b) / 3;
 
-            if (brightness < 55) return "Black";
-            if (brightness > 220 && diff < 20) return "White";
-            if (diff < 20) return "Gray";
+            let h = 0;
+            const s = max === 0 ? 0 : diff / max;
+            const v = max;
 
-            if (r >= g && r >= b) {
-                if (g > 160 && b < 120) return "Yellow";
-                if (b > 130) return "Pink";
-                return "Red";
+            if (diff !== 0) {
+                switch (max) {
+                    case r:
+                        h = ((g - b) / diff) % 6;
+                        break;
+                    case g:
+                        h = (b - r) / diff + 2;
+                        break;
+                    case b:
+                        h = (r - g) / diff + 4;
+                        break;
+                }
+                h *= 60;
+                if (h < 0) h += 360;
             }
 
-            if (g >= r && g >= b) {
-                if (r > 170 && g > 170 && b < 120) return "Yellow";
-                return "Green";
-            }
+            return {
+                h,
+                s: s * 100,
+                v: v * 100
+            };
+        }
 
-            if (b >= r && b >= g) {
-                if (r > 120 && b > 120) return "Purple";
-                return "Blue";
-            }
+        function classifyPixelColor(r, g, b) {
+            const { h, s, v } = rgbToHsv(r, g, b);
+
+            if (v < 18) return "Black";
+            if (v > 94 && s < 10) return "White";
+            if (s < 16) return "Gray";
+
+            if ((h >= 0 && h < 12) || (h >= 345 && h <= 360)) return "Red";
+            if (h >= 12 && h < 30) return "Orange";
+            if (h >= 30 && h < 65) return "Yellow";
+            if (h >= 65 && h < 170) return "Green";
+            if (h >= 170 && h < 255) return "Blue";
+            if (h >= 255 && h < 320) return "Purple";
+            if (h >= 320 && h < 345) return "Pink";
 
             return "Gray";
+        }
+
+        function getWeightedColorScore(colorName, hsv, x, y, centerX, centerY) {
+            const distance = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+            const maxDistance = Math.sqrt(centerX ** 2 + centerY ** 2) || 1;
+            const centerWeight = 1.55 - (distance / maxDistance) * 0.75;
+            const saturationBoost = 1 + (hsv.s / 100) * 1.25;
+            const brightnessPenalty = (hsv.v < 10 || hsv.v > 97) ? 0.35 : 1;
+
+            let colorBonus = 1;
+            if (["Pink", "Purple", "Red", "Orange", "Yellow"].includes(colorName)) {
+                colorBonus = 1.12;
+            }
+
+            return centerWeight * saturationBoost * brightnessPenalty * colorBonus;
+        }
+
+        function pickDominantColor(scores) {
+            const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+            if (entries.length === 0) return "Gray";
+
+            const [topColor, topScore] = entries[0];
+            const secondScore = entries[1] ? entries[1][1] : 0;
+
+            if (topColor === "Gray" && entries[1] && secondScore > topScore * 0.72) {
+                return entries[1][0];
+            }
+
+            if (topColor === "White" && entries[1] && secondScore > topScore * 0.68) {
+                return entries[1][0];
+            }
+
+            return topColor;
         }
 
         async function detectColorFromImageSource(source) {
@@ -220,44 +307,70 @@
                 reader.onload = (e) => {
                     const img = new Image();
                     img.src = e.target.result;
+
                     img.onload = () => {
                         const canvas = document.createElement("canvas");
                         const ctx = canvas.getContext("2d", { willReadFrequently: true });
-                        const size = 40;
+                        const size = 90;
                         canvas.width = size;
                         canvas.height = size;
                         ctx.drawImage(img, 0, 0, size, size);
 
                         const imageData = ctx.getImageData(0, 0, size, size).data;
+                        const scores = {
+                            Black: 0,
+                            White: 0,
+                            Gray: 0,
+                            Brown: 0,
+                            Red: 0,
+                            Orange: 0,
+                            Yellow: 0,
+                            Green: 0,
+                            Blue: 0,
+                            Purple: 0,
+                            Pink: 0
+                        };
 
-                        let totalR = 0;
-                        let totalG = 0;
-                        let totalB = 0;
-                        let count = 0;
+                        const startX = Math.floor(size * 0.15);
+                        const endX = Math.floor(size * 0.85);
+                        const startY = Math.floor(size * 0.15);
+                        const endY = Math.floor(size * 0.85);
+                        const centerX = size / 2;
+                        const centerY = size / 2;
 
-                        for (let i = 0; i < imageData.length; i += 4) {
-                            const alpha = imageData[i + 3];
-                            if (alpha < 10) continue;
+                        for (let y = startY; y < endY; y++) {
+                            for (let x = startX; x < endX; x++) {
+                                const i = (y * size + x) * 4;
+                                const r = imageData[i];
+                                const g = imageData[i + 1];
+                                const b = imageData[i + 2];
+                                const a = imageData[i + 3];
 
-                            totalR += imageData[i];
-                            totalG += imageData[i + 1];
-                            totalB += imageData[i + 2];
-                            count++;
+                                if (a < 20) continue;
+
+                                const hsv = rgbToHsv(r, g, b);
+
+                                let colorName = classifyPixelColor(r, g, b);
+
+                                if (hsv.s >= 12 && hsv.v >= 45 && hsv.v <= 97) {
+                                    if (r > 150 && g > 115 && b > 125 && r >= b && b >= g * 0.75) {
+                                        colorName = "Pink";
+                                    } else if (r > 110 && g > 80 && g < r && b < g * 0.85 && hsv.v < 70) {
+                                        colorName = "Brown";
+                                    }
+                                }
+
+                                const weight = getWeightedColorScore(colorName, hsv, x, y, centerX, centerY);
+                                scores[colorName] += weight;
+                            }
                         }
 
-                        if (count === 0) {
-                            resolve("Gray");
-                            return;
-                        }
-
-                        const avgR = Math.round(totalR / count);
-                        const avgG = Math.round(totalG / count);
-                        const avgB = Math.round(totalB / count);
-
-                        resolve(classifyColorFromRgb(avgR, avgG, avgB));
+                        resolve(pickDominantColor(scores));
                     };
+
                     img.onerror = () => resolve("Gray");
                 };
+
                 reader.onerror = () => resolve("Gray");
             });
         }
@@ -305,12 +418,15 @@
                     <div class="photo-info-edit">
                         <input type="date" class="edit-date" data-index="${realIndex}" value="${p.date || ''}">
                         <input type="text" class="edit-info" data-index="${realIndex}" value="${p.info || ''}">
-                        <input type="text" class="edit-color" data-index="${realIndex}" value="${p.color || ''}" placeholder="색상">
+                        ${createColorSelect(p.color || "")}
                         <small>${p.filename}</small>
                     </div>
                     <button class="delete-btn" onclick="deletePhoto(${realIndex}, '${p.filename}')">삭제</button>
                 `;
                 listDiv.appendChild(item);
+
+                const colorSelect = item.querySelector('.edit-color');
+                colorSelect.setAttribute('data-index', realIndex);
             });
         }
 
@@ -441,21 +557,18 @@
             status.innerText = `⏳ 총 ${files.length}장의 사진 업로드 준비 중...`;
 
             try {
-                // 1. 최신 photos.json 가져오기
                 const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
                     headers: { "Authorization": `token ${token}` } 
                 });
                 const fileData = await res.json();
                 let photos = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
 
-                // 2. 파일별로 루프 돌며 처리
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     status.innerText = `📤 업로드 중 (${i + 1}/${files.length}): ${file.name}`;
 
                     const detectedColor = await detectColorFromFile(file);
 
-                    // EXIF 데이터 추출 (날짜 & 정보)
                     const exifData = await new Promise(resolve => {
                         EXIF.getData(file, function() {
                             const date = EXIF.getTag(this, "DateTimeOriginal");
@@ -482,7 +595,6 @@
                         });
                     });
 
-                    // 이미지 최적화 (1920px)
                     const optimizedBlob = await new Promise(resolve => {
                         const reader = new FileReader();
                         reader.readAsDataURL(file);
@@ -500,7 +612,6 @@
                         };
                     });
 
-                    // 깃허브에 이미지 파일 전송
                     const base64Content = await new Promise(resolve => {
                         const reader = new FileReader();
                         reader.readAsDataURL(optimizedBlob);
@@ -514,11 +625,14 @@
                         body: JSON.stringify({ message: `Upload: ${fileName}`, content: base64Content })
                     });
 
-                    // 리스트 데이터 추가
-                    photos.push({ filename: fileName, info: exifData.info, date: exifData.date, color: detectedColor || "Gray" });
+                    photos.push({
+                        filename: fileName,
+                        info: exifData.info,
+                        date: exifData.date,
+                        color: detectedColor || "Gray"
+                    });
                 }
 
-                // 3. 최종 JSON 업데이트 (한 번만)
                 status.innerText = "💾 장부 업데이트 중...";
                 await saveJson(token, `Batch upload ${files.length} photos`, photos);
                 
