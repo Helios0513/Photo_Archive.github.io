@@ -20,7 +20,7 @@
   {
     "filename": "DSC_0885.jpeg",
     "info": "Nikon Z fc f6.3 1/2000s iso 1600",
-    "color": "Red",
+    "color": "Gray",
     "date": "2025-01-30"
   },
   {
@@ -62,7 +62,7 @@
   {
     "filename": "DSC_1132.jpeg",
     "info": "Nikon Z fc f9 1/640s iso 100",
-    "color": "Gray",
+    "color": "Blue",
     "date": "2025-02-18"
   },
   {
@@ -152,13 +152,13 @@
   {
     "filename": "IMG_4208.jpeg",
     "info": "Nikon Z fc f5.6 1/250s iso 160",
-    "color": "Orange",
+    "color": "Gray",
     "date": "2025-04-17"
   },
   {
     "filename": "IMG_4209.jpeg",
     "info": "Nikon Z fc f5.6 1/250s iso 140",
-    "color": "Orange",
+    "color": "Gray",
     "date": "2025-04-17"
   },
   {
@@ -194,7 +194,7 @@
   {
     "filename": "IMG_4408.jpeg",
     "info": "Nikon Z fc f6.3 1/320s iso 100",
-    "color": "Gray",
+    "color": "Blue",
     "date": "2025-03-30"
   },
   {
@@ -206,13 +206,13 @@
   {
     "filename": "IMG_4410.jpeg",
     "info": "Nikon Z fc f8 1/400s iso 100",
-    "color": "Gray",
+    "color": "Blue",
     "date": "2025-03-30"
   },
   {
     "filename": "IMG_4412.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
-    "color": "Orange",
+    "color": "Blue",
     "date": "2025-03-30"
   },
   {
@@ -224,19 +224,19 @@
   {
     "filename": "DSC_1767.jpeg",
     "info": "Nikon Z fc f9 1/30s iso 2000",
-    "color": "Gray",
+    "color": "White",
     "date": "2025-04-17"
   },
   {
     "filename": "DSC_1770.jpeg",
     "info": "Nikon Z fc f9 1/30s iso 2000",
-    "color": "Gray",
+    "color": "White",
     "date": "2025-04-17"
   },
   {
     "filename": "DSC_1776.jpeg",
     "info": "Nikon Z fc f6.3 1/30s iso 2000",
-    "color": "Gray",
+    "color": "White",
     "date": "2025-04-17"
   },
   {
@@ -248,13 +248,13 @@
   {
     "filename": "DSC_1780.jpeg",
     "info": "Nikon Z fc f14 1/30s iso 2000",
-    "color": "Gray",
+    "color": "White",
     "date": "2025-04-17"
   },
   {
     "filename": "DSC_1797.jpeg",
     "info": "Nikon Z fc f5.3 1/3200s iso 2000",
-    "color": "Black",
+    "color": "Gray",
     "date": "2025-04-17"
   },
   {
@@ -278,7 +278,7 @@
   {
     "filename": "DSC_test.jpg",
     "info": "Nikon Z 5 f2 1/1000s iso 320",
-    "color": "Blue",
+    "color": "Yellow",
     "date": "2025-11-22"
   },
   {
@@ -309,7 +309,7 @@
     "filename": "DSC_0693.jpg",
     "info": "NIKON Z 5 93mm f4 1/15s iso 125",
     "date": "2025-11-22",
-    "color": "Black"
+    "color": "Orange"
   },
   {
     "filename": "DSC_0768.jpg",
@@ -351,7 +351,7 @@
     "filename": "DSC_0780_1769879285847.jpg",
     "info": "NIKON Z 5 f4 iso 3200",
     "date": "2025-11-22",
-    "color": "Black"
+    "color": "Green"
   },
   {
     "filename": "DSC_0095_1769882280475.jpg",
@@ -375,7 +375,7 @@
     "filename": "DSC_0237_1769882285710.jpg",
     "info": "NIKON Z 5 f2.8 iso 160",
     "date": "2025-10-19",
-    "color": "Black"
+    "color": "Blue"
   },
   {
     "filename": "DSC_0360_1769882287773.jpg",
@@ -387,7 +387,7 @@
     "filename": "DSC_0443_1769882289647.jpg",
     "info": "NIKON Z 5 f4 iso 160",
     "date": "2025-10-25",
-    "color": "Yellow"
+    "color": "Orange"
   },
   {
     "filename": "DSC_0445_1769882291122.jpg",
@@ -399,13 +399,13 @@
     "filename": "DSC_0456_1769882293039.jpg",
     "info": "NIKON Z 5 f6.3 iso 160",
     "date": "2025-10-25",
-    "color": "Yellow"
+    "color": "Orange"
   },
   {
     "filename": "DSC_0510_1769882294741.jpg",
     "info": "NIKON Z 5 f10 iso 320",
     "date": "2025-10-25",
-    "color": "Black"
+    "color": "Orange"
   },
   {
     "filename": "DSC_0524_1769882296049.jpg",
@@ -441,13 +441,13 @@
     "filename": "DSC_0925_1769883344001.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
     "date": "2025-11-29",
-    "color": "Brown"
+    "color": "Orange"
   },
   {
     "filename": "DSC_0955_1769883345947.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
     "date": "2025-11-29",
-    "color": "Orange"
+    "color": "Brown"
   },
   {
     "filename": "DSC_1061_1769930816328.jpg",
@@ -465,7 +465,7 @@
     "filename": "DSC_1065_1769930820276.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Orange"
+    "color": "Blue"
   },
   {
     "filename": "DSC_1067_1769930822122.jpg",
@@ -477,13 +477,13 @@
     "filename": "DSC_1074_1769930824140.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Orange"
+    "color": "Brown"
   },
   {
     "filename": "DSC_1094_1769930826161.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Orange"
+    "color": "Brown"
   },
   {
     "filename": "DSC_1111_1769930828074.jpg",
@@ -513,13 +513,13 @@
     "filename": "DSC_1172_1772453699509.jpg",
     "info": "NIKON Z 5 f5.6 iso 500",
     "date": "2026-02-15",
-    "color": "Black"
+    "color": "Green"
   },
   {
     "filename": "DSC_1185_1772453702147.jpg",
     "info": "NIKON Z 5 f5 iso 500",
     "date": "2026-02-15",
-    "color": "Orange"
+    "color": "Brown"
   },
   {
     "filename": "DSC_1186_1772453704472.jpg",
@@ -537,25 +537,25 @@
     "filename": "DSC_1203_1772453708233.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Black"
+    "color": "Yellow"
   },
   {
     "filename": "DSC_1211_1772453710215.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Yellow"
+    "color": "Green"
   },
   {
     "filename": "DSC_1215_1772453712930.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Yellow"
+    "color": "Green"
   },
   {
     "filename": "DSC_1217_1772453715453.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Yellow"
+    "color": "Green"
   },
   {
     "filename": "DSC_1228_1772453717725.jpg",
@@ -573,13 +573,13 @@
     "filename": "DSC_1250_1772453723336.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Yellow"
+    "color": "Green"
   },
   {
     "filename": "DSC_1252_1772453725783.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Yellow"
+    "color": "Green"
   },
   {
     "filename": "DSC_1325_1772453729477.jpg",
