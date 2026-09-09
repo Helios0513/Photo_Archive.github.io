@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>사진 통합 관리 시스템 (다중 업로드 및 일괄 복구)</title>
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     <link rel="stylesheet" href="styles.css">
@@ -35,8 +36,30 @@
             .photo-item img { width: 70px; height: 52px; }
         }
     </style>
+    <link rel="stylesheet" href="journal.css">
 </head>
-<body>
+<body class="journal-page page-upload">
+    <div class="container">
+        <div class="profile">
+            <div class="journal-brand">
+                <img src="images/KakaoTalk_20240406_232152395.jpg" alt="프로필 사진" class="profile-img">
+                <div class="journal-brand-copy">
+                    <h2>Hamihamoo</h2>
+            <p>Amateur Photographer</p>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">main page</a></li>
+                    <li><a href="digital.html">digital photos</a></li>
+                    <li><a href="film.html">film photos</a></li>
+                    <li><a href="colors.html">colors archive</a></li>
+                    <li><a href="analysis.html">analysis</a></li>
+                    <li><a href="guestbook.html">guestbook</a></li>
+                </ul>
+            </nav>
+        </div>
+        <main class="main-content">
     <div class="upload-box">
         <h2>📷 사진 올리기 (다중 선택 가능)</h2>
         <input type="password" id="token" placeholder="깃허브 토큰 입력">
@@ -70,6 +93,10 @@
         <div id="photoList">
             <p style="text-align: center; color: #999;">토큰 입력 후 목록을 불러오세요.</p>
         </div>
+    </div>
+
+    
+        </main>
     </div>
 
     <script>
