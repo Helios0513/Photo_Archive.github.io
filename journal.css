@@ -1,0 +1,322 @@
+/* Hamihamoo — 따뜻한 사진집 디자인. 기존 페이지 기능과 분리된 공통 스타일. */
+body.journal-page {
+    --paper: #f2eee4;
+    --sheet: #fffdf7;
+    --ink: #393d2b;
+    --muted: #676956;
+    --line: #c9c6b7;
+    --soft: #e9e5d8;
+    --accent: #565d40;
+    --on-accent: #fffdf7;
+    --focus: #7b5730;
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-text-size-adjust: 100%;
+}
+
+body.journal-page.dark-mode {
+    --paper: #201f19;
+    --sheet: #2b2a22;
+    --ink: #eeeade;
+    --muted: #c2bfae;
+    --line: #555344;
+    --soft: #35352a;
+    --accent: #dddcc6;
+    --on-accent: #24271c;
+    --focus: #e3bd83;
+    background: var(--paper);
+    color: var(--ink);
+}
+
+body.journal-page *, body.journal-page *::before, body.journal-page *::after { box-sizing: border-box; }
+body.journal-page button, body.journal-page input, body.journal-page textarea, body.journal-page select { font: inherit; }
+body.journal-page button, body.journal-page a, body.journal-page input, body.journal-page textarea, body.journal-page select { -webkit-tap-highlight-color: transparent; }
+body.journal-page :focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
+body.journal-page button:disabled { cursor: not-allowed; opacity: .65; }
+
+body.journal-page .container {
+    width: 100%; max-width: 1240px; margin: 0 auto;
+    display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start;
+    background: var(--paper); border-radius: 0; box-shadow: none; overflow: visible;
+}
+
+/* 공통 상단 프로필과 메뉴. 기존 프로필 이미지·이름의 클릭 동작을 유지한다. */
+body.journal-page .profile {
+    width: 100%; padding: 32px 40px 24px; margin: 0;
+    background: transparent; color: var(--ink); display: block; text-align: center;
+    border-bottom: 1px solid var(--line);
+}
+body.journal-page .journal-brand { display: flex; justify-content: center; align-items: center; gap: 18px; min-width: 0; }
+body.journal-page .journal-brand > a { flex: 0 0 auto; }
+body.journal-page .journal-brand-copy { min-width: 0; }
+body.journal-page .profile-img { width: 52px; height: 52px; flex: 0 0 52px; margin: 0; border-radius: 50%; object-fit: cover; box-shadow: none; }
+body.journal-page .profile h2 {
+    margin: 0; color: var(--ink); font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400; font-style: italic; font-size: 3.75rem;
+    letter-spacing: -.035em; line-height: 1.15; overflow-wrap: anywhere;
+}
+body.journal-page .profile p { margin: 8px 0 0; color: var(--muted); font-size: .8125rem; letter-spacing: .08em; line-height: 1.5; overflow-wrap: anywhere; }
+body.journal-page .profile nav { margin-top: 24px; }
+body.journal-page .profile nav ul { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 26px; padding: 0; margin: 0; list-style: none; }
+body.journal-page .profile nav ul li { margin: 0; }
+body.journal-page .profile nav ul li a { display: block; padding: 8px 0; font-size: .875rem; line-height: 1.6; color: var(--muted); text-decoration: none; }
+body.journal-page .profile nav ul li a:hover, body.journal-page .profile nav ul li a[aria-current='page'] { color: var(--ink); text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1px; }
+
+body.journal-page .main-content { display: block; min-width: 0; width: 100%; padding: 36px 40px 48px; }
+body.journal-page .main-content h1 { margin: 0 0 22px; color: var(--ink); font-family: Georgia, 'Times New Roman', serif; font-weight: 400; font-size: 3.25rem; line-height: 1.12; letter-spacing: -.035em; text-align: left; overflow-wrap: anywhere; }
+body.journal-page .main-content > p { margin: 0 0 28px; color: var(--muted); font-size: 1rem; line-height: 1.75; text-align: left; }
+body.journal-page .main-content img { box-shadow: none; }
+body.journal-page footer { width: 100%; clear: both; margin-top: 52px; padding: 24px 0 0; border-top: 1px solid var(--line); text-align: center; background: transparent; }
+body.journal-page footer p { color: var(--muted) !important; font-size: .8125rem !important; margin: 0 0 8px; }
+body.journal-page .admin-link { color: var(--muted); font-size: .75rem; text-underline-offset: 3px; }
+body.journal-page .admin-link:hover { color: var(--ink); text-decoration: underline; }
+
+/* 메인: 소개와 오늘의 사진을 좌우로 배치한다. */
+body.journal-page.page-home .main-content { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.7fr); gap: 32px; align-items: start; padding-top: 38px; }
+body.journal-page .journal-intro { min-width: 0; padding: 30px 0 0; }
+body.journal-page .journal-intro h1 { max-width: 7.5ch; margin-bottom: 24px; font-size: 3.75rem; line-height: 1.06; }
+body.journal-page .journal-intro p { margin: 0; color: var(--muted); font-size: 1rem; line-height: 1.75; text-align: left; }
+body.journal-page .today-photo-section { min-width: 0; padding: 20px; margin: 0; border: 0; background: var(--sheet); }
+body.journal-page .today-photo-title { margin: 0 0 7px; font-size: 1rem; font-weight: 400; color: var(--ink); }
+body.journal-page .main-content .today-photo-subtitle { margin: 0 0 18px; color: var(--muted); font-size: .8125rem; line-height: 1.6; text-align: left; }
+body.journal-page .today-photo-card { width: 100%; max-width: none; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; }
+body.journal-page .today-photo-image { width: 100%; height: auto; border-radius: 0; object-fit: contain; margin: 0; }
+body.journal-page .today-photo-info { padding: 16px 0 0; }
+body.journal-page .today-photo-date { margin-bottom: 6px; color: var(--muted); font-size: .8125rem; }
+body.journal-page .today-photo-meta { font-size: .875rem; color: var(--ink); line-height: 1.7; }
+body.journal-page .today-photo-empty { color: var(--muted); font-size: .9375rem; }
+
+/* 디지털·필름 사진: 원본 사진 비율과 기존 날짜별 탐색을 유지한다. */
+body.journal-page .photo-container { width: 100%; max-width: 1020px; display: block; padding: 18px 18px 14px; margin: 24px auto 40px; background: var(--sheet); border-radius: 0; box-shadow: none; overflow: visible; }
+body.journal-page .photo-container img { display: block; width: 100%; height: auto; border-radius: 0; object-fit: contain; margin: 0; }
+body.journal-page .photo-info { margin-top: 14px; color: var(--muted); font-size: .875rem; text-align: left; overflow-wrap: anywhere; }
+body.journal-page.page-film .photo-container { max-width: 940px; }
+body.journal-page .date-header { width: 100%; clear: both; padding: 26px 0 12px; margin: 22px 0; border-bottom: 2px solid var(--line); background: transparent; color: var(--ink); font-size: 1rem; font-weight: 400; letter-spacing: .06em; scroll-margin-top: 110px; }
+body.journal-page.page-digital .main-content { padding-right: 98px; }
+body.journal-page #photo-list { width: 100%; min-width: 0; }
+body.journal-page .controls-container {
+    position: sticky; top: 0; right: auto; z-index: 2000;
+    display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center;
+    width: 100%; max-width: none; gap: 10px; padding: 14px 40px;
+    background: var(--paper); border-bottom: 1px solid var(--line);
+}
+body.journal-page .control-btn, body.journal-page .topbar-btn, body.journal-page .top-btn {
+    min-height: 44px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 5px;
+    background: var(--sheet); color: var(--ink); box-shadow: none;
+    font-size: .875rem; font-weight: 400; line-height: 1.5; cursor: pointer;
+    transition: background-color .2s, border-color .2s;
+}
+body.journal-page .control-btn:hover, body.journal-page .topbar-btn:hover, body.journal-page .top-btn:hover { background: var(--soft); border-color: var(--muted); transform: none; }
+body.journal-page #date-dropdown { top: calc(100% + 8px); right: 0; width: 180px; max-width: calc(100vw - 36px); max-height: min(350px, 55vh); padding: 4px 0; background: var(--sheet); border: 1px solid var(--line); border-radius: 5px; box-shadow: 0 10px 24px rgb(30 28 18 / .14); }
+body.journal-page .dropdown-item { min-height: 44px; padding: 11px 18px; background: var(--sheet); color: var(--ink); border-bottom: 1px solid var(--line); font-size: .875rem; }
+body.journal-page .dropdown-item:last-child { border-bottom: 0; }
+body.journal-page .dropdown-item:hover { background: var(--soft); color: var(--ink); }
+body.journal-page #date-nav { right: max(12px, calc((100vw - 1240px) / 2 + 12px)); top: 55%; max-height: 55vh; max-height: 55dvh; padding: 12px 9px; gap: 5px; border: 1px solid var(--line); border-radius: 5px; background: var(--sheet); box-shadow: none; backdrop-filter: none; }
+body.journal-page .nav-item { font-size: .75rem; line-height: 1.8; padding: 3px 0; color: var(--muted); }
+body.journal-page .nav-item:hover { color: var(--ink); font-weight: 400; text-decoration: underline; transform: none; }
+body.journal-page #top-btn { width: 48px; height: 48px; right: 20px; bottom: 20px; border: 1px solid var(--line); border-radius: 50%; background: var(--accent); color: var(--on-accent); box-shadow: none; }
+body.journal-page #top-btn:hover { background: var(--accent); color: var(--on-accent); transform: translateY(-2px); }
+
+/* 확대 화면과 프로필 수정 창: 모든 정보·조작 버튼의 공간을 확보한다. */
+body.journal-page #lightbox, body.journal-page #todayLightbox, body.journal-page #colorLightbox { height: 100vh; height: 100dvh; padding: 24px; background: #181b16; overflow-y: auto; }
+body.journal-page #lightbox { justify-content: flex-start; }
+body.journal-page .lightbox-wrapper { width: min(100%, 1020px); max-width: calc(100vw - 190px); max-height: none; margin: auto; }
+body.journal-page #lightbox img { width: auto; max-width: 100%; max-height: 60vh; max-height: 60dvh; height: auto; object-fit: contain; border-radius: 0; box-shadow: none; }
+body.journal-page #todayLightbox img, body.journal-page #colorLightbox img { width: auto; height: auto; max-width: 100%; max-height: 72vh; max-height: 72dvh; object-fit: contain; border-radius: 0; box-shadow: none; }
+body.journal-page #lightbox-caption, body.journal-page .today-lightbox-caption, body.journal-page .color-lightbox-caption { color: #edeadf; font-size: .875rem; line-height: 1.7; background: transparent; overflow-wrap: anywhere; }
+body.journal-page .info-card { margin-top: 6px; padding: 12px; border: 1px solid #505444; border-radius: 5px; background: #25291f; }
+body.journal-page .info-chip { padding: 9px 10px; border-radius: 3px; background: #303528; }
+body.journal-page .info-chip-label { color: #c3c8b6; font-size: .75rem; }
+body.journal-page .info-chip-value { color: #f7f5ea; font-size: .875rem; font-weight: 400; }
+body.journal-page .lightbox-control-btn { min-height: 44px; padding: 10px 15px; border: 1px solid #687057; border-radius: 5px; background: #303528; color: #f7f5ea; font-size: .875rem; }
+body.journal-page .lightbox-control-btn:hover { background: #424936; }
+body.journal-page #prev-btn, body.journal-page #next-btn { color: #f5f2e7; font-size: 2.5rem; }
+body.journal-page #prev-btn { left: -76px; }
+body.journal-page #next-btn { right: -76px; }
+body.journal-page .modal { overflow-y: auto; padding: 24px 16px; }
+body.journal-page .modal-content { width: 100%; max-width: 440px; margin: 40px auto; padding: 24px; border: 1px solid var(--line); border-radius: 6px; background: var(--sheet); color: var(--ink); font-family: inherit; }
+body.journal-page .modal-content h3 { margin: 0 0 20px; color: var(--ink); font-size: 1.2rem; }
+body.journal-page .modal-content input, body.journal-page .modal-content textarea { padding: 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--paper); color: var(--ink); font-size: 1rem; }
+body.journal-page .modal-content label { color: var(--muted); }
+body.journal-page .modal-content button { min-height: 46px; border-radius: 4px; font-size: .9375rem; font-weight: 400; }
+body.journal-page .btn-save { background: var(--accent); color: var(--on-accent); }
+body.journal-page .btn-cancel { background: var(--soft); color: var(--ink); }
+
+/* 색상별 아카이브. 필터의 값과 분류 방식은 기존 코드가 담당한다. */
+body.journal-page .colors-topbar, body.journal-page .topbar { width: 100%; justify-content: flex-end; margin-bottom: 20px; }
+body.journal-page .colors-description { max-width: 850px; }
+body.journal-page .color-filter-wrap { justify-content: flex-start; max-width: none; gap: 9px; margin: 0 0 20px; }
+body.journal-page .color-filter-btn { min-height: 44px; padding: 9px 16px; border: 1px solid var(--line); border-radius: 4px; background: var(--sheet); color: var(--ink); font-size: .875rem; }
+body.journal-page .color-filter-btn:hover { background: var(--soft); }
+body.journal-page .color-filter-btn.active { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+body.journal-page .color-count { margin: 0 0 24px; color: var(--muted); text-align: left; font-size: .875rem; }
+body.journal-page .colors-grid { width: 100%; max-width: none; gap: 22px; }
+body.journal-page .color-photo-card { padding: 12px; border: 0; border-radius: 0; box-shadow: none; background: var(--sheet); }
+body.journal-page .color-photo-card:hover { transform: translateY(-2px); }
+body.journal-page .color-photo-thumb { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 0; margin: 0; }
+body.journal-page .color-photo-meta { padding: 14px 0 0; }
+body.journal-page .color-name-badge { padding: 4px 8px; margin-bottom: 9px; border-radius: 3px; background: var(--soft); color: var(--ink); font-size: .75rem; }
+body.journal-page .color-photo-date { color: var(--muted); font-size: .75rem; }
+body.journal-page .color-photo-info { color: var(--ink); font-size: .8125rem; line-height: 1.7; }
+body.journal-page .empty-text { color: var(--muted); font-size: .9375rem; }
+
+/* 촬영 분석: 같은 종이색과 타이포그래피를 카드·막대그래프에 적용한다. */
+body.journal-page .analysis-wrap { max-width: none; gap: 26px; }
+body.journal-page .analysis-hero { padding: 26px; border: 1px solid var(--line); border-radius: 0; box-shadow: none; background: var(--sheet); }
+body.journal-page .analysis-summary-title { margin-bottom: 14px; color: var(--ink); font-family: Georgia, 'Times New Roman', serif; font-size: 1.5rem; font-weight: 400; }
+body.journal-page .analysis-summary-text { color: var(--ink); font-size: 1rem; line-height: 1.9; }
+body.journal-page .analysis-grid { gap: 18px; }
+body.journal-page .analysis-card { padding: 22px; border: 0; border-radius: 0; box-shadow: none; background: var(--sheet); }
+body.journal-page .analysis-title { margin-bottom: 14px; color: var(--muted); font-size: .875rem; }
+body.journal-page .analysis-big { color: var(--ink); font-family: Georgia, 'Times New Roman', serif; font-size: 2.1rem; line-height: 1.2; font-weight: 400; overflow-wrap: anywhere; }
+body.journal-page .analysis-sub { color: var(--muted); font-size: .875rem; }
+body.journal-page .analysis-section { padding: 26px; border: 0; border-radius: 0; box-shadow: none; background: var(--sheet); }
+body.journal-page .section-title { color: var(--ink); font-family: Georgia, 'Times New Roman', serif; font-size: 1.5rem; font-weight: 400; }
+body.journal-page .section-description { color: var(--muted); font-size: .9375rem; line-height: 1.8; margin-bottom: 24px; }
+body.journal-page .chart-row { grid-template-columns: 130px minmax(0, 1fr) 72px; }
+body.journal-page .chart-label, body.journal-page .chart-value { color: var(--ink); font-size: .875rem; }
+body.journal-page .chart-track { height: 10px; border-radius: 2px; background: var(--soft); }
+body.journal-page .chart-fill { border-radius: 2px; }
+body.journal-page .chart-fill.aperture { background: #6b7054; }
+body.journal-page .chart-fill.iso { background: #8d8167; }
+body.journal-page .chart-fill.color { background: #ac7753; }
+body.journal-page .chart-fill.month { background: #6d8580; }
+body.journal-page.dark-mode .chart-fill.aperture { background: #b6bd95; }
+body.journal-page.dark-mode .chart-fill.iso { background: #c7b78f; }
+body.journal-page.dark-mode .chart-fill.color { background: #d79c70; }
+body.journal-page.dark-mode .chart-fill.month { background: #97b6ac; }
+body.journal-page .chart-note { color: var(--muted); font-size: .8125rem; }
+body.journal-page .insight-grid { gap: 18px; }
+body.journal-page .insight-card { padding: 20px; border: 1px solid var(--line); border-radius: 0; background: var(--paper); }
+body.journal-page .insight-title { color: var(--ink); font-size: .9375rem; font-weight: 400; }
+body.journal-page .insight-text { color: var(--ink); font-size: .9375rem; line-height: 1.85; }
+
+/* 방명록: 입력 항목과 Firebase 연결은 기존대로 유지한다. */
+body.journal-page.page-guestbook .main-content > p { color: var(--muted) !important; text-align: left !important; }
+body.journal-page .guestbook-box { width: 100%; max-width: 780px; padding: 0; margin: 0 auto; }
+body.journal-page .write-area { padding: 26px; margin-bottom: 38px; border: 1px solid var(--line); border-radius: 0; box-shadow: none; background: var(--sheet); }
+body.journal-page .write-area input, body.journal-page .write-area textarea { padding: 13px; border: 1px solid var(--line); border-radius: 3px; background: var(--paper); color: var(--ink); font-size: 1rem; }
+body.journal-page .write-area textarea { resize: vertical; min-height: 150px; }
+body.journal-page .write-area button { min-height: 48px; border-radius: 4px; background: var(--accent); color: var(--on-accent); font-size: .9375rem; }
+body.journal-page .write-area button:hover { filter: brightness(.94); }
+body.journal-page .write-area button:disabled { background: var(--muted); }
+body.journal-page .helper-text { margin-top: 0; color: var(--muted); font-size: .8125rem; line-height: 1.65; }
+body.journal-page .status-text { color: var(--muted); font-size: .875rem; }
+body.journal-page .msg-item { padding: 26px 4px; border-bottom: 1px solid var(--line); }
+body.journal-page .msg-info { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-bottom: 10px; color: var(--ink); font-size: .875rem; }
+body.journal-page .msg-name { margin-right: 0; overflow-wrap: anywhere; }
+body.journal-page .msg-date { color: var(--muted); font-size: .75rem; }
+body.journal-page .msg-text { color: var(--ink); font-size: 1rem; line-height: 1.8; }
+
+/* 업로드·기존 사진 관리. 상태 안내와 저장·삭제 동작은 원본이 담당한다. */
+body.journal-page.page-upload .main-content { display: grid; grid-template-columns: minmax(280px, .85fr) minmax(0, 1.45fr); gap: 30px; align-items: start; }
+body.journal-page.page-upload h2 { font-size: 1.25rem; line-height: 1.5; color: var(--ink); font-weight: 400; margin: 0 0 22px; }
+body.journal-page.page-upload .profile h2 { font-size: 3.75rem; line-height: 1.15; margin: 0; }
+body.journal-page .upload-box { width: 100%; max-width: none; margin: 0; padding: 24px; border: 1px solid var(--line); border-radius: 0; background: var(--sheet); color: var(--ink); font-family: inherit; }
+body.journal-page .manage-section { width: 100%; min-width: 0; max-width: none; margin: 0; font-family: inherit; }
+body.journal-page.page-upload input, body.journal-page.page-upload textarea, body.journal-page.page-upload select { width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--sheet); color: var(--ink); font-size: 1rem; }
+body.journal-page.page-upload input[type='file'] { background: var(--paper); overflow: hidden; }
+body.journal-page.page-upload input::file-selector-button { border: 1px solid var(--line); border-radius: 3px; padding: 7px 9px; margin-right: 8px; background: var(--sheet); color: var(--ink); cursor: pointer; font: inherit; font-size: .875rem; }
+body.journal-page.page-upload label { color: var(--ink); font-size: .875rem; font-weight: 400; }
+body.journal-page.page-upload button { width: 100%; min-height: 46px; padding: 11px 14px; border: 1px solid var(--accent); border-radius: 4px; background: var(--accent); color: var(--on-accent); font-size: .875rem; font-weight: 400; line-height: 1.6; }
+body.journal-page.page-upload button:hover { filter: brightness(.95); }
+body.journal-page.page-upload .info-msg, body.journal-page .batch-tool-box p, body.journal-page #photoList > p { color: var(--muted) !important; font-size: .8125rem !important; line-height: 1.75; }
+body.journal-page #status { margin-top: 16px; color: var(--ink); font-size: .875rem; font-weight: 400; text-align: left; overflow-wrap: anywhere; }
+body.journal-page .batch-tool-box { padding: 20px; margin-bottom: 26px; border: 1px solid var(--line); border-radius: 0; background: var(--sheet); }
+body.journal-page .batch-tool-box h3 { color: var(--ink); font-size: 1rem; font-weight: 400; }
+body.journal-page.page-upload .magic-btn, body.journal-page.page-upload .refresh-btn { background: var(--sheet); color: var(--ink); border-color: var(--line); }
+body.journal-page.page-upload .save-all-btn { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+body.journal-page .photo-item { display: grid; grid-template-columns: 80px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 16px; margin-bottom: 14px; border: 1px solid var(--line); border-radius: 0; background: var(--sheet); }
+body.journal-page .photo-item img { width: 80px; height: 60px; margin: 0; border-radius: 2px; object-fit: cover; box-shadow: none; }
+body.journal-page .photo-info-edit { min-width: 0; }
+body.journal-page .photo-info-edit input, body.journal-page .photo-info-edit select { margin: 0 0 7px; padding: 9px; font-size: 1rem; }
+body.journal-page .photo-info-edit small { display: block; font-size: .75rem; color: var(--muted); overflow-wrap: anywhere; }
+body.journal-page.page-upload .delete-btn { width: auto; min-height: 44px; padding: 8px 12px; margin: 0; background: #874a3e; border-color: #874a3e; color: #fffdf7; font-size: .8125rem; }
+
+@media (max-width: 1024px) {
+    body.journal-page .profile { padding-right: 28px; padding-left: 28px; }
+    body.journal-page .main-content { padding: 30px 28px 40px; }
+    body.journal-page .controls-container { padding-right: 28px; padding-left: 28px; }
+    body.journal-page .journal-intro h1 { font-size: 3.1rem; }
+    body.journal-page .colors-grid { gap: 18px; }
+    body.journal-page.page-upload .main-content { grid-template-columns: minmax(250px, .85fr) minmax(0, 1.4fr); gap: 22px; }
+    body.journal-page .photo-item { grid-template-columns: 64px minmax(0, 1fr); gap: 12px; }
+    body.journal-page .photo-item img { width: 64px; height: 50px; }
+    body.journal-page.page-upload .delete-btn { grid-column: 2; justify-self: end; }
+}
+
+@media (max-width: 768px) {
+    body.journal-page .profile { padding: 24px 18px 18px; }
+    body.journal-page .journal-brand { gap: 12px; }
+    body.journal-page .profile-img { width: 42px; height: 42px; flex-basis: 42px; }
+    body.journal-page .profile h2, body.journal-page.page-upload .profile h2 { font-size: 2.65rem; }
+    body.journal-page .profile p { margin-top: 5px; font-size: .75rem; letter-spacing: .035em; }
+    body.journal-page .profile nav { margin-top: 18px; }
+    body.journal-page .profile nav ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px 8px; max-width: 470px; margin: 0 auto; }
+    body.journal-page .profile nav ul li a { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 3px; font-size: .8125rem; }
+    body.journal-page .main-content { padding: 26px 18px 36px; }
+    body.journal-page .main-content h1 { font-size: 2.6rem; margin-bottom: 18px; }
+    body.journal-page.page-home .main-content { display: block; padding-top: 0; }
+    body.journal-page .journal-intro { padding: 26px 0 24px; }
+    body.journal-page .journal-intro h1 { max-width: none; font-size: 2.75rem; margin-bottom: 14px; }
+    body.journal-page .journal-intro p { font-size: .9375rem; }
+    body.journal-page .today-photo-section { padding: 14px; }
+    body.journal-page .photo-container { padding: 12px 12px 10px; margin-bottom: 28px; }
+    body.journal-page .photo-info { margin-top: 11px; font-size: .8125rem; }
+    body.journal-page.page-digital .main-content { padding-right: 65px; }
+    body.journal-page .controls-container { justify-content: center; gap: 7px; padding: 10px 12px; }
+    body.journal-page .control-btn { padding: 8px 10px; font-size: .8125rem; gap: 5px; }
+    body.journal-page .date-header { padding-top: 16px; margin-top: 12px; font-size: .9375rem; scroll-margin-top: 135px; }
+    body.journal-page #date-nav { right: 7px; padding: 10px 6px; gap: 5px; max-height: 48vh; max-height: 48dvh; }
+    body.journal-page .nav-item { font-size: .75rem; min-height: 26px; padding: 2px 0; }
+    body.journal-page #top-btn { right: 12px; bottom: 16px; }
+    body.journal-page #lightbox, body.journal-page #todayLightbox, body.journal-page #colorLightbox { padding: 16px; }
+    body.journal-page .lightbox-wrapper { width: 100%; max-width: 100%; }
+    body.journal-page #lightbox img { max-height: 48vh; max-height: 48dvh; }
+    body.journal-page #todayLightbox img, body.journal-page #colorLightbox img { max-height: 65vh; max-height: 65dvh; }
+    body.journal-page #lightbox-caption, body.journal-page .today-lightbox-caption, body.journal-page .color-lightbox-caption { padding: 10px 0; font-size: .8125rem; }
+    body.journal-page .info-card { padding: 10px; }
+    body.journal-page .info-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    body.journal-page .lightbox-controls { gap: 7px; }
+    body.journal-page .lightbox-control-btn { padding: 9px 11px; font-size: .8125rem; }
+    body.journal-page .modal-content { padding: 20px; margin: 12px auto; }
+    body.journal-page .colors-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    body.journal-page .color-filter-wrap { gap: 7px; }
+    body.journal-page .color-filter-btn { padding: 8px 12px; font-size: .8125rem; }
+    body.journal-page .color-photo-card { padding: 9px; }
+    body.journal-page .color-photo-info { font-size: .8125rem; }
+    body.journal-page .analysis-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    body.journal-page .analysis-hero, body.journal-page .analysis-card, body.journal-page .analysis-section { padding: 20px; }
+    body.journal-page .analysis-big { font-size: 1.9rem; }
+    body.journal-page .chart-row { grid-template-columns: 92px minmax(0, 1fr) 64px; gap: 8px; }
+    body.journal-page .chart-label, body.journal-page .chart-value { font-size: .8125rem; }
+    body.journal-page .insight-grid { grid-template-columns: 1fr; }
+    body.journal-page .write-area { padding: 20px; }
+    body.journal-page.page-upload .main-content { display: block; }
+    body.journal-page .upload-box { padding: 20px; margin-bottom: 30px; }
+    body.journal-page .manage-section { margin-top: 0; }
+    body.journal-page .batch-tool-box { padding: 18px; }
+    body.journal-page footer { margin-top: 36px; }
+}
+
+@media (max-width: 420px) {
+    body.journal-page .profile h2, body.journal-page.page-upload .profile h2 { font-size: 2.3rem; }
+    body.journal-page .profile nav ul li a { font-size: .75rem; }
+    body.journal-page.page-digital .main-content { padding-left: 12px; padding-right: 60px; }
+    body.journal-page .control-btn { padding: 8px; font-size: .75rem; }
+    body.journal-page .analysis-grid { grid-template-columns: 1fr; }
+    body.journal-page .analysis-section { padding: 16px; }
+    body.journal-page .chart-row { grid-template-columns: 80px minmax(0, 1fr) 56px; gap: 7px; }
+    body.journal-page .color-photo-card { padding: 7px; }
+    body.journal-page .color-name-badge { padding: 4px 6px; }
+    body.journal-page .photo-item { grid-template-columns: 52px minmax(0, 1fr); gap: 10px; padding: 12px; }
+    body.journal-page .photo-item img { width: 52px; height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.journal-page *, body.journal-page *::before, body.journal-page *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
