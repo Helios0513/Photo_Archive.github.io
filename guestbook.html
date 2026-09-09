@@ -74,12 +74,17 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
+    <link rel="stylesheet" href="journal.css">
 </head>
-<body>
+<body class="journal-page page-guestbook">
     <div class="container">
         <div class="profile">
-            <a href="index.html"><img src="images/KakaoTalk_20240406_232152395.jpg" class="profile-img"></a>
-            <h2>Hamihamoo</h2>
+            <div class="journal-brand">
+                <a href="index.html"><img src="images/KakaoTalk_20240406_232152395.jpg" class="profile-img"></a>
+                <div class="journal-brand-copy">
+                    <h2>Hamihamoo</h2>
+                </div>
+            </div>
             <nav>
                 <ul>
                     <li><a href="index.html">main page</a></li>
@@ -87,7 +92,7 @@
                     <li><a href="film.html">film photos</a></li>
                     <li><a href="colors.html">colors archive</a></li>
                     <li><a href="analysis.html">analysis</a></li>
-                    <li><a href="guestbook.html">guestbook</a></li>
+                    <li><a href="guestbook.html" aria-current="page">guestbook</a></li>
                 </ul>
             </nav>
         </div>
