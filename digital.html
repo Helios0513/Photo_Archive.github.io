@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -387,6 +388,54 @@
         }
     </style>
     <link rel="stylesheet" href="journal.css">
+    <style>
+        /* 날짜 목록이 상단 도구 모음이나 화면 아래쪽에 가려지지 않도록 한다. */
+        body.journal-page.page-digital #date-nav {
+            top: var(--archive-nav-top, 65vh);
+            transform: none;
+            max-height: var(--archive-nav-height, 25vh);
+            width: 4.4rem;
+            min-height: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior-y: contain;
+            -webkit-overflow-scrolling: touch;
+            padding: 8px 4px;
+            gap: 4px;
+            scrollbar-width: thin;
+        }
+
+        body.journal-page.page-digital #date-nav:empty {
+            display: none;
+        }
+
+        body.journal-page.page-digital #date-nav .nav-item {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 4px 0;
+            font-size: 0.875rem;
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+
+        body.journal-page.page-digital .date-header {
+            scroll-margin-top: calc(var(--archive-toolbar-height, 120px) + 12px);
+        }
+
+        @media (max-width: 768px) {
+            body.journal-page.page-digital #date-nav {
+                width: 4rem;
+                right: calc(8px + env(safe-area-inset-right, 0px));
+            }
+
+            body.journal-page.page-digital .main-content {
+                padding-right: calc(4rem + 24px + env(safe-area-inset-right, 0px));
+            }
+        }
+    </style>
 </head>
 <body class="journal-page page-digital">
     <div class="container">
@@ -773,5 +822,64 @@
             }
         });
     </script>
+    <script>
+        // 기존 사진·메뉴 기능은 그대로 두고 날짜 목록의 배치만 조정한다.
+        (() => {
+            const toolbar = document.querySelector('.controls-container');
+            const dateNav = document.getElementById('date-nav');
+            const page = document.body;
+            if (!toolbar || !dateNav) return;
+
+            let scheduled = false;
+
+            function updateArchiveLayout() {
+                scheduled = false;
+                const viewport = window.visualViewport;
+                const viewportTop = viewport ? viewport.offsetTop : 0;
+                const viewportHeight = viewport ? viewport.height : window.innerHeight;
+                const toolbarRect = toolbar.getBoundingClientRect();
+                const gap = 12;
+                const bottomReserve = 84;
+                const top = Math.ceil(Math.max(viewportTop + gap, toolbarRect.bottom + gap));
+                const available = Math.max(0, viewportTop + viewportHeight - top - bottomReserve);
+                const height = Math.min(viewportHeight * 0.55, available);
+
+                page.style.setProperty('--archive-nav-top', Math.ceil(top) + 'px');
+                page.style.setProperty('--archive-nav-height',
+                    'max(0px, calc(' + Math.floor(height) + 'px - env(safe-area-inset-bottom, 0px)))');
+                page.style.setProperty('--archive-toolbar-height', Math.ceil(toolbarRect.height) + 'px');
+
+                // 도구 모음이 아직 화면 아래에 있을 때는 빈 테두리가 생기지 않게 한다.
+                // 본문이 보이는 위치로 스크롤하면 날짜 목록도 다시 표시된다.
+                dateNav.style.visibility = available >= 64 ? 'visible' : 'hidden';
+            }
+
+            function scheduleArchiveLayout() {
+                if (scheduled) return;
+                scheduled = true;
+                window.requestAnimationFrame(updateArchiveLayout);
+            }
+
+            window.addEventListener('scroll', scheduleArchiveLayout, { passive: true });
+            window.addEventListener('resize', scheduleArchiveLayout);
+            window.addEventListener('pageshow', scheduleArchiveLayout);
+            window.addEventListener('load', scheduleArchiveLayout);
+
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', scheduleArchiveLayout);
+                window.visualViewport.addEventListener('scroll', scheduleArchiveLayout, { passive: true });
+            }
+
+            if ('ResizeObserver' in window) {
+                const observer = new ResizeObserver(scheduleArchiveLayout);
+                observer.observe(toolbar);
+                const profile = document.querySelector('.profile');
+                if (profile) observer.observe(profile);
+            }
+
+            updateArchiveLayout();
+        })();
+    </script>
 </body>
 </html>
+```
