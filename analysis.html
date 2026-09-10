@@ -357,31 +357,20 @@ body.dark-mode .project-menu button:hover {
 
 /* =========================================================
    PROJECT DETAIL CONTENT
-   사진집 / Editorial 스타일
 ========================================================= */
 
 .project-detail-header {
     max-width:760px;
-    margin:0 auto 85px auto;
+    margin:0 auto 70px auto;
     text-align:center;
 }
 
-.project-detail-kicker {
-    margin-bottom:18px;
-    color:#999;
-    font-size:0.7rem;
-    font-weight:600;
-    letter-spacing:0.18em;
-    text-transform:uppercase;
-}
-
 .project-detail-header h1 {
-    margin:0;
-    color:#222;
-    font-size:clamp(2.4rem, 5vw, 4.3rem);
+    font-size:2.5rem;
     font-weight:500;
-    line-height:1.08;
-    letter-spacing:-0.055em;
+    letter-spacing:-0.04em;
+    margin:0 0 12px;
+    color:#222;
 }
 
 body.dark-mode .project-detail-header h1 {
@@ -389,133 +378,43 @@ body.dark-mode .project-detail-header h1 {
 }
 
 .project-detail-subtitle {
-    margin-top:18px;
     color:#888;
-    font-size:0.92rem;
-    letter-spacing:0.02em;
+    font-size:0.95rem;
+    margin-bottom:22px;
 }
 
 .project-detail-description {
-    max-width:580px;
-    margin:28px auto 0;
     color:#555;
-    font-size:0.94rem;
-    line-height:1.95;
+    font-size:0.96rem;
+    line-height:1.9;
+    max-width:650px;
+    margin:0 auto;
 }
 
 body.dark-mode .project-detail-description {
     color:#bbb;
 }
 
-.project-detail-divider {
-    width:34px;
-    height:1px;
-    margin:34px auto 0;
-    background:#bbb;
-}
-
-body.dark-mode .project-detail-divider {
-    background:#555;
-}
-
-
-/* =========================================================
-   PROJECT PHOTO BOOK
-========================================================= */
-
 .project-photo-series {
-    width:100%;
-    max-width:1120px;
-    margin:0 auto;
-    padding-bottom:110px;
     display:flex;
     flex-direction:column;
-    gap:100px;
+    gap:70px;
+    padding-bottom:70px;
 }
 
-
-/* 첫 번째 사진 */
-
-.project-hero-photo {
+.project-series-photo {
     width:100%;
-    display:flex;
-    justify-content:center;
+    text-align:center;
 }
 
-.project-hero-photo img {
+.project-series-photo img {
     display:block;
-    width:auto;
     max-width:100%;
-    max-height:90vh;
+    max-height:88vh;
+    width:auto;
+    height:auto;
     margin:0 auto;
     object-fit:contain;
-}
-
-
-/* 두 장 나란히 */
-
-.project-photo-pair {
-    width:100%;
-    display:grid;
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:30px;
-    align-items:center;
-}
-
-.project-photo-pair figure {
-    margin:0;
-    min-width:0;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
-
-.project-photo-pair img {
-    display:block;
-    width:auto;
-    max-width:100%;
-    max-height:78vh;
-    object-fit:contain;
-}
-
-
-/* 한 장 단독 */
-
-.project-photo-single {
-    width:100%;
-    display:flex;
-    justify-content:center;
-}
-
-.project-photo-single img {
-    display:block;
-    width:auto;
-    max-width:100%;
-    max-height:86vh;
-    object-fit:contain;
-}
-
-
-/* 사진집에서 크기 리듬을 만들기 위한 폭 */
-
-.project-photo-single.narrow {
-    width:72%;
-    margin-left:auto;
-    margin-right:auto;
-}
-
-.project-photo-single.wide {
-    width:90%;
-    margin-left:auto;
-    margin-right:auto;
-}
-
-
-/* 프로젝트에서는 웹 카드 느낌 제거 */
-
-.project-photo-series img {
-    border-radius:0;
-    box-shadow:none;
 }
 
 
@@ -1076,58 +975,15 @@ body.dark-mode .editor-save-btn {
     }
 
     .project-detail-header {
-        margin-bottom:58px;
-        padding:0 8px;
-    }
-
-    .project-detail-kicker {
-        margin-bottom:13px;
-        font-size:0.63rem;
+        margin-bottom:45px;
     }
 
     .project-detail-header h1 {
-        font-size:2.35rem;
-    }
-
-    .project-detail-subtitle {
-        margin-top:14px;
-        font-size:0.84rem;
-    }
-
-    .project-detail-description {
-        margin-top:23px;
-        font-size:0.87rem;
-        line-height:1.85;
-    }
-
-    .project-detail-divider {
-        margin-top:27px;
+        font-size:2rem;
     }
 
     .project-photo-series {
-        gap:58px;
-        padding-bottom:70px;
-    }
-
-    /*
-       모바일에서는 2장 나란히 놓지 않고
-       한 장씩 충분히 크게 보여줌
-    */
-
-    .project-photo-pair {
-        grid-template-columns:1fr;
-        gap:58px;
-    }
-
-    .project-photo-single.narrow,
-    .project-photo-single.wide {
-        width:100%;
-    }
-
-    .project-photo-pair img,
-    .project-photo-single img,
-    .project-hero-photo img {
-        max-height:none;
+        gap:42px;
     }
 
     .project-modal {
@@ -1309,6 +1165,8 @@ body.dark-mode .editor-save-btn {
         <div class="project-modal-body">
 
 
+            <!-- PROJECT INFORMATION -->
+
             <section class="editor-section">
 
                 <div class="editor-section-title">
@@ -1369,6 +1227,8 @@ body.dark-mode .editor-save-btn {
 
 
 
+            <!-- GITHUB TOKEN -->
+
             <section class="editor-section token-section">
 
                 <div class="editor-section-title">
@@ -1405,6 +1265,8 @@ body.dark-mode .editor-save-btn {
 
 
 
+            <!-- SELECTED -->
+
             <section class="editor-section">
 
                 <div class="selected-header">
@@ -1434,6 +1296,8 @@ body.dark-mode .editor-save-btn {
             </section>
 
 
+
+            <!-- PHOTO LIBRARY -->
 
             <section class="editor-section">
 
@@ -1523,17 +1387,24 @@ const repo =
     "Helios0513/Photo_Archive.github.io";
 
 let allPhotos = [];
+
 let projects = [];
+
 let selectedPhotos = [];
+
 let selectedCover = "";
+
 let editingProjectId = null;
+
 let currentPhotoFilter = "";
+
 let currentMonthFilter = "";
 
 let sessionGithubToken =
     sessionStorage.getItem(
         "photoArchiveGithubToken"
     ) || "";
+
 
 
 /* =========================================================
@@ -1586,6 +1457,7 @@ if (
 }
 
 updateDarkButtonText();
+
 
 
 /* =========================================================
@@ -1674,6 +1546,7 @@ function showEditorMessage(
         box.classList.add(type);
     }
 }
+
 
 
 /* =========================================================
@@ -1798,6 +1671,7 @@ async function initializeProjectsPage() {
 }
 
 
+
 /* =========================================================
    MONTH FILTER
 ========================================================= */
@@ -1863,6 +1737,7 @@ function buildMonthFilter() {
         select.appendChild(option);
     });
 }
+
 
 
 /* =========================================================
@@ -2073,6 +1948,7 @@ function renderProjects() {
 }
 
 
+
 /* =========================================================
    PROJECT DETAIL
 ========================================================= */
@@ -2095,168 +1971,35 @@ function openProject(projectId) {
         );
 
 
-    /*
-       photos.json에 실제 존재하는 사진만
-       상세 프로젝트에 표시합니다.
-    */
-
-    const validPhotos =
-        (project.photos || [])
-            .filter(
-                filename =>
-                    getPhoto(filename)
-            );
+    let photosHtml = "";
 
 
-    let photosHtml =
-        "";
+    (
+        project.photos || []
+    ).forEach(
+        filename => {
+
+            const photo =
+                getPhoto(filename);
 
 
-    /*
-       첫 번째 사진은 프로젝트의
-       오프닝 이미지처럼 크게 보여줍니다.
-    */
-
-    if (
-        validPhotos.length > 0
-    ) {
-
-        const firstPhoto =
-            validPhotos[0];
-
-
-        photosHtml += `
-
-            <div class="project-hero-photo">
-
-                <img
-                    src="${photoUrl(firstPhoto)}"
-                    alt="${escapeHtml(project.title)}"
-                    loading="eager"
-                    decoding="async"
-                >
-
-            </div>
-        `;
-    }
-
-
-    /*
-       첫 사진을 제외한 나머지 사진.
-
-       PC:
-       두 장 나란히
-       한 장 단독
-       두 장 나란히
-       한 장 단독
-
-       모바일:
-       CSS에서 자동으로 모두 한 장씩 표시.
-    */
-
-    const remainingPhotos =
-        validPhotos.slice(1);
-
-
-    let index = 0;
-
-    let blockIndex = 0;
-
-
-    while (
-        index <
-        remainingPhotos.length
-    ) {
-
-        const remaining =
-            remainingPhotos.length -
-            index;
-
-
-        if (
-            blockIndex % 2 === 0 &&
-            remaining >= 2
-        ) {
-
-            const first =
-                remainingPhotos[index];
-
-            const second =
-                remainingPhotos[index + 1];
+            if (!photo) return;
 
 
             photosHtml += `
 
-                <div class="project-photo-pair">
-
-                    <figure>
-
-                        <img
-                            src="${photoUrl(first)}"
-                            alt=""
-                            loading="lazy"
-                            decoding="async"
-                        >
-
-                    </figure>
-
-
-                    <figure>
-
-                        <img
-                            src="${photoUrl(second)}"
-                            alt=""
-                            loading="lazy"
-                            decoding="async"
-                        >
-
-                    </figure>
-
-                </div>
-            `;
-
-
-            index += 2;
-
-        } else {
-
-            const filename =
-                remainingPhotos[index];
-
-
-            const widthClass =
-                blockIndex % 4 === 1
-                ? "narrow"
-                : "wide";
-
-
-            photosHtml += `
-
-                <div
-                    class="project-photo-single ${widthClass}"
-                >
+                <div class="project-series-photo">
 
                     <img
                         src="${photoUrl(filename)}"
                         alt=""
                         loading="lazy"
-                        decoding="async"
                     >
 
                 </div>
             `;
-
-
-            index += 1;
         }
-
-
-        blockIndex += 1;
-    }
-
-
-    const photoCount =
-        validPhotos.length;
+    );
 
 
     area.innerHTML = `
@@ -2312,11 +2055,6 @@ function openProject(projectId) {
 
             <header class="project-detail-header">
 
-                <div class="project-detail-kicker">
-                    ${photoCount} photographs
-                </div>
-
-
                 <h1>
                     ${escapeHtml(project.title)}
                 </h1>
@@ -2347,9 +2085,6 @@ function openProject(projectId) {
                     ""
                 }
 
-
-                <div class="project-detail-divider"></div>
-
             </header>
 
 
@@ -2368,6 +2103,7 @@ function openProject(projectId) {
         behavior:"smooth"
     });
 }
+
 
 
 /* =========================================================
@@ -2421,6 +2157,7 @@ document.addEventListener(
         }
     }
 );
+
 
 
 /* =========================================================
@@ -2605,6 +2342,7 @@ function openProjectEditor(
 }
 
 
+
 /* =========================================================
    EDITOR CLOSE
 ========================================================= */
@@ -2632,6 +2370,7 @@ function closeProjectEditor() {
         "modal-open"
     );
 }
+
 
 
 /* =========================================================
@@ -2749,6 +2488,7 @@ function renderSelectedPhotos() {
             )
             .join("");
 }
+
 
 
 /* =========================================================
@@ -2954,6 +2694,7 @@ function renderPhotoPicker() {
 }
 
 
+
 /* =========================================================
    SELECT / ORDER / COVER
 ========================================================= */
@@ -3114,6 +2855,7 @@ function setCover(
 }
 
 
+
 /* =========================================================
    FILTER EVENTS
 ========================================================= */
@@ -3150,6 +2892,7 @@ document
             renderPhotoPicker();
         }
     );
+
 
 
 /* =========================================================
@@ -3258,6 +3001,7 @@ document
     );
 
 
+
 /* =========================================================
    MODAL EVENTS
 ========================================================= */
@@ -3293,6 +3037,7 @@ document.addEventListener(
         }
     }
 );
+
 
 
 /* =========================================================
@@ -3464,6 +3209,7 @@ async function saveProjectsToGithub(
 
     return await saveResponse.json();
 }
+
 
 
 /* =========================================================
@@ -3715,6 +3461,7 @@ async function saveProject() {
 }
 
 
+
 /* =========================================================
    DELETE
 ========================================================= */
@@ -3817,6 +3564,7 @@ async function deleteProject(
         );
     }
 }
+
 
 
 /* =========================================================
