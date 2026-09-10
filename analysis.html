@@ -11,7 +11,7 @@
 
 <style>
 /* =========================================================
-   PROJECTS PAGE
+   BASIC
 ========================================================= */
 
 body.dark-mode {
@@ -34,8 +34,9 @@ body.modal-open {
     margin:0 auto;
 }
 
+
 /* =========================================================
-   TOP AREA
+   TOP
 ========================================================= */
 
 .project-topbar {
@@ -60,6 +61,11 @@ body.dark-mode .dark-toggle {
     background:#eee;
     color:#111;
 }
+
+
+/* =========================================================
+   PROJECT LIST HEADER
+========================================================= */
 
 .projects-heading {
     display:flex;
@@ -114,8 +120,9 @@ body.dark-mode .new-project-btn {
     color:#111;
 }
 
+
 /* =========================================================
-   PROJECT LIST
+   PROJECT CARDS
 ========================================================= */
 
 .project-grid {
@@ -194,8 +201,9 @@ body.dark-mode .project-subtitle {
     color:#aaa;
 }
 
+
 /* =========================================================
-   EMPTY STATE
+   EMPTY
 ========================================================= */
 
 .empty-projects {
@@ -226,6 +234,7 @@ body.dark-mode .empty-projects-title {
     line-height:1.7;
 }
 
+
 /* =========================================================
    PROJECT DETAIL
 ========================================================= */
@@ -239,6 +248,7 @@ body.dark-mode .empty-projects-title {
         opacity:0;
         transform:translateY(5px);
     }
+
     to {
         opacity:1;
         transform:translateY(0);
@@ -250,7 +260,7 @@ body.dark-mode .empty-projects-title {
     justify-content:space-between;
     align-items:center;
     gap:12px;
-    margin-bottom:38px;
+    margin-bottom:55px;
 }
 
 .project-back-btn {
@@ -266,30 +276,88 @@ body.dark-mode .project-back-btn {
     color:#bbb;
 }
 
-.project-admin-buttons {
-    display:flex;
-    gap:8px;
+
+/* =========================================================
+   PROJECT ADMIN MENU
+========================================================= */
+
+.project-menu-wrap {
+    position:relative;
 }
 
-.project-small-btn {
+.project-menu-btn {
+    width:40px;
+    height:40px;
     border:1px solid #ddd;
     background:#fff;
     color:#444;
-    border-radius:999px;
-    padding:8px 13px;
+    border-radius:50%;
     cursor:pointer;
-    font-size:0.78rem;
+    font-size:1.05rem;
+    line-height:1;
 }
 
-body.dark-mode .project-small-btn {
-    background:#1b1b1b;
+body.dark-mode .project-menu-btn {
+    background:#1d1d1d;
     border-color:#444;
     color:#ddd;
 }
 
-.project-small-btn.delete {
-    color:#a84848;
+.project-menu {
+    position:absolute;
+    top:48px;
+    right:0;
+    min-width:155px;
+    padding:6px;
+    background:#fff;
+    border:1px solid #e5e5e5;
+    border-radius:13px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.14);
+    z-index:50;
+    display:none;
 }
+
+.project-menu.open {
+    display:block;
+}
+
+body.dark-mode .project-menu {
+    background:#222;
+    border-color:#3b3b3b;
+}
+
+.project-menu button {
+    width:100%;
+    border:none;
+    background:none;
+    padding:10px 12px;
+    text-align:left;
+    border-radius:8px;
+    cursor:pointer;
+    color:#444;
+    font-size:0.82rem;
+}
+
+.project-menu button:hover {
+    background:#f3f3f3;
+}
+
+body.dark-mode .project-menu button {
+    color:#ddd;
+}
+
+body.dark-mode .project-menu button:hover {
+    background:#303030;
+}
+
+.project-menu button.delete {
+    color:#b14a4a;
+}
+
+
+/* =========================================================
+   PROJECT DETAIL CONTENT
+========================================================= */
 
 .project-detail-header {
     max-width:760px;
@@ -349,9 +417,6 @@ body.dark-mode .project-detail-description {
     object-fit:contain;
 }
 
-.project-series-meta {
-    display:none;
-}
 
 /* =========================================================
    MODAL
@@ -390,19 +455,19 @@ body.dark-mode .project-modal-panel {
 .project-modal-header {
     position:sticky;
     top:0;
-    z-index:10;
+    z-index:20;
     display:flex;
     justify-content:space-between;
     align-items:center;
     gap:15px;
     padding:20px 24px;
-    background:rgba(255,255,255,0.96);
+    background:rgba(255,255,255,0.97);
     border-bottom:1px solid #eee;
     backdrop-filter:blur(12px);
 }
 
 body.dark-mode .project-modal-header {
-    background:rgba(24,24,24,0.96);
+    background:rgba(24,24,24,0.97);
     border-color:#333;
 }
 
@@ -436,15 +501,20 @@ body.dark-mode .modal-close-btn {
     padding:25px;
 }
 
+
+/* =========================================================
+   EDITOR
+========================================================= */
+
 .editor-section {
-    margin-bottom:34px;
+    margin-bottom:32px;
 }
 
 .editor-section-title {
-    font-size:0.8rem;
+    font-size:0.76rem;
     font-weight:700;
     text-transform:uppercase;
-    letter-spacing:0.08em;
+    letter-spacing:0.1em;
     color:#999;
     margin-bottom:13px;
 }
@@ -475,7 +545,8 @@ body.dark-mode .form-field label {
 }
 
 .form-field input,
-.form-field textarea {
+.form-field textarea,
+.photo-month-filter {
     width:100%;
     box-sizing:border-box;
     border:1px solid #ddd;
@@ -489,12 +560,14 @@ body.dark-mode .form-field label {
 }
 
 .form-field input:focus,
-.form-field textarea:focus {
+.form-field textarea:focus,
+.photo-month-filter:focus {
     border-color:#777;
 }
 
 body.dark-mode .form-field input,
-body.dark-mode .form-field textarea {
+body.dark-mode .form-field textarea,
+body.dark-mode .photo-month-filter {
     background:#202020;
     border-color:#3c3c3c;
     color:#eee;
@@ -502,16 +575,27 @@ body.dark-mode .form-field textarea {
 
 .form-field textarea {
     resize:vertical;
-    min-height:100px;
+    min-height:90px;
     line-height:1.6;
+}
+
+.token-section {
+    background:#f7f7f7;
+    border-radius:14px;
+    padding:16px;
+}
+
+body.dark-mode .token-section {
+    background:#222;
 }
 
 .token-help {
     color:#999;
     font-size:0.75rem;
-    line-height:1.5;
+    line-height:1.6;
     margin-top:6px;
 }
+
 
 /* =========================================================
    SELECTED PHOTOS
@@ -589,7 +673,7 @@ body.dark-mode .selected-card.cover {
     position:absolute;
     top:5px;
     left:5px;
-    background:rgba(0,0,0,0.7);
+    background:rgba(0,0,0,0.72);
     color:#fff;
     border-radius:999px;
     font-size:0.66rem;
@@ -637,21 +721,23 @@ body.dark-mode .selected-actions button {
     border-right:none;
 }
 
+
 /* =========================================================
-   PHOTO PICKER
+   PHOTO LIBRARY
 ========================================================= */
 
 .photo-picker-toolbar {
-    display:flex;
+    display:grid;
+    grid-template-columns:190px 1fr;
     gap:10px;
-    margin-bottom:18px;
+    margin-bottom:12px;
 }
 
 .photo-search {
-    flex:1;
+    width:100%;
     border:1px solid #ddd;
-    border-radius:999px;
-    padding:11px 15px;
+    border-radius:10px;
+    padding:11px 13px;
     box-sizing:border-box;
     font-size:0.85rem;
     outline:none;
@@ -663,28 +749,50 @@ body.dark-mode .photo-search {
     color:#eee;
 }
 
+.photo-library-box {
+    border:1px solid #e3e3e3;
+    border-radius:14px;
+    overflow:hidden;
+    background:#fafafa;
+}
+
+body.dark-mode .photo-library-box {
+    border-color:#383838;
+    background:#1d1d1d;
+}
+
 .photo-picker {
-    max-height:520px;
+    height:430px;
     overflow-y:auto;
-    padding-right:5px;
+    padding:15px;
+    box-sizing:border-box;
+    overscroll-behavior:contain;
 }
 
 .photo-date-group {
     margin-bottom:24px;
 }
 
+.photo-date-group:last-child {
+    margin-bottom:0;
+}
+
 .photo-date-title {
-    font-size:0.75rem;
+    position:sticky;
+    top:-15px;
+    z-index:3;
+    font-size:0.74rem;
     font-weight:700;
     color:#777;
-    margin-bottom:9px;
-    border-bottom:1px solid #eee;
-    padding-bottom:7px;
+    background:rgba(250,250,250,0.95);
+    backdrop-filter:blur(8px);
+    padding:9px 0;
+    margin-bottom:8px;
 }
 
 body.dark-mode .photo-date-title {
-    border-color:#333;
     color:#aaa;
+    background:rgba(29,29,29,0.95);
 }
 
 .photo-picker-grid {
@@ -709,7 +817,7 @@ body.dark-mode .picker-photo {
 }
 
 .picker-photo.selected {
-    border-color:#222;
+    border-color:#111;
 }
 
 body.dark-mode .picker-photo.selected {
@@ -730,58 +838,41 @@ body.dark-mode .picker-photo.selected {
     width:23px;
     height:23px;
     border-radius:50%;
-    background:rgba(255,255,255,0.88);
+    background:#fff;
     color:#111;
     display:flex;
     justify-content:center;
     align-items:center;
     font-size:0.7rem;
     font-weight:bold;
-    box-shadow:0 2px 8px rgba(0,0,0,0.16);
+    box-shadow:0 2px 8px rgba(0,0,0,0.2);
 }
 
 .picker-photo:not(.selected) .picker-check {
     display:none;
 }
 
-.picker-filename {
-    position:absolute;
-    left:0;
-    right:0;
-    bottom:0;
-    padding:20px 6px 5px;
-    background:linear-gradient(transparent, rgba(0,0,0,0.65));
-    color:#fff;
-    font-size:0.58rem;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    opacity:0;
-    transition:0.15s;
-}
-
-.picker-photo:hover .picker-filename {
-    opacity:1;
-}
 
 /* =========================================================
-   MODAL FOOTER
+   FOOTER
 ========================================================= */
 
 .project-modal-footer {
     position:sticky;
     bottom:0;
+    z-index:20;
     display:flex;
     justify-content:flex-end;
+    align-items:center;
     gap:10px;
     padding:17px 24px;
-    background:rgba(255,255,255,0.96);
+    background:rgba(255,255,255,0.97);
     border-top:1px solid #eee;
     backdrop-filter:blur(12px);
 }
 
 body.dark-mode .project-modal-footer {
-    background:rgba(24,24,24,0.96);
+    background:rgba(24,24,24,0.97);
     border-color:#333;
 }
 
@@ -807,7 +898,7 @@ body.dark-mode .editor-cancel-btn {
 .editor-save-btn {
     background:#222;
     color:#fff;
-    min-width:130px;
+    min-width:135px;
 }
 
 body.dark-mode .editor-save-btn {
@@ -822,7 +913,6 @@ body.dark-mode .editor-save-btn {
 
 .project-message {
     flex:1;
-    align-self:center;
     font-size:0.78rem;
     color:#777;
 }
@@ -835,10 +925,6 @@ body.dark-mode .editor-save-btn {
     color:#34784b;
 }
 
-/* =========================================================
-   LOADING
-========================================================= */
-
 .projects-loading {
     padding:60px 20px;
     text-align:center;
@@ -846,17 +932,21 @@ body.dark-mode .editor-save-btn {
     font-size:0.88rem;
 }
 
+
 /* =========================================================
    MOBILE
 ========================================================= */
 
 @media (max-width:900px) {
+
     .photo-picker-grid {
         grid-template-columns:repeat(4, minmax(0, 1fr));
     }
 }
 
+
 @media (max-width:768px) {
+
     .projects-heading {
         align-items:flex-start;
         margin-bottom:28px;
@@ -880,6 +970,10 @@ body.dark-mode .editor-save-btn {
         gap:38px;
     }
 
+    .project-detail-toolbar {
+        margin-bottom:42px;
+    }
+
     .project-detail-header {
         margin-bottom:45px;
     }
@@ -898,17 +992,17 @@ body.dark-mode .editor-save-btn {
 
     .project-modal-panel {
         width:100%;
-        height:100%;
+        height:100dvh;
         max-height:none;
         border-radius:0;
     }
 
     .project-modal-header {
-        padding:16px;
+        padding:15px 16px;
     }
 
     .project-modal-body {
-        padding:18px 16px 30px;
+        padding:18px 16px 25px;
     }
 
     .form-grid {
@@ -920,17 +1014,29 @@ body.dark-mode .editor-save-btn {
         grid-column:auto;
     }
 
-    .photo-picker-grid {
-        grid-template-columns:repeat(3, minmax(0, 1fr));
+    .photo-picker-toolbar {
+        grid-template-columns:135px 1fr;
+        gap:7px;
+    }
+
+    .photo-month-filter,
+    .photo-search {
+        padding:10px;
+        font-size:0.78rem;
     }
 
     .photo-picker {
-        max-height:none;
-        overflow:visible;
+        height:48vh;
+        padding:10px;
+    }
+
+    .photo-picker-grid {
+        grid-template-columns:repeat(3, minmax(0, 1fr));
+        gap:5px;
     }
 
     .project-modal-footer {
-        padding:13px 15px;
+        padding:12px 14px;
     }
 
     .project-message {
@@ -942,7 +1048,9 @@ body.dark-mode .editor-save-btn {
     }
 }
 
+
 @media (max-width:480px) {
+
     .projects-heading {
         flex-direction:column;
         align-items:stretch;
@@ -952,29 +1060,19 @@ body.dark-mode .editor-save-btn {
     .new-project-btn {
         align-self:flex-start;
     }
-
-    .photo-picker-grid {
-        grid-template-columns:repeat(3, minmax(0, 1fr));
-        gap:5px;
-    }
-
-    .project-detail-toolbar {
-        align-items:flex-start;
-    }
-
-    .project-admin-buttons {
-        flex-direction:column;
-    }
 }
 </style>
 </head>
+
 
 <body class="journal-page page-analysis">
 
 <div class="container">
 
     <div class="profile">
+
         <div class="journal-brand">
+
             <img
                 src="images/KakaoTalk_20240406_232152395.jpg"
                 alt="프로필 사진"
@@ -985,7 +1083,9 @@ body.dark-mode .editor-save-btn {
                 <h2>Hamihamoo</h2>
                 <p>Amateur Photographer</p>
             </div>
+
         </div>
+
 
         <nav>
             <ul>
@@ -997,6 +1097,7 @@ body.dark-mode .editor-save-btn {
                 <li><a href="analysis.html" aria-current="page">projects</a></li>
             </ul>
         </nav>
+
     </div>
 
 
@@ -1005,18 +1106,23 @@ body.dark-mode .editor-save-btn {
         <div class="project-page-wrap">
 
             <div class="project-topbar">
+
                 <button
                     class="dark-toggle"
                     onclick="toggleDark()"
                 >
                     🌙 Dark
                 </button>
+
             </div>
 
+
             <div id="projectArea">
+
                 <div class="projects-loading">
                     projects loading...
                 </div>
+
             </div>
 
         </div>
@@ -1026,9 +1132,10 @@ body.dark-mode .editor-save-btn {
 </div>
 
 
-<!-- =====================================================
-     PROJECT EDITOR MODAL
-===================================================== -->
+
+<!-- =========================================================
+     PROJECT EDITOR
+========================================================= -->
 
 <div
     class="project-modal"
@@ -1057,6 +1164,7 @@ body.dark-mode .editor-save-btn {
 
         <div class="project-modal-body">
 
+
             <!-- PROJECT INFORMATION -->
 
             <section class="editor-section">
@@ -1065,9 +1173,11 @@ body.dark-mode .editor-save-btn {
                     Project Information
                 </div>
 
+
                 <div class="form-grid">
 
                     <div class="form-field">
+
                         <label for="projectTitleInput">
                             Project title
                         </label>
@@ -1078,10 +1188,12 @@ body.dark-mode .editor-save-btn {
                             placeholder="Taipei, 2026"
                             maxlength="100"
                         >
+
                     </div>
 
 
                     <div class="form-field">
+
                         <label for="projectSubtitleInput">
                             Subtitle
                         </label>
@@ -1092,10 +1204,12 @@ body.dark-mode .editor-save-btn {
                             placeholder="September 2026"
                             maxlength="150"
                         >
+
                     </div>
 
 
                     <div class="form-field full">
+
                         <label for="projectDescriptionInput">
                             Description
                         </label>
@@ -1104,6 +1218,7 @@ body.dark-mode .editor-save-btn {
                             id="projectDescriptionInput"
                             placeholder="프로젝트에 대한 짧은 설명을 적어주세요."
                         ></textarea>
+
                     </div>
 
                 </div>
@@ -1111,13 +1226,55 @@ body.dark-mode .editor-save-btn {
             </section>
 
 
-            <!-- SELECTED PHOTOS -->
+
+            <!-- GITHUB TOKEN -->
+
+            <section class="editor-section token-section">
+
+                <div class="editor-section-title">
+                    GitHub
+                </div>
+
+
+                <div
+                    class="form-field"
+                    style="margin-bottom:0;"
+                >
+
+                    <label for="projectTokenInput">
+                        GitHub token
+                    </label>
+
+                    <input
+                        id="projectTokenInput"
+                        type="password"
+                        autocomplete="off"
+                        placeholder="GitHub 토큰 입력"
+                    >
+
+                    <div
+                        class="token-help"
+                        id="tokenHelp"
+                    >
+                        현재 브라우저 탭을 사용하는 동안만 기억합니다.
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- SELECTED -->
 
             <section class="editor-section">
 
                 <div class="selected-header">
 
-                    <div class="editor-section-title" style="margin:0;">
+                    <div
+                        class="editor-section-title"
+                        style="margin:0;"
+                    >
                         Selected Photos
                     </div>
 
@@ -1130,12 +1287,14 @@ body.dark-mode .editor-save-btn {
 
                 </div>
 
+
                 <div
                     class="selected-strip"
                     id="selectedStrip"
                 ></div>
 
             </section>
+
 
 
             <!-- PHOTO LIBRARY -->
@@ -1146,58 +1305,42 @@ body.dark-mode .editor-save-btn {
                     Photo Library
                 </div>
 
+
                 <div class="photo-picker-toolbar">
+
+                    <select
+                        class="photo-month-filter"
+                        id="photoMonthFilter"
+                    >
+                        <option value="">
+                            All Photos
+                        </option>
+                    </select>
+
 
                     <input
                         class="photo-search"
                         id="photoSearch"
                         type="search"
-                        placeholder="날짜, 파일명, 카메라 정보 검색"
+                        placeholder="날짜, 파일명, 카메라 검색"
                     >
 
                 </div>
 
-                <div
-                    class="photo-picker"
-                    id="photoPicker"
-                ></div>
 
-            </section>
-
-
-            <!-- GITHUB TOKEN -->
-
-            <section class="editor-section">
-
-                <div class="editor-section-title">
-                    Save to GitHub
-                </div>
-
-                <div class="form-field">
-
-                    <label for="projectTokenInput">
-                        GitHub token
-                    </label>
-
-                    <input
-                        id="projectTokenInput"
-                        type="password"
-                        autocomplete="off"
-                        placeholder="저장할 때만 GitHub 토큰을 입력하세요"
-                    >
+                <div class="photo-library-box">
 
                     <div
-                        class="token-help"
-                        id="tokenHelp"
-                    >
-                        토큰은 이 페이지에 저장하지 않습니다.
-                    </div>
+                        class="photo-picker"
+                        id="photoPicker"
+                    ></div>
 
                 </div>
 
             </section>
 
         </div>
+
 
 
         <div class="project-modal-footer">
@@ -1207,6 +1350,7 @@ body.dark-mode .editor-save-btn {
                 id="projectMessage"
             ></div>
 
+
             <button
                 class="editor-cancel-btn"
                 type="button"
@@ -1214,6 +1358,7 @@ body.dark-mode .editor-save-btn {
             >
                 Cancel
             </button>
+
 
             <button
                 class="editor-save-btn"
@@ -1231,24 +1376,35 @@ body.dark-mode .editor-save-btn {
 </div>
 
 
+
 <script>
 
 /* =========================================================
-   BASIC SETTINGS
+   SETTINGS
 ========================================================= */
 
-const repo = "Helios0513/Photo_Archive.github.io";
+const repo =
+    "Helios0513/Photo_Archive.github.io";
 
 let allPhotos = [];
+
 let projects = [];
 
 let selectedPhotos = [];
+
 let selectedCover = "";
 
 let editingProjectId = null;
+
 let currentPhotoFilter = "";
 
-let sessionGithubToken = "";
+let currentMonthFilter = "";
+
+let sessionGithubToken =
+    sessionStorage.getItem(
+        "photoArchiveGithubToken"
+    ) || "";
+
 
 
 /* =========================================================
@@ -1257,11 +1413,15 @@ let sessionGithubToken = "";
 
 function toggleDark() {
 
-    document.body.classList.toggle("dark-mode");
+    document.body.classList.toggle(
+        "dark-mode"
+    );
 
     localStorage.setItem(
         "dark",
-        document.body.classList.contains("dark-mode")
+        document.body.classList.contains(
+            "dark-mode"
+        )
     );
 
     updateDarkButtonText();
@@ -1270,22 +1430,34 @@ function toggleDark() {
 
 function updateDarkButtonText() {
 
-    const button = document.querySelector(".dark-toggle");
+    const button =
+        document.querySelector(
+            ".dark-toggle"
+        );
 
     if (!button) return;
 
     button.innerHTML =
-        document.body.classList.contains("dark-mode")
-            ? "☀ Light"
-            : "🌙 Dark";
+        document.body.classList.contains(
+            "dark-mode"
+        )
+        ? "☀ Light"
+        : "🌙 Dark";
 }
 
 
-if (localStorage.getItem("dark") === "true") {
-    document.body.classList.add("dark-mode");
+if (
+    localStorage.getItem("dark") ===
+    "true"
+) {
+
+    document.body.classList.add(
+        "dark-mode"
+    );
 }
 
 updateDarkButtonText();
+
 
 
 /* =========================================================
@@ -1311,22 +1483,32 @@ function photoUrl(filename) {
 
 function formatDescription(text) {
 
-    return escapeHtml(text || "")
-        .replace(/\n/g, "<br>");
+    return escapeHtml(
+        text || ""
+    ).replace(/\n/g, "<br>");
 }
 
 
 function createProjectId(title) {
 
-    let slug = String(title || "")
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9가-힣]+/g, "-")
-        .replace(/^-+|-+$/g, "");
+    let slug =
+        String(title || "")
+            .toLowerCase()
+            .trim()
+            .replace(
+                /[^a-z0-9가-힣]+/g,
+                "-"
+            )
+            .replace(
+                /^-+|-+$/g,
+                ""
+            );
+
 
     if (!slug) {
         slug = "project";
     }
+
 
     return `${slug}-${Date.now()}`;
 }
@@ -1335,44 +1517,60 @@ function createProjectId(title) {
 function getPhoto(filename) {
 
     return allPhotos.find(
-        photo => photo.filename === filename
+        photo =>
+            photo.filename === filename
     );
 }
 
 
-function showEditorMessage(message, type = "") {
+function showEditorMessage(
+    message,
+    type = ""
+) {
 
-    const messageBox =
-        document.getElementById("projectMessage");
+    const box =
+        document.getElementById(
+            "projectMessage"
+        );
 
-    messageBox.textContent = message;
 
-    messageBox.className = "project-message";
+    box.textContent =
+        message;
+
+
+    box.className =
+        "project-message";
+
 
     if (type) {
-        messageBox.classList.add(type);
+        box.classList.add(type);
     }
 }
 
 
+
 /* =========================================================
-   LOAD DATA
+   LOAD
 ========================================================= */
 
 async function loadPhotos() {
 
-    const response = await fetch(
-        `photos.json?v=${Date.now()}`,
-        {
-            cache:"no-store"
-        }
-    );
+    const response =
+        await fetch(
+            `photos.json?v=${Date.now()}`,
+            {
+                cache:"no-store"
+            }
+        );
+
 
     if (!response.ok) {
+
         throw new Error(
             "photos.json을 불러오지 못했습니다."
         );
     }
+
 
     return await response.json();
 }
@@ -1382,39 +1580,37 @@ async function loadProjects() {
 
     try {
 
-        const response = await fetch(
-            `projects.json?v=${Date.now()}`,
-            {
-                cache:"no-store"
-            }
-        );
+        const response =
+            await fetch(
+                `projects.json?v=${Date.now()}`,
+                {
+                    cache:"no-store"
+                }
+            );
 
-        /*
-            projects.json이 아직 없는 경우.
 
-            첫 프로젝트를 만들기 전에는
-            이 상황이 정상입니다.
-        */
+        if (
+            response.status === 404
+        ) {
 
-        if (response.status === 404) {
             return [];
         }
+
 
         if (!response.ok) {
             return [];
         }
 
-        const data = await response.json();
+
+        const data =
+            await response.json();
+
 
         return Array.isArray(data)
             ? data
             : [];
 
     } catch (error) {
-
-        console.log(
-            "projects.json not found yet."
-        );
 
         return [];
     }
@@ -1423,19 +1619,32 @@ async function loadProjects() {
 
 async function initializeProjectsPage() {
 
-    const projectArea =
-        document.getElementById("projectArea");
+    const area =
+        document.getElementById(
+            "projectArea"
+        );
+
 
     try {
 
-        const results =
-            await Promise.all([
-                loadPhotos(),
-                loadProjects()
-            ]);
+        const [
+            photoData,
+            projectData
+        ] =
+        await Promise.all([
+            loadPhotos(),
+            loadProjects()
+        ]);
 
-        allPhotos = results[0];
-        projects = results[1];
+
+        allPhotos =
+            photoData;
+
+        projects =
+            projectData;
+
+
+        buildMonthFilter();
 
         renderProjects();
 
@@ -1443,8 +1652,11 @@ async function initializeProjectsPage() {
 
         console.error(error);
 
-        projectArea.innerHTML = `
+
+        area.innerHTML = `
+
             <div class="empty-projects">
+
                 <div class="empty-projects-title">
                     데이터를 불러오지 못했습니다.
                 </div>
@@ -1452,10 +1664,80 @@ async function initializeProjectsPage() {
                 <div class="empty-projects-text">
                     photos.json을 확인해주세요.
                 </div>
+
             </div>
         `;
     }
 }
+
+
+
+/* =========================================================
+   MONTH FILTER
+========================================================= */
+
+function buildMonthFilter() {
+
+    const select =
+        document.getElementById(
+            "photoMonthFilter"
+        );
+
+
+    const months =
+        [...new Set(
+
+            allPhotos
+                .map(photo => {
+
+                    if (
+                        !photo.date ||
+                        photo.date.length < 7
+                    ) {
+
+                        return "";
+                    }
+
+
+                    return photo.date.slice(
+                        0,
+                        7
+                    );
+                })
+                .filter(Boolean)
+
+        )]
+        .sort()
+        .reverse();
+
+
+    select.innerHTML =
+        `
+        <option value="">
+            All Photos
+        </option>
+        `;
+
+
+    months.forEach(month => {
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+
+        option.value =
+            month;
+
+        option.textContent =
+            month;
+
+
+        select.appendChild(option);
+    });
+}
+
 
 
 /* =========================================================
@@ -1465,7 +1747,9 @@ async function initializeProjectsPage() {
 function renderProjects() {
 
     const area =
-        document.getElementById("projectArea");
+        document.getElementById(
+            "projectArea"
+        );
 
 
     let html = `
@@ -1514,7 +1798,9 @@ function renderProjects() {
             </div>
         `;
 
-        area.innerHTML = html;
+
+        area.innerHTML =
+            html;
 
         return;
     }
@@ -1523,20 +1809,27 @@ function renderProjects() {
     const sortedProjects =
         projects
             .slice()
-            .sort((a, b) => {
+            .sort(
+                (a, b) => {
 
-                const timeA =
-                    new Date(
-                        a.createdAt || 0
-                    ).getTime();
+                    const aTime =
+                        new Date(
+                            a.createdAt || 0
+                        ).getTime();
 
-                const timeB =
-                    new Date(
-                        b.createdAt || 0
-                    ).getTime();
 
-                return timeB - timeA;
-            });
+                    const bTime =
+                        new Date(
+                            b.createdAt || 0
+                        ).getTime();
+
+
+                    return (
+                        bTime -
+                        aTime
+                    );
+                }
+            );
 
 
     html += `
@@ -1544,78 +1837,85 @@ function renderProjects() {
     `;
 
 
-    sortedProjects.forEach(project => {
+    sortedProjects.forEach(
+        project => {
 
-        const cover =
-            project.cover ||
-            (project.photos &&
-             project.photos[0]) ||
-            "";
+            const cover =
+                project.cover ||
+                (
+                    project.photos &&
+                    project.photos[0]
+                ) ||
+                "";
 
-        const photoCount =
-            Array.isArray(project.photos)
+
+            const count =
+                Array.isArray(
+                    project.photos
+                )
                 ? project.photos.length
                 : 0;
 
 
-        html += `
+            html += `
 
-            <article
-                class="project-card"
-                data-project-id="${escapeHtml(project.id)}"
-            >
+                <article
+                    class="project-card"
+                    data-project-id="${escapeHtml(project.id)}"
+                >
 
-                <div class="project-cover">
+                    <div class="project-cover">
 
-                    ${
-                        cover
-                        ?
-                        `
-                        <img
-                            src="${photoUrl(cover)}"
-                            alt="${escapeHtml(project.title)}"
-                            loading="lazy"
-                        >
-                        `
-                        :
-                        ""
-                    }
-
-                </div>
-
-
-                <div class="project-card-info">
-
-                    <div class="project-card-title-row">
-
-                        <h2>
-                            ${escapeHtml(project.title)}
-                        </h2>
-
-                        <div class="project-count">
-                            ${photoCount} photographs
-                        </div>
+                        ${
+                            cover
+                            ?
+                            `
+                            <img
+                                src="${photoUrl(cover)}"
+                                alt="${escapeHtml(project.title)}"
+                                loading="lazy"
+                            >
+                            `
+                            :
+                            ""
+                        }
 
                     </div>
 
 
-                    ${
-                        project.subtitle
-                        ?
-                        `
-                        <div class="project-subtitle">
-                            ${escapeHtml(project.subtitle)}
+                    <div class="project-card-info">
+
+                        <div class="project-card-title-row">
+
+                            <h2>
+                                ${escapeHtml(project.title)}
+                            </h2>
+
+                            <div class="project-count">
+                                ${count} photographs
+                            </div>
+
                         </div>
-                        `
-                        :
-                        ""
-                    }
 
-                </div>
 
-            </article>
-        `;
-    });
+                        ${
+                            project.subtitle
+                            ?
+                            `
+                            <div class="project-subtitle">
+                                ${escapeHtml(project.subtitle)}
+                            </div>
+                            `
+                            :
+                            ""
+                        }
+
+                    </div>
+
+                </article>
+            `;
+        }
+    );
 
 
     html += `
@@ -1623,24 +1923,30 @@ function renderProjects() {
     `;
 
 
-    area.innerHTML = html;
+    area.innerHTML =
+        html;
 
 
     area
-        .querySelectorAll(".project-card")
-        .forEach(card => {
+        .querySelectorAll(
+            ".project-card"
+        )
+        .forEach(
+            card => {
 
-            card.addEventListener(
-                "click",
-                () => {
+                card.addEventListener(
+                    "click",
+                    () => {
 
-                    openProject(
-                        card.dataset.projectId
-                    );
-                }
-            );
-        });
+                        openProject(
+                            card.dataset.projectId
+                        );
+                    }
+                );
+            }
+        );
 }
+
 
 
 /* =========================================================
@@ -1660,14 +1966,18 @@ function openProject(projectId) {
 
 
     const area =
-        document.getElementById("projectArea");
+        document.getElementById(
+            "projectArea"
+        );
 
 
     let photosHtml = "";
 
 
-    (project.photos || [])
-        .forEach(filename => {
+    (
+        project.photos || []
+    ).forEach(
+        filename => {
 
             const photo =
                 getPhoto(filename);
@@ -1686,13 +1996,10 @@ function openProject(projectId) {
                         loading="lazy"
                     >
 
-                    <div class="project-series-meta">
-                        ${escapeHtml(photo.info || "")}
-                    </div>
-
                 </div>
             `;
-        });
+        }
+    );
 
 
     area.innerHTML = `
@@ -1705,26 +2012,41 @@ function openProject(projectId) {
                     class="project-back-btn"
                     onclick="renderProjects()"
                 >
-                    ← All Projects
+                    ← Projects
                 </button>
 
 
-                <div class="project-admin-buttons">
+                <div class="project-menu-wrap">
 
                     <button
-                        class="project-small-btn"
-                        onclick="openProjectEditor('${escapeHtml(project.id)}')"
+                        class="project-menu-btn"
+                        onclick="toggleProjectMenu(event)"
+                        aria-label="Project settings"
                     >
-                        Edit Project
+                        •••
                     </button>
 
 
-                    <button
-                        class="project-small-btn delete"
-                        onclick="deleteProject('${escapeHtml(project.id)}')"
+                    <div
+                        class="project-menu"
+                        id="projectMenu"
                     >
-                        Delete
-                    </button>
+
+                        <button
+                            onclick="openProjectEditor('${escapeHtml(project.id)}')"
+                        >
+                            Edit Project
+                        </button>
+
+
+                        <button
+                            class="delete"
+                            onclick="deleteProject('${escapeHtml(project.id)}')"
+                        >
+                            Delete Project
+                        </button>
+
+                    </div>
 
                 </div>
 
@@ -1783,34 +2105,96 @@ function openProject(projectId) {
 }
 
 
+
 /* =========================================================
-   OPEN / CLOSE EDITOR
+   ADMIN MENU
 ========================================================= */
 
-function openProjectEditor(projectId = null) {
+function toggleProjectMenu(event) {
+
+    event.stopPropagation();
+
+
+    const menu =
+        document.getElementById(
+            "projectMenu"
+        );
+
+
+    if (!menu) return;
+
+
+    menu.classList.toggle(
+        "open"
+    );
+}
+
+
+document.addEventListener(
+    "click",
+    event => {
+
+        const menu =
+            document.getElementById(
+                "projectMenu"
+            );
+
+
+        if (!menu) return;
+
+
+        const wrapper =
+            event.target.closest(
+                ".project-menu-wrap"
+            );
+
+
+        if (!wrapper) {
+
+            menu.classList.remove(
+                "open"
+            );
+        }
+    }
+);
+
+
+
+/* =========================================================
+   EDITOR OPEN
+========================================================= */
+
+function openProjectEditor(
+    projectId = null
+) {
 
     editingProjectId =
         projectId || null;
 
 
     const modal =
-        document.getElementById("projectModal");
+        document.getElementById(
+            "projectModal"
+        );
 
 
-    const titleInput =
+    const title =
         document.getElementById(
             "projectTitleInput"
         );
 
-    const subtitleInput =
+
+    const subtitle =
         document.getElementById(
             "projectSubtitleInput"
         );
 
-    const descriptionInput =
+
+    const description =
         document.getElementById(
             "projectDescriptionInput"
         );
+
 
     const tokenInput =
         document.getElementById(
@@ -1818,15 +2202,13 @@ function openProjectEditor(projectId = null) {
         );
 
 
-    tokenInput.value = "";
-
-
     if (editingProjectId) {
 
         const project =
             projects.find(
                 item =>
-                    item.id === editingProjectId
+                    item.id ===
+                    editingProjectId
             );
 
 
@@ -1845,19 +2227,25 @@ function openProjectEditor(projectId = null) {
             "Save Changes";
 
 
-        titleInput.value =
+        title.value =
             project.title || "";
 
-        subtitleInput.value =
+
+        subtitle.value =
             project.subtitle || "";
 
-        descriptionInput.value =
+
+        description.value =
             project.description || "";
 
+
         selectedPhotos =
-            Array.isArray(project.photos)
-                ? [...project.photos]
-                : [];
+            Array.isArray(
+                project.photos
+            )
+            ? [...project.photos]
+            : [];
+
 
         selectedCover =
             project.cover ||
@@ -1878,13 +2266,20 @@ function openProjectEditor(projectId = null) {
             "Create Project";
 
 
-        titleInput.value = "";
-        subtitleInput.value = "";
-        descriptionInput.value = "";
+        title.value = "";
+
+        subtitle.value = "";
+
+        description.value = "";
 
         selectedPhotos = [];
+
         selectedCover = "";
     }
+
+
+    tokenInput.value =
+        sessionGithubToken;
 
 
     if (sessionGithubToken) {
@@ -1892,43 +2287,65 @@ function openProjectEditor(projectId = null) {
         document.getElementById(
             "tokenHelp"
         ).textContent =
-            "이 브라우저 세션에서 입력한 토큰을 사용할 수 있습니다. 다시 입력하지 않아도 됩니다.";
+            "이 탭에서 입력했던 토큰을 불러왔습니다.";
 
     } else {
 
         document.getElementById(
             "tokenHelp"
         ).textContent =
-            "토큰은 이 페이지에 저장하지 않습니다.";
+            "현재 브라우저 탭을 사용하는 동안만 기억합니다.";
     }
 
 
-    currentPhotoFilter = "";
+    currentPhotoFilter =
+        "";
+
+    currentMonthFilter =
+        "";
+
 
     document.getElementById(
         "photoSearch"
-    ).value = "";
+    ).value =
+        "";
+
+
+    document.getElementById(
+        "photoMonthFilter"
+    ).value =
+        "";
 
 
     showEditorMessage("");
 
 
     renderSelectedPhotos();
+
     renderPhotoPicker();
 
 
-    modal.classList.add("open");
+    modal.classList.add(
+        "open"
+    );
+
 
     modal.setAttribute(
         "aria-hidden",
         "false"
     );
 
+
     document.body.classList.add(
         "modal-open"
     );
 }
 
+
+
+/* =========================================================
+   EDITOR CLOSE
+========================================================= */
 
 function closeProjectEditor() {
 
@@ -1938,17 +2355,22 @@ function closeProjectEditor() {
         );
 
 
-    modal.classList.remove("open");
+    modal.classList.remove(
+        "open"
+    );
+
 
     modal.setAttribute(
         "aria-hidden",
         "true"
     );
 
+
     document.body.classList.remove(
         "modal-open"
     );
 }
+
 
 
 /* =========================================================
@@ -1961,6 +2383,7 @@ function renderSelectedPhotos() {
         document.getElementById(
             "selectedStrip"
         );
+
 
     const count =
         document.getElementById(
@@ -1988,88 +2411,84 @@ function renderSelectedPhotos() {
 
     strip.innerHTML =
         selectedPhotos
-            .map((filename, index) => {
+            .map(
+                (filename, index) => {
 
-                const isCover =
-                    filename ===
-                    selectedCover;
+                    const cover =
+                        filename ===
+                        selectedCover;
 
 
-                return `
+                    return `
 
-                    <div
-                        class="selected-card ${isCover ? "cover" : ""}"
-                        data-filename="${escapeHtml(filename)}"
-                    >
-
-                        <img
-                            src="${photoUrl(filename)}"
-                            alt=""
+                        <div
+                            class="selected-card ${cover ? "cover" : ""}"
+                            data-filename="${escapeHtml(filename)}"
                         >
 
+                            <img
+                                src="${photoUrl(filename)}"
+                                alt=""
+                            >
 
-                        <div class="selected-index">
-                            ${index + 1}
-                        </div>
 
-
-                        ${
-                            isCover
-                            ?
-                            `
-                            <div class="cover-label">
-                                cover
+                            <div class="selected-index">
+                                ${index + 1}
                             </div>
-                            `
-                            :
-                            ""
-                        }
 
 
-                        <div class="selected-actions">
-
-                            <button
-                                type="button"
-                                data-action="left"
-                                title="앞으로"
-                            >
-                                ←
-                            </button>
-
-
-                            <button
-                                type="button"
-                                data-action="right"
-                                title="뒤로"
-                            >
-                                →
-                            </button>
+                            ${
+                                cover
+                                ?
+                                `
+                                <div class="cover-label">
+                                    cover
+                                </div>
+                                `
+                                :
+                                ""
+                            }
 
 
-                            <button
-                                type="button"
-                                data-action="cover"
-                                title="대표사진"
-                            >
-                                ★
-                            </button>
+                            <div class="selected-actions">
 
+                                <button
+                                    type="button"
+                                    data-action="left"
+                                >
+                                    ←
+                                </button>
 
-                            <button
-                                type="button"
-                                data-action="remove"
-                                title="프로젝트에서 제거"
-                            >
-                                ×
-                            </button>
+                                <button
+                                    type="button"
+                                    data-action="right"
+                                >
+                                    →
+                                </button>
+
+                                <button
+                                    type="button"
+                                    data-action="cover"
+                                >
+                                    ★
+                                </button>
+
+                                <button
+                                    type="button"
+                                    data-action="remove"
+                                >
+                                    ×
+                                </button>
+
+                            </div>
 
                         </div>
-
-                    </div>
-                `;
-            })
+                    `;
+                }
+            )
             .join("");
 }
+
 
 
 /* =========================================================
@@ -2090,60 +2509,90 @@ function renderPhotoPicker() {
             .toLowerCase();
 
 
-    const filteredPhotos =
+    const filtered =
         allPhotos
-            .filter(photo => {
+            .filter(
+                photo => {
 
-                if (!search) return true;
+                    if (
+                        currentMonthFilter
+                    ) {
+
+                        if (
+                            !photo.date ||
+                            !photo.date.startsWith(
+                                currentMonthFilter
+                            )
+                        ) {
+
+                            return false;
+                        }
+                    }
 
 
-                const searchable =
-                    [
-                        photo.filename,
-                        photo.date,
-                        photo.info,
-                        photo.color
-                    ]
-                    .filter(Boolean)
-                    .join(" ")
-                    .toLowerCase();
+                    if (!search) {
+
+                        return true;
+                    }
 
 
-                return searchable.includes(
-                    search
-                );
-            })
+                    const searchable =
+                        [
+                            photo.filename,
+                            photo.date,
+                            photo.info,
+                            photo.color
+                        ]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toLowerCase();
+
+
+                    return searchable.includes(
+                        search
+                    );
+                }
+            )
             .slice()
-            .sort((a, b) => {
+            .sort(
+                (a, b) => {
 
-                const dateCompare =
-                    String(b.date || "")
+                    const dateCompare =
+                        String(
+                            b.date || ""
+                        )
                         .localeCompare(
-                            String(a.date || "")
+                            String(
+                                a.date || ""
+                            )
                         );
 
 
-                if (dateCompare !== 0) {
-                    return dateCompare;
+                    if (
+                        dateCompare !== 0
+                    ) {
+
+                        return dateCompare;
+                    }
+
+
+                    return String(
+                        a.filename || ""
+                    ).localeCompare(
+                        String(
+                            b.filename || ""
+                        )
+                    );
                 }
+            );
 
 
-                return String(
-                    a.filename || ""
-                ).localeCompare(
-                    String(
-                        b.filename || ""
-                    )
-                );
-            });
-
-
-    if (!filteredPhotos.length) {
+    if (!filtered.length) {
 
         picker.innerHTML = `
 
             <div class="selected-empty">
-                검색 결과가 없습니다.
+                표시할 사진이 없습니다.
             </div>
         `;
 
@@ -2151,31 +2600,38 @@ function renderPhotoPicker() {
     }
 
 
-    const grouped = {};
+    const groups = {};
 
 
-    filteredPhotos.forEach(photo => {
+    filtered.forEach(
+        photo => {
 
-        const date =
-            photo.date ||
-            "Unknown Date";
+            const date =
+                photo.date ||
+                "Unknown Date";
 
 
-        if (!grouped[date]) {
-            grouped[date] = [];
+            if (!groups[date]) {
+
+                groups[date] =
+                    [];
+            }
+
+
+            groups[date].push(
+                photo
+            );
         }
-
-
-        grouped[date].push(photo);
-    });
+    );
 
 
     let html = "";
 
 
-    Object
-        .entries(grouped)
-        .forEach(([date, datePhotos]) => {
+    Object.entries(
+        groups
+    ).forEach(
+        ([date, photos]) => {
 
             html += `
 
@@ -2190,40 +2646,37 @@ function renderPhotoPicker() {
             `;
 
 
-            datePhotos.forEach(photo => {
+            photos.forEach(
+                photo => {
 
-                const selected =
-                    selectedPhotos.includes(
-                        photo.filename
-                    );
+                    const selected =
+                        selectedPhotos.includes(
+                            photo.filename
+                        );
 
 
-                html += `
+                    html += `
 
-                    <div
-                        class="picker-photo ${selected ? "selected" : ""}"
-                        data-filename="${escapeHtml(photo.filename)}"
-                    >
-
-                        <img
-                            src="${photoUrl(photo.filename)}"
-                            alt=""
-                            loading="lazy"
+                        <div
+                            class="picker-photo ${selected ? "selected" : ""}"
+                            data-filename="${escapeHtml(photo.filename)}"
                         >
 
+                            <img
+                                src="${photoUrl(photo.filename)}"
+                                alt=""
+                                loading="lazy"
+                            >
 
-                        <div class="picker-check">
-                            ✓
+
+                            <div class="picker-check">
+                                ✓
+                            </div>
+
                         </div>
-
-
-                        <div class="picker-filename">
-                            ${escapeHtml(photo.filename)}
-                        </div>
-
-                    </div>
-                `;
-            });
+                    `;
+                }
+            );
 
 
             html += `
@@ -2232,18 +2685,23 @@ function renderPhotoPicker() {
 
                 </section>
             `;
-        });
+        }
+    );
 
 
-    picker.innerHTML = html;
+    picker.innerHTML =
+        html;
 }
 
 
+
 /* =========================================================
-   PHOTO SELECTION ACTIONS
+   SELECT / ORDER / COVER
 ========================================================= */
 
-function togglePhotoSelection(filename) {
+function togglePhotoSelection(
+    filename
+) {
 
     const index =
         selectedPhotos.indexOf(
@@ -2259,6 +2717,7 @@ function togglePhotoSelection(filename) {
 
 
         if (!selectedCover) {
+
             selectedCover =
                 filename;
         }
@@ -2284,11 +2743,15 @@ function togglePhotoSelection(filename) {
 
 
     renderSelectedPhotos();
+
     renderPhotoPicker();
 }
 
 
-function moveSelected(filename, direction) {
+function moveSelected(
+    filename,
+    direction
+) {
 
     const index =
         selectedPhotos.indexOf(
@@ -2296,7 +2759,9 @@ function moveSelected(filename, direction) {
         );
 
 
-    if (index === -1) return;
+    if (index === -1) {
+        return;
+    }
 
 
     const target =
@@ -2305,29 +2770,31 @@ function moveSelected(filename, direction) {
 
     if (
         target < 0 ||
-        target >= selectedPhotos.length
+        target >=
+        selectedPhotos.length
     ) {
+
         return;
     }
 
 
-    const temp =
-        selectedPhotos[index];
-
-
-    selectedPhotos[index] =
-        selectedPhotos[target];
-
-
-    selectedPhotos[target] =
-        temp;
+    [
+        selectedPhotos[index],
+        selectedPhotos[target]
+    ] =
+    [
+        selectedPhotos[target],
+        selectedPhotos[index]
+    ];
 
 
     renderSelectedPhotos();
 }
 
 
-function removeSelected(filename) {
+function removeSelected(
+    filename
+) {
 
     const index =
         selectedPhotos.indexOf(
@@ -2335,7 +2802,12 @@ function removeSelected(filename) {
         );
 
 
-    if (index === -1) return;
+    if (
+        index === -1
+    ) {
+
+        return;
+    }
 
 
     selectedPhotos.splice(
@@ -2356,33 +2828,42 @@ function removeSelected(filename) {
 
 
     renderSelectedPhotos();
+
     renderPhotoPicker();
 }
 
 
-function setCover(filename) {
+function setCover(
+    filename
+) {
 
     if (
         !selectedPhotos.includes(
             filename
         )
     ) {
+
         return;
     }
 
 
-    selectedCover = filename;
+    selectedCover =
+        filename;
+
 
     renderSelectedPhotos();
 }
 
 
+
 /* =========================================================
-   EVENTS
+   FILTER EVENTS
 ========================================================= */
 
 document
-    .getElementById("photoSearch")
+    .getElementById(
+        "photoSearch"
+    )
     .addEventListener(
         "input",
         event => {
@@ -2390,13 +2871,38 @@ document
             currentPhotoFilter =
                 event.target.value;
 
+
             renderPhotoPicker();
         }
     );
 
 
 document
-    .getElementById("photoPicker")
+    .getElementById(
+        "photoMonthFilter"
+    )
+    .addEventListener(
+        "change",
+        event => {
+
+            currentMonthFilter =
+                event.target.value;
+
+
+            renderPhotoPicker();
+        }
+    );
+
+
+
+/* =========================================================
+   PHOTO EVENTS
+========================================================= */
+
+document
+    .getElementById(
+        "photoPicker"
+    )
     .addEventListener(
         "click",
         event => {
@@ -2418,7 +2924,9 @@ document
 
 
 document
-    .getElementById("selectedStrip")
+    .getElementById(
+        "selectedStrip"
+    )
     .addEventListener(
         "click",
         event => {
@@ -2449,7 +2957,9 @@ document
                 button.dataset.action;
 
 
-            if (action === "left") {
+            if (
+                action === "left"
+            ) {
 
                 moveSelected(
                     filename,
@@ -2458,7 +2968,9 @@ document
             }
 
 
-            if (action === "right") {
+            if (
+                action === "right"
+            ) {
 
                 moveSelected(
                     filename,
@@ -2467,7 +2979,9 @@ document
             }
 
 
-            if (action === "cover") {
+            if (
+                action === "cover"
+            ) {
 
                 setCover(
                     filename
@@ -2475,7 +2989,9 @@ document
             }
 
 
-            if (action === "remove") {
+            if (
+                action === "remove"
+            ) {
 
                 removeSelected(
                     filename
@@ -2485,8 +3001,15 @@ document
     );
 
 
+
+/* =========================================================
+   MODAL EVENTS
+========================================================= */
+
 document
-    .getElementById("projectModal")
+    .getElementById(
+        "projectModal"
+    )
     .addEventListener(
         "click",
         event => {
@@ -2506,23 +3029,29 @@ document.addEventListener(
     "keydown",
     event => {
 
-        if (event.key === "Escape") {
+        if (
+            event.key === "Escape"
+        ) {
 
             closeProjectEditor();
         }
-    }
-);
+    );
+
 
 
 /* =========================================================
    GITHUB
 ========================================================= */
 
-function encodeBase64Utf8(text) {
+function encodeBase64Utf8(
+    text
+) {
 
     return btoa(
         unescape(
-            encodeURIComponent(text)
+            encodeURIComponent(
+                text
+            )
         )
     );
 }
@@ -2547,7 +3076,7 @@ async function saveProjectsToGithub(
             {
                 headers:{
                     "Authorization":
-                        `Bearer ${token}`,
+                        `token ${token}`,
 
                     "Accept":
                         "application/vnd.github+json"
@@ -2556,38 +3085,44 @@ async function saveProjectsToGithub(
         );
 
 
-    if (getResponse.ok) {
+    if (
+        getResponse.ok
+    ) {
 
         const currentFile =
             await getResponse.json();
 
-        sha = currentFile.sha;
+
+        sha =
+            currentFile.sha;
 
     } else if (
         getResponse.status !== 404
     ) {
 
-        let errorMessage =
-            "projects.json 정보를 확인하지 못했습니다.";
+        let message =
+            "projects.json을 확인하지 못했습니다.";
 
 
         try {
 
-            const errorData =
+            const data =
                 await getResponse.json();
 
-            if (errorData.message) {
-                errorMessage =
-                    errorData.message;
+
+            if (
+                data.message
+            ) {
+
+                message =
+                    data.message;
             }
 
-        } catch (error) {
-            /* ignore */
-        }
+        } catch (error) {}
 
 
         throw new Error(
-            errorMessage
+            message
         );
     }
 
@@ -2607,13 +3142,10 @@ async function saveProjectsToGithub(
     };
 
 
-    /*
-        projects.json이 이미 있으면
-        GitHub가 요구하는 sha를 함께 보냅니다.
-    */
-
     if (sha) {
-        body.sha = sha;
+
+        body.sha =
+            sha;
     }
 
 
@@ -2626,7 +3158,7 @@ async function saveProjectsToGithub(
                 headers:{
 
                     "Authorization":
-                        `Bearer ${token}`,
+                        `token ${token}`,
 
                     "Accept":
                         "application/vnd.github+json",
@@ -2636,40 +3168,47 @@ async function saveProjectsToGithub(
                 },
 
                 body:
-                    JSON.stringify(body)
+                    JSON.stringify(
+                        body
+                    )
             }
         );
 
 
-    if (!saveResponse.ok) {
+    if (
+        !saveResponse.ok
+    ) {
 
-        let errorMessage =
+        let message =
             "GitHub 저장에 실패했습니다.";
 
 
         try {
 
-            const errorData =
+            const data =
                 await saveResponse.json();
 
-            if (errorData.message) {
-                errorMessage =
-                    errorData.message;
+
+            if (
+                data.message
+            ) {
+
+                message =
+                    data.message;
             }
 
-        } catch (error) {
-            /* ignore */
-        }
+        } catch (error) {}
 
 
         throw new Error(
-            errorMessage
+            message
         );
     }
 
 
     return await saveResponse.json();
 }
+
 
 
 /* =========================================================
@@ -2705,7 +3244,7 @@ async function saveProject() {
             .trim();
 
 
-    const tokenInput =
+    const token =
         document
             .getElementById(
                 "projectTokenInput"
@@ -2725,10 +3264,12 @@ async function saveProject() {
     }
 
 
-    if (!selectedPhotos.length) {
+    if (
+        !selectedPhotos.length
+    ) {
 
         showEditorMessage(
-            "프로젝트에 넣을 사진을 한 장 이상 선택해주세요.",
+            "사진을 한 장 이상 선택해주세요.",
             "error"
         );
 
@@ -2736,14 +3277,7 @@ async function saveProject() {
     }
 
 
-    if (tokenInput) {
-
-        sessionGithubToken =
-            tokenInput;
-    }
-
-
-    if (!sessionGithubToken) {
+    if (!token) {
 
         showEditorMessage(
             "GitHub 토큰을 입력해주세요.",
@@ -2754,23 +3288,37 @@ async function saveProject() {
     }
 
 
-    if (!selectedCover) {
+    sessionGithubToken =
+        token;
+
+
+    sessionStorage.setItem(
+        "photoArchiveGithubToken",
+        token
+    );
+
+
+    if (
+        !selectedCover
+    ) {
 
         selectedCover =
             selectedPhotos[0];
     }
 
 
-    const saveButton =
+    const button =
         document.getElementById(
             "saveProjectBtn"
         );
 
 
-    saveButton.disabled = true;
+    button.disabled =
+        true;
+
 
     showEditorMessage(
-        "GitHub에 프로젝트를 저장하는 중..."
+        "GitHub에 저장하는 중..."
     );
 
 
@@ -2784,7 +3332,9 @@ async function saveProject() {
             [...projects];
 
 
-        if (editingProjectId) {
+        if (
+            editingProjectId
+        ) {
 
             const index =
                 nextProjects.findIndex(
@@ -2794,45 +3344,19 @@ async function saveProject() {
                 );
 
 
-            if (index === -1) {
+            if (
+                index === -1
+            ) {
 
                 throw new Error(
-                    "수정할 프로젝트를 찾을 수 없습니다."
+                    "프로젝트를 찾을 수 없습니다."
                 );
             }
 
 
-            const oldProject =
-                nextProjects[index];
-
-
             nextProjects[index] = {
 
-                ...oldProject,
-
-                title:title,
-
-                subtitle:subtitle,
-
-                description:description,
-
-                cover:selectedCover,
-
-                photos:[
-                    ...selectedPhotos
-                ],
-
-                updatedAt:now
-            };
-
-        } else {
-
-            const newProject = {
-
-                id:
-                    createProjectId(
-                        title
-                    ),
+                ...nextProjects[index],
 
                 title:title,
 
@@ -2848,15 +3372,40 @@ async function saveProject() {
                     ...selectedPhotos
                 ],
 
-                createdAt:now,
-
-                updatedAt:now
+                updatedAt:
+                    now
             };
 
+        } else {
 
-            nextProjects.push(
-                newProject
-            );
+            nextProjects.push({
+
+                id:
+                    createProjectId(
+                        title
+                    ),
+
+                title:title,
+
+                subtitle:
+                    subtitle,
+
+                description:
+                    description,
+
+                cover:
+                    selectedCover,
+
+                photos:[
+                    ...selectedPhotos
+                ],
+
+                createdAt:
+                    now,
+
+                updatedAt:
+                    now
+            });
         }
 
 
@@ -2890,13 +3439,13 @@ async function saveProject() {
                 renderProjects();
 
             },
-            350
+            300
         );
-
 
     } catch (error) {
 
         console.error(error);
+
 
         showEditorMessage(
             `저장 실패: ${error.message}`,
@@ -2905,17 +3454,20 @@ async function saveProject() {
 
     } finally {
 
-        saveButton.disabled =
+        button.disabled =
             false;
     }
 }
 
 
+
 /* =========================================================
-   DELETE PROJECT
+   DELETE
 ========================================================= */
 
-async function deleteProject(projectId) {
+async function deleteProject(
+    projectId
+) {
 
     const project =
         projects.find(
@@ -2925,12 +3477,14 @@ async function deleteProject(projectId) {
         );
 
 
-    if (!project) return;
+    if (!project) {
+        return;
+    }
 
 
     const confirmed =
         confirm(
-            `"${project.title}" 프로젝트를 삭제할까요?\n\n프로젝트만 삭제되며 원본 사진은 삭제되지 않습니다.`
+            `"${project.title}" 프로젝트를 삭제할까요?\n\n원본 사진은 삭제되지 않습니다.`
         );
 
 
@@ -2952,7 +3506,8 @@ async function deleteProject(projectId) {
     }
 
 
-    token = token.trim();
+    token =
+        token.trim();
 
 
     if (!token) {
@@ -2962,6 +3517,12 @@ async function deleteProject(projectId) {
 
     sessionGithubToken =
         token;
+
+
+    sessionStorage.setItem(
+        "photoArchiveGithubToken",
+        token
+    );
 
 
     const nextProjects =
@@ -2976,7 +3537,7 @@ async function deleteProject(projectId) {
 
         await saveProjectsToGithub(
 
-            sessionGithubToken,
+            token,
 
             `Delete project: ${project.title}`,
 
@@ -2997,13 +3558,12 @@ async function deleteProject(projectId) {
 
     } catch (error) {
 
-        console.error(error);
-
         alert(
             `프로젝트 삭제 실패:\n${error.message}`
         );
     }
 }
+
 
 
 /* =========================================================
