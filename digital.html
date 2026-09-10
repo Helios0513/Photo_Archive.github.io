@@ -42,19 +42,6 @@
             color: #fff;
         }
 
-        body.dark-mode #date-nav {
-            background: rgba(35, 35, 35, 0.78);
-            border: 1px solid #444;
-        }
-
-        body.dark-mode .nav-item {
-            color: #bbb;
-        }
-
-        body.dark-mode .nav-item:hover {
-            color: #fff;
-        }
-
         body.dark-mode .control-btn,
         body.dark-mode #top-btn {
             background: #f1f1f1;
@@ -158,36 +145,6 @@
 
         .dropdown-item:last-child { border-bottom: none; }
         .dropdown-item:hover { background: #f5f5f5; color: #000; }
-
-        #date-nav {
-            position: fixed;
-            right: 20px;
-            top: 55%; 
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.5); 
-            padding: 12px 8px;
-            border-radius: 15px;
-            backdrop-filter: blur(5px);
-            border: 1px solid #ddd;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        .nav-item {
-            font-size: 0.7rem;
-            color: #888;
-            text-decoration: none;
-            text-align: center;
-            transition: 0.2s;
-            cursor: pointer;
-            padding: 2px 0;
-        }
-
-        .nav-item:hover { color: #000; font-weight: bold; transform: scale(1.1); }
 
         #top-btn {
             position: fixed;
@@ -348,8 +305,6 @@
         .photo-container img:hover { opacity: 0.9; }
 
         @media (max-width: 768px) {
-            #date-nav { right: 5px; padding: 10px 5px; }
-            .nav-item { font-size: 0.6rem; }
             .date-header { padding: 35px 15px 10px 15px; }
             .controls-container { top: 15px; right: 15px; max-width: 80vw; }
             .control-btn { padding: 8px 14px; font-size: 0.75rem; }
@@ -389,50 +344,56 @@
     </style>
     <link rel="stylesheet" href="journal.css">
     <style>
-        /* 날짜 목록이 상단 도구 모음이나 화면 아래쪽에 가려지지 않도록 한다. */
-        body.journal-page.page-digital #date-nav {
-            top: var(--archive-nav-top, 65vh);
-            transform: none;
-            max-height: var(--archive-nav-height, 25vh);
-            width: 4.4rem;
-            min-height: 0;
-            overflow-x: hidden;
-            overflow-y: auto;
-            overscroll-behavior-y: contain;
-            -webkit-overflow-scrolling: touch;
-            padding: 8px 4px;
-            gap: 4px;
-            scrollbar-width: thin;
+        /* 날짜 사이드바를 없앤 공간을 사진에 돌려주고 좌우 여백을 맞춘다. */
+        body.journal-page.page-digital .main-content {
+            padding-left: 40px;
+            padding-right: 40px;
         }
 
-        body.journal-page.page-digital #date-nav:empty {
-            display: none;
+        body.journal-page.page-digital #photo-list {
+            width: 100%;
+            max-width: 1160px;
+            margin: 0 auto;
         }
 
-        body.journal-page.page-digital #date-nav .nav-item {
-            display: flex;
-            flex: 0 0 auto;
-            align-items: center;
-            justify-content: center;
-            min-height: 44px;
-            padding: 4px 0;
-            font-size: 0.875rem;
-            line-height: 1.4;
-            white-space: nowrap;
+        body.journal-page.page-digital .photo-container {
+            width: 100%;
+            max-width: none;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        body.journal-page.page-digital .photo-container img {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+            margin: 0 auto;
         }
 
         body.journal-page.page-digital .date-header {
             scroll-margin-top: calc(var(--archive-toolbar-height, 120px) + 12px);
         }
 
-        @media (max-width: 768px) {
-            body.journal-page.page-digital #date-nav {
-                width: 4rem;
-                right: calc(8px + env(safe-area-inset-right, 0px));
-            }
-
+        @media (max-width: 1024px) {
             body.journal-page.page-digital .main-content {
-                padding-right: calc(4rem + 24px + env(safe-area-inset-right, 0px));
+                padding-left: 28px;
+                padding-right: 28px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body.journal-page.page-digital .main-content {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            body.journal-page.page-digital .main-content {
+                padding-left: 12px;
+                padding-right: 12px;
             }
         }
     </style>
@@ -481,7 +442,6 @@
         <div class="main-content">
             <h1>digital photos</h1>
             
-            <div id="date-nav"></div>
             <div id="photo-list"></div>
 
             <footer>
@@ -606,7 +566,6 @@
             .then(data => {
                 allPhotos = data;
                 const container = document.getElementById('photo-list');
-                const nav = document.getElementById('date-nav');
                 const dropdown = document.getElementById('date-dropdown');
                 
                 const sortedData = [...data].sort((a, b) => {
@@ -628,14 +587,6 @@
                         header.id = "date-" + currentDate;
                         header.innerText = currentDate;
                         container.appendChild(header);
-
-                        const navItem = document.createElement('a');
-                        navItem.className = 'nav-item';
-                        navItem.innerText = currentDate === "날짜 미상" ? "?" : currentDate.substring(5).replace('-', '.');
-                        navItem.onclick = () => {
-                            document.getElementById("date-" + currentDate).scrollIntoView({ behavior: 'smooth' });
-                        };
-                        nav.appendChild(navItem);
 
                         const dropItem = document.createElement('div');
                         dropItem.className = 'dropdown-item';
@@ -823,61 +774,28 @@
         });
     </script>
     <script>
-        // 기존 사진·메뉴 기능은 그대로 두고 날짜 목록의 배치만 조정한다.
+        // Archive Menu로 이동한 날짜 제목이 상단 도구 모음에 가려지지 않게 한다.
         (() => {
             const toolbar = document.querySelector('.controls-container');
-            const dateNav = document.getElementById('date-nav');
-            const page = document.body;
-            if (!toolbar || !dateNav) return;
+            if (!toolbar) return;
 
-            let scheduled = false;
-
-            function updateArchiveLayout() {
-                scheduled = false;
-                const viewport = window.visualViewport;
-                const viewportTop = viewport ? viewport.offsetTop : 0;
-                const viewportHeight = viewport ? viewport.height : window.innerHeight;
-                const toolbarRect = toolbar.getBoundingClientRect();
-                const gap = 12;
-                const bottomReserve = 84;
-                const top = Math.ceil(Math.max(viewportTop + gap, toolbarRect.bottom + gap));
-                const available = Math.max(0, viewportTop + viewportHeight - top - bottomReserve);
-                const height = Math.min(viewportHeight * 0.55, available);
-
-                page.style.setProperty('--archive-nav-top', Math.ceil(top) + 'px');
-                page.style.setProperty('--archive-nav-height',
-                    'max(0px, calc(' + Math.floor(height) + 'px - env(safe-area-inset-bottom, 0px)))');
-                page.style.setProperty('--archive-toolbar-height', Math.ceil(toolbarRect.height) + 'px');
-
-                // 도구 모음이 아직 화면 아래에 있을 때는 빈 테두리가 생기지 않게 한다.
-                // 본문이 보이는 위치로 스크롤하면 날짜 목록도 다시 표시된다.
-                dateNav.style.visibility = available >= 64 ? 'visible' : 'hidden';
+            function updateArchiveOffset() {
+                document.body.style.setProperty(
+                    '--archive-toolbar-height',
+                    Math.ceil(toolbar.getBoundingClientRect().height) + 'px'
+                );
             }
 
-            function scheduleArchiveLayout() {
-                if (scheduled) return;
-                scheduled = true;
-                window.requestAnimationFrame(updateArchiveLayout);
-            }
-
-            window.addEventListener('scroll', scheduleArchiveLayout, { passive: true });
-            window.addEventListener('resize', scheduleArchiveLayout);
-            window.addEventListener('pageshow', scheduleArchiveLayout);
-            window.addEventListener('load', scheduleArchiveLayout);
-
-            if (window.visualViewport) {
-                window.visualViewport.addEventListener('resize', scheduleArchiveLayout);
-                window.visualViewport.addEventListener('scroll', scheduleArchiveLayout, { passive: true });
-            }
+            window.addEventListener('resize', updateArchiveOffset);
+            window.addEventListener('pageshow', updateArchiveOffset);
+            window.addEventListener('load', updateArchiveOffset);
 
             if ('ResizeObserver' in window) {
-                const observer = new ResizeObserver(scheduleArchiveLayout);
+                const observer = new ResizeObserver(updateArchiveOffset);
                 observer.observe(toolbar);
-                const profile = document.querySelector('.profile');
-                if (profile) observer.observe(profile);
             }
 
-            updateArchiveLayout();
+            updateArchiveOffset();
         })();
     </script>
 </body>
