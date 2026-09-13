@@ -1,460 +1,2641 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>colors archive</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        body.dark-mode {
-            background-color: #111;
-            color: #e9e9e9;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colors Archive — Hamihamoo Photography</title>
 
-        body.dark-mode .container {
-            background-color: #181818;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
-        }
+<style>
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
 
-        body.dark-mode .main-content h1,
-        body.dark-mode .main-content p,
-        body.dark-mode .color-count,
-        body.dark-mode .empty-text {
-            color: #e9e9e9;
-        }
+html {
+    scroll-behavior: smooth;
+}
 
-        .colors-topbar {
-            width: 100%;
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 18px;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+body {
+    margin: 0;
+    background: #fff;
+    color: #1d1d1b;
+    font-family: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
 
-        .topbar-btn {
-            background: #333;
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 999px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: 0.25s;
-        }
+body.no-scroll {
+    overflow: hidden;
+}
 
-        .topbar-btn:hover {
-            background: #000;
-            transform: translateY(-1px);
-        }
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
 
-        body.dark-mode .topbar-btn {
-            background: #f1f1f1;
-            color: #111;
-        }
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
 
-        body.dark-mode .topbar-btn:hover {
-            background: #ffffff;
-        }
+button {
+    cursor: pointer;
+}
 
-        .colors-description {
-            max-width: 850px;
-            margin-bottom: 26px;
-        }
+img {
+    display: block;
+    max-width: 100%;
+}
 
-        .color-filter-wrap {
-            width: 100%;
-            max-width: 980px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 18px;
-        }
+.site-shell {
+    width: min(1268px, calc(100% - 64px));
+    margin: 0 auto;
+}
 
-        .color-filter-btn {
-            border: 1px solid #ddd;
-            background: #fff;
-            color: #333;
-            border-radius: 999px;
-            padding: 10px 14px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
 
-        .color-filter-btn:hover {
-            background: #f3f3f3;
-        }
+/* HEADER */
 
-        .color-filter-btn.active {
-            background: #333;
-            color: #fff;
-            border-color: #333;
-        }
+.site-header {
+    height: 82px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #deded8;
+}
 
-        body.dark-mode .color-filter-btn {
-            background: #1f1f1f;
-            color: #e9e9e9;
-            border-color: #444;
-        }
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #111;
+    text-decoration: none;
+}
 
-        body.dark-mode .color-filter-btn:hover {
-            background: #2a2a2a;
-        }
+.brand-mark {
+    width: 35px;
+    height: 38px;
+    border: 1px solid #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 29px;
+    font-style: italic;
+    line-height: 1;
+}
 
-        body.dark-mode .color-filter-btn.active {
-            background: #f1f1f1;
-            color: #111;
-            border-color: #f1f1f1;
-        }
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
 
-        .color-count {
-            margin-bottom: 24px;
-            color: #666;
-            font-size: 0.95rem;
-            text-align: center;
-        }
+.brand-name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
 
-        .colors-grid {
-            width: 100%;
-            max-width: 1100px;
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 18px;
-        }
+.brand-subtitle {
+    margin-top: 5px;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
 
-        .color-photo-card {
-            background: #fff;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-            cursor: pointer;
-            transition: 0.25s;
-        }
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+}
 
-        .color-photo-card:hover {
-            transform: translateY(-3px);
-        }
+.nav-link,
+.nav-button {
+    position: relative;
+    border: 0;
+    padding: 8px 0;
+    background: none;
+    color: #282824;
+    text-decoration: none;
+    font-size: 12px;
+    line-height: 1.3;
+    white-space: nowrap;
+}
 
-        body.dark-mode .color-photo-card {
-            background: #1b1b1b;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-        }
+.nav-link:hover,
+.nav-button:hover {
+    color: #000;
+}
 
-        .color-photo-thumb {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            object-fit: cover;
-            display: block;
-            border-radius: 0;
-            box-shadow: none;
-        }
+.nav-link.current::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -11px;
+    height: 1px;
+    background: #111;
+}
 
-        .color-photo-meta {
-            padding: 12px;
-            text-align: left;
-        }
+.nav-index {
+    margin-left: 4px;
+    color: #9b9b92;
+    font-size: 9px;
+}
 
-        .color-name-badge {
-            display: inline-block;
-            font-size: 0.78rem;
-            background: #f3f3f3;
-            color: #555;
-            padding: 5px 10px;
-            border-radius: 999px;
-            margin-bottom: 10px;
-        }
+.nav-lock {
+    margin-right: 5px;
+    font-size: 11px;
+    opacity: 0.7;
+}
 
-        body.dark-mode .color-name-badge {
-            background: #2a2a2a;
-            color: #ddd;
-        }
+.mobile-menu-btn {
+    display: none;
+    border: 0;
+    background: none;
+    color: #111;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    padding: 10px 0;
+}
 
-        .color-photo-date {
-            font-size: 0.82rem;
-            color: #999;
-            margin-bottom: 6px;
-        }
 
-        .color-photo-info {
-            font-size: 0.88rem;
-            color: #555;
-            line-height: 1.5;
-            word-break: break-word;
-        }
+/* PAGE INTRO */
 
-        body.dark-mode .color-photo-info {
-            color: #d1d1d1;
-        }
+.page-intro {
+    padding: 61px 0 48px;
+}
 
-        .empty-text {
-            width: 100%;
-            text-align: center;
-            color: #999;
-            margin-top: 20px;
-        }
+.page-kicker {
+    margin-bottom: 19px;
+    color: #57574f;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+}
 
-        #colorLightbox {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 5000;
-            background: rgba(0, 0, 0, 0.95);
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+.page-intro-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 310px;
+    gap: 60px;
+    align-items: end;
+}
 
-        #colorLightbox img {
-            max-width: 92vw;
-            max-height: 72vh;
-            object-fit: contain;
-            border-radius: 12px;
-            cursor: zoom-out;
-        }
+.page-title {
+    margin: 0;
+    color: #222220;
+    font-size: clamp(58px, 6vw, 88px);
+    font-weight: 400;
+    letter-spacing: -0.06em;
+    line-height: 0.96;
+}
 
-        .color-lightbox-caption {
-            margin-top: 16px;
-            color: #f2f2f2;
-            text-align: center;
-            line-height: 1.6;
-            max-width: 850px;
-            word-break: break-word;
-        }
+.page-title em {
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.05em;
+}
 
-        @media (max-width: 1024px) {
-            .colors-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-        }
+.page-description {
+    margin: 0 0 5px;
+    color: #67675f;
+    font-size: 12px;
+    line-height: 1.85;
+}
 
-        @media (max-width: 768px) {
-            .colors-topbar {
-                justify-content: center;
-            }
 
-            .topbar-btn {
-                font-size: 0.82rem;
-                padding: 8px 13px;
-            }
+/* FILTER HEADER */
 
-            .colors-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 14px;
-            }
+.archive-toolbar {
+    padding: 14px 0 17px;
+    border-top: 1px solid #242420;
+    border-bottom: 1px solid #deded8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+}
 
-            .color-photo-meta {
-                padding: 10px;
-            }
+.archive-toolbar-title {
+    font-size: 12px;
+    color: #222;
+    white-space: nowrap;
+}
 
-            .color-photo-info {
-                font-size: 0.82rem;
-            }
+.archive-count {
+    color: #77776f;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    white-space: nowrap;
+}
 
-            #colorLightbox img {
-                max-width: 94vw;
-                max-height: 60vh;
-            }
+.color-filter-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
 
-            .color-lightbox-caption {
-                font-size: 0.9rem;
-                padding: 0 8px;
-            }
-        }
-    </style>
-    <link rel="stylesheet" href="journal.css">
+.color-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    padding: 4px 0;
+    background: none;
+    color: #999990;
+    font-size: 10px;
+    line-height: 1.3;
+}
+
+.color-filter-btn:hover,
+.color-filter-btn.active {
+    color: #111;
+}
+
+.color-filter-btn.active {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.color-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+    border: 1px solid rgba(0, 0, 0, 0.09);
+}
+
+
+/* GALLERY */
+
+.colors-section {
+    padding: 24px 0 100px;
+}
+
+.colors-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: 20px;
+    row-gap: 32px;
+}
+
+.color-photo-card {
+    min-width: 0;
+}
+
+.color-photo-thumb-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #f3f3ef;
+}
+
+.color-photo-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: zoom-in;
+    transition: opacity 0.25s ease, transform 0.35s ease;
+}
+
+.color-photo-card:hover .color-photo-thumb {
+    opacity: 0.94;
+}
+
+.color-photo-meta {
+    margin-top: 8px;
+}
+
+.color-photo-topline {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.color-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #4a4a44;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.color-photo-date {
+    color: #93938a;
+    font-size: 8px;
+    white-space: nowrap;
+}
+
+.color-photo-info {
+    margin-top: 5px;
+    color: #888880;
+    font-size: 8px;
+    line-height: 1.55;
+    word-break: break-word;
+}
+
+.loading,
+.empty-text {
+    grid-column: 1 / -1;
+    padding: 70px 0;
+    color: #8a8a81;
+    text-align: center;
+    font-size: 11px;
+}
+
+
+/* ABOUT */
+
+.about-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    background: rgba(20, 20, 18, 0.48);
+}
+
+.about-overlay.open {
+    display: flex;
+}
+
+.about-modal {
+    position: relative;
+    width: min(430px, 100%);
+    padding: 40px 38px 34px;
+    background: #fff;
+    border: 1px solid #55554f;
+    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.16);
+}
+
+.about-close {
+    position: absolute;
+    top: 10px;
+    right: 13px;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    background: none;
+    color: #66665f;
+    font-size: 18px;
+}
+
+.about-kicker {
+    margin-bottom: 34px;
+    color: #55554f;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+}
+
+.about-title {
+    margin: 0 0 7px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: #242421;
+}
+
+.about-role {
+    margin-bottom: 23px;
+    color: #99998f;
+    font-size: 12px;
+}
+
+.about-copy {
+    color: #66665d;
+    font-size: 13px;
+    line-height: 1.9;
+}
+
+.about-copy p {
+    margin: 0 0 23px;
+}
+
+.about-divider {
+    height: 1px;
+    margin: 30px 0 22px;
+    background: #dfdfd9;
+}
+
+.about-signoff {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 22px;
+    font-style: italic;
+    color: #34342f;
+}
+
+
+/* LIGHTBOX */
+
+.lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: none;
+    background: rgba(8, 8, 8, 0.97);
+    overflow-y: auto;
+}
+
+.lightbox.open {
+    display: block;
+}
+
+.lightbox-inner {
+    min-height: 100vh;
+    min-height: 100dvh;
+    width: min(1180px, calc(100% - 80px));
+    margin: 0 auto;
+    padding: 45px 0 55px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-top {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.lightbox-close {
+    border: 0;
+    background: none;
+    color: #eee;
+    font-size: 25px;
+    padding: 7px 0 7px 20px;
+}
+
+.lightbox-stage {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.lightbox-image {
+    max-width: 100%;
+    max-height: 70vh;
+    max-height: 70dvh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.lightbox-prev,
+.lightbox-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 0;
+    background: none;
+    color: #fff;
+    font-size: 38px;
+    opacity: 0.6;
+    padding: 20px;
+}
+
+.lightbox-prev:hover,
+.lightbox-next:hover {
+    opacity: 1;
+}
+
+.lightbox-prev {
+    left: -70px;
+}
+
+.lightbox-next {
+    right: -70px;
+}
+
+.lightbox-meta {
+    width: min(820px, 100%);
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
+}
+
+.meta-item {
+    padding: 13px 12px;
+    text-align: center;
+}
+
+.meta-label {
+    margin-bottom: 5px;
+    color: #777;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.meta-value {
+    color: #ddd;
+    font-size: 11px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+
+/* TOP BUTTON */
+
+.top-button {
+    position: fixed;
+    right: 26px;
+    bottom: 24px;
+    z-index: 5000;
+    width: 44px;
+    height: 44px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #c7c7c0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.94);
+    color: #222;
+    font-size: 17px;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.06);
+}
+
+.top-button.show {
+    display: flex;
+}
+
+
+/* FOOTER */
+
+.site-footer {
+    padding: 30px 0 40px;
+    border-top: 1px solid #deded8;
+    color: #96968d;
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+
+/* TABLET */
+
+@media (max-width: 1000px) {
+
+    .main-nav {
+        gap: 20px;
+    }
+
+    .page-intro-grid {
+        grid-template-columns: minmax(0, 1fr) 240px;
+        gap: 34px;
+    }
+
+    .colors-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+    .site-shell {
+        width: calc(100% - 32px);
+    }
+
+    .site-header {
+        height: 72px;
+    }
+
+    .brand {
+        gap: 9px;
+    }
+
+    .brand-mark {
+        width: 31px;
+        height: 34px;
+        font-size: 25px;
+    }
+
+    .brand-name {
+        font-size: 14px;
+    }
+
+    .brand-subtitle {
+        font-size: 8px;
+        margin-top: 4px;
+    }
+
+    .main-nav {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 7000;
+        width: min(300px, 82vw);
+        padding: 95px 30px 35px;
+        background: #fff;
+        border-left: 1px solid #ddd;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 9px;
+        transform: translateX(102%);
+        transition: transform 0.25s ease;
+        box-shadow: -15px 0 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .main-nav.open {
+        transform: translateX(0);
+    }
+
+    .main-nav .nav-link,
+    .main-nav .nav-button {
+        width: 100%;
+        padding: 13px 0;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+        font-size: 13px;
+    }
+
+    .main-nav .nav-link.current::after {
+        display: none;
+    }
+
+    .mobile-menu-btn {
+        display: block;
+        position: relative;
+        z-index: 7100;
+    }
+
+    .page-intro {
+        padding: 43px 0 38px;
+    }
+
+    .page-kicker {
+        margin-bottom: 16px;
+        font-size: 8px;
+    }
+
+    .page-intro-grid {
+        display: block;
+    }
+
+    .page-title {
+        font-size: clamp(49px, 15vw, 70px);
+    }
+
+    .page-description {
+        margin-top: 28px;
+        max-width: 320px;
+    }
+
+    .archive-toolbar {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 13px;
+    }
+
+    .archive-toolbar-title {
+        order: 1;
+    }
+
+    .archive-count {
+        order: 2;
+        margin-left: auto;
+    }
+
+    .color-filter-wrap {
+        order: 3;
+        width: 100%;
+        flex-basis: 100%;
+        justify-content: flex-start;
+        gap: 11px 14px;
+        padding-top: 4px;
+    }
+
+    .colors-section {
+        padding-top: 19px;
+    }
+
+    .colors-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 12px;
+        row-gap: 27px;
+    }
+
+    .color-photo-info {
+        display: none;
+    }
+
+    .about-overlay {
+        padding: 16px;
+    }
+
+    .about-modal {
+        padding: 36px 26px 29px;
+    }
+
+    .about-title {
+        font-size: 35px;
+    }
+
+    .about-copy {
+        font-size: 12px;
+    }
+
+    .lightbox-inner {
+        width: calc(100% - 28px);
+        padding: 20px 0 35px;
+    }
+
+    .lightbox-image {
+        max-height: 60vh;
+        max-height: 60dvh;
+    }
+
+    .lightbox-prev,
+    .lightbox-next {
+        display: none;
+    }
+
+    .lightbox-meta {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .meta-item {
+        border-bottom: 1px solid #333;
+    }
+
+    .top-button {
+        right: 15px;
+        bottom: 17px;
+        width: 42px;
+        height: 42px;
+    }
+
+    .site-footer {
+        flex-direction: column;
+        gap: 6px;
+    }
+}
+
+
+@media (max-width: 390px) {
+
+    .site-shell {
+        width: calc(100% - 24px);
+    }
+
+    .page-title {
+        font-size: 46px;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+</style>
 </head>
-<body class="journal-page page-colors">
-    <div class="container">
-        <div class="profile">
-            <div class="journal-brand">
-                <img src="images/KakaoTalk_20240406_232152395.jpg" alt="프로필 사진" class="profile-img">
-                <div class="journal-brand-copy">
-                    <h2>Hamihamoo</h2>
-            <p>Amateur Photographer</p>
-                </div>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="index.html">main page</a></li>
-                    <li><a href="digital.html">digital photos</a></li>
-                    <li><a href="film.html">film photos</a></li>
-                    <li><a href="colors.html" aria-current="page">colors archive</a></li>
-                    <li><a href="analysis.html">analysis</a></li>
-                    <li><a href="guestbook.html">guestbook</a></li>
-                </ul>
-            </nav>
+
+
+<body>
+
+<div class="site-shell">
+
+<header class="site-header">
+
+    <a
+        class="brand"
+        href="index.html"
+        aria-label="Hamihamoo Photography"
+    >
+
+        <div class="brand-mark" id="brandMark">
+            h.
         </div>
 
-        <div class="main-content">
-            <div class="colors-topbar">
-                <button class="topbar-btn" onclick="toggleDarkMode()">🌙 Dark</button>
+        <div class="brand-text">
+
+            <div class="brand-name" id="brandName">
+                hamihamoo
             </div>
 
-            <h1>colors archive</h1>
-            <p class="colors-description">
-                색 기준으로 분류된 사진들을 모아볼 수 있는 페이지예요.
+            <div class="brand-subtitle" id="brandSubtitle">
+                PHOTOGRAPHY
+            </div>
+
+        </div>
+
+    </a>
+
+
+    <button
+        class="mobile-menu-btn"
+        id="mobileMenuBtn"
+        type="button"
+        onclick="toggleMobileMenu()"
+    >
+        MENU
+    </button>
+
+
+    <nav
+        class="main-nav"
+        id="mainNav"
+    >
+
+        <a
+            href="index.html"
+            class="nav-link"
+        >
+            사진
+            <span class="nav-index">
+                01
+            </span>
+        </a>
+
+
+        <a
+            href="colors.html"
+            class="nav-link current"
+            id="colorsNav"
+        >
+            Colors
+        </a>
+
+
+        <a
+            href="analysis.html"
+            class="nav-link"
+            id="projectsNav"
+        >
+            Projects
+        </a>
+
+
+        <a
+            href="guestbook.html"
+            class="nav-link"
+            id="guestbookNav"
+        >
+            Guestbook
+        </a>
+
+
+        <button
+            class="nav-button"
+            id="aboutNav"
+            type="button"
+            onclick="openAbout()"
+        >
+            작가 소개
+        </button>
+
+
+        <a
+            href="upload.html"
+            class="nav-link"
+            id="manageNav"
+        >
+            <span class="nav-lock">
+                ♙
+            </span>
+
+            사진 관리
+        </a>
+
+    </nav>
+
+</header>
+
+
+
+<main>
+
+<section class="page-intro">
+
+    <div class="page-kicker">
+        COLOR STUDY
+    </div>
+
+
+    <div class="page-intro-grid">
+
+        <h1 class="page-title">
+
+            Colors
+
+            <em>
+                Archive.
+            </em>
+
+        </h1>
+
+
+        <p class="page-description">
+
+            사진 속 색을 기준으로 기록을 다시 바라봅니다.
+            <br>
+
+            하나의 색을 선택해 그 색이 남아 있는 장면들을 모아보세요.
+
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<section class="archive-toolbar">
+
+    <div class="archive-toolbar-title">
+        Color Index
+    </div>
+
+
+    <div
+        id="colorFilterWrap"
+        class="color-filter-wrap"
+    ></div>
+
+
+    <div
+        id="colorCount"
+        class="archive-count"
+    >
+        LOADING...
+    </div>
+
+</section>
+
+
+
+<section class="colors-section">
+
+    <div
+        id="colorsGrid"
+        class="colors-grid"
+    >
+
+        <div class="loading">
+            photographs loading...
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+
+<footer class="site-footer">
+
+    <div id="footerCopyright">
+        © 2026 Hamihamoo
+    </div>
+
+    <div>
+        Color study from the photographic archive.
+    </div>
+
+</footer>
+
+</div>
+
+
+
+<!-- ABOUT -->
+
+<div
+    class="about-overlay"
+    id="aboutOverlay"
+    aria-hidden="true"
+>
+
+    <div
+        class="about-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="aboutTitle"
+    >
+
+        <button
+            class="about-close"
+            type="button"
+            onclick="closeAbout()"
+            aria-label="닫기"
+        >
+            ×
+        </button>
+
+
+        <div
+            class="about-kicker"
+            id="aboutKicker"
+        >
+            BEHIND THE CAMERA
+        </div>
+
+
+        <h2
+            class="about-title"
+            id="aboutTitle"
+        >
+            Hamihamoo
+        </h2>
+
+
+        <div
+            class="about-role"
+            id="aboutRole"
+        >
+            사진가의 기록
+        </div>
+
+
+        <div class="about-copy">
+
+            <p id="aboutIntro">
+                빛과 색, 그리고 일상 속 작은 장면들.
             </p>
 
-            <div id="colorFilterWrap" class="color-filter-wrap"></div>
-            <div id="colorCount" class="color-count">사진을 불러오는 중입니다...</div>
-            <div id="colorsGrid" class="colors-grid"></div>
+            <p id="aboutBody">
+                발걸음을 멈추게 하는 순간을 사진으로 남깁니다.
+                이곳은 그렇게 모인 시선들을 나누는 공간입니다.
+            </p>
+
         </div>
+
+
+        <div class="about-divider"></div>
+
+
+        <div
+            class="about-signoff"
+            id="aboutSignoff"
+        >
+            A way of seeing.
+        </div>
+
     </div>
 
-    <div id="colorLightbox" onclick="closeColorLightbox()">
-        <img id="colorLightboxImg" src="" alt="확대된 사진">
-        <div id="colorLightboxCaption" class="color-lightbox-caption"></div>
+</div>
+
+
+
+<!-- LIGHTBOX -->
+
+<div
+    class="lightbox"
+    id="colorLightbox"
+    aria-hidden="true"
+>
+
+    <div class="lightbox-inner">
+
+        <div class="lightbox-top">
+
+            <button
+                class="lightbox-close"
+                type="button"
+                onclick="closeColorLightbox()"
+                aria-label="닫기"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="lightbox-stage">
+
+            <button
+                class="lightbox-prev"
+                type="button"
+                onclick="showPreviousColorPhoto()"
+                aria-label="이전 사진"
+            >
+                ‹
+            </button>
+
+
+            <img
+                class="lightbox-image"
+                id="colorLightboxImg"
+                src=""
+                alt="확대된 사진"
+            >
+
+
+            <button
+                class="lightbox-next"
+                type="button"
+                onclick="showNextColorPhoto()"
+                aria-label="다음 사진"
+            >
+                ›
+            </button>
+
+        </div>
+
+
+        <div class="lightbox-meta">
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Date
+                </div>
+
+                <div
+                    class="meta-value"
+                    id="metaDate"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Color
+                </div>
+
+                <div
+                    class="meta-value"
+                    id="metaColor"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Camera
+                </div>
+
+                <div
+                    class="meta-value"
+                    id="metaCamera"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Exposure
+                </div>
+
+                <div
+                    class="meta-value"
+                    id="metaExposure"
+                >
+                    -
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <script>
-        const COLOR_ORDER = [
-            "All",
-            "Black",
-            "White",
-            "Gray",
-            "Brown",
-            "Red",
-            "Orange",
-            "Yellow",
-            "Green",
-            "Blue",
-            "Purple",
-            "Pink"
+</div>
+
+
+
+<button
+    class="top-button"
+    id="topButton"
+    type="button"
+    onclick="scrollToTop()"
+    aria-label="맨 위로"
+>
+    ↑
+</button>
+
+
+
+<script>
+
+const COLOR_ORDER = [
+
+    "All",
+    "Black",
+    "White",
+    "Gray",
+    "Brown",
+    "Red",
+    "Orange",
+    "Yellow",
+    "Green",
+    "Blue",
+    "Purple",
+    "Pink"
+
+];
+
+
+const COLOR_HEX = {
+
+    Black:
+        "#202020",
+
+    White:
+        "#ffffff",
+
+    Gray:
+        "#a7a7a1",
+
+    Brown:
+        "#8b684f",
+
+    Red:
+        "#bf463e",
+
+    Orange:
+        "#d8843c",
+
+    Yellow:
+        "#d5b94d",
+
+    Green:
+        "#6f8d65",
+
+    Blue:
+        "#5e7fa1",
+
+    Purple:
+        "#88729b",
+
+    Pink:
+        "#c98b9b"
+
+};
+
+
+
+const DEFAULT_SITE_SETTINGS = {
+
+    brandMark:
+        "h.",
+
+    brandName:
+        "hamihamoo",
+
+    brandSubtitle:
+        "PHOTOGRAPHY",
+
+    colorsLabel:
+        "Colors",
+
+    projectsLabel:
+        "Projects",
+
+    guestbookLabel:
+        "Guestbook",
+
+    aboutLabel:
+        "작가 소개",
+
+    manageLabel:
+        "사진 관리",
+
+    aboutKicker:
+        "BEHIND THE CAMERA",
+
+    aboutTitle:
+        "Hamihamoo",
+
+    aboutRole:
+        "사진가의 기록",
+
+    aboutIntro:
+        "빛과 색, 그리고 일상 속 작은 장면들.",
+
+    aboutBody:
+        "발걸음을 멈추게 하는 순간을 사진으로 남깁니다. 이곳은 그렇게 모인 시선들을 나누는 공간입니다.",
+
+    aboutSignoff:
+        "A way of seeing.",
+
+    footerCopyright:
+        "© 2026 Hamihamoo"
+
+};
+
+
+
+let siteSettings = {
+    ...DEFAULT_SITE_SETTINGS
+};
+
+
+let allPhotos = [];
+
+let currentColor =
+    "All";
+
+let currentFilteredPhotos =
+    [];
+
+let currentLightboxIndex =
+    -1;
+
+let touchStartX =
+    0;
+
+let touchEndX =
+    0;
+
+
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
+
+
+
+function photoUrl(
+    filename
+) {
+
+    return (
+        "images/digital/" +
+        encodeURIComponent(
+            filename
+        )
+    );
+}
+
+
+
+/* SITE SETTINGS */
+
+async function loadSiteSettings() {
+
+    try {
+
+        const response =
+            await fetch(
+                `site.json?v=${Date.now()}`,
+                {
+                    cache:
+                        "no-store"
+                }
+            );
+
+
+        if (
+            response.ok
+        ) {
+
+            const data =
+                await response.json();
+
+
+            siteSettings = {
+
+                ...DEFAULT_SITE_SETTINGS,
+
+                ...data
+
+            };
+        }
+
+
+    } catch (error) {
+
+        siteSettings = {
+            ...DEFAULT_SITE_SETTINGS
+        };
+    }
+
+
+    applySiteSettings();
+}
+
+
+
+function applySiteSettings() {
+
+    document.getElementById(
+        "brandMark"
+    ).textContent =
+        siteSettings.brandMark;
+
+
+    document.getElementById(
+        "brandName"
+    ).textContent =
+        siteSettings.brandName;
+
+
+    document.getElementById(
+        "brandSubtitle"
+    ).textContent =
+        siteSettings.brandSubtitle;
+
+
+    document.getElementById(
+        "colorsNav"
+    ).textContent =
+        siteSettings.colorsLabel;
+
+
+    document.getElementById(
+        "projectsNav"
+    ).textContent =
+        siteSettings.projectsLabel;
+
+
+    document.getElementById(
+        "guestbookNav"
+    ).textContent =
+        siteSettings.guestbookLabel;
+
+
+    document.getElementById(
+        "aboutNav"
+    ).textContent =
+        siteSettings.aboutLabel;
+
+
+    document.getElementById(
+        "manageNav"
+    ).innerHTML =
+        `
+        <span class="nav-lock">
+            ♙
+        </span>
+        ${escapeHtml(
+            siteSettings.manageLabel
+        )}
+        `;
+
+
+    document.getElementById(
+        "aboutKicker"
+    ).textContent =
+        siteSettings.aboutKicker;
+
+
+    document.getElementById(
+        "aboutTitle"
+    ).textContent =
+        siteSettings.aboutTitle;
+
+
+    document.getElementById(
+        "aboutRole"
+    ).textContent =
+        siteSettings.aboutRole;
+
+
+    document.getElementById(
+        "aboutIntro"
+    ).textContent =
+        siteSettings.aboutIntro;
+
+
+    document.getElementById(
+        "aboutBody"
+    ).textContent =
+        siteSettings.aboutBody;
+
+
+    document.getElementById(
+        "aboutSignoff"
+    ).textContent =
+        siteSettings.aboutSignoff;
+
+
+    document.getElementById(
+        "footerCopyright"
+    ).textContent =
+        siteSettings.footerCopyright;
+}
+
+
+
+/* COLOR FILTER */
+
+function colorCount(
+    color
+) {
+
+    if (
+        color === "All"
+    ) {
+
+        return allPhotos.length;
+    }
+
+
+    return allPhotos.filter(
+        photo =>
+            (
+                photo.color ||
+                "Gray"
+            ) === color
+    ).length;
+}
+
+
+
+function buildColorFilters() {
+
+    const wrap =
+        document.getElementById(
+            "colorFilterWrap"
+        );
+
+
+    wrap.innerHTML =
+        "";
+
+
+    COLOR_ORDER.forEach(
+        color => {
+
+            const btn =
+                document.createElement(
+                    "button"
+                );
+
+
+            btn.type =
+                "button";
+
+
+            btn.className =
+                "color-filter-btn";
+
+
+            if (
+                color ===
+                currentColor
+            ) {
+
+                btn.classList.add(
+                    "active"
+                );
+            }
+
+
+            if (
+                color !== "All"
+            ) {
+
+                const dot =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                dot.className =
+                    "color-dot";
+
+
+                dot.style.background =
+                    COLOR_HEX[color] ||
+                    "#aaa";
+
+
+                btn.appendChild(
+                    dot
+                );
+            }
+
+
+            const label =
+                document.createElement(
+                    "span"
+                );
+
+
+            label.textContent =
+                `${color} ${colorCount(color)}`;
+
+
+            btn.appendChild(
+                label
+            );
+
+
+            btn.addEventListener(
+                "click",
+                () => {
+
+                    currentColor =
+                        color;
+
+
+                    buildColorFilters();
+
+
+                    renderPhotos();
+                }
+            );
+
+
+            wrap.appendChild(
+                btn
+            );
+        }
+    );
+}
+
+
+
+function getFilteredPhotos() {
+
+    if (
+        currentColor ===
+        "All"
+    ) {
+
+        return allPhotos;
+    }
+
+
+    return allPhotos.filter(
+        photo =>
+            (
+                photo.color ||
+                "Gray"
+            ) ===
+            currentColor
+    );
+}
+
+
+
+/* GALLERY */
+
+function renderPhotos() {
+
+    const grid =
+        document.getElementById(
+            "colorsGrid"
+        );
+
+
+    const count =
+        document.getElementById(
+            "colorCount"
+        );
+
+
+    currentFilteredPhotos =
+        getFilteredPhotos();
+
+
+    grid.innerHTML =
+        "";
+
+
+    count.textContent =
+        currentColor ===
+        "All"
+
+        ? `${currentFilteredPhotos.length} FRAMES`
+
+        : `${currentColor.toUpperCase()} · ${currentFilteredPhotos.length} FRAMES`;
+
+
+    if (
+        currentFilteredPhotos.length ===
+        0
+    ) {
+
+        grid.innerHTML =
+            `
+            <div class="empty-text">
+                해당 색으로 분류된 사진이 아직 없습니다.
+            </div>
+            `;
+
+        return;
+    }
+
+
+    currentFilteredPhotos.forEach(
+        (photo, index) => {
+
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+
+            card.className =
+                "color-photo-card";
+
+
+            const colorName =
+                photo.color ||
+                "Gray";
+
+
+            const imageSrc =
+                photoUrl(
+                    photo.filename
+                );
+
+
+            card.innerHTML =
+                `
+
+                <div class="color-photo-thumb-wrap">
+
+                    <img
+                        src="${imageSrc}"
+                        alt="${escapeHtml(colorName)} 사진"
+                        class="color-photo-thumb"
+                        loading="lazy"
+                        decoding="async"
+                    >
+
+                </div>
+
+
+                <div class="color-photo-meta">
+
+                    <div class="color-photo-topline">
+
+                        <div class="color-name">
+
+                            <span
+                                class="color-dot"
+                                style="background:${COLOR_HEX[colorName] || "#aaa"}"
+                            ></span>
+
+                            ${escapeHtml(colorName)}
+
+                        </div>
+
+
+                        <div class="color-photo-date">
+
+                            ${escapeHtml(
+                                photo.date ||
+                                "날짜 미상"
+                            )}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="color-photo-info">
+
+                        ${escapeHtml(
+                            photo.info ||
+                            ""
+                        )}
+
+                    </div>
+
+                </div>
+                `;
+
+
+            card
+                .querySelector(
+                    ".color-photo-thumb"
+                )
+                .addEventListener(
+                    "click",
+                    () => {
+
+                        openColorLightbox(
+                            index
+                        );
+                    }
+                );
+
+
+            grid.appendChild(
+                card
+            );
+        }
+    );
+}
+
+
+
+/* METADATA */
+
+function parseInfo(
+    infoText
+) {
+
+    const text =
+        String(
+            infoText || ""
+        ).trim();
+
+
+    const fMatch =
+        text.match(
+            /\bf\d+(\.\d+)?\b/i
+        );
+
+
+    const shutterMatch =
+        text.match(
+            /\b\d+\/\d+s\b|\b\d+(\.\d+)?s\b/i
+        );
+
+
+    const isoMatch =
+        text.match(
+            /\biso\s*\d+\b/i
+        );
+
+
+    const aperture =
+        fMatch
+        ? fMatch[0]
+        : "";
+
+
+    const shutter =
+        shutterMatch
+        ? shutterMatch[0]
+        : "";
+
+
+    const iso =
+        isoMatch
+        ? isoMatch[0]
+            .replace(
+                /\s+/g,
+                " "
+            )
+        : "";
+
+
+    let camera =
+        text;
+
+
+    if (
+        fMatch
+    ) {
+
+        camera =
+            text
+                .substring(
+                    0,
+                    fMatch.index
+                )
+                .trim();
+    }
+
+
+    return {
+
+        camera:
+            camera ||
+            "-",
+
+        exposure:
+            [
+                aperture,
+                shutter,
+                iso
+            ]
+                .filter(
+                    Boolean
+                )
+                .join(
+                    " · "
+                ) ||
+            "-"
+
+    };
+}
+
+
+
+/* LIGHTBOX */
+
+function openColorLightbox(
+    index
+) {
+
+    if (
+        index < 0 ||
+        index >=
+        currentFilteredPhotos.length
+    ) {
+
+        return;
+    }
+
+
+    currentLightboxIndex =
+        index;
+
+
+    const photo =
+        currentFilteredPhotos[
+            index
         ];
 
-        let allPhotos = [];
-        let currentColor = "All";
 
-        applySavedDarkMode();
+    const parsed =
+        parseInfo(
+            photo.info
+        );
 
-        function applySavedDarkMode() {
-            const savedMode = localStorage.getItem('photo_archive_dark_mode');
-            if (savedMode === 'on') {
-                document.body.classList.add('dark-mode');
-                updateDarkButtonText();
-            }
-        }
 
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem(
-                'photo_archive_dark_mode',
-                document.body.classList.contains('dark-mode') ? 'on' : 'off'
+    document.getElementById(
+        "colorLightboxImg"
+    ).src =
+        photoUrl(
+            photo.filename
+        );
+
+
+    document.getElementById(
+        "metaDate"
+    ).textContent =
+        photo.date ||
+        "-";
+
+
+    document.getElementById(
+        "metaColor"
+    ).textContent =
+        photo.color ||
+        "Gray";
+
+
+    document.getElementById(
+        "metaCamera"
+    ).textContent =
+        parsed.camera;
+
+
+    document.getElementById(
+        "metaExposure"
+    ).textContent =
+        parsed.exposure;
+
+
+    const lightbox =
+        document.getElementById(
+            "colorLightbox"
+        );
+
+
+    lightbox.classList.add(
+        "open"
+    );
+
+
+    lightbox.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    document.body.classList.add(
+        "no-scroll"
+    );
+}
+
+
+
+function closeColorLightbox() {
+
+    const lightbox =
+        document.getElementById(
+            "colorLightbox"
+        );
+
+
+    lightbox.classList.remove(
+        "open"
+    );
+
+
+    lightbox.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    document.body.classList.remove(
+        "no-scroll"
+    );
+
+
+    currentLightboxIndex =
+        -1;
+}
+
+
+
+function showNextColorPhoto() {
+
+    if (
+        currentFilteredPhotos.length ===
+        0
+    ) {
+
+        return;
+    }
+
+
+    let next =
+        currentLightboxIndex +
+        1;
+
+
+    if (
+        next >=
+        currentFilteredPhotos.length
+    ) {
+
+        next =
+            0;
+    }
+
+
+    openColorLightbox(
+        next
+    );
+}
+
+
+
+function showPreviousColorPhoto() {
+
+    if (
+        currentFilteredPhotos.length ===
+        0
+    ) {
+
+        return;
+    }
+
+
+    let previous =
+        currentLightboxIndex -
+        1;
+
+
+    if (
+        previous < 0
+    ) {
+
+        previous =
+            currentFilteredPhotos.length -
+            1;
+    }
+
+
+    openColorLightbox(
+        previous
+    );
+}
+
+
+
+/* MOBILE MENU */
+
+function toggleMobileMenu() {
+
+    const nav =
+        document.getElementById(
+            "mainNav"
+        );
+
+
+    const button =
+        document.getElementById(
+            "mobileMenuBtn"
+        );
+
+
+    const open =
+        nav.classList.toggle(
+            "open"
+        );
+
+
+    button.textContent =
+        open
+        ? "CLOSE"
+        : "MENU";
+}
+
+
+
+function closeMobileMenu() {
+
+    document.getElementById(
+        "mainNav"
+    ).classList.remove(
+        "open"
+    );
+
+
+    document.getElementById(
+        "mobileMenuBtn"
+    ).textContent =
+        "MENU";
+}
+
+
+
+/* ABOUT */
+
+function openAbout() {
+
+    const overlay =
+        document.getElementById(
+            "aboutOverlay"
+        );
+
+
+    overlay.classList.add(
+        "open"
+    );
+
+
+    overlay.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    document.body.classList.add(
+        "no-scroll"
+    );
+
+
+    closeMobileMenu();
+}
+
+
+
+function closeAbout() {
+
+    const overlay =
+        document.getElementById(
+            "aboutOverlay"
+        );
+
+
+    overlay.classList.remove(
+        "open"
+    );
+
+
+    overlay.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    document.body.classList.remove(
+        "no-scroll"
+    );
+}
+
+
+
+/* TOP */
+
+function scrollToTop() {
+
+    window.scrollTo({
+        top:
+            0,
+        behavior:
+            "smooth"
+    });
+}
+
+
+
+window.addEventListener(
+    "scroll",
+    () => {
+
+        document
+            .getElementById(
+                "topButton"
+            )
+            .classList
+            .toggle(
+                "show",
+                window.scrollY >
+                550
             );
-            updateDarkButtonText();
+    }
+);
+
+
+
+/* MODAL CLICKS */
+
+document.getElementById(
+    "aboutOverlay"
+)
+.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target.id ===
+            "aboutOverlay"
+        ) {
+
+            closeAbout();
+        }
+    }
+);
+
+
+
+document.getElementById(
+    "colorLightbox"
+)
+.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target.id ===
+            "colorLightbox"
+        ) {
+
+            closeColorLightbox();
+        }
+    }
+);
+
+
+
+/* MOBILE SWIPE */
+
+document.getElementById(
+    "colorLightbox"
+)
+.addEventListener(
+    "touchstart",
+    event => {
+
+        touchStartX =
+            event
+                .changedTouches[0]
+                .screenX;
+    },
+    {
+        passive:
+            true
+    }
+);
+
+
+
+document.getElementById(
+    "colorLightbox"
+)
+.addEventListener(
+    "touchend",
+    event => {
+
+        touchEndX =
+            event
+                .changedTouches[0]
+                .screenX;
+
+
+        const diff =
+            touchStartX -
+            touchEndX;
+
+
+        if (
+            Math.abs(
+                diff
+            ) < 50
+        ) {
+
+            return;
         }
 
-        function updateDarkButtonText() {
-            const button = document.querySelector('.topbar-btn');
-            if (!button) return;
-            button.innerHTML = document.body.classList.contains('dark-mode') ? '☀ Light' : '🌙 Dark';
+
+        if (
+            diff > 0
+        ) {
+
+            showNextColorPhoto();
+
+        } else {
+
+            showPreviousColorPhoto();
         }
+    },
+    {
+        passive:
+            true
+    }
+);
 
-        function buildColorFilters() {
-            const wrap = document.getElementById('colorFilterWrap');
-            wrap.innerHTML = '';
 
-            COLOR_ORDER.forEach(color => {
-                const btn = document.createElement('button');
-                btn.className = 'color-filter-btn';
-                if (color === currentColor) btn.classList.add('active');
-                btn.innerText = color;
-                btn.onclick = () => {
-                    currentColor = color;
-                    buildColorFilters();
-                    renderPhotos();
-                };
-                wrap.appendChild(btn);
-            });
-        }
 
-        function getFilteredPhotos() {
-            if (currentColor === "All") return allPhotos;
-            return allPhotos.filter(photo => (photo.color || "Gray") === currentColor);
-        }
+/* KEYBOARD */
 
-        function renderPhotos() {
-            const grid = document.getElementById('colorsGrid');
-            const count = document.getElementById('colorCount');
-            const filtered = getFilteredPhotos();
+document.addEventListener(
+    "keydown",
+    event => {
 
-            grid.innerHTML = '';
+        const lightboxOpen =
+            document
+                .getElementById(
+                    "colorLightbox"
+                )
+                .classList
+                .contains(
+                    "open"
+                );
 
-            count.innerText = currentColor === "All"
-                ? `전체 사진 ${filtered.length}장`
-                : `${currentColor} 사진 ${filtered.length}장`;
 
-            if (filtered.length === 0) {
-                grid.innerHTML = `<div class="empty-text">해당 색으로 분류된 사진이 아직 없어요.</div>`;
+        const aboutOpen =
+            document
+                .getElementById(
+                    "aboutOverlay"
+                )
+                .classList
+                .contains(
+                    "open"
+                );
+
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+            if (
+                lightboxOpen
+            ) {
+
+                closeColorLightbox();
+
                 return;
             }
 
-            filtered.forEach(photo => {
-                const card = document.createElement('div');
-                card.className = 'color-photo-card';
-                card.onclick = () => openColorLightbox(
-                    `images/digital/${photo.filename}`,
-                    `${photo.date || "날짜 미상"} | ${photo.info || ""}`
+
+            if (
+                aboutOpen
+            ) {
+
+                closeAbout();
+
+                return;
+            }
+
+
+            closeMobileMenu();
+
+            return;
+        }
+
+
+        if (
+            !lightboxOpen
+        ) {
+
+            return;
+        }
+
+
+        if (
+            event.key ===
+            "ArrowRight"
+        ) {
+
+            showNextColorPhoto();
+        }
+
+
+        if (
+            event.key ===
+            "ArrowLeft"
+        ) {
+
+            showPreviousColorPhoto();
+        }
+    }
+);
+
+
+
+/* LOAD PHOTOS */
+
+async function loadPhotos() {
+
+    const count =
+        document.getElementById(
+            "colorCount"
+        );
+
+
+    const grid =
+        document.getElementById(
+            "colorsGrid"
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                `photos.json?v=${Date.now()}`,
+                {
+                    cache:
+                        "no-store"
+                }
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            throw new Error(
+                "photos.json을 불러오지 못했습니다."
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+
+        allPhotos =
+            (
+                Array.isArray(
+                    data
+                )
+                ? data
+                : []
+            )
+                .map(
+                    (
+                        photo,
+                        originalIndex
+                    ) => ({
+                        ...photo,
+                        _originalIndex:
+                            originalIndex
+                    })
+                )
+                .sort(
+                    (
+                        a,
+                        b
+                    ) => {
+
+                        const dateCompare =
+                            String(
+                                b.date ||
+                                ""
+                            )
+                                .localeCompare(
+                                    String(
+                                        a.date ||
+                                        ""
+                                    )
+                                );
+
+
+                        if (
+                            dateCompare !==
+                            0
+                        ) {
+
+                            return dateCompare;
+                        }
+
+
+                        return (
+                            a._originalIndex -
+                            b._originalIndex
+                        );
+                    }
                 );
 
-                card.innerHTML = `
-                    <img 
-                        src="images/digital/${photo.filename}" 
-                        alt="사진" 
-                        class="color-photo-thumb"
-                        loading="lazy"
-                    >
-                    <div class="color-photo-meta">
-                        <div class="color-name-badge">${photo.color || "Gray"}</div>
-                        <div class="color-photo-date">${photo.date || "날짜 미상"}</div>
-                        <div class="color-photo-info">${photo.info || ""}</div>
-                    </div>
-                `;
 
-                grid.appendChild(card);
-            });
-        }
+        buildColorFilters();
 
-        function openColorLightbox(src, caption) {
-            const lightbox = document.getElementById('colorLightbox');
-            const img = document.getElementById('colorLightboxImg');
-            const text = document.getElementById('colorLightboxCaption');
 
-            img.src = src;
-            text.innerText = caption;
-            lightbox.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
+        renderPhotos();
 
-        function closeColorLightbox() {
-            document.getElementById('colorLightbox').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
 
-        async function loadPhotos() {
-            try {
-                const res = await fetch('photos.json');
-                const data = await res.json();
+    } catch (error) {
 
-                allPhotos = [...data].sort((a, b) => {
-                    const dateA = a.date || "0000-00-00";
-                    const dateB = b.date || "0000-00-00";
-                    return dateB.localeCompare(dateA);
-                });
+        console.error(
+            error
+        );
 
-                buildColorFilters();
-                renderPhotos();
-            } catch (error) {
-                console.error(error);
-                document.getElementById('colorCount').innerText = '사진을 불러오지 못했어요.';
-            }
-        }
 
-        loadPhotos();
-    </script>
+        count.textContent =
+            "LOAD ERROR";
+
+
+        grid.innerHTML =
+            `
+            <div class="empty-text">
+                사진을 불러오지 못했습니다.
+            </div>
+            `;
+    }
+}
+
+
+
+/* START */
+
+async function initialize() {
+
+    await loadSiteSettings();
+
+
+    await loadPhotos();
+}
+
+
+initialize();
+
+</script>
+
 </body>
 </html>
