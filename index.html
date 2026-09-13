@@ -7,10 +7,6 @@
 <title>Hamihamoo Photography</title>
 
 <style>
-/* =========================================================
-   RESET / BASIC
-========================================================= */
-
 *,
 *::before,
 *::after {
@@ -25,13 +21,7 @@ body {
     margin:0;
     background:#fff;
     color:#1d1d1b;
-
-    font-family:
-        Arial,
-        "Apple SD Gothic Neo",
-        "Malgun Gothic",
-        sans-serif;
-
+    font-family:Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     -webkit-font-smoothing:antialiased;
 }
 
@@ -60,28 +50,19 @@ body.no-scroll {
     overflow:hidden;
 }
 
-
-/* =========================================================
-   PAGE
-========================================================= */
-
 .site-shell {
     width:min(1268px, calc(100% - 64px));
     margin:0 auto;
 }
 
 
-/* =========================================================
-   HEADER
-========================================================= */
+/* HEADER */
 
 .site-header {
     height:82px;
-
     display:flex;
     justify-content:space-between;
     align-items:center;
-
     border-bottom:1px solid #deded8;
 }
 
@@ -89,7 +70,6 @@ body.no-scroll {
     display:flex;
     align-items:center;
     gap:12px;
-
     color:#111;
     text-decoration:none;
 }
@@ -97,13 +77,10 @@ body.no-scroll {
 .brand-mark {
     width:35px;
     height:38px;
-
     border:1px solid #222;
-
     display:flex;
     justify-content:center;
     align-items:center;
-
     font-family:Georgia, "Times New Roman", serif;
     font-size:29px;
     font-style:italic;
@@ -124,16 +101,13 @@ body.no-scroll {
 
 .brand-subtitle {
     margin-top:5px;
-
     font-size:9px;
     letter-spacing:0.16em;
     text-transform:uppercase;
 }
 
 
-/* =========================================================
-   DESKTOP NAV
-========================================================= */
+/* NAV */
 
 .main-nav {
     display:flex;
@@ -144,18 +118,13 @@ body.no-scroll {
 .nav-link,
 .nav-button {
     position:relative;
-
     border:0;
     padding:8px 0;
-
     background:none;
     color:#282824;
-
     text-decoration:none;
-
     font-size:12px;
     line-height:1.3;
-
     white-space:nowrap;
 }
 
@@ -166,12 +135,10 @@ body.no-scroll {
 
 .nav-link.current::after {
     content:"";
-
     position:absolute;
     left:0;
     right:0;
     bottom:-11px;
-
     height:1px;
     background:#111;
 }
@@ -189,31 +156,20 @@ body.no-scroll {
 }
 
 
-/* =========================================================
-   ARCHIVE MENU
-========================================================= */
+/* ARCHIVE MENU */
 
 .header-archive-menu {
     position:absolute;
-
     top:42px;
     right:0;
-
     width:190px;
     max-height:370px;
     overflow-y:auto;
-
     padding:6px 0;
-
     background:#fff;
     border:1px solid #d7d7d1;
-
-    box-shadow:
-        0 12px 35px
-        rgba(0,0,0,0.08);
-
+    box-shadow:0 12px 35px rgba(0,0,0,0.08);
     z-index:3000;
-
     display:none;
 }
 
@@ -223,17 +179,12 @@ body.no-scroll {
 
 .archive-date-item {
     width:100%;
-
     padding:11px 16px;
-
     border:0;
     border-bottom:1px solid #efefe9;
-
     background:#fff;
-
     color:#44443e;
     text-align:left;
-
     font-size:11px;
 }
 
@@ -246,28 +197,20 @@ body.no-scroll {
 }
 
 
-/* =========================================================
-   MOBILE MENU BUTTON
-========================================================= */
+/* MOBILE MENU BUTTON */
 
 .mobile-menu-btn {
     display:none;
-
     border:0;
     background:none;
-
     color:#111;
-
     font-size:12px;
     letter-spacing:0.08em;
-
     padding:10px 0;
 }
 
 
-/* =========================================================
-   HERO
-========================================================= */
+/* HERO */
 
 .hero {
     padding:57px 0 54px;
@@ -275,59 +218,39 @@ body.no-scroll {
 
 .hero-kicker {
     margin-bottom:23px;
-
     font-size:10px;
     letter-spacing:0.2em;
-
     color:#57574f;
 }
 
 .hero-grid {
     display:grid;
-
-    grid-template-columns:
-        minmax(0, 1fr)
-        220px;
-
+    grid-template-columns:minmax(0, 1fr) 220px;
     gap:60px;
     align-items:end;
 }
 
 .hero-title {
     margin:0;
-
-    font-family:
-        Arial,
-        "Helvetica Neue",
-        sans-serif;
-
+    font-family:Arial, "Helvetica Neue", sans-serif;
     font-size:clamp(64px, 6.2vw, 92px);
-
     font-weight:400;
     letter-spacing:-0.065em;
     line-height:0.96;
-
     color:#222220;
 }
 
 .hero-title em {
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
+    font-family:Georgia, "Times New Roman", serif;
     font-weight:400;
     font-style:italic;
-
     letter-spacing:-0.055em;
 }
 
 .hero-note {
     padding-bottom:5px;
-
     font-size:13px;
     line-height:1.8;
-
     color:#262621;
 }
 
@@ -337,22 +260,17 @@ body.no-scroll {
 
 .hero-credit {
     color:#79796f;
-
     font-size:10px;
     line-height:1.5;
 }
 
 
-/* =========================================================
-   GALLERY HEADER
-========================================================= */
+/* GALLERY HEADER */
 
 .gallery-heading {
     border-top:1px solid #242420;
-
     padding-top:14px;
     margin-bottom:19px;
-
     display:flex;
     justify-content:space-between;
     align-items:center;
@@ -377,11 +295,8 @@ body.no-scroll {
 .random-btn {
     border:0;
     background:none;
-
     padding:4px 0;
-
     color:#8b8b80;
-
     font-size:11px;
 }
 
@@ -392,35 +307,22 @@ body.no-scroll {
 
 .gallery-frame-count {
     font-size:9px;
-
     letter-spacing:0.16em;
-
     color:#6f6f67;
 }
 
 
-/* =========================================================
-   GALLERY
-========================================================= */
+/* GALLERY */
 
 .gallery {
     padding-bottom:100px;
 }
 
-
-/* 첫 두 장 */
-
 .feature-grid {
     display:grid;
-
-    grid-template-columns:
-        minmax(0, 1.64fr)
-        minmax(0, 1fr);
-
+    grid-template-columns:minmax(0, 1.64fr) minmax(0, 1fr);
     gap:20px;
-
     align-items:start;
-
     margin-bottom:22px;
 }
 
@@ -428,21 +330,12 @@ body.no-scroll {
     grid-template-columns:1fr;
 }
 
-
-/* 이후 사진 */
-
 .archive-grid {
     display:grid;
-
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
-
+    grid-template-columns:repeat(3, minmax(0, 1fr));
     column-gap:20px;
     row-gap:27px;
 }
-
-
-/* 개별 사진 */
 
 .photo-card {
     min-width:0;
@@ -451,21 +344,15 @@ body.no-scroll {
 .photo-image-wrap {
     width:100%;
     overflow:hidden;
-
     background:#f4f4f0;
 }
 
 .photo-image {
     width:100%;
     height:auto;
-
     object-fit:cover;
-
     cursor:zoom-in;
-
-    transition:
-        opacity 0.25s ease,
-        transform 0.35s ease;
+    transition:opacity 0.25s ease, transform 0.35s ease;
 }
 
 .photo-card:hover .photo-image {
@@ -473,94 +360,51 @@ body.no-scroll {
 }
 
 
-/* 사진 아래 정보 */
+/* PHOTO INFO */
 
 .photo-caption {
     margin-top:7px;
-
-    display:grid;
-
-    grid-template-columns:
-        minmax(0, 1fr)
-        auto;
-
-    gap:12px;
-
-    align-items:start;
-}
-
-.photo-caption-left {
-    min-width:0;
-
     display:flex;
-    gap:9px;
-    align-items:baseline;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
 }
 
 .photo-number {
-    flex:0 0 auto;
-
     color:#8b8b82;
-
     font-size:8px;
     line-height:1.6;
 }
 
-.photo-text {
-    min-width:0;
-
-    color:#262622;
-
-    font-size:10px;
-    line-height:1.55;
-
-    overflow-wrap:anywhere;
-}
-
 .photo-date {
     color:#8b8b82;
-
     font-size:8px;
     line-height:1.7;
-
     white-space:nowrap;
 }
 
 
-/* =========================================================
-   EMPTY / LOADING
-========================================================= */
+/* EMPTY */
 
 .loading,
 .empty-gallery {
     padding:80px 0;
-
     color:#88887f;
-
     text-align:center;
-
     font-size:12px;
 }
 
 
-/* =========================================================
-   ABOUT MODAL
-========================================================= */
+/* ABOUT */
 
 .about-overlay {
     position:fixed;
-
     inset:0;
-
     z-index:9000;
-
     display:none;
-
     justify-content:center;
     align-items:center;
-
     padding:24px;
-
     background:rgba(20,20,18,0.48);
 }
 
@@ -570,75 +414,49 @@ body.no-scroll {
 
 .about-modal {
     position:relative;
-
     width:min(430px, 100%);
-
-    padding:
-        40px
-        38px
-        34px;
-
+    padding:40px 38px 34px;
     background:#fff;
-
     border:1px solid #55554f;
-
-    box-shadow:
-        0 18px 55px
-        rgba(0,0,0,0.16);
+    box-shadow:0 18px 55px rgba(0,0,0,0.16);
 }
 
 .about-close {
     position:absolute;
-
     top:10px;
     right:13px;
-
     width:28px;
     height:28px;
-
     border:0;
     background:none;
-
     color:#66665f;
-
     font-size:18px;
 }
 
 .about-kicker {
     margin-bottom:34px;
-
     color:#55554f;
-
     font-size:10px;
     letter-spacing:0.18em;
 }
 
 .about-title {
     margin:0 0 7px;
-
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
+    font-family:Georgia, "Times New Roman", serif;
     font-size:40px;
     font-weight:400;
     line-height:1.1;
-
     color:#242421;
 }
 
 .about-role {
     margin-bottom:23px;
-
     color:#99998f;
-
     font-size:12px;
 }
 
 .about-copy {
     color:#66665d;
-
     font-size:13px;
     line-height:1.9;
 }
@@ -649,39 +467,26 @@ body.no-scroll {
 
 .about-divider {
     height:1px;
-
     margin:30px 0 22px;
-
     background:#dfdfd9;
 }
 
 .about-signoff {
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
+    font-family:Georgia, "Times New Roman", serif;
     font-size:22px;
     font-style:italic;
-
     color:#34342f;
 }
 
 
-/* =========================================================
-   LIGHTBOX
-========================================================= */
+/* LIGHTBOX */
 
 .lightbox {
     position:fixed;
     inset:0;
-
     z-index:10000;
-
     display:none;
-
     background:rgba(8,8,8,0.97);
-
     overflow-y:auto;
 }
 
@@ -692,13 +497,9 @@ body.no-scroll {
 .lightbox-inner {
     min-height:100vh;
     min-height:100dvh;
-
     width:min(1180px, calc(100% - 80px));
-
     margin:0 auto;
-
     padding:45px 0 55px;
-
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -707,29 +508,22 @@ body.no-scroll {
 
 .lightbox-top {
     width:100%;
-
     display:flex;
     justify-content:flex-end;
-
     margin-bottom:10px;
 }
 
 .lightbox-close {
     border:0;
     background:none;
-
     color:#eee;
-
     font-size:25px;
-
     padding:7px 0 7px 20px;
 }
 
 .lightbox-stage {
     position:relative;
-
     width:100%;
-
     display:flex;
     justify-content:center;
     align-items:center;
@@ -739,30 +533,21 @@ body.no-scroll {
     max-width:100%;
     max-height:70vh;
     max-height:70dvh;
-
     width:auto;
     height:auto;
-
     object-fit:contain;
 }
 
 .lightbox-prev,
 .lightbox-next {
     position:absolute;
-
     top:50%;
-
     transform:translateY(-50%);
-
     border:0;
     background:none;
-
     color:#fff;
-
     font-size:38px;
-
     opacity:0.6;
-
     padding:20px;
 }
 
@@ -779,16 +564,10 @@ body.no-scroll {
     right:-70px;
 }
 
-
-/* 라이트박스 제목 */
-
 .lightbox-caption {
     width:min(850px, 100%);
-
     margin-top:19px;
-
     text-align:center;
-
     color:#e9e9e4;
 }
 
@@ -796,96 +575,60 @@ body.no-scroll {
     display:flex;
     justify-content:center;
     align-items:baseline;
-
     gap:10px;
-
-    flex-wrap:wrap;
 }
 
 .lightbox-caption-number {
     color:#999;
-
     font-size:10px;
-}
-
-.lightbox-caption-text {
-    font-size:13px;
 }
 
 .lightbox-caption-date {
-    margin-top:6px;
-
     color:#92928c;
-
     font-size:10px;
 }
 
-
-/* 메타데이터 */
-
 .lightbox-meta {
     width:min(780px, 100%);
-
     margin-top:23px;
-
     display:grid;
-
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
+    grid-template-columns:repeat(4, minmax(0, 1fr));
     border-top:1px solid #444;
     border-bottom:1px solid #444;
 }
 
 .meta-item {
     padding:13px 12px;
-
     text-align:center;
 }
 
 .meta-label {
     margin-bottom:5px;
-
     color:#777;
-
     font-size:8px;
-
     letter-spacing:0.1em;
-
     text-transform:uppercase;
 }
 
 .meta-value {
     color:#ddd;
-
     font-size:11px;
-
     line-height:1.5;
 }
 
-
-/* 라이트박스 컨트롤 */
-
 .lightbox-controls {
     margin-top:20px;
-
     display:flex;
     justify-content:center;
-
     gap:8px;
-
     flex-wrap:wrap;
 }
 
 .lightbox-control {
     border:1px solid #4b4b47;
-
     background:transparent;
-
     color:#ccc;
-
     padding:8px 14px;
-
     font-size:10px;
 }
 
@@ -895,39 +638,24 @@ body.no-scroll {
 }
 
 
-/* =========================================================
-   TOP BUTTON
-========================================================= */
+/* TOP BUTTON */
 
 .top-button {
     position:fixed;
-
     right:26px;
     bottom:24px;
-
     z-index:5000;
-
     width:44px;
     height:44px;
-
     display:none;
-
     justify-content:center;
     align-items:center;
-
     border:1px solid #c7c7c0;
-
     border-radius:50%;
-
     background:rgba(255,255,255,0.94);
-
     color:#222;
-
     font-size:17px;
-
-    box-shadow:
-        0 6px 22px
-        rgba(0,0,0,0.06);
+    box-shadow:0 6px 22px rgba(0,0,0,0.06);
 }
 
 .top-button.show {
@@ -935,30 +663,21 @@ body.no-scroll {
 }
 
 
-/* =========================================================
-   FOOTER
-========================================================= */
+/* FOOTER */
 
 .site-footer {
     padding:30px 0 40px;
-
     border-top:1px solid #deded8;
-
     color:#96968d;
-
     font-size:9px;
-
     letter-spacing:0.05em;
-
     display:flex;
     justify-content:space-between;
     gap:20px;
 }
 
 
-/* =========================================================
-   TABLET
-========================================================= */
+/* TABLET */
 
 @media (max-width:900px) {
 
@@ -975,10 +694,7 @@ body.no-scroll {
     }
 
     .hero-grid {
-        grid-template-columns:
-            minmax(0, 1fr)
-            180px;
-
+        grid-template-columns:minmax(0, 1fr) 180px;
         gap:30px;
     }
 
@@ -987,24 +703,18 @@ body.no-scroll {
     }
 
     .archive-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+        grid-template-columns:repeat(2, minmax(0, 1fr));
     }
 }
 
 
-/* =========================================================
-   MOBILE
-========================================================= */
+/* MOBILE */
 
 @media (max-width:700px) {
 
     .site-shell {
         width:calc(100% - 32px);
     }
-
-
-    /* HEADER */
 
     .site-header {
         height:72px;
@@ -1017,7 +727,6 @@ body.no-scroll {
     .brand-mark {
         width:31px;
         height:34px;
-
         font-size:25px;
     }
 
@@ -1032,37 +741,21 @@ body.no-scroll {
 
     .main-nav {
         position:fixed;
-
         top:0;
         right:0;
         bottom:0;
-
         z-index:7000;
-
         width:min(300px, 82vw);
-
-        padding:
-            95px
-            30px
-            35px;
-
+        padding:95px 30px 35px;
         background:#fff;
-
         border-left:1px solid #ddd;
-
         display:flex;
         flex-direction:column;
         align-items:flex-start;
-
         gap:9px;
-
         transform:translateX(102%);
-
         transition:transform 0.25s ease;
-
-        box-shadow:
-            -15px 0 40px
-            rgba(0,0,0,0.08);
+        box-shadow:-15px 0 40px rgba(0,0,0,0.08);
     }
 
     .main-nav.open {
@@ -1072,13 +765,9 @@ body.no-scroll {
     .main-nav .nav-link,
     .main-nav .nav-button {
         width:100%;
-
         padding:13px 0;
-
         border-bottom:1px solid #eee;
-
         text-align:left;
-
         font-size:13px;
     }
 
@@ -1094,28 +783,18 @@ body.no-scroll {
 
     .header-archive-menu {
         position:static;
-
         width:100%;
         max-height:230px;
-
         box-shadow:none;
-
         margin-top:5px;
     }
 
-
-    /* HERO */
-
     .hero {
-        padding:
-            43px
-            0
-            38px;
+        padding:43px 0 38px;
     }
 
     .hero-kicker {
         margin-bottom:18px;
-
         font-size:8px;
     }
 
@@ -1131,14 +810,9 @@ body.no-scroll {
     .hero-note {
         margin-top:32px;
         padding:0;
-
         max-width:280px;
-
         font-size:12px;
     }
-
-
-    /* GALLERY HEADING */
 
     .gallery-heading {
         align-items:flex-start;
@@ -1150,16 +824,11 @@ body.no-scroll {
         gap:9px 15px;
     }
 
-
-    /* 모든 사진을 1열로 */
-
     .feature-grid,
     .feature-grid.one-photo,
     .archive-grid {
         display:grid;
-
         grid-template-columns:1fr;
-
         gap:28px;
     }
 
@@ -1176,23 +845,13 @@ body.no-scroll {
         font-size:8px;
     }
 
-    .photo-text {
-        font-size:10px;
-    }
-
-
-    /* ABOUT */
-
     .about-overlay {
         padding:16px;
         align-items:center;
     }
 
     .about-modal {
-        padding:
-            36px
-            26px
-            29px;
+        padding:36px 26px 29px;
     }
 
     .about-kicker {
@@ -1207,14 +866,9 @@ body.no-scroll {
         font-size:12px;
     }
 
-
-    /* LIGHTBOX */
-
     .lightbox-inner {
         width:calc(100% - 28px);
-
         padding:20px 0 35px;
-
         justify-content:center;
     }
 
@@ -1229,8 +883,7 @@ body.no-scroll {
     }
 
     .lightbox-meta {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+        grid-template-columns:repeat(2, minmax(0, 1fr));
     }
 
     .meta-item {
@@ -1240,7 +893,6 @@ body.no-scroll {
     .top-button {
         right:15px;
         bottom:17px;
-
         width:42px;
         height:42px;
     }
@@ -1252,9 +904,7 @@ body.no-scroll {
 }
 
 
-/* =========================================================
-   VERY SMALL MOBILE
-========================================================= */
+/* VERY SMALL MOBILE */
 
 @media (max-width:390px) {
 
@@ -1272,10 +922,6 @@ body.no-scroll {
 }
 
 
-/* =========================================================
-   REDUCED MOTION
-========================================================= */
-
 @media (prefers-reduced-motion:reduce) {
 
     *,
@@ -1289,302 +935,228 @@ body.no-scroll {
 </style>
 </head>
 
-
 <body>
-
 
 <div class="site-shell">
 
+<header class="site-header">
 
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
+    <a
+        class="brand"
+        href="index.html"
+        aria-label="Hamihamoo Photography"
+    >
 
-    <header class="site-header">
+        <div class="brand-mark" id="brandMark">
+            h.
+        </div>
+
+        <div class="brand-text">
+
+            <div class="brand-name" id="brandName">
+                hamihamoo
+            </div>
+
+            <div class="brand-subtitle" id="brandSubtitle">
+                PHOTOGRAPHY
+            </div>
+
+        </div>
+
+    </a>
+
+
+    <button
+        class="mobile-menu-btn"
+        id="mobileMenuBtn"
+        type="button"
+        onclick="toggleMobileMenu()"
+    >
+        MENU
+    </button>
+
+
+    <nav class="main-nav" id="mainNav">
 
         <a
-            class="brand"
             href="index.html"
-            aria-label="Hamihamoo Photography"
+            class="nav-link current"
         >
-
-            <div
-                class="brand-mark"
-                id="brandMark"
-            >
-                h.
-            </div>
-
-
-            <div class="brand-text">
-
-                <div
-                    class="brand-name"
-                    id="brandName"
-                >
-                    hamihamoo
-                </div>
-
-                <div
-                    class="brand-subtitle"
-                    id="brandSubtitle"
-                >
-                    PHOTOGRAPHY
-                </div>
-
-            </div>
-
+            사진
+            <span class="nav-index">01</span>
         </a>
 
+        <a
+            href="colors.html"
+            class="nav-link"
+            id="colorsNav"
+        >
+            Colors
+        </a>
+
+        <a
+            href="analysis.html"
+            class="nav-link"
+            id="projectsNav"
+        >
+            Projects
+        </a>
+
+        <a
+            href="guestbook.html"
+            class="nav-link"
+            id="guestbookNav"
+        >
+            Guestbook
+        </a>
 
         <button
-            class="mobile-menu-btn"
-            id="mobileMenuBtn"
+            class="nav-button"
+            id="aboutNav"
             type="button"
-            onclick="toggleMobileMenu()"
+            onclick="openAbout()"
         >
-            MENU
+            작가 소개
         </button>
 
-
-        <nav
-            class="main-nav"
-            id="mainNav"
+        <a
+            href="upload.html"
+            class="nav-link"
+            id="manageNav"
         >
+            <span class="nav-lock">♙</span>
+            사진 관리
+        </a>
 
-            <a
-                href="index.html"
-                class="nav-link current"
-            >
-                사진
-                <span class="nav-index">
-                    01
-                </span>
-            </a>
+    </nav>
+
+</header>
 
 
-            <a
-                href="colors.html"
-                class="nav-link"
-                id="colorsNav"
-            >
-                Colors
-            </a>
+<main>
+
+<section class="hero">
+
+    <div class="hero-kicker" id="archiveKicker">
+        THE PHOTOGRAPHIC ARCHIVE
+    </div>
+
+    <div class="hero-grid">
+
+        <h1 class="hero-title">
+
+            <span id="heroPrefix">
+                A way of
+            </span>
+
+            <em id="heroEmphasis">
+                seeing.
+            </em>
+
+        </h1>
 
 
-            <a
-                href="analysis.html"
-                class="nav-link"
-                id="projectsNav"
-            >
-                Projects
-            </a>
+        <div class="hero-note">
+
+            <div class="hero-note-main" id="heroNote">
+                스쳐 가는 순간을,<br>
+                오래 머무는 장면으로.
+            </div>
+
+            <div class="hero-credit" id="heroCredit">
+                Photographs by Hamihamoo
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
 
 
-            <a
-                href="guestbook.html"
-                class="nav-link"
-                id="guestbookNav"
-            >
-                Guestbook
-            </a>
+<section class="gallery-heading">
 
+    <div class="gallery-heading-left">
+
+        <div class="gallery-title" id="galleryTitle">
+            Photographs
+        </div>
+
+        <div class="gallery-archive-wrap">
 
             <button
-                class="nav-button"
-                id="aboutNav"
+                class="gallery-archive-btn"
+                id="galleryArchiveBtn"
                 type="button"
-                onclick="openAbout()"
+                onclick="toggleGalleryArchive(event)"
             >
-                작가 소개
+                Archive
             </button>
 
-
-            <a
-                href="upload.html"
-                class="nav-link"
-                id="manageNav"
-            >
-                <span class="nav-lock">
-                    ♙
-                </span>
-                사진 관리
-            </a>
-
-        </nav>
-
-    </header>
-
-
-
-    <!-- =====================================================
-         HERO
-    ====================================================== -->
-
-    <main>
-
-        <section class="hero">
-
             <div
-                class="hero-kicker"
-                id="archiveKicker"
-            >
-                THE PHOTOGRAPHIC ARCHIVE
-            </div>
-
-
-            <div class="hero-grid">
-
-                <h1 class="hero-title">
-
-                    <span id="heroPrefix">
-                        A way of
-                    </span>
-
-                    <em id="heroEmphasis">
-                        seeing.
-                    </em>
-
-                </h1>
-
-
-                <div class="hero-note">
-
-                    <div
-                        class="hero-note-main"
-                        id="heroNote"
-                    >
-                        스쳐 가는 순간을,<br>
-                        오래 머무는 장면으로.
-                    </div>
-
-                    <div
-                        class="hero-credit"
-                        id="heroCredit"
-                    >
-                        Photographs by Hamihamoo
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =================================================
-             GALLERY HEADER
-        ================================================== -->
-
-        <section class="gallery-heading">
-
-            <div class="gallery-heading-left">
-
-                <div
-                    class="gallery-title"
-                    id="galleryTitle"
-                >
-                    Photographs
-                </div>
-
-
-                <div class="gallery-archive-wrap">
-
-                    <button
-                        class="gallery-archive-btn"
-                        id="galleryArchiveBtn"
-                        type="button"
-                        onclick="toggleGalleryArchive(event)"
-                    >
-                        Archive
-                    </button>
-
-
-                    <div
-                        class="header-archive-menu"
-                        id="galleryArchiveMenu"
-                    ></div>
-
-                </div>
-
-
-                <button
-                    class="random-btn"
-                    type="button"
-                    onclick="openRandomPhoto()"
-                >
-                    Random
-                </button>
-
-            </div>
-
-
-            <div
-                class="gallery-frame-count"
-                id="frameCount"
-            >
-                0 FRAMES
-            </div>
-
-        </section>
-
-
-
-        <!-- =================================================
-             PHOTOS
-        ================================================== -->
-
-        <section class="gallery">
-
-            <div
-                id="galleryLoading"
-                class="loading"
-            >
-                photographs loading...
-            </div>
-
-
-            <div
-                class="feature-grid"
-                id="featureGrid"
+                class="header-archive-menu"
+                id="galleryArchiveMenu"
             ></div>
 
-
-            <div
-                class="archive-grid"
-                id="archiveGrid"
-            ></div>
-
-        </section>
-
-    </main>
-
-
-
-    <!-- =====================================================
-         FOOTER
-    ====================================================== -->
-
-    <footer class="site-footer">
-
-        <div id="footerCopyright">
-            © 2026 Hamihamoo
         </div>
 
-        <div>
-            A photographic archive.
-        </div>
+        <button
+            class="random-btn"
+            type="button"
+            onclick="openRandomPhoto()"
+        >
+            Random
+        </button>
 
-    </footer>
+    </div>
+
+    <div class="gallery-frame-count" id="frameCount">
+        0 FRAMES
+    </div>
+
+</section>
+
+
+<section class="gallery">
+
+    <div
+        id="galleryLoading"
+        class="loading"
+    >
+        photographs loading...
+    </div>
+
+    <div
+        class="feature-grid"
+        id="featureGrid"
+    ></div>
+
+    <div
+        class="archive-grid"
+        id="archiveGrid"
+    ></div>
+
+</section>
+
+</main>
+
+
+<footer class="site-footer">
+
+    <div id="footerCopyright">
+        © 2026 Hamihamoo
+    </div>
+
+    <div>
+        A photographic archive.
+    </div>
+
+</footer>
 
 </div>
 
 
-
-<!-- =========================================================
-     ABOUT
-========================================================= -->
+<!-- ABOUT -->
 
 <div
     class="about-overlay"
@@ -1608,30 +1180,17 @@ body.no-scroll {
             ×
         </button>
 
-
-        <div
-            class="about-kicker"
-            id="aboutKicker"
-        >
+        <div class="about-kicker" id="aboutKicker">
             BEHIND THE CAMERA
         </div>
 
-
-        <h2
-            class="about-title"
-            id="aboutTitle"
-        >
+        <h2 class="about-title" id="aboutTitle">
             Hamihamoo
         </h2>
 
-
-        <div
-            class="about-role"
-            id="aboutRole"
-        >
+        <div class="about-role" id="aboutRole">
             사진가의 기록
         </div>
-
 
         <div class="about-copy">
 
@@ -1646,14 +1205,9 @@ body.no-scroll {
 
         </div>
 
-
         <div class="about-divider"></div>
 
-
-        <div
-            class="about-signoff"
-            id="aboutSignoff"
-        >
+        <div class="about-signoff" id="aboutSignoff">
             A way of seeing.
         </div>
 
@@ -1662,10 +1216,7 @@ body.no-scroll {
 </div>
 
 
-
-<!-- =========================================================
-     LIGHTBOX
-========================================================= -->
+<!-- LIGHTBOX -->
 
 <div
     class="lightbox"
@@ -1674,7 +1225,6 @@ body.no-scroll {
 >
 
     <div class="lightbox-inner">
-
 
         <div class="lightbox-top">
 
@@ -1701,14 +1251,12 @@ body.no-scroll {
                 ‹
             </button>
 
-
             <img
                 class="lightbox-image"
                 id="lightboxImage"
                 src=""
                 alt="확대된 사진"
             >
-
 
             <button
                 class="lightbox-next"
@@ -1732,17 +1280,11 @@ body.no-scroll {
                 ></span>
 
                 <span
-                    class="lightbox-caption-text"
-                    id="lightboxText"
+                    class="lightbox-caption-date"
+                    id="lightboxDate"
                 ></span>
 
             </div>
-
-
-            <div
-                class="lightbox-caption-date"
-                id="lightboxDate"
-            ></div>
 
         </div>
 
@@ -1755,10 +1297,7 @@ body.no-scroll {
                     Date
                 </div>
 
-                <div
-                    class="meta-value"
-                    id="metaDate"
-                >
+                <div class="meta-value" id="metaDate">
                     -
                 </div>
 
@@ -1771,10 +1310,7 @@ body.no-scroll {
                     Camera
                 </div>
 
-                <div
-                    class="meta-value"
-                    id="metaCamera"
-                >
+                <div class="meta-value" id="metaCamera">
                     -
                 </div>
 
@@ -1787,10 +1323,7 @@ body.no-scroll {
                     Aperture
                 </div>
 
-                <div
-                    class="meta-value"
-                    id="metaAperture"
-                >
+                <div class="meta-value" id="metaAperture">
                     -
                 </div>
 
@@ -1803,10 +1336,7 @@ body.no-scroll {
                     Shutter / ISO
                 </div>
 
-                <div
-                    class="meta-value"
-                    id="metaShutterIso"
-                >
+                <div class="meta-value" id="metaShutterIso">
                     -
                 </div>
 
@@ -1825,7 +1355,6 @@ body.no-scroll {
                 ← Prev
             </button>
 
-
             <button
                 class="lightbox-control"
                 type="button"
@@ -1834,7 +1363,6 @@ body.no-scroll {
             >
                 ▶ Slideshow
             </button>
-
 
             <button
                 class="lightbox-control"
@@ -1851,11 +1379,6 @@ body.no-scroll {
 </div>
 
 
-
-<!-- =========================================================
-     TOP BUTTON
-========================================================= -->
-
 <button
     class="top-button"
     id="topButton"
@@ -1867,13 +1390,7 @@ body.no-scroll {
 </button>
 
 
-
 <script>
-
-/* =========================================================
-   DEFAULT SITE TEXT
-   나중에 upload.html에서 수정할 수 있도록 site.json과 연결함
-========================================================= */
 
 const DEFAULT_SITE_SETTINGS = {
 
@@ -1942,11 +1459,6 @@ const DEFAULT_SITE_SETTINGS = {
 };
 
 
-
-/* =========================================================
-   STATE
-========================================================= */
-
 let siteSettings = {
     ...DEFAULT_SITE_SETTINGS
 };
@@ -1963,11 +1475,6 @@ let touchStartX = 0;
 
 let touchEndX = 0;
 
-
-
-/* =========================================================
-   HELPERS
-========================================================= */
 
 function escapeHtml(value) {
 
@@ -2020,10 +1527,7 @@ function dateTargetId(date) {
 }
 
 
-
-/* =========================================================
-   SITE SETTINGS
-========================================================= */
+/* SITE SETTINGS */
 
 async function loadSiteSettings() {
 
@@ -2037,7 +1541,6 @@ async function loadSiteSettings() {
                 }
             );
 
-
         if (!response.ok) {
 
             applySiteSettings();
@@ -2045,18 +1548,13 @@ async function loadSiteSettings() {
             return;
         }
 
-
         const data =
             await response.json();
 
-
         siteSettings = {
-
             ...DEFAULT_SITE_SETTINGS,
-
             ...data
         };
-
 
     } catch (error) {
 
@@ -2065,105 +1563,56 @@ async function loadSiteSettings() {
         };
     }
 
-
     applySiteSettings();
 }
 
 
 function applySiteSettings() {
 
-    document.getElementById(
-        "brandMark"
-    ).textContent =
+    document.getElementById("brandMark").textContent =
         siteSettings.brandMark;
 
-
-    document.getElementById(
-        "brandName"
-    ).textContent =
+    document.getElementById("brandName").textContent =
         siteSettings.brandName;
 
-
-    document.getElementById(
-        "brandSubtitle"
-    ).textContent =
+    document.getElementById("brandSubtitle").textContent =
         siteSettings.brandSubtitle;
 
-
-    document.getElementById(
-        "archiveKicker"
-    ).textContent =
+    document.getElementById("archiveKicker").textContent =
         siteSettings.archiveKicker;
 
-
-    document.getElementById(
-        "heroPrefix"
-    ).textContent =
+    document.getElementById("heroPrefix").textContent =
         siteSettings.heroPrefix;
 
-
-    document.getElementById(
-        "heroEmphasis"
-    ).textContent =
+    document.getElementById("heroEmphasis").textContent =
         siteSettings.heroEmphasis;
 
+    document.getElementById("heroNote").innerHTML =
+        escapeHtml(siteSettings.heroNote)
+            .replace(/\n/g, "<br>");
 
-    document.getElementById(
-        "heroNote"
-    ).innerHTML =
-        escapeHtml(
-            siteSettings.heroNote
-        ).replace(
-            /\n/g,
-            "<br>"
-        );
-
-
-    document.getElementById(
-        "heroCredit"
-    ).textContent =
+    document.getElementById("heroCredit").textContent =
         siteSettings.heroCredit;
 
-
-    document.getElementById(
-        "galleryTitle"
-    ).textContent =
+    document.getElementById("galleryTitle").textContent =
         siteSettings.galleryTitle;
 
-
-    document.getElementById(
-        "galleryArchiveBtn"
-    ).textContent =
+    document.getElementById("galleryArchiveBtn").textContent =
         siteSettings.archiveLabel;
 
-
-    document.getElementById(
-        "colorsNav"
-    ).textContent =
+    document.getElementById("colorsNav").textContent =
         siteSettings.colorsLabel;
 
-
-    document.getElementById(
-        "projectsNav"
-    ).textContent =
+    document.getElementById("projectsNav").textContent =
         siteSettings.projectsLabel;
 
-
-    document.getElementById(
-        "guestbookNav"
-    ).textContent =
+    document.getElementById("guestbookNav").textContent =
         siteSettings.guestbookLabel;
 
-
-    document.getElementById(
-        "aboutNav"
-    ).textContent =
+    document.getElementById("aboutNav").textContent =
         siteSettings.aboutLabel;
 
-
-    document.getElementById(
-        "manageNav"
-    ).innerHTML =
+    document.getElementById("manageNav").innerHTML =
         `
         <span class="nav-lock">
             ♙
@@ -2171,54 +1620,30 @@ function applySiteSettings() {
         ${escapeHtml(siteSettings.manageLabel)}
         `;
 
-
-    document.getElementById(
-        "aboutKicker"
-    ).textContent =
+    document.getElementById("aboutKicker").textContent =
         siteSettings.aboutKicker;
 
-
-    document.getElementById(
-        "aboutTitle"
-    ).textContent =
+    document.getElementById("aboutTitle").textContent =
         siteSettings.aboutTitle;
 
-
-    document.getElementById(
-        "aboutRole"
-    ).textContent =
+    document.getElementById("aboutRole").textContent =
         siteSettings.aboutRole;
 
-
-    document.getElementById(
-        "aboutIntro"
-    ).textContent =
+    document.getElementById("aboutIntro").textContent =
         siteSettings.aboutIntro;
 
-
-    document.getElementById(
-        "aboutBody"
-    ).textContent =
+    document.getElementById("aboutBody").textContent =
         siteSettings.aboutBody;
 
-
-    document.getElementById(
-        "aboutSignoff"
-    ).textContent =
+    document.getElementById("aboutSignoff").textContent =
         siteSettings.aboutSignoff;
 
-
-    document.getElementById(
-        "footerCopyright"
-    ).textContent =
+    document.getElementById("footerCopyright").textContent =
         siteSettings.footerCopyright;
 }
 
 
-
-/* =========================================================
-   LOAD PHOTOS
-========================================================= */
+/* LOAD PHOTOS */
 
 async function loadPhotos() {
 
@@ -2230,7 +1655,6 @@ async function loadPhotos() {
             }
         );
 
-
     if (!response.ok) {
 
         throw new Error(
@@ -2238,21 +1662,13 @@ async function loadPhotos() {
         );
     }
 
-
     const data =
         await response.json();
-
 
     allPhotos =
         Array.isArray(data)
         ? data
         : [];
-
-
-    /*
-        최신 날짜 순.
-        동일 날짜 안에서는 photos.json의 순서를 유지.
-    */
 
     displayedPhotos =
         allPhotos
@@ -2275,14 +1691,12 @@ async function loadPhotos() {
                             )
                         );
 
-
                     if (
                         dateCompare !== 0
                     ) {
 
                         return dateCompare;
                     }
-
 
                     return (
                         a._originalIndex -
@@ -2291,17 +1705,13 @@ async function loadPhotos() {
                 }
             );
 
-
     renderGallery();
 
     buildArchiveMenus();
 }
 
 
-
-/* =========================================================
-   GALLERY
-========================================================= */
+/* GALLERY */
 
 function createPhotoCard(
     photo,
@@ -2314,10 +1724,8 @@ function createPhotoCard(
             "article"
         );
 
-
     card.className =
         "photo-card";
-
 
     if (isFirstOfDate) {
 
@@ -2327,11 +1735,6 @@ function createPhotoCard(
             );
     }
 
-
-    const caption =
-        photo.caption || "";
-
-
     card.innerHTML = `
 
         <div class="photo-image-wrap">
@@ -2339,28 +1742,18 @@ function createPhotoCard(
             <img
                 class="photo-image"
                 src="${photoUrl(photo.filename)}"
-                alt="${escapeHtml(caption || "사진")}"
+                alt="사진 ${numberLabel(index)}"
                 loading="${index < 2 ? "eager" : "lazy"}"
                 decoding="async"
             >
 
         </div>
 
-
         <div class="photo-caption">
 
-            <div class="photo-caption-left">
-
-                <span class="photo-number">
-                    ${numberLabel(index)}
-                </span>
-
-                <span class="photo-text">
-                    ${escapeHtml(caption)}
-                </span>
-
-            </div>
-
+            <span class="photo-number">
+                ${numberLabel(index)}
+            </span>
 
             <span class="photo-date">
                 ${escapeHtml(
@@ -2372,7 +1765,6 @@ function createPhotoCard(
 
         </div>
     `;
-
 
     card
         .querySelector(
@@ -2386,7 +1778,6 @@ function createPhotoCard(
             }
         );
 
-
     return card;
 }
 
@@ -2398,28 +1789,23 @@ function renderGallery() {
             "galleryLoading"
         );
 
-
     const featureGrid =
         document.getElementById(
             "featureGrid"
         );
-
 
     const archiveGrid =
         document.getElementById(
             "archiveGrid"
         );
 
-
     const frameCount =
         document.getElementById(
             "frameCount"
         );
 
-
     loading.style.display =
         "none";
-
 
     featureGrid.innerHTML =
         "";
@@ -2427,10 +1813,8 @@ function renderGallery() {
     archiveGrid.innerHTML =
         "";
 
-
     frameCount.textContent =
         `${displayedPhotos.length} FRAMES`;
-
 
     if (
         displayedPhotos.length === 0
@@ -2448,7 +1832,6 @@ function renderGallery() {
         return;
     }
 
-
     if (
         displayedPhotos.length === 1
     ) {
@@ -2464,10 +1847,8 @@ function renderGallery() {
         );
     }
 
-
     const usedDates =
         new Set();
-
 
     displayedPhotos.forEach(
         (photo, index) => {
@@ -2476,12 +1857,10 @@ function renderGallery() {
                 photo.date ||
                 "unknown";
 
-
             const isFirstOfDate =
                 !usedDates.has(
                     dateKey
                 );
-
 
             if (isFirstOfDate) {
 
@@ -2490,14 +1869,12 @@ function renderGallery() {
                 );
             }
 
-
             const card =
                 createPhotoCard(
                     photo,
                     index,
                     isFirstOfDate
                 );
-
 
             if (
                 index < 2
@@ -2518,20 +1895,15 @@ function renderGallery() {
 }
 
 
-
-/* =========================================================
-   ARCHIVE MENU
-========================================================= */
+/* ARCHIVE */
 
 function buildArchiveMenus() {
 
     const uniqueDates =
         [];
 
-
     const seen =
         new Set();
-
 
     displayedPhotos.forEach(
         photo => {
@@ -2540,7 +1912,6 @@ function buildArchiveMenus() {
                 photo.date ||
                 "날짜 미상";
 
-
             if (
                 seen.has(date)
             ) {
@@ -2548,23 +1919,19 @@ function buildArchiveMenus() {
                 return;
             }
 
-
             seen.add(date);
 
             uniqueDates.push(date);
         }
     );
 
-
     const menu =
         document.getElementById(
             "galleryArchiveMenu"
         );
 
-
     menu.innerHTML =
         "";
-
 
     uniqueDates.forEach(
         date => {
@@ -2574,18 +1941,14 @@ function buildArchiveMenus() {
                     "button"
                 );
 
-
             item.type =
                 "button";
-
 
             item.className =
                 "archive-date-item";
 
-
             item.textContent =
                 date;
-
 
             item.addEventListener(
                 "click",
@@ -2596,7 +1959,6 @@ function buildArchiveMenus() {
                     );
                 }
             );
-
 
             menu.appendChild(
                 item
@@ -2615,17 +1977,14 @@ function goToArchiveDate(
             dateTargetId(date)
         );
 
-
     if (!target) {
 
         return;
     }
 
-
     closeArchiveMenus();
 
     closeMobileMenu();
-
 
     target.scrollIntoView({
         behavior:"smooth",
@@ -2640,12 +1999,10 @@ function toggleGalleryArchive(
 
     event.stopPropagation();
 
-
     const menu =
         document.getElementById(
             "galleryArchiveMenu"
         );
-
 
     menu.classList.toggle(
         "open"
@@ -2670,10 +2027,7 @@ function closeArchiveMenus() {
 }
 
 
-
-/* =========================================================
-   MOBILE MENU
-========================================================= */
+/* MOBILE MENU */
 
 function toggleMobileMenu() {
 
@@ -2682,18 +2036,15 @@ function toggleMobileMenu() {
             "mainNav"
         );
 
-
     const button =
         document.getElementById(
             "mobileMenuBtn"
         );
 
-
     const open =
         nav.classList.toggle(
             "open"
         );
-
 
     button.textContent =
         open
@@ -2709,27 +2060,21 @@ function closeMobileMenu() {
             "mainNav"
         );
 
-
     const button =
         document.getElementById(
             "mobileMenuBtn"
         );
 
-
     nav.classList.remove(
         "open"
     );
-
 
     button.textContent =
         "MENU";
 }
 
 
-
-/* =========================================================
-   ABOUT
-========================================================= */
+/* ABOUT */
 
 function openAbout() {
 
@@ -2738,22 +2083,18 @@ function openAbout() {
             "aboutOverlay"
         );
 
-
     overlay.classList.add(
         "open"
     );
-
 
     overlay.setAttribute(
         "aria-hidden",
         "false"
     );
 
-
     document.body.classList.add(
         "no-scroll"
     );
-
 
     closeMobileMenu();
 
@@ -2768,17 +2109,14 @@ function closeAbout() {
             "aboutOverlay"
         );
 
-
     overlay.classList.remove(
         "open"
     );
-
 
     overlay.setAttribute(
         "aria-hidden",
         "true"
     );
-
 
     document.body.classList.remove(
         "no-scroll"
@@ -2786,10 +2124,7 @@ function closeAbout() {
 }
 
 
-
-/* =========================================================
-   LIGHTBOX INFO
-========================================================= */
+/* PHOTO INFO */
 
 function parseInfo(
     infoText
@@ -2800,36 +2135,30 @@ function parseInfo(
             infoText || ""
         ).trim();
 
-
     const fMatch =
         text.match(
             /\bf\d+(\.\d+)?\b/i
         );
-
 
     const shutterMatch =
         text.match(
             /\b\d+\/\d+s\b|\b\d+(\.\d+)?s\b/i
         );
 
-
     const isoMatch =
         text.match(
             /\biso\s*\d+\b/i
         );
-
 
     const aperture =
         fMatch
         ? fMatch[0]
         : "-";
 
-
     const shutter =
         shutterMatch
         ? shutterMatch[0]
         : "";
-
 
     const iso =
         isoMatch
@@ -2840,10 +2169,8 @@ function parseInfo(
             )
         : "";
 
-
     let camera =
         text;
-
 
     if (fMatch) {
 
@@ -2856,12 +2183,10 @@ function parseInfo(
                 .trim();
     }
 
-
     if (!camera) {
 
         camera = "-";
     }
-
 
     let shutterIso =
         [
@@ -2871,15 +2196,12 @@ function parseInfo(
         .filter(Boolean)
         .join(" / ");
 
-
     if (!shutterIso) {
 
         shutterIso = "-";
     }
 
-
     return {
-
         camera,
         aperture,
         shutterIso
@@ -2887,10 +2209,7 @@ function parseInfo(
 }
 
 
-
-/* =========================================================
-   LIGHTBOX
-========================================================= */
+/* LIGHTBOX */
 
 function openLightbox(
     index
@@ -2905,24 +2224,16 @@ function openLightbox(
         return;
     }
 
-
     currentLightboxIndex =
         index;
 
-
     const photo =
         displayedPhotos[index];
-
-
-    const caption =
-        photo.caption || "";
-
 
     const parsed =
         parseInfo(
             photo.info
         );
-
 
     document.getElementById(
         "lightboxImage"
@@ -2931,18 +2242,10 @@ function openLightbox(
             photo.filename
         );
 
-
     document.getElementById(
         "lightboxNumber"
     ).textContent =
         numberLabel(index);
-
-
-    document.getElementById(
-        "lightboxText"
-    ).textContent =
-        caption;
-
 
     document.getElementById(
         "lightboxDate"
@@ -2951,53 +2254,44 @@ function openLightbox(
             photo.date
         );
 
-
     document.getElementById(
         "metaDate"
     ).textContent =
         photo.date ||
         "-";
 
-
     document.getElementById(
         "metaCamera"
     ).textContent =
         parsed.camera;
-
 
     document.getElementById(
         "metaAperture"
     ).textContent =
         parsed.aperture;
 
-
     document.getElementById(
         "metaShutterIso"
     ).textContent =
         parsed.shutterIso;
-
 
     const lightbox =
         document.getElementById(
             "lightbox"
         );
 
-
     lightbox.classList.add(
         "open"
     );
-
 
     lightbox.setAttribute(
         "aria-hidden",
         "false"
     );
 
-
     document.body.classList.add(
         "no-scroll"
     );
-
 
     updateSlideshowButton();
 }
@@ -3010,26 +2304,21 @@ function closeLightbox() {
             "lightbox"
         );
 
-
     lightbox.classList.remove(
         "open"
     );
-
 
     lightbox.setAttribute(
         "aria-hidden",
         "true"
     );
 
-
     document.body.classList.remove(
         "no-scroll"
     );
 
-
     currentLightboxIndex =
         -1;
-
 
     stopSlideshow();
 }
@@ -3044,10 +2333,8 @@ function showNextPhoto() {
         return;
     }
 
-
     let nextIndex =
         currentLightboxIndex + 1;
-
 
     if (
         nextIndex >=
@@ -3056,7 +2343,6 @@ function showNextPhoto() {
 
         nextIndex = 0;
     }
-
 
     openLightbox(
         nextIndex
@@ -3073,10 +2359,8 @@ function showPreviousPhoto() {
         return;
     }
 
-
     let previousIndex =
         currentLightboxIndex - 1;
-
 
     if (
         previousIndex < 0
@@ -3086,17 +2370,13 @@ function showPreviousPhoto() {
             displayedPhotos.length - 1;
     }
 
-
     openLightbox(
         previousIndex
     );
 }
 
 
-
-/* =========================================================
-   RANDOM
-========================================================= */
+/* RANDOM */
 
 function openRandomPhoto() {
 
@@ -3107,13 +2387,11 @@ function openRandomPhoto() {
         return;
     }
 
-
     const randomIndex =
         Math.floor(
             Math.random() *
             displayedPhotos.length
         );
-
 
     openLightbox(
         randomIndex
@@ -3121,10 +2399,7 @@ function openRandomPhoto() {
 }
 
 
-
-/* =========================================================
-   SLIDESHOW
-========================================================= */
+/* SLIDESHOW */
 
 function toggleSlideshow() {
 
@@ -3137,7 +2412,6 @@ function toggleSlideshow() {
         return;
     }
 
-
     slideshowInterval =
         setInterval(
             () => {
@@ -3147,7 +2421,6 @@ function toggleSlideshow() {
             },
             2500
         );
-
 
     updateSlideshowButton();
 }
@@ -3163,11 +2436,9 @@ function stopSlideshow() {
             slideshowInterval
         );
 
-
         slideshowInterval =
             null;
     }
-
 
     updateSlideshowButton();
 }
@@ -3180,12 +2451,10 @@ function updateSlideshowButton() {
             "slideshowButton"
         );
 
-
     if (!button) {
 
         return;
     }
-
 
     button.textContent =
         slideshowInterval
@@ -3194,10 +2463,7 @@ function updateSlideshowButton() {
 }
 
 
-
-/* =========================================================
-   TOP
-========================================================= */
+/* TOP */
 
 function scrollToTop() {
 
@@ -3217,7 +2483,6 @@ window.addEventListener(
                 "topButton"
             );
 
-
         button.classList.toggle(
             "show",
             window.scrollY > 550
@@ -3226,10 +2491,7 @@ window.addEventListener(
 );
 
 
-
-/* =========================================================
-   GLOBAL CLICK
-========================================================= */
+/* GLOBAL CLICK */
 
 document.addEventListener(
     "click",
@@ -3247,10 +2509,7 @@ document.addEventListener(
 );
 
 
-
-/* =========================================================
-   MODAL BACKDROP
-========================================================= */
+/* MODALS */
 
 document.getElementById(
     "aboutOverlay"
@@ -3288,10 +2547,7 @@ document.getElementById(
 );
 
 
-
-/* =========================================================
-   TOUCH SWIPE
-========================================================= */
+/* TOUCH */
 
 document.getElementById(
     "lightbox"
@@ -3321,11 +2577,9 @@ document.getElementById(
             event.changedTouches[0]
                 .screenX;
 
-
         const diff =
             touchStartX -
             touchEndX;
-
 
         if (
             Math.abs(diff) < 50
@@ -3333,7 +2587,6 @@ document.getElementById(
 
             return;
         }
-
 
         if (
             diff > 0
@@ -3352,10 +2605,7 @@ document.getElementById(
 );
 
 
-
-/* =========================================================
-   KEYBOARD
-========================================================= */
+/* KEYBOARD */
 
 document.addEventListener(
     "keydown",
@@ -3371,7 +2621,6 @@ document.addEventListener(
                     "open"
                 );
 
-
         const aboutOpen =
             document
                 .getElementById(
@@ -3381,7 +2630,6 @@ document.addEventListener(
                 .contains(
                     "open"
                 );
-
 
         if (
             event.key ===
@@ -3397,7 +2645,6 @@ document.addEventListener(
                 return;
             }
 
-
             if (
                 aboutOpen
             ) {
@@ -3407,7 +2654,6 @@ document.addEventListener(
                 return;
             }
 
-
             closeMobileMenu();
 
             closeArchiveMenus();
@@ -3415,14 +2661,12 @@ document.addEventListener(
             return;
         }
 
-
         if (
             !lightboxOpen
         ) {
 
             return;
         }
-
 
         if (
             event.key ===
@@ -3432,7 +2676,6 @@ document.addEventListener(
             showNextPhoto();
         }
 
-
         if (
             event.key ===
             "ArrowLeft"
@@ -3440,7 +2683,6 @@ document.addEventListener(
 
             showPreviousPhoto();
         }
-
 
         if (
             event.key ===
@@ -3455,15 +2697,11 @@ document.addEventListener(
 );
 
 
-
-/* =========================================================
-   START
-========================================================= */
+/* START */
 
 async function initialize() {
 
     await loadSiteSettings();
-
 
     try {
 
@@ -3473,16 +2711,13 @@ async function initialize() {
 
         console.error(error);
 
-
         const loading =
             document.getElementById(
                 "galleryLoading"
             );
 
-
         loading.className =
             "empty-gallery";
-
 
         loading.textContent =
             "사진을 불러오지 못했습니다.";
