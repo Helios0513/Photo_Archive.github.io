@@ -1,253 +1,2096 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>guestbook - Hamihamoo</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guestbook — Hamihamoo Photography</title>
 
-    <style>
-        .guestbook-box { 
-            max-width: 600px; 
-            margin: 0 auto; 
-            padding: 20px; 
-        }
-        .write-area { 
-            background: #fdfdfd; 
-            border: 1px solid #eee; 
-            padding: 20px; 
-            border-radius: 12px; 
-            margin-bottom: 40px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        }
-        .write-area input, .write-area textarea {
-            width: 100%; 
-            padding: 12px; 
-            margin-bottom: 10px; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            box-sizing: border-box;
-            font-family: inherit;
-        }
-        .write-area button {
-            width: 100%; 
-            padding: 12px; 
-            background: #333; 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .write-area button:hover { background: #000; }
-        .write-area button:disabled {
-            background: #999;
-            cursor: not-allowed;
-        }
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-        .helper-text {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: -2px;
-            margin-bottom: 12px;
-        }
+<style>
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
 
-        .status-text {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 8px;
-            text-align: center;
-            min-height: 20px;
-        }
+html {
+    scroll-behavior: smooth;
+}
 
-        .msg-item { 
-            border-bottom: 1px solid #f0f0f0; 
-            padding: 20px 5px; 
-            animation: fadeIn 0.6s ease;
-        }
-        .msg-info { font-size: 0.85rem; margin-bottom: 8px; color: #333; }
-        .msg-name { font-weight: bold; margin-right: 10px; }
-        .msg-date { color: #ccc; font-size: 0.75rem; }
-        .msg-text { line-height: 1.6; color: #555; white-space: pre-wrap; word-break: break-word; }
+body {
+    margin: 0;
+    background: #fff;
+    color: #1d1d1b;
+    font-family: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
-    <link rel="stylesheet" href="journal.css">
+body.no-scroll {
+    overflow: hidden;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button {
+    cursor: pointer;
+}
+
+.site-shell {
+    width: min(1268px, calc(100% - 64px));
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.site-header {
+    height: 82px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #deded8;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #111;
+    text-decoration: none;
+}
+
+.brand-mark {
+    width: 35px;
+    height: 38px;
+    border: 1px solid #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 29px;
+    font-style: italic;
+    line-height: 1;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+
+.brand-subtitle {
+    margin-top: 5px;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+}
+
+.nav-link,
+.nav-button {
+    position: relative;
+    border: 0;
+    padding: 8px 0;
+    background: none;
+    color: #282824;
+    text-decoration: none;
+    font-size: 12px;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+.nav-link:hover,
+.nav-button:hover {
+    color: #000;
+}
+
+.nav-link.current::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -11px;
+    height: 1px;
+    background: #111;
+}
+
+.nav-index {
+    margin-left: 4px;
+    color: #9b9b92;
+    font-size: 9px;
+}
+
+.nav-lock {
+    margin-right: 5px;
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.mobile-menu-btn {
+    display: none;
+    border: 0;
+    background: none;
+    color: #111;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    padding: 10px 0;
+}
+
+
+/* =========================================================
+   PAGE INTRO
+========================================================= */
+
+.page-intro {
+    padding: 61px 0 48px;
+}
+
+.page-kicker {
+    margin-bottom: 19px;
+    color: #57574f;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+}
+
+.page-intro-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 310px;
+    gap: 60px;
+    align-items: end;
+}
+
+.page-title {
+    margin: 0;
+    color: #222220;
+    font-size: clamp(58px, 6vw, 88px);
+    font-weight: 400;
+    letter-spacing: -0.06em;
+    line-height: 0.96;
+}
+
+.page-title em {
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.05em;
+}
+
+.page-description {
+    margin: 0 0 5px;
+    color: #67675f;
+    font-size: 12px;
+    line-height: 1.85;
+    word-break: keep-all;
+}
+
+
+/* =========================================================
+   GUESTBOOK
+========================================================= */
+
+.guestbook-section {
+    padding-bottom: 100px;
+}
+
+.guestbook-toolbar {
+    min-height: 58px;
+    padding: 14px 0;
+    margin-bottom: 30px;
+    border-top: 1px solid #242420;
+    border-bottom: 1px solid #deded8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.guestbook-toolbar-title {
+    color: #222;
+    font-size: 12px;
+}
+
+.guestbook-count {
+    color: #85857d;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.guestbook-layout {
+    display: grid;
+    grid-template-columns:
+        minmax(280px, 0.72fr)
+        minmax(0, 1.28fr);
+    gap: 72px;
+    align-items: start;
+}
+
+
+/* =========================================================
+   WRITE AREA
+========================================================= */
+
+.write-column {
+    position: sticky;
+    top: 24px;
+}
+
+.write-title {
+    margin: 0 0 8px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: #272723;
+}
+
+.write-description {
+    margin: 0 0 24px;
+    color: #86867e;
+    font-size: 10px;
+    line-height: 1.8;
+    word-break: keep-all;
+}
+
+.write-area {
+    border-top: 1px solid #242420;
+    padding-top: 17px;
+}
+
+.field-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #696962;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.write-area input,
+.write-area textarea {
+    width: 100%;
+    padding: 11px 0;
+    margin: 0 0 18px;
+    border: 0;
+    border-bottom: 1px solid #d8d8d2;
+    border-radius: 0;
+    background: transparent;
+    color: #222;
+    outline: none;
+    font-size: 12px;
+}
+
+.write-area textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.7;
+}
+
+.write-area input:focus,
+.write-area textarea:focus {
+    border-color: #222;
+}
+
+.write-area input::placeholder,
+.write-area textarea::placeholder {
+    color: #b1b1a9;
+}
+
+.helper-text {
+    margin: -4px 0 18px;
+    color: #9b9b93;
+    font-size: 9px;
+    line-height: 1.7;
+    word-break: keep-all;
+}
+
+.submit-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.write-area button {
+    flex: 0 0 auto;
+    border: 0;
+    border-bottom: 1px solid #222;
+    padding: 7px 0;
+    background: none;
+    color: #222;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+}
+
+.write-area button:hover {
+    color: #777;
+    border-color: #777;
+}
+
+.write-area button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.status-text {
+    flex: 1;
+    min-height: 18px;
+    color: #818179;
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   MESSAGE LIST
+========================================================= */
+
+.message-list {
+    border-top: 1px solid #242420;
+}
+
+.message-loading,
+.message-empty {
+    padding: 70px 0;
+    color: #96968e;
+    text-align: center;
+    font-size: 10px;
+}
+
+.msg-item {
+    padding: 23px 0 25px;
+    border-bottom: 1px solid #e4e4de;
+    animation: fadeIn 0.35s ease;
+}
+
+.msg-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 11px;
+}
+
+.msg-name {
+    color: #2b2b27;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.2;
+}
+
+.msg-date {
+    color: #a1a199;
+    font-size: 8px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.msg-text {
+    color: #565650;
+    font-size: 12px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* =========================================================
+   ABOUT
+========================================================= */
+
+.about-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    background: rgba(20,20,18,0.48);
+}
+
+.about-overlay.open {
+    display: flex;
+}
+
+.about-modal {
+    position: relative;
+    width: min(430px, 100%);
+    padding: 40px 38px 34px;
+    background: #fff;
+    border: 1px solid #55554f;
+    box-shadow: 0 18px 55px rgba(0,0,0,0.16);
+}
+
+.about-close {
+    position: absolute;
+    top: 10px;
+    right: 13px;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    background: none;
+    color: #66665f;
+    font-size: 18px;
+}
+
+.about-kicker {
+    margin-bottom: 34px;
+    color: #55554f;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+}
+
+.about-title {
+    margin: 0 0 7px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: #242421;
+}
+
+.about-role {
+    margin-bottom: 23px;
+    color: #99998f;
+    font-size: 12px;
+}
+
+.about-copy {
+    color: #66665d;
+    font-size: 13px;
+    line-height: 1.9;
+}
+
+.about-copy p {
+    margin: 0 0 23px;
+}
+
+.about-divider {
+    height: 1px;
+    margin: 30px 0 22px;
+    background: #dfdfd9;
+}
+
+.about-signoff {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 22px;
+    font-style: italic;
+    color: #34342f;
+}
+
+
+/* =========================================================
+   TOP BUTTON
+========================================================= */
+
+.top-button {
+    position: fixed;
+    right: 26px;
+    bottom: 24px;
+    z-index: 5000;
+    width: 44px;
+    height: 44px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #c7c7c0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.94);
+    color: #222;
+    font-size: 17px;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.06);
+}
+
+.top-button.show {
+    display: flex;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.site-footer {
+    padding: 30px 0 40px;
+    border-top: 1px solid #deded8;
+    color: #96968d;
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .main-nav {
+        gap: 20px;
+    }
+
+    .page-intro-grid {
+        grid-template-columns: minmax(0, 1fr) 240px;
+        gap: 34px;
+    }
+
+    .guestbook-layout {
+        gap: 44px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .site-shell {
+        width: calc(100% - 32px);
+    }
+
+    .site-header {
+        height: 72px;
+    }
+
+    .brand {
+        gap: 9px;
+    }
+
+    .brand-mark {
+        width: 31px;
+        height: 34px;
+        font-size: 25px;
+    }
+
+    .brand-name {
+        font-size: 14px;
+    }
+
+    .brand-subtitle {
+        margin-top: 4px;
+        font-size: 8px;
+    }
+
+    .main-nav {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 7000;
+        width: min(300px, 82vw);
+        padding: 95px 30px 35px;
+        background: #fff;
+        border-left: 1px solid #ddd;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 9px;
+        transform: translateX(102%);
+        transition: transform 0.25s ease;
+        box-shadow: -15px 0 40px rgba(0,0,0,0.08);
+    }
+
+    .main-nav.open {
+        transform: translateX(0);
+    }
+
+    .main-nav .nav-link,
+    .main-nav .nav-button {
+        width: 100%;
+        padding: 13px 0;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+        font-size: 13px;
+    }
+
+    .main-nav .nav-link.current::after {
+        display: none;
+    }
+
+    .mobile-menu-btn {
+        display: block;
+        position: relative;
+        z-index: 7100;
+    }
+
+    .page-intro {
+        padding: 43px 0 38px;
+    }
+
+    .page-kicker {
+        margin-bottom: 16px;
+        font-size: 8px;
+    }
+
+    .page-intro-grid {
+        display: block;
+    }
+
+    .page-title {
+        font-size: clamp(49px, 15vw, 70px);
+    }
+
+    .page-description {
+        margin-top: 28px;
+        max-width: 320px;
+    }
+
+    .guestbook-toolbar {
+        margin-bottom: 26px;
+    }
+
+    .guestbook-layout {
+        display: block;
+    }
+
+    .write-column {
+        position: static;
+        margin-bottom: 54px;
+    }
+
+    .message-column {
+        width: 100%;
+    }
+
+    .msg-info {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .msg-date {
+        white-space: normal;
+    }
+
+    .about-overlay {
+        padding: 16px;
+    }
+
+    .about-modal {
+        padding: 36px 26px 29px;
+    }
+
+    .about-title {
+        font-size: 35px;
+    }
+
+    .about-copy {
+        font-size: 12px;
+    }
+
+    .top-button {
+        right: 15px;
+        bottom: 17px;
+        width: 42px;
+        height: 42px;
+    }
+
+    .site-footer {
+        flex-direction: column;
+        gap: 6px;
+    }
+}
+
+
+@media (max-width: 390px) {
+
+    .site-shell {
+        width: calc(100% - 24px);
+    }
+
+    .page-title {
+        font-size: 46px;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+</style>
 </head>
-<body class="journal-page page-guestbook">
-    <div class="container">
-        <div class="profile">
-            <div class="journal-brand">
-                <a href="index.html"><img src="images/KakaoTalk_20240406_232152395.jpg" class="profile-img"></a>
-                <div class="journal-brand-copy">
-                    <h2>Hamihamoo</h2>
-                </div>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="index.html">main page</a></li>
-                    <li><a href="digital.html">digital photos</a></li>
-                    <li><a href="film.html">film photos</a></li>
-                    <li><a href="colors.html">colors archive</a></li>
-                    <li><a href="analysis.html">analysis</a></li>
-                    <li><a href="guestbook.html" aria-current="page">guestbook</a></li>
-                </ul>
-            </nav>
+
+
+<body>
+
+<div class="site-shell">
+
+<header class="site-header">
+
+    <a
+        class="brand"
+        href="index.html"
+        aria-label="Hamihamoo Photography"
+    >
+
+        <div
+            class="brand-mark"
+            id="brandMark"
+        >
+            h.
         </div>
 
-        <div class="main-content">
-            <h1>Guestbook</h1>
-            <p style="text-align: center; color: #999; margin-bottom: 30px;">Leave a trace of your visit!</p>
+        <div class="brand-text">
 
-            <div class="guestbook-box">
-                <div class="write-area">
-                    <input type="text" id="nickname" placeholder="이름 (닉네임)" maxlength="20">
-                    <textarea id="message" rows="4" placeholder="내용을 입력해주세요." maxlength="500"></textarea>
-                    <div class="helper-text">닉네임 20자 이하 / 내용 500자 이하 / 링크 포함 글은 제한됩니다.</div>
-                    <button id="submitBtn" onclick="sendMsg()">글 남기기</button>
-                    <div id="status-text" class="status-text"></div>
-                </div>
-
-                <div id="message-list"></div>
+            <div
+                class="brand-name"
+                id="brandName"
+            >
+                hamihamoo
             </div>
-            
-            <footer><p>&copy; 2024 Hamihamoo. All rights reserved.</p></footer>
+
+            <div
+                class="brand-subtitle"
+                id="brandSubtitle"
+            >
+                PHOTOGRAPHY
+            </div>
+
         </div>
+
+    </a>
+
+
+    <button
+        class="mobile-menu-btn"
+        id="mobileMenuBtn"
+        type="button"
+        onclick="toggleMobileMenu()"
+    >
+        MENU
+    </button>
+
+
+    <nav
+        class="main-nav"
+        id="mainNav"
+    >
+
+        <a
+            href="index.html"
+            class="nav-link"
+        >
+            사진
+            <span class="nav-index">
+                01
+            </span>
+        </a>
+
+
+        <a
+            href="colors.html"
+            class="nav-link"
+            id="colorsNav"
+        >
+            Colors
+        </a>
+
+
+        <a
+            href="analysis.html"
+            class="nav-link"
+            id="projectsNav"
+        >
+            Projects
+        </a>
+
+
+        <a
+            href="guestbook.html"
+            class="nav-link current"
+            id="guestbookNav"
+        >
+            Guestbook
+        </a>
+
+
+        <button
+            class="nav-button"
+            id="aboutNav"
+            type="button"
+            onclick="openAbout()"
+        >
+            작가 소개
+        </button>
+
+
+        <a
+            href="upload.html"
+            class="nav-link"
+            id="manageNav"
+        >
+            <span class="nav-lock">
+                ♙
+            </span>
+            사진 관리
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+<section class="page-intro">
+
+    <div class="page-kicker">
+        VISITOR NOTES
     </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyB7ZAZN43x_hYitRyEgcXnjeyIfYr9OyUQ",
-            authDomain: "my-photo-web-9b97a.firebaseapp.com",
-            projectId: "my-photo-web-9b97a",
-            storageBucket: "my-photo-web-9b97a.firebasestorage.app",
-            messagingSenderId: "719108728610",
-            appId: "1:719108728610:web:6e289f800ca5e19815677b"
+
+    <div class="page-intro-grid">
+
+        <h1 class="page-title">
+            Guest<em>book.</em>
+        </h1>
+
+
+        <p class="page-description">
+            이곳을 다녀간 흔적을 남겨주세요.<br>
+            사진에 대한 짧은 감상도 좋고,
+            가벼운 인사도 좋습니다.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="guestbook-section">
+
+    <div class="guestbook-toolbar">
+
+        <div class="guestbook-toolbar-title">
+            Messages
+        </div>
+
+
+        <div
+            class="guestbook-count"
+            id="guestbookCount"
+        >
+            LOADING...
+        </div>
+
+    </div>
+
+
+    <div class="guestbook-layout">
+
+
+        <div class="write-column">
+
+            <h2 class="write-title">
+                Leave a note.
+            </h2>
+
+
+            <p class="write-description">
+                방문해 주셔서 감사합니다.
+                이름과 메시지를 남겨주세요.
+            </p>
+
+
+            <div class="write-area">
+
+                <label
+                    class="field-label"
+                    for="nickname"
+                >
+                    Name
+                </label>
+
+
+                <input
+                    type="text"
+                    id="nickname"
+                    placeholder="이름 또는 닉네임"
+                    maxlength="20"
+                >
+
+
+                <label
+                    class="field-label"
+                    for="message"
+                >
+                    Message
+                </label>
+
+
+                <textarea
+                    id="message"
+                    rows="5"
+                    placeholder="내용을 입력해주세요."
+                    maxlength="500"
+                ></textarea>
+
+
+                <div class="helper-text">
+                    닉네임 20자 이하 ·
+                    내용 500자 이하 ·
+                    링크 포함 글은 제한됩니다.
+                </div>
+
+
+                <div class="submit-row">
+
+                    <button
+                        id="submitBtn"
+                        type="button"
+                        onclick="sendMsg()"
+                    >
+                        글 남기기
+                    </button>
+
+
+                    <div
+                        id="status-text"
+                        class="status-text"
+                    ></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="message-column">
+
+            <div
+                id="message-list"
+                class="message-list"
+            >
+
+                <div class="message-loading">
+                    guestbook loading...
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer class="site-footer">
+
+    <div id="footerCopyright">
+        © 2026 Hamihamoo
+    </div>
+
+    <div>
+        Notes from visitors.
+    </div>
+
+</footer>
+
+</div>
+
+
+<!-- =========================================================
+     ABOUT
+========================================================= -->
+
+<div
+    class="about-overlay"
+    id="aboutOverlay"
+    aria-hidden="true"
+>
+
+    <div
+        class="about-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="aboutTitle"
+    >
+
+        <button
+            class="about-close"
+            type="button"
+            onclick="closeAbout()"
+            aria-label="닫기"
+        >
+            ×
+        </button>
+
+
+        <div
+            class="about-kicker"
+            id="aboutKicker"
+        >
+            BEHIND THE CAMERA
+        </div>
+
+
+        <h2
+            class="about-title"
+            id="aboutTitle"
+        >
+            Hamihamoo
+        </h2>
+
+
+        <div
+            class="about-role"
+            id="aboutRole"
+        >
+            사진가의 기록
+        </div>
+
+
+        <div class="about-copy">
+
+            <p id="aboutIntro">
+                빛과 색, 그리고 일상 속 작은 장면들.
+            </p>
+
+            <p id="aboutBody">
+                발걸음을 멈추게 하는 순간을 사진으로 남깁니다.
+                이곳은 그렇게 모인 시선들을 나누는 공간입니다.
+            </p>
+
+        </div>
+
+
+        <div class="about-divider"></div>
+
+
+        <div
+            class="about-signoff"
+            id="aboutSignoff"
+        >
+            A way of seeing.
+        </div>
+
+    </div>
+
+</div>
+
+
+<button
+    class="top-button"
+    id="topButton"
+    type="button"
+    onclick="scrollToTop()"
+    aria-label="맨 위로"
+>
+    ↑
+</button>
+
+
+<script>
+
+/* =========================================================
+   SITE SETTINGS
+========================================================= */
+
+const DEFAULT_SITE_SETTINGS = {
+
+    brandMark:
+        "h.",
+
+    brandName:
+        "hamihamoo",
+
+    brandSubtitle:
+        "PHOTOGRAPHY",
+
+    colorsLabel:
+        "Colors",
+
+    projectsLabel:
+        "Projects",
+
+    guestbookLabel:
+        "Guestbook",
+
+    aboutLabel:
+        "작가 소개",
+
+    manageLabel:
+        "사진 관리",
+
+    aboutKicker:
+        "BEHIND THE CAMERA",
+
+    aboutTitle:
+        "Hamihamoo",
+
+    aboutRole:
+        "사진가의 기록",
+
+    aboutIntro:
+        "빛과 색, 그리고 일상 속 작은 장면들.",
+
+    aboutBody:
+        "발걸음을 멈추게 하는 순간을 사진으로 남깁니다. 이곳은 그렇게 모인 시선들을 나누는 공간입니다.",
+
+    aboutSignoff:
+        "A way of seeing.",
+
+    footerCopyright:
+        "© 2026 Hamihamoo"
+
+};
+
+
+let siteSettings = {
+    ...DEFAULT_SITE_SETTINGS
+};
+
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
+
+
+async function loadSiteSettings() {
+
+    try {
+
+        const response =
+            await fetch(
+                `site.json?v=${Date.now()}`,
+                {
+                    cache:
+                        "no-store"
+                }
+            );
+
+
+        if (
+            response.ok
+        ) {
+
+            const data =
+                await response.json();
+
+
+            siteSettings = {
+
+                ...DEFAULT_SITE_SETTINGS,
+
+                ...data
+
+            };
+        }
+
+
+    } catch (error) {
+
+        siteSettings = {
+            ...DEFAULT_SITE_SETTINGS
         };
+    }
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
 
-        const submitBtn = document.getElementById('submitBtn');
-        const statusText = document.getElementById('status-text');
+    applySiteSettings();
+}
 
-        const blockedWords = [
-            "casino", "바카라", "토토", "도박", "성인", "야동", "porn", "sex",
-            "http://", "https://", "www.", ".com", ".net", ".kr", "bit.ly", "t.me"
-        ];
 
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.innerText = text;
-            return div.innerHTML;
-        }
+function applySiteSettings() {
 
-        function containsBlockedWord(text) {
-            const lower = text.toLowerCase();
-            return blockedWords.some(word => lower.includes(word.toLowerCase()));
-        }
+    document.getElementById(
+        "brandMark"
+    ).textContent =
+        siteSettings.brandMark;
 
-        function isTooFast() {
-            const lastWriteTime = localStorage.getItem('guestbook_last_write_time');
-            if (!lastWriteTime) return false;
 
-            const now = Date.now();
-            const diff = now - Number(lastWriteTime);
+    document.getElementById(
+        "brandName"
+    ).textContent =
+        siteSettings.brandName;
 
-            return diff < 60000;
-        }
 
-        function saveWriteTime() {
-            localStorage.setItem('guestbook_last_write_time', String(Date.now()));
-        }
+    document.getElementById(
+        "brandSubtitle"
+    ).textContent =
+        siteSettings.brandSubtitle;
 
-        async function sendMsg() {
-            const nickInput = document.getElementById('nickname');
-            const messageInput = document.getElementById('message');
 
-            const nick = nickInput.value.trim();
-            const text = messageInput.value.trim();
+    document.getElementById(
+        "colorsNav"
+    ).textContent =
+        siteSettings.colorsLabel;
 
-            if (!nick || !text) {
-                alert("이름과 내용을 모두 적어주세요!");
-                return;
-            }
 
-            if (nick.length > 20) {
-                alert("닉네임은 20자 이하로 입력해주세요.");
-                return;
-            }
+    document.getElementById(
+        "projectsNav"
+    ).textContent =
+        siteSettings.projectsLabel;
 
-            if (text.length > 500) {
-                alert("내용은 500자 이하로 입력해주세요.");
-                return;
-            }
 
-            if (containsBlockedWord(nick) || containsBlockedWord(text)) {
-                alert("링크 또는 제한된 단어가 포함되어 있어 등록할 수 없습니다.");
-                return;
-            }
+    document.getElementById(
+        "guestbookNav"
+    ).textContent =
+        siteSettings.guestbookLabel;
 
-            if (isTooFast()) {
-                alert("너무 빠르게 연속 등록할 수 없습니다. 1분 후 다시 시도해주세요.");
-                return;
-            }
 
-            try {
-                submitBtn.disabled = true;
-                statusText.innerText = "등록 중입니다...";
+    document.getElementById(
+        "aboutNav"
+    ).textContent =
+        siteSettings.aboutLabel;
 
-                await db.collection("guestbook").add({
-                    nickname: nick,
-                    message: text,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
 
-                saveWriteTime();
+    document.getElementById(
+        "manageNav"
+    ).innerHTML =
+        `
+        <span class="nav-lock">
+            ♙
+        </span>
+        ${escapeHtml(
+            siteSettings.manageLabel
+        )}
+        `;
 
-                nickInput.value = "";
-                messageInput.value = "";
-                statusText.innerText = "등록되었습니다.";
-            } catch (error) {
-                console.error(error);
-                statusText.innerText = "등록에 실패했습니다. 잠시 후 다시 시도해주세요.";
-                alert("등록에 실패했습니다.");
-            } finally {
-                submitBtn.disabled = false;
-            }
-        }
 
-        db.collection("guestbook").orderBy("timestamp", "desc").onSnapshot((snap) => {
-            const listDiv = document.getElementById('message-list');
-            listDiv.innerHTML = "";
+    document.getElementById(
+        "aboutKicker"
+    ).textContent =
+        siteSettings.aboutKicker;
 
-            snap.forEach((doc) => {
-                const data = doc.data();
-                const dateObj = data.timestamp ? data.timestamp.toDate() : new Date();
-                const dateStr = dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
 
-                const safeNickname = escapeHtml(data.nickname || "");
-                const safeMessage = escapeHtml(data.message || "");
+    document.getElementById(
+        "aboutTitle"
+    ).textContent =
+        siteSettings.aboutTitle;
 
-                listDiv.innerHTML += `
-                    <div class="msg-item">
-                        <div class="msg-info">
-                            <span class="msg-name">${safeNickname}</span>
-                            <span class="msg-date">${dateStr}</span>
-                        </div>
-                        <div class="msg-text">${safeMessage}</div>
-                    </div>
-                `;
+
+    document.getElementById(
+        "aboutRole"
+    ).textContent =
+        siteSettings.aboutRole;
+
+
+    document.getElementById(
+        "aboutIntro"
+    ).textContent =
+        siteSettings.aboutIntro;
+
+
+    document.getElementById(
+        "aboutBody"
+    ).textContent =
+        siteSettings.aboutBody;
+
+
+    document.getElementById(
+        "aboutSignoff"
+    ).textContent =
+        siteSettings.aboutSignoff;
+
+
+    document.getElementById(
+        "footerCopyright"
+    ).textContent =
+        siteSettings.footerCopyright;
+}
+
+
+/* =========================================================
+   FIREBASE
+========================================================= */
+
+const firebaseConfig = {
+
+    apiKey:
+        "AIzaSyB7ZAZN43x_hYitRyEgcXnjeyIfYr9OyUQ",
+
+    authDomain:
+        "my-photo-web-9b97a.firebaseapp.com",
+
+    projectId:
+        "my-photo-web-9b97a",
+
+    storageBucket:
+        "my-photo-web-9b97a.firebasestorage.app",
+
+    messagingSenderId:
+        "719108728610",
+
+    appId:
+        "1:719108728610:web:6e289f800ca5e19815677b"
+
+};
+
+
+firebase.initializeApp(
+    firebaseConfig
+);
+
+
+const db =
+    firebase.firestore();
+
+
+const submitBtn =
+    document.getElementById(
+        "submitBtn"
+    );
+
+
+const statusText =
+    document.getElementById(
+        "status-text"
+    );
+
+
+const messageList =
+    document.getElementById(
+        "message-list"
+    );
+
+
+const guestbookCount =
+    document.getElementById(
+        "guestbookCount"
+    );
+
+
+const blockedWords = [
+
+    "casino",
+    "바카라",
+    "토토",
+    "도박",
+    "성인",
+    "야동",
+    "porn",
+    "sex",
+
+    "http://",
+    "https://",
+    "www.",
+    ".com",
+    ".net",
+    ".kr",
+    "bit.ly",
+    "t.me"
+
+];
+
+
+/* =========================================================
+   MESSAGE VALIDATION
+========================================================= */
+
+function containsBlockedWord(
+    text
+) {
+
+    const lower =
+        String(
+            text || ""
+        )
+        .toLowerCase();
+
+
+    return blockedWords.some(
+        word =>
+            lower.includes(
+                word.toLowerCase()
+            )
+    );
+}
+
+
+function isTooFast() {
+
+    const lastWriteTime =
+        localStorage.getItem(
+            "guestbook_last_write_time"
+        );
+
+
+    if (
+        !lastWriteTime
+    ) {
+
+        return false;
+    }
+
+
+    return (
+        Date.now() -
+        Number(
+            lastWriteTime
+        )
+        <
+        60000
+    );
+}
+
+
+function saveWriteTime() {
+
+    localStorage.setItem(
+
+        "guestbook_last_write_time",
+
+        String(
+            Date.now()
+        )
+    );
+}
+
+
+/* =========================================================
+   SEND MESSAGE
+========================================================= */
+
+async function sendMsg() {
+
+    const nickInput =
+        document.getElementById(
+            "nickname"
+        );
+
+
+    const messageInput =
+        document.getElementById(
+            "message"
+        );
+
+
+    const nick =
+        nickInput.value.trim();
+
+
+    const text =
+        messageInput.value.trim();
+
+
+    if (
+        !nick ||
+        !text
+    ) {
+
+        alert(
+            "이름과 내용을 모두 적어주세요!"
+        );
+
+        return;
+    }
+
+
+    if (
+        nick.length > 20
+    ) {
+
+        alert(
+            "닉네임은 20자 이하로 입력해주세요."
+        );
+
+        return;
+    }
+
+
+    if (
+        text.length > 500
+    ) {
+
+        alert(
+            "내용은 500자 이하로 입력해주세요."
+        );
+
+        return;
+    }
+
+
+    if (
+        containsBlockedWord(
+            nick
+        ) ||
+        containsBlockedWord(
+            text
+        )
+    ) {
+
+        alert(
+            "링크 또는 제한된 단어가 포함되어 있어 등록할 수 없습니다."
+        );
+
+        return;
+    }
+
+
+    if (
+        isTooFast()
+    ) {
+
+        alert(
+            "너무 빠르게 연속 등록할 수 없습니다. 1분 후 다시 시도해주세요."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        submitBtn.disabled =
+            true;
+
+
+        statusText.textContent =
+            "등록 중입니다...";
+
+
+        await db
+            .collection(
+                "guestbook"
+            )
+            .add({
+
+                nickname:
+                    nick,
+
+                message:
+                    text,
+
+                timestamp:
+                    firebase
+                        .firestore
+                        .FieldValue
+                        .serverTimestamp()
+
             });
-        }, (error) => {
-            console.error(error);
-            statusText.innerText = "방명록을 불러오는 중 문제가 발생했습니다.";
-        });
-    </script>
+
+
+        saveWriteTime();
+
+
+        nickInput.value =
+            "";
+
+
+        messageInput.value =
+            "";
+
+
+        statusText.textContent =
+            "등록되었습니다.";
+
+
+        setTimeout(
+            () => {
+
+                if (
+                    statusText.textContent ===
+                    "등록되었습니다."
+                ) {
+
+                    statusText.textContent =
+                        "";
+                }
+            },
+            2500
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+
+        statusText.textContent =
+            "등록에 실패했습니다. 잠시 후 다시 시도해주세요.";
+
+
+        alert(
+            "등록에 실패했습니다."
+        );
+
+
+    } finally {
+
+        submitBtn.disabled =
+            false;
+    }
+}
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+function formatGuestbookDate(
+    dateObj
+) {
+
+    try {
+
+        return new Intl.DateTimeFormat(
+            "ko-KR",
+            {
+
+                year:
+                    "numeric",
+
+                month:
+                    "2-digit",
+
+                day:
+                    "2-digit",
+
+                hour:
+                    "2-digit",
+
+                minute:
+                    "2-digit",
+
+                hour12:
+                    false
+
+            }
+        )
+        .format(
+            dateObj
+        );
+
+
+    } catch (error) {
+
+        return dateObj
+            .toLocaleString();
+    }
+}
+
+
+/* =========================================================
+   MESSAGE LIST
+========================================================= */
+
+function renderMessages(
+    snapshot
+) {
+
+    const docs =
+        snapshot.docs ||
+        [];
+
+
+    guestbookCount.textContent =
+        `${docs.length} MESSAGES`;
+
+
+    if (
+        !docs.length
+    ) {
+
+        messageList.innerHTML =
+            `
+            <div class="message-empty">
+                아직 남겨진 메시지가 없습니다.
+            </div>
+            `;
+
+        return;
+    }
+
+
+    messageList.innerHTML =
+        docs
+            .map(
+                doc => {
+
+                    const data =
+                        doc.data();
+
+
+                    const dateObj =
+                        data.timestamp
+
+                        ? data.timestamp.toDate()
+
+                        : new Date();
+
+
+                    const safeNickname =
+                        escapeHtml(
+                            data.nickname ||
+                            ""
+                        );
+
+
+                    const safeMessage =
+                        escapeHtml(
+                            data.message ||
+                            ""
+                        );
+
+
+                    const dateStr =
+                        escapeHtml(
+                            formatGuestbookDate(
+                                dateObj
+                            )
+                        );
+
+
+                    return (
+                        `
+                        <article class="msg-item">
+
+                            <div class="msg-info">
+
+                                <span class="msg-name">
+                                    ${safeNickname}
+                                </span>
+
+                                <span class="msg-date">
+                                    ${dateStr}
+                                </span>
+
+                            </div>
+
+                            <div class="msg-text">
+                                ${safeMessage}
+                            </div>
+
+                        </article>
+                        `
+                    );
+                }
+            )
+            .join(
+                ""
+            );
+}
+
+
+/* =========================================================
+   REALTIME GUESTBOOK
+========================================================= */
+
+db
+    .collection(
+        "guestbook"
+    )
+    .orderBy(
+        "timestamp",
+        "desc"
+    )
+    .onSnapshot(
+
+        snapshot => {
+
+            renderMessages(
+                snapshot
+            );
+        },
+
+
+        error => {
+
+            console.error(
+                error
+            );
+
+
+            guestbookCount.textContent =
+                "LOAD ERROR";
+
+
+            messageList.innerHTML =
+                `
+                <div class="message-empty">
+                    방명록을 불러오는 중 문제가 발생했습니다.
+                </div>
+                `;
+
+
+            statusText.textContent =
+                "방명록을 불러오는 중 문제가 발생했습니다.";
+        }
+    );
+
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
+function toggleMobileMenu() {
+
+    const nav =
+        document.getElementById(
+            "mainNav"
+        );
+
+
+    const button =
+        document.getElementById(
+            "mobileMenuBtn"
+        );
+
+
+    const open =
+        nav.classList.toggle(
+            "open"
+        );
+
+
+    button.textContent =
+        open
+        ? "CLOSE"
+        : "MENU";
+}
+
+
+function closeMobileMenu() {
+
+    document.getElementById(
+        "mainNav"
+    )
+    .classList
+    .remove(
+        "open"
+    );
+
+
+    document.getElementById(
+        "mobileMenuBtn"
+    ).textContent =
+        "MENU";
+}
+
+
+/* =========================================================
+   ABOUT
+========================================================= */
+
+function openAbout() {
+
+    const overlay =
+        document.getElementById(
+            "aboutOverlay"
+        );
+
+
+    overlay.classList.add(
+        "open"
+    );
+
+
+    overlay.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    document.body.classList.add(
+        "no-scroll"
+    );
+
+
+    closeMobileMenu();
+}
+
+
+function closeAbout() {
+
+    const overlay =
+        document.getElementById(
+            "aboutOverlay"
+        );
+
+
+    overlay.classList.remove(
+        "open"
+    );
+
+
+    overlay.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    document.body.classList.remove(
+        "no-scroll"
+    );
+}
+
+
+document
+    .getElementById(
+        "aboutOverlay"
+    )
+    .addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target.id ===
+                "aboutOverlay"
+            ) {
+
+                closeAbout();
+            }
+        }
+    );
+
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key !==
+            "Escape"
+        ) {
+
+            return;
+        }
+
+
+        if (
+            document
+                .getElementById(
+                    "aboutOverlay"
+                )
+                .classList
+                .contains(
+                    "open"
+                )
+        ) {
+
+            closeAbout();
+
+            return;
+        }
+
+
+        closeMobileMenu();
+    }
+);
+
+
+/* =========================================================
+   TOP
+========================================================= */
+
+function scrollToTop() {
+
+    window.scrollTo({
+        top:
+            0,
+
+        behavior:
+            "smooth"
+    });
+}
+
+
+window.addEventListener(
+    "scroll",
+    () => {
+
+        document
+            .getElementById(
+                "topButton"
+            )
+            .classList
+            .toggle(
+                "show",
+                window.scrollY >
+                550
+            );
+    }
+);
+
+
+/* =========================================================
+   START
+========================================================= */
+
+loadSiteSettings();
+
+</script>
+
 </body>
 </html>
