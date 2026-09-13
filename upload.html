@@ -3,741 +3,3843 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사진 통합 관리 시스템 (다중 업로드 및 일괄 복구)</title>
-    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        .upload-box { max-width: 600px; margin: 30px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; font-family: sans-serif; background: white; }
-        input, button, textarea, select { width: 100%; margin-bottom: 10px; padding: 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
-        label { font-size: 0.85rem; color: #555; margin-bottom: 5px; display: block; font-weight: bold; }
-        button { background-color: #333; color: white; cursor: pointer; border: none; font-weight: bold; }
-        button:hover { background-color: #555; }
-        #status { color: blue; font-weight: bold; text-align: center; margin-top: 10px; white-space: pre-wrap; font-size: 0.9rem; }
-        
-        .manage-section { max-width: 600px; margin: 50px auto; font-family: sans-serif; }
-        
-        .batch-tool-box { 
-            background: #fff4e5; padding: 15px; border: 2px solid #ff9800; 
-            border-radius: 10px; margin-bottom: 20px; display: none;
-        }
-        .batch-tool-box h3 { margin-top: 0; font-size: 1rem; color: #e65100; }
-        .magic-btn { background-color: #ff9800; margin-top: 5px; }
-        .save-all-btn { background-color: #28a745; margin-top: 10px; }
 
-        .photo-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; gap: 15px; background: #fff; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
-        .photo-item img { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; background: #f9f9f9; }
-        .photo-info-edit { flex-grow: 1; }
-        .photo-info-edit input, .photo-info-edit select { margin-bottom: 5px; padding: 8px; font-size: 0.85rem; width: 100%; }
-        .delete-btn { background-color: #dc3545; width: auto; padding: 6px 12px; font-size: 0.75rem; }
-        .refresh-btn { background-color: #007bff; margin-bottom: 10px; }
+    <title>사진 통합 관리 시스템</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        .admin-left-column {
+            width: 100%;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .upload-box {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-family: sans-serif;
+            background: white;
+        }
+
+        .site-settings-box {
+            width: 100%;
+            padding: 24px;
+            border: 1px solid #ddd;
+            background: white;
+            font-family: sans-serif;
+        }
+
+        .site-settings-box h2 {
+            margin-top: 0;
+        }
+
+        .settings-group {
+            padding-top: 20px;
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .settings-group:first-of-type {
+            padding-top: 0;
+            margin-top: 0;
+            border-top: 0;
+        }
+
+        .settings-group h3 {
+            margin: 0 0 14px;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .settings-help {
+            margin: -4px 0 16px;
+            color: #777;
+            font-size: 0.78rem;
+            line-height: 1.6;
+        }
+
+        input,
+        button,
+        textarea,
+        select {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 5px;
+            display: block;
+            font-weight: bold;
+        }
+
+        button {
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        #status {
+            color: blue;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+        }
+
+        #siteSettingsStatus {
+            margin-top: 10px;
+            min-height: 22px;
+            white-space: pre-wrap;
+            color: #555;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .settings-button-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .settings-button-row button {
+            margin: 0;
+        }
+
+        .settings-load-btn {
+            background: #666;
+        }
+
+        .settings-save-btn {
+            background: #222;
+        }
+
+        .manage-section {
+            max-width: 600px;
+            margin: 50px auto;
+            font-family: sans-serif;
+        }
+
+        .batch-tool-box {
+            background: #fff4e5;
+            padding: 15px;
+            border: 2px solid #ff9800;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .batch-tool-box h3 {
+            margin-top: 0;
+            font-size: 1rem;
+            color: #e65100;
+        }
+
+        .magic-btn {
+            background-color: #ff9800;
+            margin-top: 5px;
+        }
+
+        .save-all-btn {
+            background-color: #28a745;
+            margin-top: 10px;
+        }
+
+        .photo-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            gap: 15px;
+            background: #fff;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+        }
+
+        .photo-item img {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+
+        .photo-info-edit {
+            flex-grow: 1;
+        }
+
+        .photo-info-edit input,
+        .photo-info-edit select {
+            margin-bottom: 5px;
+            padding: 8px;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            width: auto;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+
+        .refresh-btn {
+            background-color: #007bff;
+            margin-bottom: 10px;
+        }
 
         @media (max-width: 768px) {
-            .photo-item { align-items: flex-start; }
-            .photo-item img { width: 70px; height: 52px; }
+            .photo-item {
+                align-items: flex-start;
+            }
+
+            .photo-item img {
+                width: 70px;
+                height: 52px;
+            }
+
+            .settings-button-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
+
     <link rel="stylesheet" href="journal.css">
 </head>
+
+
 <body class="journal-page page-upload">
-    <div class="container">
-        <div class="profile">
-            <div class="journal-brand">
-                <img src="images/KakaoTalk_20240406_232152395.jpg" alt="프로필 사진" class="profile-img">
-                <div class="journal-brand-copy">
-                    <h2>Hamihamoo</h2>
-            <p>Amateur Photographer</p>
-                </div>
+
+<div class="container">
+
+
+    <!-- =====================================================
+         기존 상단 영역
+    ====================================================== -->
+
+    <div class="profile">
+
+        <div class="journal-brand">
+
+            <img
+                src="images/KakaoTalk_20240406_232152395.jpg"
+                alt="프로필 사진"
+                class="profile-img"
+            >
+
+            <div class="journal-brand-copy">
+
+                <h2>Hamihamoo</h2>
+
+                <p>Amateur Photographer</p>
+
             </div>
-            <nav>
-                <ul>
-                    <li><a href="index.html">main page</a></li>
-                    <li><a href="digital.html">digital photos</a></li>
-                    <li><a href="film.html">film photos</a></li>
-                    <li><a href="colors.html">colors archive</a></li>
-                    <li><a href="analysis.html">analysis</a></li>
-                    <li><a href="guestbook.html">guestbook</a></li>
-                </ul>
-            </nav>
-        </div>
-        <main class="main-content">
-    <div class="upload-box">
-        <h2>📷 사진 올리기 (다중 선택 가능)</h2>
-        <input type="password" id="token" placeholder="깃허브 토큰 입력">
-        
-        <label>📷 사진 선택 (여러 장 가능)</label>
-        <input type="file" id="fileInput" accept="image/*" multiple>
-        
-        <p class="info-msg" style="font-size: 0.8rem; color: #666; text-align: center;">
-            ※ 여러 장 업로드 시, 각 사진의 메타데이터 날짜로 자동 저장됩니다.
-        </p>
-        
-        <button onclick="handleUpload()">업로드 시작</button>
-        <div id="status"></div>
-    </div>
 
-    <div class="manage-section">
-        <h2>📂 기존 사진 관리 및 복구</h2>
-        <button class="refresh-btn" onclick="loadPhotoList()">🔄 목록 불러오기</button>
-        
-        <div id="batchTool" class="batch-tool-box">
-            <h3>🛠 일괄 날짜 복구 도구</h3>
-            <p style="font-size: 0.8rem; color: #666;">
-                날짜가 없는 기존 사진들의 메타데이터를 분석하여 자동으로 날짜를 채웁니다.
-            </p>
-            <button class="magic-btn" onclick="autoFillDates()">🪄 기존 사진 날짜 일괄 추출하기</button>
-            <button class="magic-btn" onclick="normalizeMetadata()">🪄 기존 사진 메타데이터 일괄 정리하기</button>
-            <button class="magic-btn" onclick="autoFillColors()">🪄 기존 사진 색상 일괄 분류하기</button>
-            <button class="save-all-btn" onclick="saveAllChanges()">✅ 변경된 모든 내용 저장하기</button>
         </div>
 
-        <div id="photoList">
-            <p style="text-align: center; color: #999;">토큰 입력 후 목록을 불러오세요.</p>
+
+        <nav>
+
+            <ul>
+
+                <li>
+                    <a href="index.html">
+                        main page
+                    </a>
+                </li>
+
+                <li>
+                    <a href="digital.html">
+                        digital photos
+                    </a>
+                </li>
+
+                <li>
+                    <a href="film.html">
+                        film photos
+                    </a>
+                </li>
+
+                <li>
+                    <a href="colors.html">
+                        colors archive
+                    </a>
+                </li>
+
+                <li>
+                    <a href="analysis.html">
+                        analysis
+                    </a>
+                </li>
+
+                <li>
+                    <a href="guestbook.html">
+                        guestbook
+                    </a>
+                </li>
+
+            </ul>
+
+        </nav>
+
+    </div>
+
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             왼쪽 관리 영역
+        ================================================== -->
+
+        <div class="admin-left-column">
+
+
+            <!-- =============================================
+                 사진 업로드
+            ============================================== -->
+
+            <div class="upload-box">
+
+                <h2>
+                    📷 사진 올리기 (다중 선택 가능)
+                </h2>
+
+
+                <input
+                    type="password"
+                    id="token"
+                    placeholder="깃허브 토큰 입력"
+                >
+
+
+                <label>
+                    📷 사진 선택 (여러 장 가능)
+                </label>
+
+                <input
+                    type="file"
+                    id="fileInput"
+                    accept="image/*"
+                    multiple
+                >
+
+
+                <p
+                    class="info-msg"
+                    style="
+                        font-size:0.8rem;
+                        color:#666;
+                        text-align:center;
+                    "
+                >
+                    ※ 여러 장 업로드 시,
+                    각 사진의 메타데이터 날짜로 자동 저장됩니다.
+                </p>
+
+
+                <button onclick="handleUpload()">
+                    업로드 시작
+                </button>
+
+
+                <div id="status"></div>
+
+            </div>
+
+
+
+            <!-- =============================================
+                 홈페이지 문구 관리
+            ============================================== -->
+
+            <div class="site-settings-box">
+
+                <h2>
+                    ✏️ 홈페이지 문구 관리
+                </h2>
+
+                <p class="settings-help">
+                    메인 홈페이지와 작가 소개에 표시되는 문구를
+                    여기에서 수정할 수 있습니다.
+                    사진이나 photos.json에는 영향을 주지 않습니다.
+                </p>
+
+
+                <!-- 상단 브랜드 -->
+
+                <div class="settings-group">
+
+                    <h3>
+                        상단 브랜드
+                    </h3>
+
+
+                    <label>
+                        왼쪽 로고 글자
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteBrandMark"
+                    >
+
+
+                    <label>
+                        사이트 이름
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteBrandName"
+                    >
+
+
+                    <label>
+                        사이트 부제
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteBrandSubtitle"
+                    >
+
+                </div>
+
+
+
+                <!-- 첫 화면 -->
+
+                <div class="settings-group">
+
+                    <h3>
+                        메인 첫 화면
+                    </h3>
+
+
+                    <label>
+                        작은 상단 문구
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteArchiveKicker"
+                    >
+
+
+                    <label>
+                        큰 제목 앞부분
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteHeroPrefix"
+                    >
+
+
+                    <label>
+                        큰 제목 이탤릭 부분
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteHeroEmphasis"
+                    >
+
+
+                    <label>
+                        오른쪽 소개 문구
+                    </label>
+
+                    <textarea
+                        id="siteHeroNote"
+                    ></textarea>
+
+
+                    <label>
+                        사진가 표기
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteHeroCredit"
+                    >
+
+
+                    <label>
+                        갤러리 제목
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteGalleryTitle"
+                    >
+
+                </div>
+
+
+
+                <!-- 메뉴 -->
+
+                <div class="settings-group">
+
+                    <h3>
+                        메뉴 이름
+                    </h3>
+
+
+                    <label>
+                        Archive
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteArchiveLabel"
+                    >
+
+
+                    <label>
+                        Colors
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteColorsLabel"
+                    >
+
+
+                    <label>
+                        Projects
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteProjectsLabel"
+                    >
+
+
+                    <label>
+                        Guestbook
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteGuestbookLabel"
+                    >
+
+
+                    <label>
+                        작가 소개 버튼
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteAboutLabel"
+                    >
+
+
+                    <label>
+                        사진 관리 버튼
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteManageLabel"
+                    >
+
+                </div>
+
+
+
+                <!-- 작가 소개 -->
+
+                <div class="settings-group">
+
+                    <h3>
+                        작가 소개 팝업
+                    </h3>
+
+
+                    <label>
+                        작은 상단 문구
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteAboutKicker"
+                    >
+
+
+                    <label>
+                        작가 이름
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteAboutTitle"
+                    >
+
+
+                    <label>
+                        역할 / 부제
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteAboutRole"
+                    >
+
+
+                    <label>
+                        첫 번째 소개 문구
+                    </label>
+
+                    <textarea
+                        id="siteAboutIntro"
+                    ></textarea>
+
+
+                    <label>
+                        본문
+                    </label>
+
+                    <textarea
+                        id="siteAboutBody"
+                    ></textarea>
+
+
+                    <label>
+                        마지막 문구
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteAboutSignoff"
+                    >
+
+                </div>
+
+
+
+                <!-- 하단 -->
+
+                <div class="settings-group">
+
+                    <h3>
+                        하단
+                    </h3>
+
+
+                    <label>
+                        저작권 문구
+                    </label>
+
+                    <input
+                        type="text"
+                        id="siteFooterCopyright"
+                    >
+
+                </div>
+
+
+                <div class="settings-button-row">
+
+                    <button
+                        class="settings-load-btn"
+                        onclick="loadSiteSettingsFromGithub()"
+                    >
+                        🔄 현재 설정 불러오기
+                    </button>
+
+
+                    <button
+                        class="settings-save-btn"
+                        onclick="saveSiteSettingsToGithub()"
+                    >
+                        ✅ 홈페이지 설정 저장
+                    </button>
+
+                </div>
+
+
+                <div id="siteSettingsStatus"></div>
+
+            </div>
+
         </div>
-    </div>
 
-    
-        </main>
-    </div>
 
-    <script>
-        const repo = "Helios0513/Photo_Archive.github.io";
 
-        const COLOR_OPTIONS = [
-            "Black",
-            "White",
-            "Gray",
-            "Brown",
-            "Red",
-            "Orange",
-            "Yellow",
-            "Green",
-            "Blue",
-            "Purple",
-            "Pink"
-        ];
+        <!-- =================================================
+             기존 사진 관리
+        ================================================== -->
 
-        function createColorSelect(selectedValue = "") {
-            const normalizedSelected = COLOR_OPTIONS.includes(selectedValue) ? selectedValue : "";
-            let optionsHtml = `<option value="">색상 선택</option>`;
-            optionsHtml += COLOR_OPTIONS.map(color => {
-                const selected = color === normalizedSelected ? "selected" : "";
-                return `<option value="${color}" ${selected}>${color}</option>`;
-            }).join("");
-            return `<select class="edit-color">${optionsHtml}</select>`;
+        <div class="manage-section">
+
+            <h2>
+                📂 기존 사진 관리 및 복구
+            </h2>
+
+
+            <button
+                class="refresh-btn"
+                onclick="loadPhotoList()"
+            >
+                🔄 목록 불러오기
+            </button>
+
+
+            <div
+                id="batchTool"
+                class="batch-tool-box"
+            >
+
+                <h3>
+                    🛠 일괄 날짜 복구 도구
+                </h3>
+
+
+                <p
+                    style="
+                        font-size:0.8rem;
+                        color:#666;
+                    "
+                >
+                    날짜가 없는 기존 사진들의 메타데이터를 분석하여
+                    자동으로 날짜를 채웁니다.
+                </p>
+
+
+                <button
+                    class="magic-btn"
+                    onclick="autoFillDates()"
+                >
+                    🪄 기존 사진 날짜 일괄 추출하기
+                </button>
+
+
+                <button
+                    class="magic-btn"
+                    onclick="normalizeMetadata()"
+                >
+                    🪄 기존 사진 메타데이터 일괄 정리하기
+                </button>
+
+
+                <button
+                    class="magic-btn"
+                    onclick="autoFillColors()"
+                >
+                    🪄 기존 사진 색상 일괄 분류하기
+                </button>
+
+
+                <button
+                    class="save-all-btn"
+                    onclick="saveAllChanges()"
+                >
+                    ✅ 변경된 모든 내용 저장하기
+                </button>
+
+            </div>
+
+
+            <div id="photoList">
+
+                <p
+                    style="
+                        text-align:center;
+                        color:#999;
+                    "
+                >
+                    토큰 입력 후 목록을 불러오세요.
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+
+<script>
+
+const repo =
+    "Helios0513/Photo_Archive.github.io";
+
+
+/* =========================================================
+   HOMEPAGE SETTINGS
+========================================================= */
+
+const DEFAULT_SITE_SETTINGS = {
+
+    brandMark:
+        "h.",
+
+    brandName:
+        "hamihamoo",
+
+    brandSubtitle:
+        "PHOTOGRAPHY",
+
+    archiveKicker:
+        "THE PHOTOGRAPHIC ARCHIVE",
+
+    heroPrefix:
+        "A way of",
+
+    heroEmphasis:
+        "seeing.",
+
+    heroNote:
+        "스쳐 가는 순간을,\n오래 머무는 장면으로.",
+
+    heroCredit:
+        "Photographs by Hamihamoo",
+
+    galleryTitle:
+        "Photographs",
+
+    archiveLabel:
+        "Archive",
+
+    colorsLabel:
+        "Colors",
+
+    projectsLabel:
+        "Projects",
+
+    guestbookLabel:
+        "Guestbook",
+
+    aboutLabel:
+        "작가 소개",
+
+    manageLabel:
+        "사진 관리",
+
+    aboutKicker:
+        "BEHIND THE CAMERA",
+
+    aboutTitle:
+        "Hamihamoo",
+
+    aboutRole:
+        "사진가의 기록",
+
+    aboutIntro:
+        "빛과 색, 그리고 일상 속 작은 장면들.",
+
+    aboutBody:
+        "발걸음을 멈추게 하는 순간을 사진으로 남깁니다. 이곳은 그렇게 모인 시선들을 나누는 공간입니다.",
+
+    aboutSignoff:
+        "A way of seeing.",
+
+    footerCopyright:
+        "© 2026 Hamihamoo"
+};
+
+
+
+function fillSiteSettingsForm(settings) {
+
+    const data = {
+        ...DEFAULT_SITE_SETTINGS,
+        ...(settings || {})
+    };
+
+
+    document.getElementById(
+        "siteBrandMark"
+    ).value =
+        data.brandMark;
+
+
+    document.getElementById(
+        "siteBrandName"
+    ).value =
+        data.brandName;
+
+
+    document.getElementById(
+        "siteBrandSubtitle"
+    ).value =
+        data.brandSubtitle;
+
+
+    document.getElementById(
+        "siteArchiveKicker"
+    ).value =
+        data.archiveKicker;
+
+
+    document.getElementById(
+        "siteHeroPrefix"
+    ).value =
+        data.heroPrefix;
+
+
+    document.getElementById(
+        "siteHeroEmphasis"
+    ).value =
+        data.heroEmphasis;
+
+
+    document.getElementById(
+        "siteHeroNote"
+    ).value =
+        data.heroNote;
+
+
+    document.getElementById(
+        "siteHeroCredit"
+    ).value =
+        data.heroCredit;
+
+
+    document.getElementById(
+        "siteGalleryTitle"
+    ).value =
+        data.galleryTitle;
+
+
+    document.getElementById(
+        "siteArchiveLabel"
+    ).value =
+        data.archiveLabel;
+
+
+    document.getElementById(
+        "siteColorsLabel"
+    ).value =
+        data.colorsLabel;
+
+
+    document.getElementById(
+        "siteProjectsLabel"
+    ).value =
+        data.projectsLabel;
+
+
+    document.getElementById(
+        "siteGuestbookLabel"
+    ).value =
+        data.guestbookLabel;
+
+
+    document.getElementById(
+        "siteAboutLabel"
+    ).value =
+        data.aboutLabel;
+
+
+    document.getElementById(
+        "siteManageLabel"
+    ).value =
+        data.manageLabel;
+
+
+    document.getElementById(
+        "siteAboutKicker"
+    ).value =
+        data.aboutKicker;
+
+
+    document.getElementById(
+        "siteAboutTitle"
+    ).value =
+        data.aboutTitle;
+
+
+    document.getElementById(
+        "siteAboutRole"
+    ).value =
+        data.aboutRole;
+
+
+    document.getElementById(
+        "siteAboutIntro"
+    ).value =
+        data.aboutIntro;
+
+
+    document.getElementById(
+        "siteAboutBody"
+    ).value =
+        data.aboutBody;
+
+
+    document.getElementById(
+        "siteAboutSignoff"
+    ).value =
+        data.aboutSignoff;
+
+
+    document.getElementById(
+        "siteFooterCopyright"
+    ).value =
+        data.footerCopyright;
+}
+
+
+
+function collectSiteSettingsForm() {
+
+    return {
+
+        brandMark:
+            document.getElementById(
+                "siteBrandMark"
+            ).value.trim(),
+
+        brandName:
+            document.getElementById(
+                "siteBrandName"
+            ).value.trim(),
+
+        brandSubtitle:
+            document.getElementById(
+                "siteBrandSubtitle"
+            ).value.trim(),
+
+        archiveKicker:
+            document.getElementById(
+                "siteArchiveKicker"
+            ).value.trim(),
+
+        heroPrefix:
+            document.getElementById(
+                "siteHeroPrefix"
+            ).value.trim(),
+
+        heroEmphasis:
+            document.getElementById(
+                "siteHeroEmphasis"
+            ).value.trim(),
+
+        heroNote:
+            document.getElementById(
+                "siteHeroNote"
+            ).value.trim(),
+
+        heroCredit:
+            document.getElementById(
+                "siteHeroCredit"
+            ).value.trim(),
+
+        galleryTitle:
+            document.getElementById(
+                "siteGalleryTitle"
+            ).value.trim(),
+
+        archiveLabel:
+            document.getElementById(
+                "siteArchiveLabel"
+            ).value.trim(),
+
+        colorsLabel:
+            document.getElementById(
+                "siteColorsLabel"
+            ).value.trim(),
+
+        projectsLabel:
+            document.getElementById(
+                "siteProjectsLabel"
+            ).value.trim(),
+
+        guestbookLabel:
+            document.getElementById(
+                "siteGuestbookLabel"
+            ).value.trim(),
+
+        aboutLabel:
+            document.getElementById(
+                "siteAboutLabel"
+            ).value.trim(),
+
+        manageLabel:
+            document.getElementById(
+                "siteManageLabel"
+            ).value.trim(),
+
+        aboutKicker:
+            document.getElementById(
+                "siteAboutKicker"
+            ).value.trim(),
+
+        aboutTitle:
+            document.getElementById(
+                "siteAboutTitle"
+            ).value.trim(),
+
+        aboutRole:
+            document.getElementById(
+                "siteAboutRole"
+            ).value.trim(),
+
+        aboutIntro:
+            document.getElementById(
+                "siteAboutIntro"
+            ).value.trim(),
+
+        aboutBody:
+            document.getElementById(
+                "siteAboutBody"
+            ).value.trim(),
+
+        aboutSignoff:
+            document.getElementById(
+                "siteAboutSignoff"
+            ).value.trim(),
+
+        footerCopyright:
+            document.getElementById(
+                "siteFooterCopyright"
+            ).value.trim()
+    };
+}
+
+
+
+async function loadSiteSettingsFromGithub() {
+
+    const token =
+        document.getElementById(
+            "token"
+        ).value.trim();
+
+
+    const status =
+        document.getElementById(
+            "siteSettingsStatus"
+        );
+
+
+    if (!token) {
+
+        alert(
+            "먼저 위에 GitHub 토큰을 입력해주세요."
+        );
+
+        return;
+    }
+
+
+    status.textContent =
+        "⏳ 홈페이지 설정을 불러오는 중...";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `https://api.github.com/repos/${repo}/contents/site.json`,
+                {
+                    headers: {
+                        "Authorization":
+                            `token ${token}`
+                    }
+                }
+            );
+
+
+        if (
+            response.status === 404
+        ) {
+
+            fillSiteSettingsForm(
+                DEFAULT_SITE_SETTINGS
+            );
+
+
+            status.textContent =
+                "ℹ️ 아직 site.json 파일이 없습니다.\n기본 문구를 불러왔습니다. 수정 후 [홈페이지 설정 저장]을 누르면 자동으로 생성됩니다.";
+
+            return;
         }
 
-        function formatExposureTime(exposureValue) {
-            if (!exposureValue) return "";
 
-            if (typeof exposureValue === "string") {
-                const trimmed = exposureValue.trim();
-                if (!trimmed) return "";
-                return trimmed.endsWith("s") ? trimmed : `${trimmed}s`;
-            }
+        if (!response.ok) {
 
-            if (typeof exposureValue === "number") {
-                if (exposureValue >= 1) {
-                    return `${exposureValue}s`;
-                }
-                const denominator = Math.round(1 / exposureValue);
-                if (denominator > 0) {
-                    return `1/${denominator}s`;
-                }
-                return `${exposureValue}s`;
-            }
+            throw new Error(
+                `GitHub 응답 오류: ${response.status}`
+            );
+        }
 
-            if (typeof exposureValue === "object") {
-                if (
-                    typeof exposureValue.numerator === "number" &&
-                    typeof exposureValue.denominator === "number" &&
-                    exposureValue.denominator !== 0
-                ) {
-                    if (exposureValue.numerator >= exposureValue.denominator) {
-                        const seconds = exposureValue.numerator / exposureValue.denominator;
-                        return `${seconds}s`;
+
+        const fileData =
+            await response.json();
+
+
+        const settings =
+            JSON.parse(
+                decodeURIComponent(
+                    escape(
+                        atob(
+                            fileData.content
+                                .replace(
+                                    /\n/g,
+                                    ""
+                                )
+                        )
+                    )
+                )
+            );
+
+
+        fillSiteSettingsForm(
+            settings
+        );
+
+
+        status.textContent =
+            "✅ 현재 홈페이지 설정을 불러왔습니다.";
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        status.textContent =
+            "❌ 홈페이지 설정을 불러오지 못했습니다.";
+
+    }
+}
+
+
+
+async function saveSiteSettingsToGithub() {
+
+    const token =
+        document.getElementById(
+            "token"
+        ).value.trim();
+
+
+    const status =
+        document.getElementById(
+            "siteSettingsStatus"
+        );
+
+
+    if (!token) {
+
+        alert(
+            "먼저 위에 GitHub 토큰을 입력해주세요."
+        );
+
+        return;
+    }
+
+
+    const settings =
+        collectSiteSettingsForm();
+
+
+    status.textContent =
+        "⏳ 홈페이지 설정 저장 중...";
+
+
+    try {
+
+        const currentResponse =
+            await fetch(
+                `https://api.github.com/repos/${repo}/contents/site.json`,
+                {
+                    headers: {
+                        "Authorization":
+                            `token ${token}`
                     }
-                    return `${exposureValue.numerator}/${exposureValue.denominator}s`;
                 }
+            );
 
-                if (
-                    typeof exposureValue.numerator === "function" &&
-                    typeof exposureValue.denominator === "function"
-                ) {
-                    const numerator = exposureValue.numerator();
-                    const denominator = exposureValue.denominator();
-                    if (denominator) {
-                        if (numerator >= denominator) {
-                            const seconds = numerator / denominator;
-                            return `${seconds}s`;
-                        }
-                        return `${numerator}/${denominator}s`;
-                    }
-                }
 
-                if (typeof exposureValue.toString === "function") {
-                    const text = exposureValue.toString().trim();
-                    if (!text) return "";
-                    return text.endsWith("s") ? text : `${text}s`;
+        let sha = null;
+
+
+        if (
+            currentResponse.ok
+        ) {
+
+            const currentData =
+                await currentResponse.json();
+
+
+            sha =
+                currentData.sha;
+
+
+        } else if (
+            currentResponse.status !== 404
+        ) {
+
+            throw new Error(
+                `기존 설정 확인 실패: ${currentResponse.status}`
+            );
+        }
+
+
+        const content =
+            btoa(
+                unescape(
+                    encodeURIComponent(
+                        JSON.stringify(
+                            settings,
+                            null,
+                            2
+                        )
+                    )
+                )
+            );
+
+
+        const body = {
+
+            message:
+                "Update homepage settings",
+
+            content:
+                content
+        };
+
+
+        if (sha) {
+
+            body.sha =
+                sha;
+        }
+
+
+        const saveResponse =
+            await fetch(
+                `https://api.github.com/repos/${repo}/contents/site.json`,
+                {
+                    method:
+                        "PUT",
+
+                    headers: {
+
+                        "Authorization":
+                            `token ${token}`,
+
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            body
+                        )
                 }
-            }
+            );
+
+
+        if (!saveResponse.ok) {
+
+            const errorData =
+                await saveResponse.json();
+
+
+            throw new Error(
+                errorData.message ||
+                `저장 실패: ${saveResponse.status}`
+            );
+        }
+
+
+        status.textContent =
+            "✅ 홈페이지 설정 저장 완료!\n메인 홈페이지를 새로고침하면 변경된 문구가 적용됩니다.";
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        status.textContent =
+            "❌ 저장 실패: " +
+            error.message;
+
+    }
+}
+
+
+
+/* =========================================================
+   COLOR OPTIONS
+========================================================= */
+
+const COLOR_OPTIONS = [
+
+    "Black",
+    "White",
+    "Gray",
+    "Brown",
+    "Red",
+    "Orange",
+    "Yellow",
+    "Green",
+    "Blue",
+    "Purple",
+    "Pink"
+
+];
+
+
+
+function createColorSelect(
+    selectedValue = ""
+) {
+
+    const normalizedSelected =
+        COLOR_OPTIONS.includes(
+            selectedValue
+        )
+        ? selectedValue
+        : "";
+
+
+    let optionsHtml =
+        `<option value="">색상 선택</option>`;
+
+
+    optionsHtml +=
+        COLOR_OPTIONS
+            .map(
+                color => {
+
+                    const selected =
+                        color ===
+                        normalizedSelected
+                        ? "selected"
+                        : "";
+
+
+                    return `
+                        <option
+                            value="${color}"
+                            ${selected}
+                        >
+                            ${color}
+                        </option>
+                    `;
+                }
+            )
+            .join("");
+
+
+    return `
+        <select class="edit-color">
+            ${optionsHtml}
+        </select>
+    `;
+}
+
+
+
+/* =========================================================
+   EXPOSURE / METADATA HELPERS
+========================================================= */
+
+function formatExposureTime(
+    exposureValue
+) {
+
+    if (!exposureValue) {
+
+        return "";
+    }
+
+
+    if (
+        typeof exposureValue ===
+        "string"
+    ) {
+
+        const trimmed =
+            exposureValue.trim();
+
+
+        if (!trimmed) {
 
             return "";
         }
 
-        function extractMetadataParts(infoText) {
-            const text = (infoText || "").replace(/,/g, " ").replace(/\s+/g, " ").trim();
 
-            const fMatch = text.match(/\bf\d+(\.\d+)?\b/i);
-            const shutterMatch = text.match(/\b\d+\/\d+s\b|\b\d+(\.\d+)?s\b/i);
-            const isoMatch = text.match(/\biso\s*\d+\b/i);
+        return trimmed.endsWith("s")
+            ? trimmed
+            : `${trimmed}s`;
+    }
 
-            const fPart = fMatch ? fMatch[0] : "";
-            const shutterPart = shutterMatch ? shutterMatch[0] : "";
-            const isoPart = isoMatch ? isoMatch[0].replace(/\s+/g, " ") : "";
 
-            let cameraPart = text;
-            if (fMatch) {
-                cameraPart = text.substring(0, fMatch.index).trim();
-            }
+    if (
+        typeof exposureValue ===
+        "number"
+    ) {
 
-            cameraPart = cameraPart
-                .replace(/\bNikkor\b.*$/i, "")
-                .replace(/\bNIKKOR\b.*$/i, "")
-                .replace(/\s+/g, " ")
-                .trim();
+        if (
+            exposureValue >= 1
+        ) {
 
-            return {
-                cameraPart,
-                fPart,
-                shutterPart,
-                isoPart
-            };
+            return `${exposureValue}s`;
         }
 
-        async function getExposureFromImage(fileName) {
-            const imgUrl = `images/digital/${fileName}`;
-            try {
-                const response = await fetch(imgUrl, { cache: "no-store" });
-                if (!response.ok) return "";
-                const blob = await response.blob();
 
-                return await new Promise((resolve) => {
-                    EXIF.getData(blob, function() {
-                        const exposureRaw = EXIF.getTag(this, "ExposureTime");
-                        resolve(formatExposureTime(exposureRaw));
-                    });
-                });
-            } catch (error) {
+        const denominator =
+            Math.round(
+                1 / exposureValue
+            );
+
+
+        if (
+            denominator > 0
+        ) {
+
+            return `1/${denominator}s`;
+        }
+
+
+        return `${exposureValue}s`;
+    }
+
+
+    if (
+        typeof exposureValue ===
+        "object"
+    ) {
+
+        if (
+            typeof exposureValue.numerator ===
+            "number" &&
+            typeof exposureValue.denominator ===
+            "number" &&
+            exposureValue.denominator !== 0
+        ) {
+
+            if (
+                exposureValue.numerator >=
+                exposureValue.denominator
+            ) {
+
+                const seconds =
+                    exposureValue.numerator /
+                    exposureValue.denominator;
+
+
+                return `${seconds}s`;
+            }
+
+
+            return (
+                `${exposureValue.numerator}/` +
+                `${exposureValue.denominator}s`
+            );
+        }
+
+
+        if (
+            typeof exposureValue.numerator ===
+            "function" &&
+            typeof exposureValue.denominator ===
+            "function"
+        ) {
+
+            const numerator =
+                exposureValue.numerator();
+
+
+            const denominator =
+                exposureValue.denominator();
+
+
+            if (denominator) {
+
+                if (
+                    numerator >=
+                    denominator
+                ) {
+
+                    const seconds =
+                        numerator /
+                        denominator;
+
+
+                    return `${seconds}s`;
+                }
+
+
+                return (
+                    `${numerator}/` +
+                    `${denominator}s`
+                );
+            }
+        }
+
+
+        if (
+            typeof exposureValue.toString ===
+            "function"
+        ) {
+
+            const text =
+                exposureValue
+                    .toString()
+                    .trim();
+
+
+            if (!text) {
+
                 return "";
             }
-        }
 
-        function buildNormalizedInfo(cameraPart, fPart, shutterPart, isoPart) {
-            return [cameraPart, fPart, shutterPart, isoPart]
-                .filter(value => value && String(value).trim() !== "")
-                .join(" ")
-                .replace(/\s+/g, " ")
+
+            return text.endsWith("s")
+                ? text
+                : `${text}s`;
+        }
+    }
+
+
+    return "";
+}
+
+
+
+function extractMetadataParts(
+    infoText
+) {
+
+    const text =
+        (infoText || "")
+            .replace(
+                /,/g,
+                " "
+            )
+            .replace(
+                /\s+/g,
+                " "
+            )
+            .trim();
+
+
+    const fMatch =
+        text.match(
+            /\bf\d+(\.\d+)?\b/i
+        );
+
+
+    const shutterMatch =
+        text.match(
+            /\b\d+\/\d+s\b|\b\d+(\.\d+)?s\b/i
+        );
+
+
+    const isoMatch =
+        text.match(
+            /\biso\s*\d+\b/i
+        );
+
+
+    const fPart =
+        fMatch
+        ? fMatch[0]
+        : "";
+
+
+    const shutterPart =
+        shutterMatch
+        ? shutterMatch[0]
+        : "";
+
+
+    const isoPart =
+        isoMatch
+        ? isoMatch[0]
+            .replace(
+                /\s+/g,
+                " "
+            )
+        : "";
+
+
+    let cameraPart =
+        text;
+
+
+    if (fMatch) {
+
+        cameraPart =
+            text
+                .substring(
+                    0,
+                    fMatch.index
+                )
                 .trim();
-        }
+    }
 
-        function rgbToHsv(r, g, b) {
-            r /= 255;
-            g /= 255;
-            b /= 255;
 
-            const max = Math.max(r, g, b);
-            const min = Math.min(r, g, b);
-            const diff = max - min;
+    cameraPart =
+        cameraPart
+            .replace(
+                /\bNikkor\b.*$/i,
+                ""
+            )
+            .replace(
+                /\bNIKKOR\b.*$/i,
+                ""
+            )
+            .replace(
+                /\s+/g,
+                " "
+            )
+            .trim();
 
-            let h = 0;
-            const s = max === 0 ? 0 : diff / max;
-            const v = max;
 
-            if (diff !== 0) {
-                switch (max) {
-                    case r:
-                        h = ((g - b) / diff) % 6;
-                        break;
-                    case g:
-                        h = (b - r) / diff + 2;
-                        break;
-                    case b:
-                        h = (r - g) / diff + 4;
-                        break;
+    return {
+
+        cameraPart,
+        fPart,
+        shutterPart,
+        isoPart
+
+    };
+}
+
+
+
+async function getExposureFromImage(
+    fileName
+) {
+
+    const imgUrl =
+        `images/digital/${fileName}`;
+
+
+    try {
+
+        const response =
+            await fetch(
+                imgUrl,
+                {
+                    cache:
+                        "no-store"
                 }
-                h *= 60;
-                if (h < 0) h += 360;
-            }
+            );
 
-            return {
-                h,
-                s: s * 100,
-                v: v * 100
-            };
+
+        if (!response.ok) {
+
+            return "";
         }
 
-        function classifyPixelColor(r, g, b) {
-            const { h, s, v } = rgbToHsv(r, g, b);
 
-            if (v < 18) return "Black";
-            if (v > 94 && s < 10) return "White";
-            if (s < 16) return "Gray";
+        const blob =
+            await response.blob();
 
-            if ((h >= 0 && h < 12) || (h >= 345 && h <= 360)) return "Red";
-            if (h >= 12 && h < 30) return "Orange";
-            if (h >= 30 && h < 65) return "Yellow";
-            if (h >= 65 && h < 170) return "Green";
-            if (h >= 170 && h < 255) return "Blue";
-            if (h >= 255 && h < 320) return "Purple";
-            if (h >= 320 && h < 345) return "Pink";
 
-            return "Gray";
+        return await new Promise(
+            resolve => {
+
+                EXIF.getData(
+                    blob,
+                    function() {
+
+                        const exposureRaw =
+                            EXIF.getTag(
+                                this,
+                                "ExposureTime"
+                            );
+
+
+                        resolve(
+                            formatExposureTime(
+                                exposureRaw
+                            )
+                        );
+                    }
+                );
+            }
+        );
+
+
+    } catch (error) {
+
+        return "";
+    }
+}
+
+
+
+function buildNormalizedInfo(
+    cameraPart,
+    fPart,
+    shutterPart,
+    isoPart
+) {
+
+    return [
+
+        cameraPart,
+        fPart,
+        shutterPart,
+        isoPart
+
+    ]
+        .filter(
+            value =>
+                value &&
+                String(value)
+                    .trim() !== ""
+        )
+        .join(" ")
+        .replace(
+            /\s+/g,
+            " "
+        )
+        .trim();
+}
+
+
+
+/* =========================================================
+   COLOR DETECTION
+========================================================= */
+
+function rgbToHsv(
+    r,
+    g,
+    b
+) {
+
+    r /= 255;
+    g /= 255;
+    b /= 255;
+
+
+    const max =
+        Math.max(
+            r,
+            g,
+            b
+        );
+
+
+    const min =
+        Math.min(
+            r,
+            g,
+            b
+        );
+
+
+    const diff =
+        max - min;
+
+
+    let h = 0;
+
+
+    const s =
+        max === 0
+        ? 0
+        : diff / max;
+
+
+    const v =
+        max;
+
+
+    if (
+        diff !== 0
+    ) {
+
+        switch (max) {
+
+            case r:
+
+                h =
+                    ((g - b) / diff) %
+                    6;
+
+                break;
+
+
+            case g:
+
+                h =
+                    (b - r) /
+                    diff +
+                    2;
+
+                break;
+
+
+            case b:
+
+                h =
+                    (r - g) /
+                    diff +
+                    4;
+
+                break;
         }
 
-        function getWeightedColorScore(colorName, hsv, x, y, centerX, centerY) {
-            const distance = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
-            const maxDistance = Math.sqrt(centerX ** 2 + centerY ** 2) || 1;
-            const centerWeight = 1.55 - (distance / maxDistance) * 0.75;
-            const saturationBoost = 1 + (hsv.s / 100) * 1.25;
-            const brightnessPenalty = (hsv.v < 10 || hsv.v > 97) ? 0.35 : 1;
 
-            let colorBonus = 1;
-            if (["Pink", "Purple", "Red", "Orange", "Yellow"].includes(colorName)) {
-                colorBonus = 1.12;
-            }
+        h *= 60;
 
-            return centerWeight * saturationBoost * brightnessPenalty * colorBonus;
+
+        if (
+            h < 0
+        ) {
+
+            h += 360;
         }
+    }
 
-        function pickDominantColor(scores) {
-            const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-            if (entries.length === 0) return "Gray";
 
-            const [topColor, topScore] = entries[0];
-            const secondScore = entries[1] ? entries[1][1] : 0;
+    return {
 
-            if (topColor === "Gray" && entries[1] && secondScore > topScore * 0.72) {
-                return entries[1][0];
-            }
+        h,
 
-            if (topColor === "White" && entries[1] && secondScore > topScore * 0.68) {
-                return entries[1][0];
-            }
+        s:
+            s * 100,
 
-            return topColor;
-        }
+        v:
+            v * 100
+    };
+}
 
-        async function detectColorFromImageSource(source) {
-            return await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(source);
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.src = e.target.result;
 
-                    img.onload = () => {
-                        const canvas = document.createElement("canvas");
-                        const ctx = canvas.getContext("2d", { willReadFrequently: true });
-                        const size = 90;
-                        canvas.width = size;
-                        canvas.height = size;
-                        ctx.drawImage(img, 0, 0, size, size);
 
-                        const imageData = ctx.getImageData(0, 0, size, size).data;
-                        const scores = {
-                            Black: 0,
-                            White: 0,
-                            Gray: 0,
-                            Brown: 0,
-                            Red: 0,
-                            Orange: 0,
-                            Yellow: 0,
-                            Green: 0,
-                            Blue: 0,
-                            Purple: 0,
-                            Pink: 0
+function classifyPixelColor(
+    r,
+    g,
+    b
+) {
+
+    const {
+        h,
+        s,
+        v
+    } =
+        rgbToHsv(
+            r,
+            g,
+            b
+        );
+
+
+    if (
+        v < 18
+    ) {
+
+        return "Black";
+    }
+
+
+    if (
+        v > 94 &&
+        s < 10
+    ) {
+
+        return "White";
+    }
+
+
+    if (
+        s < 16
+    ) {
+
+        return "Gray";
+    }
+
+
+    if (
+        (h >= 0 && h < 12) ||
+        (h >= 345 && h <= 360)
+    ) {
+
+        return "Red";
+    }
+
+
+    if (
+        h >= 12 &&
+        h < 30
+    ) {
+
+        return "Orange";
+    }
+
+
+    if (
+        h >= 30 &&
+        h < 65
+    ) {
+
+        return "Yellow";
+    }
+
+
+    if (
+        h >= 65 &&
+        h < 170
+    ) {
+
+        return "Green";
+    }
+
+
+    if (
+        h >= 170 &&
+        h < 255
+    ) {
+
+        return "Blue";
+    }
+
+
+    if (
+        h >= 255 &&
+        h < 320
+    ) {
+
+        return "Purple";
+    }
+
+
+    if (
+        h >= 320 &&
+        h < 345
+    ) {
+
+        return "Pink";
+    }
+
+
+    return "Gray";
+}
+
+
+
+function getWeightedColorScore(
+    colorName,
+    hsv,
+    x,
+    y,
+    centerX,
+    centerY
+) {
+
+    const distance =
+        Math.sqrt(
+            (x - centerX) ** 2 +
+            (y - centerY) ** 2
+        );
+
+
+    const maxDistance =
+        Math.sqrt(
+            centerX ** 2 +
+            centerY ** 2
+        ) || 1;
+
+
+    const centerWeight =
+        1.55 -
+        (distance / maxDistance) *
+        0.75;
+
+
+    const saturationBoost =
+        1 +
+        (hsv.s / 100) *
+        1.25;
+
+
+    const brightnessPenalty =
+        (
+            hsv.v < 10 ||
+            hsv.v > 97
+        )
+        ? 0.35
+        : 1;
+
+
+    let colorBonus =
+        1;
+
+
+    if (
+        [
+            "Pink",
+            "Purple",
+            "Red",
+            "Orange",
+            "Yellow"
+        ].includes(
+            colorName
+        )
+    ) {
+
+        colorBonus =
+            1.12;
+    }
+
+
+    return (
+        centerWeight *
+        saturationBoost *
+        brightnessPenalty *
+        colorBonus
+    );
+}
+
+
+
+function pickDominantColor(
+    scores
+) {
+
+    const entries =
+        Object.entries(
+            scores
+        )
+            .sort(
+                (a, b) =>
+                    b[1] -
+                    a[1]
+            );
+
+
+    if (
+        entries.length === 0
+    ) {
+
+        return "Gray";
+    }
+
+
+    const [
+        topColor,
+        topScore
+    ] =
+        entries[0];
+
+
+    const secondScore =
+        entries[1]
+        ? entries[1][1]
+        : 0;
+
+
+    if (
+        topColor === "Gray" &&
+        entries[1] &&
+        secondScore >
+        topScore * 0.72
+    ) {
+
+        return entries[1][0];
+    }
+
+
+    if (
+        topColor === "White" &&
+        entries[1] &&
+        secondScore >
+        topScore * 0.68
+    ) {
+
+        return entries[1][0];
+    }
+
+
+    return topColor;
+}
+
+
+
+async function detectColorFromImageSource(
+    source
+) {
+
+    return await new Promise(
+        resolve => {
+
+            const reader =
+                new FileReader();
+
+
+            reader.readAsDataURL(
+                source
+            );
+
+
+            reader.onload =
+                e => {
+
+                    const img =
+                        new Image();
+
+
+                    img.src =
+                        e.target.result;
+
+
+                    img.onload =
+                        () => {
+
+                            const canvas =
+                                document.createElement(
+                                    "canvas"
+                                );
+
+
+                            const ctx =
+                                canvas.getContext(
+                                    "2d",
+                                    {
+                                        willReadFrequently:
+                                            true
+                                    }
+                                );
+
+
+                            const size =
+                                90;
+
+
+                            canvas.width =
+                                size;
+
+
+                            canvas.height =
+                                size;
+
+
+                            ctx.drawImage(
+                                img,
+                                0,
+                                0,
+                                size,
+                                size
+                            );
+
+
+                            const imageData =
+                                ctx.getImageData(
+                                    0,
+                                    0,
+                                    size,
+                                    size
+                                ).data;
+
+
+                            const scores = {
+
+                                Black: 0,
+                                White: 0,
+                                Gray: 0,
+                                Brown: 0,
+                                Red: 0,
+                                Orange: 0,
+                                Yellow: 0,
+                                Green: 0,
+                                Blue: 0,
+                                Purple: 0,
+                                Pink: 0
+
+                            };
+
+
+                            const startX =
+                                Math.floor(
+                                    size * 0.15
+                                );
+
+
+                            const endX =
+                                Math.floor(
+                                    size * 0.85
+                                );
+
+
+                            const startY =
+                                Math.floor(
+                                    size * 0.15
+                                );
+
+
+                            const endY =
+                                Math.floor(
+                                    size * 0.85
+                                );
+
+
+                            const centerX =
+                                size / 2;
+
+
+                            const centerY =
+                                size / 2;
+
+
+                            for (
+                                let y =
+                                    startY;
+                                y < endY;
+                                y++
+                            ) {
+
+                                for (
+                                    let x =
+                                        startX;
+                                    x < endX;
+                                    x++
+                                ) {
+
+                                    const i =
+                                        (
+                                            y * size +
+                                            x
+                                        ) * 4;
+
+
+                                    const r =
+                                        imageData[i];
+
+
+                                    const g =
+                                        imageData[
+                                            i + 1
+                                        ];
+
+
+                                    const b =
+                                        imageData[
+                                            i + 2
+                                        ];
+
+
+                                    const a =
+                                        imageData[
+                                            i + 3
+                                        ];
+
+
+                                    if (
+                                        a < 20
+                                    ) {
+
+                                        continue;
+                                    }
+
+
+                                    const hsv =
+                                        rgbToHsv(
+                                            r,
+                                            g,
+                                            b
+                                        );
+
+
+                                    let colorName =
+                                        classifyPixelColor(
+                                            r,
+                                            g,
+                                            b
+                                        );
+
+
+                                    if (
+                                        hsv.s >= 12 &&
+                                        hsv.v >= 45 &&
+                                        hsv.v <= 97
+                                    ) {
+
+                                        if (
+                                            r > 150 &&
+                                            g > 115 &&
+                                            b > 125 &&
+                                            r >= b &&
+                                            b >=
+                                            g * 0.75
+                                        ) {
+
+                                            colorName =
+                                                "Pink";
+
+
+                                        } else if (
+                                            r > 110 &&
+                                            g > 80 &&
+                                            g < r &&
+                                            b <
+                                            g * 0.85 &&
+                                            hsv.v < 70
+                                        ) {
+
+                                            colorName =
+                                                "Brown";
+                                        }
+                                    }
+
+
+                                    const weight =
+                                        getWeightedColorScore(
+                                            colorName,
+                                            hsv,
+                                            x,
+                                            y,
+                                            centerX,
+                                            centerY
+                                        );
+
+
+                                    scores[
+                                        colorName
+                                    ] +=
+                                        weight;
+                                }
+                            }
+
+
+                            resolve(
+                                pickDominantColor(
+                                    scores
+                                )
+                            );
                         };
 
-                        const startX = Math.floor(size * 0.15);
-                        const endX = Math.floor(size * 0.85);
-                        const startY = Math.floor(size * 0.15);
-                        const endY = Math.floor(size * 0.85);
-                        const centerX = size / 2;
-                        const centerY = size / 2;
 
-                        for (let y = startY; y < endY; y++) {
-                            for (let x = startX; x < endX; x++) {
-                                const i = (y * size + x) * 4;
-                                const r = imageData[i];
-                                const g = imageData[i + 1];
-                                const b = imageData[i + 2];
-                                const a = imageData[i + 3];
-
-                                if (a < 20) continue;
-
-                                const hsv = rgbToHsv(r, g, b);
-
-                                let colorName = classifyPixelColor(r, g, b);
-
-                                if (hsv.s >= 12 && hsv.v >= 45 && hsv.v <= 97) {
-                                    if (r > 150 && g > 115 && b > 125 && r >= b && b >= g * 0.75) {
-                                        colorName = "Pink";
-                                    } else if (r > 110 && g > 80 && g < r && b < g * 0.85 && hsv.v < 70) {
-                                        colorName = "Brown";
-                                    }
-                                }
-
-                                const weight = getWeightedColorScore(colorName, hsv, x, y, centerX, centerY);
-                                scores[colorName] += weight;
-                            }
-                        }
-
-                        resolve(pickDominantColor(scores));
-                    };
-
-                    img.onerror = () => resolve("Gray");
+                    img.onerror =
+                        () =>
+                            resolve(
+                                "Gray"
+                            );
                 };
 
-                reader.onerror = () => resolve("Gray");
-            });
+
+            reader.onerror =
+                () =>
+                    resolve(
+                        "Gray"
+                    );
         }
+    );
+}
 
-        async function detectColorFromFile(file) {
-            return await detectColorFromImageSource(file);
-        }
 
-        async function detectColorFromExistingImage(fileName) {
-            const imgUrl = `images/digital/${fileName}`;
-            try {
-                const response = await fetch(imgUrl, { cache: "no-store" });
-                if (!response.ok) return "";
-                const blob = await response.blob();
-                return await detectColorFromImageSource(blob);
-            } catch (error) {
-                return "";
-            }
-        }
 
-        // [1] 목록 로드
-        async function loadPhotoList() {
-            const token = document.getElementById('token').value;
-            if (!token) return alert("토큰을 입력해주세요!");
-            try {
-                const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
-                    headers: { "Authorization": `token ${token}` } 
-                });
-                const data = await res.json();
-                window.allPhotos = JSON.parse(decodeURIComponent(escape(atob(data.content))));
-                document.getElementById('batchTool').style.display = 'block';
-                renderList();
-            } catch (e) { alert("로드 실패"); }
-        }
+async function detectColorFromFile(
+    file
+) {
 
-        function renderList() {
-            const listDiv = document.getElementById('photoList');
-            listDiv.innerHTML = "";
-            window.allPhotos.slice().reverse().forEach((p, index) => {
-                const realIndex = window.allPhotos.length - 1 - index;
-                const item = document.createElement('div');
-                item.className = 'photo-item';
-                item.innerHTML = `
-                    <img src="images/digital/${p.filename}" id="img-${realIndex}">
-                    <div class="photo-info-edit">
-                        <input type="date" class="edit-date" data-index="${realIndex}" value="${p.date || ''}">
-                        <input type="text" class="edit-info" data-index="${realIndex}" value="${p.info || ''}">
-                        ${createColorSelect(p.color || "")}
-                        <small>${p.filename}</small>
-                    </div>
-                    <button class="delete-btn" onclick="deletePhoto(${realIndex}, '${p.filename}')">삭제</button>
-                `;
-                listDiv.appendChild(item);
+    return await detectColorFromImageSource(
+        file
+    );
+}
 
-                const colorSelect = item.querySelector('.edit-color');
-                colorSelect.setAttribute('data-index', realIndex);
-            });
-        }
 
-        // [2] 일괄 날짜 추출 기능
-        async function autoFillDates() {
-            const status = document.getElementById('status');
-            const dateInputs = document.querySelectorAll('.edit-date');
-            let count = 0;
-            status.innerText = "⏳ 기존 사진 분석 시작...";
-            for (let input of dateInputs) {
-                if (!input.value) {
-                    const idx = input.getAttribute('data-index');
-                    const fileName = window.allPhotos[idx].filename;
-                    const imgUrl = `images/digital/${fileName}`;
-                    try {
-                        const response = await fetch(imgUrl);
-                        const blob = await response.blob();
-                        await new Promise((resolve) => {
-                            EXIF.getData(blob, function() {
-                                const exifDate = EXIF.getTag(this, "DateTimeOriginal");
-                                if (exifDate) {
-                                    const parts = exifDate.split(" ")[0].split(":");
-                                    input.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
-                                    input.style.border = "2px solid #ff9800";
-                                    count++;
-                                }
-                                resolve();
-                            });
-                        });
-                    } catch (err) { console.log(err); }
+
+async function detectColorFromExistingImage(
+    fileName
+) {
+
+    const imgUrl =
+        `images/digital/${fileName}`;
+
+
+    try {
+
+        const response =
+            await fetch(
+                imgUrl,
+                {
+                    cache:
+                        "no-store"
                 }
-            }
-            status.innerText = `✅ 분석 완료! ${count}개의 날짜 복구. [저장하기]를 눌러주세요.`;
+            );
+
+
+        if (!response.ok) {
+
+            return "";
         }
 
-        // [3] 기존 사진 메타데이터 일괄 정리 기능
-        async function normalizeMetadata() {
-            const status = document.getElementById('status');
-            const infoInputs = document.querySelectorAll('.edit-info');
-            let lensRemovedCount = 0;
-            let shutterAddedCount = 0;
-            let unchangedCount = 0;
 
-            status.innerText = "⏳ 기존 사진 메타데이터 정리 시작...";
+        const blob =
+            await response.blob();
 
-            for (let input of infoInputs) {
-                const idx = input.getAttribute('data-index');
-                const photo = window.allPhotos[idx];
-                const originalInfo = photo.info || "";
 
-                const originalParts = extractMetadataParts(originalInfo);
+        return await detectColorFromImageSource(
+            blob
+        );
 
-                const hadLensText = /\bNikkor\b/i.test(originalInfo);
-                let shutterPart = originalParts.shutterPart;
 
-                if (!shutterPart) {
-                    const exifShutter = await getExposureFromImage(photo.filename);
-                    if (exifShutter) {
-                        shutterPart = exifShutter;
-                        shutterAddedCount++;
+    } catch (error) {
+
+        return "";
+    }
+}
+
+
+
+/* =========================================================
+   [1] PHOTO LIST
+========================================================= */
+
+async function loadPhotoList() {
+
+    const token =
+        document.getElementById(
+            "token"
+        ).value;
+
+
+    if (!token) {
+
+        return alert(
+            "토큰을 입력해주세요!"
+        );
+    }
+
+
+    try {
+
+        const res =
+            await fetch(
+                `https://api.github.com/repos/${repo}/contents/photos.json`,
+                {
+                    headers: {
+                        "Authorization":
+                            `token ${token}`
                     }
                 }
+            );
 
-                const normalizedInfo = buildNormalizedInfo(
-                    originalParts.cameraPart,
-                    originalParts.fPart,
-                    shutterPart,
-                    originalParts.isoPart
+
+        if (!res.ok) {
+
+            throw new Error(
+                `GitHub 오류: ${res.status}`
+            );
+        }
+
+
+        const data =
+            await res.json();
+
+
+        window.allPhotos =
+            JSON.parse(
+                decodeURIComponent(
+                    escape(
+                        atob(
+                            data.content
+                                .replace(
+                                    /\n/g,
+                                    ""
+                                )
+                        )
+                    )
+                )
+            );
+
+
+        document.getElementById(
+            "batchTool"
+        ).style.display =
+            "block";
+
+
+        renderList();
+
+
+    } catch (e) {
+
+        console.error(e);
+
+        alert(
+            "로드 실패"
+        );
+    }
+}
+
+
+
+function renderList() {
+
+    const listDiv =
+        document.getElementById(
+            "photoList"
+        );
+
+
+    listDiv.innerHTML =
+        "";
+
+
+    window.allPhotos
+        .slice()
+        .reverse()
+        .forEach(
+            (p, index) => {
+
+                const realIndex =
+                    window.allPhotos.length -
+                    1 -
+                    index;
+
+
+                const item =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                item.className =
+                    "photo-item";
+
+
+                item.innerHTML = `
+
+                    <img
+                        src="images/digital/${p.filename}"
+                        id="img-${realIndex}"
+                    >
+
+                    <div class="photo-info-edit">
+
+                        <input
+                            type="date"
+                            class="edit-date"
+                            data-index="${realIndex}"
+                            value="${p.date || ""}"
+                        >
+
+                        <input
+                            type="text"
+                            class="edit-info"
+                            data-index="${realIndex}"
+                            value="${p.info || ""}"
+                        >
+
+                        ${createColorSelect(
+                            p.color || ""
+                        )}
+
+                        <small>
+                            ${p.filename}
+                        </small>
+
+                    </div>
+
+                    <button
+                        class="delete-btn"
+                        onclick="deletePhoto(
+                            ${realIndex},
+                            '${p.filename}'
+                        )"
+                    >
+                        삭제
+                    </button>
+                `;
+
+
+                listDiv.appendChild(
+                    item
                 );
 
-                if (hadLensText) {
-                    lensRemovedCount++;
-                }
 
-                if (normalizedInfo && normalizedInfo !== originalInfo.trim()) {
-                    input.value = normalizedInfo;
-                    input.style.border = "2px solid #ff9800";
-                } else {
-                    unchangedCount++;
-                }
+                const colorSelect =
+                    item.querySelector(
+                        ".edit-color"
+                    );
+
+
+                colorSelect.setAttribute(
+                    "data-index",
+                    realIndex
+                );
             }
+        );
+}
 
-            status.innerText = `✅ 메타데이터 정리 완료!
+
+
+/* =========================================================
+   [2] DATE RECOVERY
+========================================================= */
+
+async function autoFillDates() {
+
+    const status =
+        document.getElementById(
+            "status"
+        );
+
+
+    const dateInputs =
+        document.querySelectorAll(
+            ".edit-date"
+        );
+
+
+    let count =
+        0;
+
+
+    status.innerText =
+        "⏳ 기존 사진 분석 시작...";
+
+
+    for (
+        let input of dateInputs
+    ) {
+
+        if (
+            !input.value
+        ) {
+
+            const idx =
+                input.getAttribute(
+                    "data-index"
+                );
+
+
+            const fileName =
+                window.allPhotos[
+                    idx
+                ].filename;
+
+
+            const imgUrl =
+                `images/digital/${fileName}`;
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        imgUrl
+                    );
+
+
+                const blob =
+                    await response.blob();
+
+
+                await new Promise(
+                    resolve => {
+
+                        EXIF.getData(
+                            blob,
+                            function() {
+
+                                const exifDate =
+                                    EXIF.getTag(
+                                        this,
+                                        "DateTimeOriginal"
+                                    );
+
+
+                                if (
+                                    exifDate
+                                ) {
+
+                                    const parts =
+                                        exifDate
+                                            .split(
+                                                " "
+                                            )[0]
+                                            .split(
+                                                ":"
+                                            );
+
+
+                                    input.value =
+                                        `${parts[0]}-${parts[1]}-${parts[2]}`;
+
+
+                                    input.style.border =
+                                        "2px solid #ff9800";
+
+
+                                    count++;
+                                }
+
+
+                                resolve();
+                            }
+                        );
+                    }
+                );
+
+
+            } catch (err) {
+
+                console.log(
+                    err
+                );
+            }
+        }
+    }
+
+
+    status.innerText =
+        `✅ 분석 완료! ${count}개의 날짜 복구. [저장하기]를 눌러주세요.`;
+}
+
+
+
+/* =========================================================
+   [3] METADATA NORMALIZATION
+========================================================= */
+
+async function normalizeMetadata() {
+
+    const status =
+        document.getElementById(
+            "status"
+        );
+
+
+    const infoInputs =
+        document.querySelectorAll(
+            ".edit-info"
+        );
+
+
+    let lensRemovedCount =
+        0;
+
+
+    let shutterAddedCount =
+        0;
+
+
+    let unchangedCount =
+        0;
+
+
+    status.innerText =
+        "⏳ 기존 사진 메타데이터 정리 시작...";
+
+
+    for (
+        let input of infoInputs
+    ) {
+
+        const idx =
+            input.getAttribute(
+                "data-index"
+            );
+
+
+        const photo =
+            window.allPhotos[
+                idx
+            ];
+
+
+        const originalInfo =
+            photo.info || "";
+
+
+        const originalParts =
+            extractMetadataParts(
+                originalInfo
+            );
+
+
+        const hadLensText =
+            /\bNikkor\b/i.test(
+                originalInfo
+            );
+
+
+        let shutterPart =
+            originalParts
+                .shutterPart;
+
+
+        if (
+            !shutterPart
+        ) {
+
+            const exifShutter =
+                await getExposureFromImage(
+                    photo.filename
+                );
+
+
+            if (
+                exifShutter
+            ) {
+
+                shutterPart =
+                    exifShutter;
+
+
+                shutterAddedCount++;
+            }
+        }
+
+
+        const normalizedInfo =
+            buildNormalizedInfo(
+
+                originalParts
+                    .cameraPart,
+
+                originalParts
+                    .fPart,
+
+                shutterPart,
+
+                originalParts
+                    .isoPart
+            );
+
+
+        if (
+            hadLensText
+        ) {
+
+            lensRemovedCount++;
+        }
+
+
+        if (
+            normalizedInfo &&
+            normalizedInfo !==
+            originalInfo.trim()
+        ) {
+
+            input.value =
+                normalizedInfo;
+
+
+            input.style.border =
+                "2px solid #ff9800";
+
+
+        } else {
+
+            unchangedCount++;
+        }
+    }
+
+
+    status.innerText =
+`✅ 메타데이터 정리 완료!
 렌즈 이름 제거 처리: ${lensRemovedCount}개
 셔터스피드 추가 성공: ${shutterAddedCount}개
 변경 없음: ${unchangedCount}개
 [저장하기]를 눌러주세요.`;
+}
+
+
+
+/* =========================================================
+   [4] COLOR AUTO DETECTION
+========================================================= */
+
+async function autoFillColors() {
+
+    const status =
+        document.getElementById(
+            "status"
+        );
+
+
+    const colorInputs =
+        document.querySelectorAll(
+            ".edit-color"
+        );
+
+
+    let count =
+        0;
+
+
+    let unchangedCount =
+        0;
+
+
+    status.innerText =
+        "⏳ 기존 사진 색상 분류 시작...";
+
+
+    for (
+        let input of colorInputs
+    ) {
+
+        const idx =
+            input.getAttribute(
+                "data-index"
+            );
+
+
+        const fileName =
+            window.allPhotos[
+                idx
+            ].filename;
+
+
+        const detectedColor =
+            await detectColorFromExistingImage(
+                fileName
+            );
+
+
+        if (
+            detectedColor &&
+            input.value !==
+            detectedColor
+        ) {
+
+            input.value =
+                detectedColor;
+
+
+            input.style.border =
+                "2px solid #ff9800";
+
+
+            count++;
+
+
+        } else {
+
+            unchangedCount++;
         }
+    }
 
-        // [4] 기존 사진 색상 일괄 분류 기능
-        async function autoFillColors() {
-            const status = document.getElementById('status');
-            const colorInputs = document.querySelectorAll('.edit-color');
-            let count = 0;
-            let unchangedCount = 0;
 
-            status.innerText = "⏳ 기존 사진 색상 분류 시작...";
-
-            for (let input of colorInputs) {
-                const idx = input.getAttribute('data-index');
-                const fileName = window.allPhotos[idx].filename;
-                const detectedColor = await detectColorFromExistingImage(fileName);
-
-                if (detectedColor && input.value !== detectedColor) {
-                    input.value = detectedColor;
-                    input.style.border = "2px solid #ff9800";
-                    count++;
-                } else {
-                    unchangedCount++;
-                }
-            }
-
-            status.innerText = `✅ 색상 분류 완료!
+    status.innerText =
+`✅ 색상 분류 완료!
 색상 적용: ${count}개
 변경 없음: ${unchangedCount}개
 [저장하기]를 눌러주세요.`;
+}
+
+
+
+/* =========================================================
+   [5] MULTIPLE PHOTO UPLOAD
+========================================================= */
+
+async function handleUpload() {
+
+    const token =
+        document.getElementById(
+            "token"
+        ).value;
+
+
+    const fileInput =
+        document.getElementById(
+            "fileInput"
+        );
+
+
+    const status =
+        document.getElementById(
+            "status"
+        );
+
+
+    const files =
+        fileInput.files;
+
+
+    if (
+        !token ||
+        files.length === 0
+    ) {
+
+        return alert(
+            "토큰과 파일을 선택해주세요!"
+        );
+    }
+
+
+    status.innerText =
+        `⏳ 총 ${files.length}장의 사진 업로드 준비 중...`;
+
+
+    try {
+
+        const res =
+            await fetch(
+                `https://api.github.com/repos/${repo}/contents/photos.json`,
+                {
+                    headers: {
+                        "Authorization":
+                            `token ${token}`
+                    }
+                }
+            );
+
+
+        if (!res.ok) {
+
+            throw new Error(
+                `photos.json 로드 실패: ${res.status}`
+            );
         }
 
-        // [5] 다중 파일 업로드 로직
-        async function handleUpload() {
-            const token = document.getElementById('token').value;
-            const fileInput = document.getElementById('fileInput');
-            const status = document.getElementById('status');
-            const files = fileInput.files;
 
-            if (!token || files.length === 0) return alert("토큰과 파일을 선택해주세요!");
+        const fileData =
+            await res.json();
 
-            status.innerText = `⏳ 총 ${files.length}장의 사진 업로드 준비 중...`;
 
-            try {
-                const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
-                    headers: { "Authorization": `token ${token}` } 
-                });
-                const fileData = await res.json();
-                let photos = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+        let photos =
+            JSON.parse(
+                decodeURIComponent(
+                    escape(
+                        atob(
+                            fileData.content
+                                .replace(
+                                    /\n/g,
+                                    ""
+                                )
+                        )
+                    )
+                )
+            );
 
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    status.innerText = `📤 업로드 중 (${i + 1}/${files.length}): ${file.name}`;
 
-                    const detectedColor = await detectColorFromFile(file);
+        for (
+            let i = 0;
+            i < files.length;
+            i++
+        ) {
 
-                    const exifData = await new Promise(resolve => {
-                        EXIF.getData(file, function() {
-                            const date = EXIF.getTag(this, "DateTimeOriginal");
-                            const model = EXIF.getTag(this, "Model") || "";
-                            const fNumberRaw = EXIF.getTag(this, "FNumber");
-                            const isoRaw = EXIF.getTag(this, "ISOSpeedRatings");
-                            const exposureRaw = EXIF.getTag(this, "ExposureTime");
+            const file =
+                files[i];
 
-                            const fNum = fNumberRaw ? `f${fNumberRaw}` : "";
-                            const shutter = formatExposureTime(exposureRaw);
-                            const iso = isoRaw ? `iso ${isoRaw}` : "";
 
-                            let formattedDate = new Date().toISOString().substring(0, 10);
-                            if (date) {
-                                const p = date.split(" ")[0].split(":");
-                                formattedDate = `${p[0]}-${p[1]}-${p[2]}`;
+            status.innerText =
+                `📤 업로드 중 (${i + 1}/${files.length}): ${file.name}`;
+
+
+            const detectedColor =
+                await detectColorFromFile(
+                    file
+                );
+
+
+            const exifData =
+                await new Promise(
+                    resolve => {
+
+                        EXIF.getData(
+                            file,
+                            function() {
+
+                                const date =
+                                    EXIF.getTag(
+                                        this,
+                                        "DateTimeOriginal"
+                                    );
+
+
+                                const model =
+                                    EXIF.getTag(
+                                        this,
+                                        "Model"
+                                    ) || "";
+
+
+                                const fNumberRaw =
+                                    EXIF.getTag(
+                                        this,
+                                        "FNumber"
+                                    );
+
+
+                                const isoRaw =
+                                    EXIF.getTag(
+                                        this,
+                                        "ISOSpeedRatings"
+                                    );
+
+
+                                const exposureRaw =
+                                    EXIF.getTag(
+                                        this,
+                                        "ExposureTime"
+                                    );
+
+
+                                const fNum =
+                                    fNumberRaw
+                                    ? `f${fNumberRaw}`
+                                    : "";
+
+
+                                const shutter =
+                                    formatExposureTime(
+                                        exposureRaw
+                                    );
+
+
+                                const iso =
+                                    isoRaw
+                                    ? `iso ${isoRaw}`
+                                    : "";
+
+
+                                let formattedDate =
+                                    new Date()
+                                        .toISOString()
+                                        .substring(
+                                            0,
+                                            10
+                                        );
+
+
+                                if (
+                                    date
+                                ) {
+
+                                    const p =
+                                        date
+                                            .split(
+                                                " "
+                                            )[0]
+                                            .split(
+                                                ":"
+                                            );
+
+
+                                    formattedDate =
+                                        `${p[0]}-${p[1]}-${p[2]}`;
+                                }
+
+
+                                const info = [
+
+                                    model,
+                                    fNum,
+                                    shutter,
+                                    iso
+
+                                ]
+                                    .filter(
+                                        value =>
+                                            value &&
+                                            String(
+                                                value
+                                            )
+                                                .trim() !== ""
+                                    )
+                                    .join(
+                                        " "
+                                    );
+
+
+                                resolve({
+                                    date:
+                                        formattedDate,
+                                    info:
+                                        info
+                                });
                             }
+                        );
+                    }
+                );
 
-                            const info = [model, fNum, shutter, iso]
-                                .filter(value => value && String(value).trim() !== "")
-                                .join(" ");
 
-                            resolve({ date: formattedDate, info: info });
-                        });
-                    });
+            const optimizedBlob =
+                await new Promise(
+                    resolve => {
 
-                    const optimizedBlob = await new Promise(resolve => {
-                        const reader = new FileReader();
-                        reader.readAsDataURL(file);
-                        reader.onload = (e) => {
-                            const img = new Image();
-                            img.src = e.target.result;
-                            img.onload = () => {
-                                const canvas = document.createElement('canvas');
-                                let w = img.width, h = img.height;
-                                if (w > 1920) { h = (1920 * h) / w; w = 1920; }
-                                canvas.width = w; canvas.height = h;
-                                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                                canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.85);
+                        const reader =
+                            new FileReader();
+
+
+                        reader.readAsDataURL(
+                            file
+                        );
+
+
+                        reader.onload =
+                            e => {
+
+                                const img =
+                                    new Image();
+
+
+                                img.src =
+                                    e.target.result;
+
+
+                                img.onload =
+                                    () => {
+
+                                        const canvas =
+                                            document.createElement(
+                                                "canvas"
+                                            );
+
+
+                                        let w =
+                                            img.width;
+
+
+                                        let h =
+                                            img.height;
+
+
+                                        if (
+                                            w > 1920
+                                        ) {
+
+                                            h =
+                                                (
+                                                    1920 *
+                                                    h
+                                                ) /
+                                                w;
+
+
+                                            w =
+                                                1920;
+                                        }
+
+
+                                        canvas.width =
+                                            w;
+
+
+                                        canvas.height =
+                                            h;
+
+
+                                        canvas
+                                            .getContext(
+                                                "2d"
+                                            )
+                                            .drawImage(
+                                                img,
+                                                0,
+                                                0,
+                                                w,
+                                                h
+                                            );
+
+
+                                        canvas.toBlob(
+                                            blob =>
+                                                resolve(
+                                                    blob
+                                                ),
+                                            "image/jpeg",
+                                            0.85
+                                        );
+                                    };
                             };
-                        };
-                    });
+                    }
+                );
 
-                    const base64Content = await new Promise(resolve => {
-                        const reader = new FileReader();
-                        reader.readAsDataURL(optimizedBlob);
-                        reader.onload = () => resolve(reader.result.split(',')[1]);
-                    });
 
-                    const fileName = file.name.replace(/\.[^/.]+$/, "") + "_" + Date.now() + ".jpg";
-                    await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
-                        method: "PUT",
-                        headers: { "Authorization": `token ${token}` },
-                        body: JSON.stringify({ message: `Upload: ${fileName}`, content: base64Content })
-                    });
+            const base64Content =
+                await new Promise(
+                    resolve => {
 
-                    photos.push({
-                        filename: fileName,
-                        info: exifData.info,
-                        date: exifData.date,
-                        color: detectedColor || "Gray"
-                    });
+                        const reader =
+                            new FileReader();
+
+
+                        reader.readAsDataURL(
+                            optimizedBlob
+                        );
+
+
+                        reader.onload =
+                            () =>
+                                resolve(
+                                    reader.result
+                                        .split(
+                                            ","
+                                        )[1]
+                                );
+                    }
+                );
+
+
+            const fileName =
+
+                file.name
+                    .replace(
+                        /\.[^/.]+$/,
+                        ""
+                    ) +
+
+                "_" +
+
+                Date.now() +
+
+                ".jpg";
+
+
+            const uploadResponse =
+                await fetch(
+                    `https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`,
+                    {
+                        method:
+                            "PUT",
+
+                        headers: {
+                            "Authorization":
+                                `token ${token}`
+                        },
+
+                        body:
+                            JSON.stringify({
+                                message:
+                                    `Upload: ${fileName}`,
+                                content:
+                                    base64Content
+                            })
+                    }
+                );
+
+
+            if (
+                !uploadResponse.ok
+            ) {
+
+                throw new Error(
+                    `이미지 업로드 실패: ${fileName}`
+                );
+            }
+
+
+            photos.push({
+
+                filename:
+                    fileName,
+
+                info:
+                    exifData.info,
+
+                date:
+                    exifData.date,
+
+                color:
+                    detectedColor ||
+                    "Gray"
+
+            });
+        }
+
+
+        status.innerText =
+            "💾 장부 업데이트 중...";
+
+
+        await saveJson(
+
+            token,
+
+            `Batch upload ${files.length} photos`,
+
+            photos
+        );
+
+
+        status.innerText =
+            `✅ 총 ${files.length}장 업로드 완료!`;
+
+
+        fileInput.value =
+            "";
+
+
+        loadPhotoList();
+
+
+    } catch (e) {
+
+        console.error(e);
+
+
+        status.innerText =
+            "❌ 실패: " +
+            e.message;
+    }
+}
+
+
+
+/* =========================================================
+   [6] SAVE PHOTO METADATA
+========================================================= */
+
+async function saveAllChanges() {
+
+    const token =
+        document.getElementById(
+            "token"
+        ).value;
+
+
+    const dateInputs =
+        document.querySelectorAll(
+            ".edit-date"
+        );
+
+
+    const infoInputs =
+        document.querySelectorAll(
+            ".edit-info"
+        );
+
+
+    const colorInputs =
+        document.querySelectorAll(
+            ".edit-color"
+        );
+
+
+    dateInputs.forEach(
+        input => {
+
+            const idx =
+                input.getAttribute(
+                    "data-index"
+                );
+
+
+            window.allPhotos[
+                idx
+            ].date =
+                input.value;
+        }
+    );
+
+
+    infoInputs.forEach(
+        input => {
+
+            const idx =
+                input.getAttribute(
+                    "data-index"
+                );
+
+
+            window.allPhotos[
+                idx
+            ].info =
+                input.value;
+        }
+    );
+
+
+    colorInputs.forEach(
+        input => {
+
+            const idx =
+                input.getAttribute(
+                    "data-index"
+                );
+
+
+            window.allPhotos[
+                idx
+            ].color =
+                input.value;
+        }
+    );
+
+
+    try {
+
+        await saveJson(
+
+            token,
+
+            "Batch update metadata",
+
+            window.allPhotos
+        );
+
+
+        alert(
+            "저장 성공!"
+        );
+
+
+        loadPhotoList();
+
+
+    } catch (e) {
+
+        console.error(e);
+
+        alert(
+            "실패"
+        );
+    }
+}
+
+
+
+/* =========================================================
+   SAVE photos.json
+========================================================= */
+
+async function saveJson(
+    token,
+    msg,
+    data
+) {
+
+    const res =
+        await fetch(
+            `https://api.github.com/repos/${repo}/contents/photos.json`,
+            {
+                headers: {
+                    "Authorization":
+                        `token ${token}`
                 }
+            }
+        );
 
-                status.innerText = "💾 장부 업데이트 중...";
-                await saveJson(token, `Batch upload ${files.length} photos`, photos);
-                
-                status.innerText = `✅ 총 ${files.length}장 업로드 완료!`;
-                fileInput.value = "";
-                loadPhotoList();
 
-            } catch (e) {
-                status.innerText = "❌ 실패: " + e.message;
+    if (!res.ok) {
+
+        throw new Error(
+            `photos.json 확인 실패: ${res.status}`
+        );
+    }
+
+
+    const fileData =
+        await res.json();
+
+
+    const saveResponse =
+        await fetch(
+            `https://api.github.com/repos/${repo}/contents/photos.json`,
+            {
+                method:
+                    "PUT",
+
+                headers: {
+
+                    "Authorization":
+                        `token ${token}`,
+
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify({
+
+                        message:
+                            msg,
+
+                        content:
+                            btoa(
+                                unescape(
+                                    encodeURIComponent(
+                                        JSON.stringify(
+                                            data,
+                                            null,
+                                            2
+                                        )
+                                    )
+                                )
+                            ),
+
+                        sha:
+                            fileData.sha
+                    })
+            }
+        );
+
+
+    if (!saveResponse.ok) {
+
+        throw new Error(
+            `photos.json 저장 실패: ${saveResponse.status}`
+        );
+    }
+}
+
+
+
+/* =========================================================
+   DELETE PHOTO
+========================================================= */
+
+async function deletePhoto(
+    index,
+    fileName
+) {
+
+    const token =
+        document.getElementById(
+            "token"
+        ).value;
+
+
+    if (
+        !confirm(
+            "삭제하시겠습니까?"
+        )
+    ) {
+
+        return;
+    }
+
+
+    const photos =
+        [
+            ...window.allPhotos
+        ];
+
+
+    photos.splice(
+        index,
+        1
+    );
+
+
+    try {
+
+        await saveJson(
+
+            token,
+
+            `Delete ${fileName}`,
+
+            photos
+        );
+
+
+        const fileRes =
+            await fetch(
+                `https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`,
+                {
+                    headers: {
+                        "Authorization":
+                            `token ${token}`
+                    }
+                }
+            );
+
+
+        if (
+            fileRes.ok
+        ) {
+
+            const fData =
+                await fileRes.json();
+
+
+            const deleteResponse =
+                await fetch(
+                    `https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`,
+                    {
+                        method:
+                            "DELETE",
+
+                        headers: {
+                            "Authorization":
+                                `token ${token}`
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                message:
+                                    "Delete file",
+
+                                sha:
+                                    fData.sha
+
+                            })
+                    }
+                );
+
+
+            if (
+                !deleteResponse.ok
+            ) {
+
+                throw new Error(
+                    "이미지 파일 삭제 실패"
+                );
             }
         }
 
-        // [6] 일괄 저장 및 삭제 (기존 유지)
-        async function saveAllChanges() {
-            const token = document.getElementById('token').value;
-            const dateInputs = document.querySelectorAll('.edit-date');
-            const infoInputs = document.querySelectorAll('.edit-info');
-            const colorInputs = document.querySelectorAll('.edit-color');
 
-            dateInputs.forEach(input => {
-                const idx = input.getAttribute('data-index');
-                window.allPhotos[idx].date = input.value;
-            });
+        loadPhotoList();
 
-            infoInputs.forEach(input => {
-                const idx = input.getAttribute('data-index');
-                window.allPhotos[idx].info = input.value;
-            });
 
-            colorInputs.forEach(input => {
-                const idx = input.getAttribute('data-index');
-                window.allPhotos[idx].color = input.value;
-            });
+    } catch (e) {
 
-            try {
-                await saveJson(token, "Batch update metadata", window.allPhotos);
-                alert("저장 성공!");
-                loadPhotoList();
-            } catch(e) { alert("실패"); }
-        }
+        console.error(e);
 
-        async function saveJson(token, msg, data) {
-            const res = await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, { 
-                headers: { "Authorization": `token ${token}` } 
-            });
-            const fileData = await res.json();
-            await fetch(`https://api.github.com/repos/${repo}/contents/photos.json`, {
-                method: "PUT",
-                headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    message: msg,
-                    content: btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2)))),
-                    sha: fileData.sha
-                })
-            });
-        }
+        alert(
+            "오류"
+        );
+    }
+}
 
-        async function deletePhoto(index, fileName) {
-            const token = document.getElementById('token').value;
-            if(!confirm("삭제하시겠습니까?")) return;
-            const photos = [...window.allPhotos];
-            photos.splice(index, 1);
-            try {
-                await saveJson(token, `Delete ${fileName}`, photos);
-                const fileRes = await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, { 
-                    headers: { "Authorization": `token ${token}` } 
-                });
-                if (fileRes.ok) {
-                    const fData = await fileRes.json();
-                    await fetch(`https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`, {
-                        method: "DELETE",
-                        headers: { "Authorization": `token ${token}` },
-                        body: JSON.stringify({ message: `Delete file`, sha: fData.sha })
-                    });
-                }
-                loadPhotoList();
-            } catch(e) { alert("오류"); }
-        }
-    </script>
+
+
+/* =========================================================
+   INITIALIZE HOMEPAGE SETTINGS FORM
+========================================================= */
+
+fillSiteSettingsForm(
+    DEFAULT_SITE_SETTINGS
+);
+
+</script>
+
 </body>
 </html>
