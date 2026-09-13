@@ -1,408 +1,1391 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Management — Hamihamoo Photography</title>
 
-    <title>사진 통합 관리 시스템</title>
+<script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+<style>
+* {
+    box-sizing: border-box;
+}
 
-    <link rel="stylesheet" href="styles.css">
+html {
+    scroll-behavior: smooth;
+}
 
-    <style>
-        .admin-left-column {
-            width: 100%;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
+body {
+    margin: 0;
+    background: #fff;
+    color: #1d1d1b;
+    font-family: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
 
-        .upload-box {
-            max-width: 600px;
-            margin: 30px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-family: sans-serif;
-            background: white;
-        }
+body.no-scroll {
+    overflow: hidden;
+}
 
-        .site-settings-box {
-            width: 100%;
-            padding: 24px;
-            border: 1px solid #ddd;
-            background: white;
-            font-family: sans-serif;
-        }
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
 
-        .site-settings-box h2 {
-            margin-top: 0;
-        }
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
 
-        .settings-group {
-            padding-top: 20px;
-            margin-top: 20px;
-            border-top: 1px solid #ddd;
-        }
+button {
+    cursor: pointer;
+}
 
-        .settings-group:first-of-type {
-            padding-top: 0;
-            margin-top: 0;
-            border-top: 0;
-        }
+img {
+    display: block;
+    max-width: 100%;
+}
 
-        .settings-group h3 {
-            margin: 0 0 14px;
-            font-size: 1rem;
-            color: #333;
-        }
+.site-shell {
+    width: min(1268px, calc(100% - 64px));
+    margin: 0 auto;
+}
 
-        .settings-help {
-            margin: -4px 0 16px;
-            color: #777;
-            font-size: 0.78rem;
-            line-height: 1.6;
-        }
 
-        input,
-        button,
-        textarea,
-        select {
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 12px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
+/* =========================================================
+   HEADER
+========================================================= */
 
-        textarea {
-            min-height: 90px;
-            resize: vertical;
-        }
+.site-header {
+    height: 82px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #deded8;
+}
 
-        label {
-            font-size: 0.85rem;
-            color: #555;
-            margin-bottom: 5px;
-            display: block;
-            font-weight: bold;
-        }
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #111;
+    text-decoration: none;
+}
 
-        button {
-            background-color: #333;
-            color: white;
-            cursor: pointer;
-            border: none;
-            font-weight: bold;
-        }
+.brand-mark {
+    width: 35px;
+    height: 38px;
+    border: 1px solid #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 29px;
+    font-style: italic;
+    line-height: 1;
+}
 
-        button:hover {
-            background-color: #555;
-        }
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
 
-        #status {
-            color: blue;
-            font-weight: bold;
-            text-align: center;
-            margin-top: 10px;
-            white-space: pre-wrap;
-            font-size: 0.9rem;
-        }
+.brand-name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
 
-        #siteSettingsStatus {
-            margin-top: 10px;
-            min-height: 22px;
-            white-space: pre-wrap;
-            color: #555;
-            font-size: 0.85rem;
-            line-height: 1.6;
-        }
+.brand-subtitle {
+    margin-top: 5px;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+}
 
-        .settings-button-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 16px;
-        }
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+}
 
-        .settings-button-row button {
-            margin: 0;
-        }
+.nav-link,
+.nav-button {
+    position: relative;
+    border: 0;
+    padding: 8px 0;
+    background: none;
+    color: #282824;
+    text-decoration: none;
+    font-size: 12px;
+    line-height: 1.3;
+    white-space: nowrap;
+}
 
-        .settings-load-btn {
-            background: #666;
-        }
+.nav-link:hover,
+.nav-button:hover {
+    color: #000;
+}
 
-        .settings-save-btn {
-            background: #222;
-        }
+.nav-link.current::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -11px;
+    height: 1px;
+    background: #111;
+}
 
-        .manage-section {
-            max-width: 600px;
-            margin: 50px auto;
-            font-family: sans-serif;
-        }
+.nav-lock {
+    margin-right: 5px;
+    font-size: 11px;
+    opacity: 0.7;
+}
 
-        .batch-tool-box {
-            background: #fff4e5;
-            padding: 15px;
-            border: 2px solid #ff9800;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
-        }
+.mobile-menu-btn {
+    display: none;
+    border: 0;
+    background: none;
+    color: #111;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    padding: 10px 0;
+}
 
-        .batch-tool-box h3 {
-            margin-top: 0;
-            font-size: 1rem;
-            color: #e65100;
-        }
 
-        .magic-btn {
-            background-color: #ff9800;
-            margin-top: 5px;
-        }
+/* =========================================================
+   PAGE INTRO
+========================================================= */
 
-        .save-all-btn {
-            background-color: #28a745;
-            margin-top: 10px;
-        }
+.page-intro {
+    padding: 61px 0 48px;
+}
 
-        .photo-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            gap: 15px;
-            background: #fff;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #eee;
-        }
+.page-kicker {
+    margin-bottom: 19px;
+    color: #57574f;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+}
 
-        .photo-item img {
-            width: 80px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
-            background: #f9f9f9;
-        }
+.page-intro-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 60px;
+    align-items: end;
+}
 
-        .photo-info-edit {
-            flex-grow: 1;
-        }
+.page-title {
+    margin: 0;
+    color: #222220;
+    font-size: clamp(58px, 6vw, 88px);
+    font-weight: 400;
+    letter-spacing: -0.06em;
+    line-height: 0.96;
+}
 
-        .photo-info-edit input,
-        .photo-info-edit select {
-            margin-bottom: 5px;
-            padding: 8px;
-            font-size: 0.85rem;
-            width: 100%;
-        }
+.page-title em {
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.05em;
+}
 
-        .delete-btn {
-            background-color: #dc3545;
-            width: auto;
-            padding: 6px 12px;
-            font-size: 0.75rem;
-        }
+.page-description {
+    margin: 0 0 5px;
+    color: #67675f;
+    font-size: 12px;
+    line-height: 1.85;
+    word-break: keep-all;
+}
 
-        .refresh-btn {
-            background-color: #007bff;
-            margin-bottom: 10px;
-        }
 
-        @media (max-width: 768px) {
-            .photo-item {
-                align-items: flex-start;
-            }
+/* =========================================================
+   GITHUB ACCESS
+========================================================= */
 
-            .photo-item img {
-                width: 70px;
-                height: 52px;
-            }
+.admin-auth {
+    border-top: 1px solid #242420;
+    border-bottom: 1px solid #deded8;
+    padding: 15px 0;
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr) auto;
+    gap: 20px;
+    align-items: center;
+}
 
-            .settings-button-row {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+.auth-title {
+    font-size: 11px;
+    color: #252521;
+}
 
-    <link rel="stylesheet" href="journal.css">
+.auth-field {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.auth-field input {
+    width: min(430px, 100%);
+    height: 38px;
+    border: 1px solid #d5d5cf;
+    border-radius: 0;
+    padding: 0 11px;
+    background: #fff;
+    color: #222;
+    outline: none;
+    font-size: 11px;
+}
+
+.auth-field input:focus {
+    border-color: #55554f;
+}
+
+.auth-status {
+    color: #92928a;
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+.auth-note {
+    color: #a1a198;
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   ADMIN SECTIONS
+========================================================= */
+
+.admin-content {
+    padding: 34px 0 100px;
+}
+
+.admin-section {
+    padding: 0 0 60px;
+    margin-bottom: 54px;
+    border-bottom: 1px solid #deded8;
+}
+
+.admin-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-heading {
+    display: grid;
+    grid-template-columns: 190px minmax(0, 1fr) auto;
+    gap: 22px;
+    align-items: start;
+    margin-bottom: 24px;
+}
+
+.section-index {
+    color: #92928a;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+}
+
+.section-title {
+    margin: 0;
+    color: #262622;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 31px;
+    font-weight: 400;
+    line-height: 1.05;
+}
+
+.section-description {
+    margin: 8px 0 0;
+    max-width: 650px;
+    color: #818179;
+    font-size: 10px;
+    line-height: 1.8;
+    word-break: keep-all;
+}
+
+.section-meta {
+    color: #8e8e85;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   GENERAL FORM / BUTTON
+========================================================= */
+
+.field-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #66665f;
+    font-size: 9px;
+    letter-spacing: 0.07em;
+}
+
+.form-help,
+.info-msg,
+.settings-help {
+    margin: 8px 0 0;
+    color: #96968d;
+    font-size: 9px;
+    line-height: 1.7;
+    word-break: keep-all;
+}
+
+.action-btn {
+    border: 0;
+    padding: 11px 16px;
+    background: #222;
+    color: #fff;
+    font-size: 10px;
+    letter-spacing: 0.03em;
+}
+
+.action-btn:hover {
+    background: #444;
+}
+
+.secondary-btn {
+    border: 1px solid #cfcfc8;
+    padding: 10px 15px;
+    background: #fff;
+    color: #33332e;
+    font-size: 10px;
+}
+
+.secondary-btn:hover {
+    border-color: #888880;
+}
+
+.button-row {
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+
+.button-row button {
+    min-width: 150px;
+}
+
+#status,
+#siteSettingsStatus {
+    margin-top: 13px;
+    min-height: 19px;
+    color: #66665f;
+    white-space: pre-wrap;
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   UPLOAD
+========================================================= */
+
+.upload-panel {
+    margin-left: 212px;
+    max-width: 840px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 230px;
+    gap: 30px;
+    align-items: start;
+}
+
+.file-drop {
+    border: 1px solid #d8d8d2;
+    padding: 24px;
+    background: #fafaf7;
+}
+
+.file-drop input[type="file"] {
+    width: 100%;
+    margin-top: 10px;
+    font-size: 10px;
+}
+
+.upload-side-note {
+    padding-top: 3px;
+    color: #77776f;
+    font-size: 10px;
+    line-height: 1.8;
+    word-break: keep-all;
+}
+
+.upload-side-note strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #33332f;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   SITE SETTINGS
+========================================================= */
+
+.site-settings-box {
+    margin-left: 212px;
+    max-width: 840px;
+}
+
+.settings-group {
+    padding-top: 26px;
+    margin-top: 26px;
+    border-top: 1px solid #e3e3dd;
+}
+
+.settings-group:first-child {
+    padding-top: 0;
+    margin-top: 0;
+    border-top: 0;
+}
+
+.settings-group h3 {
+    margin: 0 0 15px;
+    color: #33332f;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.settings-group-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 18px;
+}
+
+.settings-field.full {
+    grid-column: 1 / -1;
+}
+
+.settings-field label {
+    display: block;
+    margin-bottom: 7px;
+    color: #73736c;
+    font-size: 9px;
+}
+
+.settings-field input,
+.settings-field textarea {
+    width: 100%;
+    border: 1px solid #d8d8d2;
+    border-radius: 0;
+    padding: 11px 12px;
+    background: #fff;
+    color: #222;
+    outline: none;
+    font-size: 11px;
+}
+
+.settings-field textarea {
+    min-height: 88px;
+    resize: vertical;
+    line-height: 1.65;
+}
+
+.settings-field input:focus,
+.settings-field textarea:focus {
+    border-color: #66665f;
+}
+
+.settings-button-row {
+    display: flex;
+    gap: 9px;
+    margin-top: 22px;
+}
+
+.settings-button-row button {
+    min-width: 180px;
+}
+
+
+/* =========================================================
+   PHOTO LIBRARY
+========================================================= */
+
+.manage-toolbar {
+    margin-left: 212px;
+    max-width: 840px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.refresh-btn {
+    border: 1px solid #cfcfc8;
+    padding: 10px 14px;
+    background: #fff;
+    color: #33332e;
+    font-size: 10px;
+}
+
+.refresh-btn:hover {
+    border-color: #888880;
+}
+
+.batch-tool-box {
+    display: none;
+    margin: 0 0 22px 212px;
+    max-width: 840px;
+    padding: 18px;
+    border: 1px solid #deded7;
+    background: #fafaf7;
+}
+
+.batch-tool-box h3 {
+    margin: 0 0 7px;
+    color: #33332e;
+    font-size: 11px;
+}
+
+.batch-tool-box p {
+    margin: 0 0 14px;
+    color: #8c8c83;
+    font-size: 9px;
+    line-height: 1.7;
+}
+
+.batch-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.magic-btn,
+.save-all-btn {
+    border: 1px solid #cdcdc6;
+    padding: 9px 11px;
+    background: #fff;
+    color: #33332f;
+    font-size: 9px;
+}
+
+.magic-btn:hover,
+.save-all-btn:hover {
+    border-color: #77776f;
+}
+
+.save-all-btn {
+    background: #222;
+    border-color: #222;
+    color: #fff;
+}
+
+#photoList {
+    margin-left: 212px;
+    max-width: 840px;
+}
+
+.photo-list-placeholder {
+    padding: 45px 0;
+    border-top: 1px solid #e2e2dc;
+    border-bottom: 1px solid #e2e2dc;
+    color: #999991;
+    text-align: center;
+    font-size: 10px;
+}
+
+.photo-item {
+    display: grid;
+    grid-template-columns: 128px minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: start;
+    padding: 16px 0;
+    border-top: 1px solid #e2e2dc;
+}
+
+.photo-item:last-child {
+    border-bottom: 1px solid #e2e2dc;
+}
+
+.photo-item img {
+    width: 128px;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background: #f4f4f0;
+}
+
+.photo-info-edit {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr) 130px;
+    gap: 8px;
+    align-items: start;
+}
+
+.photo-info-edit small {
+    grid-column: 1 / -1;
+    color: #aaa9a0;
+    font-size: 8px;
+    word-break: break-all;
+}
+
+.photo-info-edit input,
+.photo-info-edit select {
+    width: 100%;
+    margin: 0;
+    border: 1px solid #d8d8d2;
+    border-radius: 0;
+    padding: 9px 10px;
+    background: #fff;
+    color: #222;
+    outline: none;
+    font-size: 10px;
+}
+
+.photo-info-edit input:focus,
+.photo-info-edit select:focus {
+    border-color: #66665f;
+}
+
+.delete-btn {
+    border: 0;
+    border-bottom: 1px solid #b78e8e;
+    padding: 5px 0;
+    background: none;
+    color: #9d4747;
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   ABOUT
+========================================================= */
+
+.about-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    background: rgba(20, 20, 18, 0.48);
+}
+
+.about-overlay.open {
+    display: flex;
+}
+
+.about-modal {
+    position: relative;
+    width: min(430px, 100%);
+    padding: 40px 38px 34px;
+    background: #fff;
+    border: 1px solid #55554f;
+    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.16);
+}
+
+.about-close {
+    position: absolute;
+    top: 10px;
+    right: 13px;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    background: none;
+    color: #66665f;
+    font-size: 18px;
+}
+
+.about-kicker {
+    margin-bottom: 34px;
+    color: #55554f;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+}
+
+.about-title {
+    margin: 0 0 7px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: #242421;
+}
+
+.about-role {
+    margin-bottom: 23px;
+    color: #99998f;
+    font-size: 12px;
+}
+
+.about-copy {
+    color: #66665d;
+    font-size: 13px;
+    line-height: 1.9;
+}
+
+.about-copy p {
+    margin: 0 0 23px;
+}
+
+.about-divider {
+    height: 1px;
+    margin: 30px 0 22px;
+    background: #dfdfd9;
+}
+
+.about-signoff {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 22px;
+    font-style: italic;
+    color: #34342f;
+}
+
+
+/* =========================================================
+   TOP / FOOTER
+========================================================= */
+
+.top-button {
+    position: fixed;
+    right: 26px;
+    bottom: 24px;
+    z-index: 5000;
+    width: 44px;
+    height: 44px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #c7c7c0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.94);
+    color: #222;
+    font-size: 17px;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.06);
+}
+
+.top-button.show {
+    display: flex;
+}
+
+.site-footer {
+    padding: 30px 0 40px;
+    border-top: 1px solid #deded8;
+    color: #96968d;
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .main-nav {
+        gap: 20px;
+    }
+
+    .page-intro-grid {
+        grid-template-columns: minmax(0, 1fr) 260px;
+        gap: 34px;
+    }
+
+    .upload-panel,
+    .site-settings-box,
+    .manage-toolbar,
+    .batch-tool-box,
+    #photoList {
+        margin-left: 0;
+        max-width: none;
+    }
+
+    .section-heading {
+        grid-template-columns: 110px minmax(0, 1fr) auto;
+    }
+
+    .upload-panel {
+        grid-template-columns: minmax(0, 1fr) 210px;
+    }
+
+    .photo-info-edit {
+        grid-template-columns: 135px minmax(0, 1fr);
+    }
+
+    .photo-info-edit select {
+        grid-column: 1 / 2;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .site-shell {
+        width: calc(100% - 32px);
+    }
+
+    .site-header {
+        height: 72px;
+    }
+
+    .brand {
+        gap: 9px;
+    }
+
+    .brand-mark {
+        width: 31px;
+        height: 34px;
+        font-size: 25px;
+    }
+
+    .brand-name {
+        font-size: 14px;
+    }
+
+    .brand-subtitle {
+        margin-top: 4px;
+        font-size: 8px;
+    }
+
+    .main-nav {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 7000;
+        width: min(300px, 82vw);
+        padding: 95px 30px 35px;
+        background: #fff;
+        border-left: 1px solid #ddd;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 9px;
+        transform: translateX(102%);
+        transition: transform 0.25s ease;
+        box-shadow: -15px 0 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .main-nav.open {
+        transform: translateX(0);
+    }
+
+    .main-nav .nav-link,
+    .main-nav .nav-button {
+        width: 100%;
+        padding: 13px 0;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+        font-size: 13px;
+    }
+
+    .main-nav .nav-link.current::after {
+        display: none;
+    }
+
+    .mobile-menu-btn {
+        display: block;
+        position: relative;
+        z-index: 7100;
+    }
+
+    .page-intro {
+        padding: 43px 0 38px;
+    }
+
+    .page-kicker {
+        margin-bottom: 16px;
+        font-size: 8px;
+    }
+
+    .page-intro-grid {
+        display: block;
+    }
+
+    .page-title {
+        font-size: clamp(48px, 14vw, 68px);
+    }
+
+    .page-description {
+        margin-top: 28px;
+        max-width: 320px;
+    }
+
+    .admin-auth {
+        grid-template-columns: 1fr;
+        gap: 9px;
+    }
+
+    .auth-field {
+        display: block;
+    }
+
+    .auth-field input {
+        width: 100%;
+        margin-bottom: 7px;
+    }
+
+    .auth-note {
+        display: none;
+    }
+
+    .admin-content {
+        padding-top: 28px;
+    }
+
+    .admin-section {
+        padding-bottom: 48px;
+        margin-bottom: 44px;
+    }
+
+    .section-heading {
+        display: block;
+    }
+
+    .section-index {
+        margin-bottom: 8px;
+    }
+
+    .section-title {
+        font-size: 28px;
+    }
+
+    .section-meta {
+        margin-top: 12px;
+    }
+
+    .upload-panel {
+        display: block;
+    }
+
+    .upload-side-note {
+        margin-top: 18px;
+    }
+
+    .settings-group-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-field.full {
+        grid-column: auto;
+    }
+
+    .settings-button-row,
+    .button-row {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .settings-button-row button,
+    .button-row button {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .manage-toolbar {
+        display: block;
+    }
+
+    .refresh-btn {
+        width: 100%;
+    }
+
+    .batch-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .photo-item {
+        grid-template-columns: 88px minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .photo-item img {
+        width: 88px;
+    }
+
+    .photo-info-edit {
+        grid-template-columns: 1fr;
+    }
+
+    .photo-info-edit select,
+    .photo-info-edit small {
+        grid-column: auto;
+    }
+
+    .delete-btn {
+        grid-column: 2;
+        justify-self: start;
+    }
+
+    .about-overlay {
+        padding: 16px;
+    }
+
+    .about-modal {
+        padding: 36px 26px 29px;
+    }
+
+    .about-title {
+        font-size: 35px;
+    }
+
+    .about-copy {
+        font-size: 12px;
+    }
+
+    .top-button {
+        right: 15px;
+        bottom: 17px;
+        width: 42px;
+        height: 42px;
+    }
+
+    .site-footer {
+        flex-direction: column;
+        gap: 6px;
+    }
+}
+
+
+@media (max-width: 390px) {
+
+    .site-shell {
+        width: calc(100% - 24px);
+    }
+
+    .page-title {
+        font-size: 44px;
+    }
+
+    .photo-item {
+        grid-template-columns: 78px minmax(0, 1fr);
+    }
+
+    .photo-item img {
+        width: 78px;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+</style>
 </head>
 
 
-<body class="journal-page page-upload">
+<body>
 
-<div class="container">
+<div class="site-shell">
 
+<header class="site-header">
 
-    <!-- =====================================================
-         기존 상단 영역
-    ====================================================== -->
+    <a
+        class="brand"
+        href="index.html"
+        aria-label="Hamihamoo Photography"
+    >
 
-    <div class="profile">
+        <div class="brand-mark" id="brandMark">
+            h.
+        </div>
 
-        <div class="journal-brand">
+        <div class="brand-text">
 
-            <img
-                src="images/KakaoTalk_20240406_232152395.jpg"
-                alt="프로필 사진"
-                class="profile-img"
-            >
+            <div class="brand-name" id="brandName">
+                hamihamoo
+            </div>
 
-            <div class="journal-brand-copy">
-
-                <h2>Hamihamoo</h2>
-
-                <p>Amateur Photographer</p>
-
+            <div class="brand-subtitle" id="brandSubtitle">
+                PHOTOGRAPHY
             </div>
 
         </div>
 
+    </a>
 
-        <nav>
 
-            <ul>
+    <button
+        class="mobile-menu-btn"
+        id="mobileMenuBtn"
+        type="button"
+        onclick="toggleMobileMenu()"
+    >
+        MENU
+    </button>
 
-                <li>
-                    <a href="index.html">
-                        main page
-                    </a>
-                </li>
 
-                <li>
-                    <a href="digital.html">
-                        digital photos
-                    </a>
-                </li>
+    <nav
+        class="main-nav"
+        id="mainNav"
+    >
 
-                <li>
-                    <a href="film.html">
-                        film photos
-                    </a>
-                </li>
+        <a
+            href="index.html"
+            class="nav-link"
+        >
+            사진
+        </a>
 
-                <li>
-                    <a href="colors.html">
-                        colors archive
-                    </a>
-                </li>
+        <a
+            href="colors.html"
+            class="nav-link"
+            id="colorsNav"
+        >
+            Colors
+        </a>
 
-                <li>
-                    <a href="analysis.html">
-                        analysis
-                    </a>
-                </li>
+        <a
+            href="analysis.html"
+            class="nav-link"
+            id="projectsNav"
+        >
+            Projects
+        </a>
 
-                <li>
-                    <a href="guestbook.html">
-                        guestbook
-                    </a>
-                </li>
+        <a
+            href="guestbook.html"
+            class="nav-link"
+            id="guestbookNav"
+        >
+            Guestbook
+        </a>
 
-            </ul>
+        <button
+            class="nav-button"
+            id="aboutNav"
+            type="button"
+            onclick="openAbout()"
+        >
+            작가 소개
+        </button>
 
-        </nav>
+        <a
+            href="upload.html"
+            class="nav-link current"
+        >
+            <span class="nav-lock">
+                ♙
+            </span>
+
+            <span id="manageNavLabel">
+                사진 관리
+            </span>
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+
+<section class="page-intro">
+
+    <div class="page-kicker">
+        SITE ADMINISTRATION
+    </div>
+
+    <div class="page-intro-grid">
+
+        <h1 class="page-title">
+            Photo <em>Management.</em>
+        </h1>
+
+        <p class="page-description">
+            사진 업로드부터 메타데이터 관리,
+            홈페이지 문구 수정까지 한곳에서 관리합니다.
+            변경 사항은 GitHub 저장소에 직접 반영됩니다.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="admin-auth">
+
+    <div class="auth-title">
+        GitHub Access
+    </div>
+
+    <div class="auth-field">
+
+        <input
+            type="password"
+            id="token"
+            placeholder="GitHub token"
+            autocomplete="off"
+        >
+
+        <div
+            class="auth-status"
+            id="tokenMemoryStatus"
+        >
+            토큰은 현재 브라우저 탭에서만 기억합니다.
+        </div>
+
+    </div>
+
+    <div class="auth-note">
+        PRIVATE ADMIN TOOL
+    </div>
+
+</section>
+
+
+<div class="admin-content">
+
+
+<!-- =====================================================
+     01 UPLOAD
+===================================================== -->
+
+<section class="admin-section">
+
+    <div class="section-heading">
+
+        <div class="section-index">
+            01 / UPLOAD
+        </div>
+
+        <div>
+
+            <h2 class="section-title">
+                Upload photographs.
+            </h2>
+
+            <p class="section-description">
+                여러 장의 사진을 한 번에 올릴 수 있습니다.
+                촬영일, 카메라, 조리개, 셔터스피드,
+                ISO와 색상 정보를 자동으로 정리합니다.
+            </p>
+
+        </div>
+
+        <div class="section-meta">
+            JPEG · MULTIPLE
+        </div>
 
     </div>
 
 
-    <main class="main-content">
+    <div class="upload-panel">
 
+        <div class="file-drop">
 
-        <!-- =================================================
-             왼쪽 관리 영역
-        ================================================== -->
+            <label
+                class="field-label"
+                for="fileInput"
+            >
+                Select photographs
+            </label>
 
-        <div class="admin-left-column">
+            <input
+                type="file"
+                id="fileInput"
+                accept="image/*"
+                multiple
+            >
 
+            <div class="button-row">
 
-            <!-- =============================================
-                 사진 업로드
-            ============================================== -->
-
-            <div class="upload-box">
-
-                <h2>
-                    📷 사진 올리기 (다중 선택 가능)
-                </h2>
-
-
-                <input
-                    type="password"
-                    id="token"
-                    placeholder="깃허브 토큰 입력"
+                <button
+                    class="action-btn"
+                    type="button"
+                    onclick="handleUpload()"
                 >
-
-
-                <label>
-                    📷 사진 선택 (여러 장 가능)
-                </label>
-
-                <input
-                    type="file"
-                    id="fileInput"
-                    accept="image/*"
-                    multiple
-                >
-
-
-                <p
-                    class="info-msg"
-                    style="
-                        font-size:0.8rem;
-                        color:#666;
-                        text-align:center;
-                    "
-                >
-                    ※ 여러 장 업로드 시,
-                    각 사진의 메타데이터 날짜로 자동 저장됩니다.
-                </p>
-
-
-                <button onclick="handleUpload()">
                     업로드 시작
                 </button>
 
-
-                <div id="status"></div>
-
             </div>
 
+            <div id="status"></div>
+
+        </div>
 
 
-            <!-- =============================================
-                 홈페이지 문구 관리
-            ============================================== -->
+        <div class="upload-side-note">
 
-            <div class="site-settings-box">
+            <strong>
+                Upload process
+            </strong>
 
-                <h2>
-                    ✏️ 홈페이지 문구 관리
-                </h2>
+            사진은 최대 가로 1920px JPEG로
+            최적화되어 저장됩니다.
+            촬영 날짜는 EXIF 정보를 우선 사용하며,
+            색상은 이미지 분석 결과에 따라 자동 분류됩니다.
 
-                <p class="settings-help">
-                    메인 홈페이지와 작가 소개에 표시되는 문구를
-                    여기에서 수정할 수 있습니다.
-                    사진이나 photos.json에는 영향을 주지 않습니다.
-                </p>
+        </div>
 
+    </div>
 
-                <!-- 상단 브랜드 -->
-
-                <div class="settings-group">
-
-                    <h3>
-                        상단 브랜드
-                    </h3>
+</section>
 
 
-                    <label>
+
+<!-- =====================================================
+     02 SITE SETTINGS
+===================================================== -->
+
+<section class="admin-section">
+
+    <div class="section-heading">
+
+        <div class="section-index">
+            02 / SITE TEXT
+        </div>
+
+        <div>
+
+            <h2 class="section-title">
+                Homepage settings.
+            </h2>
+
+            <p class="section-description">
+                메인 화면과 작가 소개에 표시되는 문구를 수정합니다.
+                저장하면 <strong>site.json</strong>에 반영되며
+                사진 데이터에는 영향을 주지 않습니다.
+            </p>
+
+        </div>
+
+        <div class="section-meta">
+            SITE.JSON
+        </div>
+
+    </div>
+
+
+    <div class="site-settings-box">
+
+
+        <div class="settings-group">
+
+            <h3>Brand</h3>
+
+            <div class="settings-group-grid">
+
+                <div class="settings-field">
+
+                    <label for="siteBrandMark">
                         왼쪽 로고 글자
                     </label>
 
@@ -411,8 +1394,12 @@
                         id="siteBrandMark"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field">
+
+                    <label for="siteBrandName">
                         사이트 이름
                     </label>
 
@@ -421,8 +1408,12 @@
                         id="siteBrandName"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field full">
+
+                    <label for="siteBrandSubtitle">
                         사이트 부제
                     </label>
 
@@ -433,18 +1424,21 @@
 
                 </div>
 
+            </div>
+
+        </div>
 
 
-                <!-- 첫 화면 -->
 
-                <div class="settings-group">
+        <div class="settings-group">
 
-                    <h3>
-                        메인 첫 화면
-                    </h3>
+            <h3>Main Hero</h3>
 
+            <div class="settings-group-grid">
 
-                    <label>
+                <div class="settings-field full">
+
+                    <label for="siteArchiveKicker">
                         작은 상단 문구
                     </label>
 
@@ -453,8 +1447,12 @@
                         id="siteArchiveKicker"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field">
+
+                    <label for="siteHeroPrefix">
                         큰 제목 앞부분
                     </label>
 
@@ -463,8 +1461,12 @@
                         id="siteHeroPrefix"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field">
+
+                    <label for="siteHeroEmphasis">
                         큰 제목 이탤릭 부분
                     </label>
 
@@ -473,8 +1475,12 @@
                         id="siteHeroEmphasis"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field full">
+
+                    <label for="siteHeroNote">
                         오른쪽 소개 문구
                     </label>
 
@@ -482,8 +1488,12 @@
                         id="siteHeroNote"
                     ></textarea>
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field">
+
+                    <label for="siteHeroCredit">
                         사진가 표기
                     </label>
 
@@ -492,8 +1502,12 @@
                         id="siteHeroCredit"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field">
+
+                    <label for="siteGalleryTitle">
                         갤러리 제목
                     </label>
 
@@ -504,18 +1518,21 @@
 
                 </div>
 
+            </div>
+
+        </div>
 
 
-                <!-- 메뉴 -->
 
-                <div class="settings-group">
+        <div class="settings-group">
 
-                    <h3>
-                        메뉴 이름
-                    </h3>
+            <h3>Navigation</h3>
 
+            <div class="settings-group-grid">
 
-                    <label>
+                <div class="settings-field">
+
+                    <label for="siteArchiveLabel">
                         Archive
                     </label>
 
@@ -524,8 +1541,12 @@
                         id="siteArchiveLabel"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field">
+
+                    <label for="siteColorsLabel">
                         Colors
                     </label>
 
@@ -534,8 +1555,12 @@
                         id="siteColorsLabel"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field">
+
+                    <label for="siteProjectsLabel">
                         Projects
                     </label>
 
@@ -544,8 +1569,12 @@
                         id="siteProjectsLabel"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field">
+
+                    <label for="siteGuestbookLabel">
                         Guestbook
                     </label>
 
@@ -554,8 +1583,12 @@
                         id="siteGuestbookLabel"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field">
+
+                    <label for="siteAboutLabel">
                         작가 소개 버튼
                     </label>
 
@@ -564,8 +1597,12 @@
                         id="siteAboutLabel"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field">
+
+                    <label for="siteManageLabel">
                         사진 관리 버튼
                     </label>
 
@@ -576,18 +1613,21 @@
 
                 </div>
 
+            </div>
+
+        </div>
 
 
-                <!-- 작가 소개 -->
 
-                <div class="settings-group">
+        <div class="settings-group">
 
-                    <h3>
-                        작가 소개 팝업
-                    </h3>
+            <h3>About</h3>
 
+            <div class="settings-group-grid">
 
-                    <label>
+                <div class="settings-field">
+
+                    <label for="siteAboutKicker">
                         작은 상단 문구
                     </label>
 
@@ -596,8 +1636,12 @@
                         id="siteAboutKicker"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field">
+
+                    <label for="siteAboutTitle">
                         작가 이름
                     </label>
 
@@ -606,8 +1650,12 @@
                         id="siteAboutTitle"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field full">
+
+                    <label for="siteAboutRole">
                         역할 / 부제
                     </label>
 
@@ -616,8 +1664,12 @@
                         id="siteAboutRole"
                     >
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field full">
+
+                    <label for="siteAboutIntro">
                         첫 번째 소개 문구
                     </label>
 
@@ -625,8 +1677,12 @@
                         id="siteAboutIntro"
                     ></textarea>
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field full">
+
+                    <label for="siteAboutBody">
                         본문
                     </label>
 
@@ -634,8 +1690,12 @@
                         id="siteAboutBody"
                     ></textarea>
 
+                </div>
 
-                    <label>
+
+                <div class="settings-field full">
+
+                    <label for="siteAboutSignoff">
                         마지막 문구
                     </label>
 
@@ -646,18 +1706,21 @@
 
                 </div>
 
+            </div>
+
+        </div>
 
 
-                <!-- 하단 -->
 
-                <div class="settings-group">
+        <div class="settings-group">
 
-                    <h3>
-                        하단
-                    </h3>
+            <h3>Footer</h3>
 
+            <div class="settings-group-grid">
 
-                    <label>
+                <div class="settings-field full">
+
+                    <label for="siteFooterCopyright">
                         저작권 문구
                     </label>
 
@@ -668,139 +1731,304 @@
 
                 </div>
 
-
-                <div class="settings-button-row">
-
-                    <button
-                        class="settings-load-btn"
-                        onclick="loadSiteSettingsFromGithub()"
-                    >
-                        🔄 현재 설정 불러오기
-                    </button>
-
-
-                    <button
-                        class="settings-save-btn"
-                        onclick="saveSiteSettingsToGithub()"
-                    >
-                        ✅ 홈페이지 설정 저장
-                    </button>
-
-                </div>
-
-
-                <div id="siteSettingsStatus"></div>
-
             </div>
 
         </div>
 
 
 
-        <!-- =================================================
-             기존 사진 관리
-        ================================================== -->
-
-        <div class="manage-section">
-
-            <h2>
-                📂 기존 사진 관리 및 복구
-            </h2>
-
+        <div class="settings-button-row">
 
             <button
-                class="refresh-btn"
-                onclick="loadPhotoList()"
+                class="secondary-btn"
+                type="button"
+                onclick="loadSiteSettingsFromGithub()"
             >
-                🔄 목록 불러오기
+                현재 설정 불러오기
             </button>
 
 
-            <div
-                id="batchTool"
-                class="batch-tool-box"
+            <button
+                class="action-btn"
+                type="button"
+                onclick="saveSiteSettingsToGithub()"
             >
-
-                <h3>
-                    🛠 일괄 날짜 복구 도구
-                </h3>
-
-
-                <p
-                    style="
-                        font-size:0.8rem;
-                        color:#666;
-                    "
-                >
-                    날짜가 없는 기존 사진들의 메타데이터를 분석하여
-                    자동으로 날짜를 채웁니다.
-                </p>
-
-
-                <button
-                    class="magic-btn"
-                    onclick="autoFillDates()"
-                >
-                    🪄 기존 사진 날짜 일괄 추출하기
-                </button>
-
-
-                <button
-                    class="magic-btn"
-                    onclick="normalizeMetadata()"
-                >
-                    🪄 기존 사진 메타데이터 일괄 정리하기
-                </button>
-
-
-                <button
-                    class="magic-btn"
-                    onclick="autoFillColors()"
-                >
-                    🪄 기존 사진 색상 일괄 분류하기
-                </button>
-
-
-                <button
-                    class="save-all-btn"
-                    onclick="saveAllChanges()"
-                >
-                    ✅ 변경된 모든 내용 저장하기
-                </button>
-
-            </div>
-
-
-            <div id="photoList">
-
-                <p
-                    style="
-                        text-align:center;
-                        color:#999;
-                    "
-                >
-                    토큰 입력 후 목록을 불러오세요.
-                </p>
-
-            </div>
+                홈페이지 설정 저장
+            </button>
 
         </div>
 
-    </main>
+
+        <div id="siteSettingsStatus"></div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     03 PHOTO LIBRARY
+===================================================== -->
+
+<section class="admin-section">
+
+    <div class="section-heading">
+
+        <div class="section-index">
+            03 / LIBRARY
+        </div>
+
+        <div>
+
+            <h2 class="section-title">
+                Manage photographs.
+            </h2>
+
+            <p class="section-description">
+                기존 사진의 날짜, 촬영정보와 색상을 수정하거나
+                사진을 삭제할 수 있습니다.
+                일괄 정리 도구를 사용한 뒤에는 반드시
+                변경 내용을 저장해주세요.
+            </p>
+
+        </div>
+
+        <div
+            class="section-meta"
+            id="photoCount"
+        >
+            NOT LOADED
+        </div>
+
+    </div>
+
+
+    <div class="manage-toolbar">
+
+        <button
+            class="refresh-btn"
+            type="button"
+            onclick="loadPhotoList()"
+        >
+            목록 불러오기
+        </button>
+
+    </div>
+
+
+    <div
+        id="batchTool"
+        class="batch-tool-box"
+    >
+
+        <h3>
+            Maintenance tools
+        </h3>
+
+        <p>
+            날짜 복구, 메타데이터 정리,
+            색상 재분류를 기존 사진 전체에 적용할 수 있습니다.
+        </p>
+
+
+        <div class="batch-actions">
+
+            <button
+                class="magic-btn"
+                type="button"
+                onclick="autoFillDates()"
+            >
+                날짜 일괄 추출
+            </button>
+
+
+            <button
+                class="magic-btn"
+                type="button"
+                onclick="normalizeMetadata()"
+            >
+                메타데이터 일괄 정리
+            </button>
+
+
+            <button
+                class="magic-btn"
+                type="button"
+                onclick="autoFillColors()"
+            >
+                색상 일괄 분류
+            </button>
+
+
+            <button
+                class="save-all-btn"
+                type="button"
+                onclick="saveAllChanges()"
+            >
+                변경 내용 저장
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div id="photoList">
+
+        <div class="photo-list-placeholder">
+            위 GitHub 토큰을 입력한 뒤 목록을 불러오세요.
+        </div>
+
+    </div>
+
+</section>
+
+
+</div>
+
+</main>
+
+
+<footer class="site-footer">
+
+    <div id="footerCopyright">
+        © 2026 Hamihamoo
+    </div>
+
+    <div>
+        Private management interface.
+    </div>
+
+</footer>
 
 </div>
 
 
 
+<!-- =========================================================
+     ABOUT
+========================================================= -->
+
+<div
+    class="about-overlay"
+    id="aboutOverlay"
+    aria-hidden="true"
+>
+
+    <div
+        class="about-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="aboutTitle"
+    >
+
+        <button
+            class="about-close"
+            type="button"
+            onclick="closeAbout()"
+            aria-label="닫기"
+        >
+            ×
+        </button>
+
+
+        <div
+            class="about-kicker"
+            id="aboutKicker"
+        >
+            BEHIND THE CAMERA
+        </div>
+
+
+        <h2
+            class="about-title"
+            id="aboutTitle"
+        >
+            Hamihamoo
+        </h2>
+
+
+        <div
+            class="about-role"
+            id="aboutRole"
+        >
+            사진가의 기록
+        </div>
+
+
+        <div class="about-copy">
+
+            <p id="aboutIntro">
+                빛과 색, 그리고 일상 속 작은 장면들.
+            </p>
+
+            <p id="aboutBody">
+                발걸음을 멈추게 하는 순간을 사진으로 남깁니다.
+                이곳은 그렇게 모인 시선들을 나누는 공간입니다.
+            </p>
+
+        </div>
+
+
+        <div class="about-divider"></div>
+
+
+        <div
+            class="about-signoff"
+            id="aboutSignoff"
+        >
+            A way of seeing.
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<button
+    class="top-button"
+    id="topButton"
+    type="button"
+    onclick="scrollToTop()"
+    aria-label="맨 위로"
+>
+    ↑
+</button>
+
+
+
 <script>
+
+/* =========================================================
+   BASIC SETTINGS
+========================================================= */
 
 const repo =
     "Helios0513/Photo_Archive.github.io";
 
 
-/* =========================================================
-   HOMEPAGE SETTINGS
-========================================================= */
+const TOKEN_KEY =
+    "photoArchiveGithubToken";
+
+
+const COLOR_OPTIONS = [
+
+    "Black",
+    "White",
+    "Gray",
+    "Brown",
+    "Red",
+    "Orange",
+    "Yellow",
+    "Green",
+    "Blue",
+    "Purple",
+    "Pink"
+
+];
+
 
 const DEFAULT_SITE_SETTINGS = {
 
@@ -873,262 +2101,475 @@ const DEFAULT_SITE_SETTINGS = {
 
 
 
-function fillSiteSettingsForm(settings) {
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
+
+
+
+function encodeBase64Utf8(
+    text
+) {
+
+    return btoa(
+        unescape(
+            encodeURIComponent(
+                text
+            )
+        )
+    );
+}
+
+
+
+function decodeBase64Utf8(
+    text
+) {
+
+    return decodeURIComponent(
+        escape(
+            atob(
+                String(
+                    text || ""
+                )
+                .replace(
+                    /\n/g,
+                    ""
+                )
+            )
+        )
+    );
+}
+
+
+
+function photoUrl(
+    filename
+) {
+
+    return (
+        "images/digital/" +
+        encodeURIComponent(
+            filename
+        )
+    );
+}
+
+
+
+/* =========================================================
+   TOKEN MEMORY
+========================================================= */
+
+function getToken() {
+
+    const input =
+        document.getElementById(
+            "token"
+        );
+
+
+    const token =
+        input.value.trim();
+
+
+    if (
+        token
+    ) {
+
+        sessionStorage.setItem(
+            TOKEN_KEY,
+            token
+        );
+    }
+
+
+    return token;
+}
+
+
+
+function initializeToken() {
+
+    const input =
+        document.getElementById(
+            "token"
+        );
+
+
+    const status =
+        document.getElementById(
+            "tokenMemoryStatus"
+        );
+
+
+    const remembered =
+        sessionStorage.getItem(
+            TOKEN_KEY
+        ) || "";
+
+
+    input.value =
+        remembered;
+
+
+    status.textContent =
+        remembered
+        ? "이 탭에서 사용한 GitHub 토큰을 불러왔습니다."
+        : "토큰은 현재 브라우저 탭에서만 기억합니다.";
+
+
+    input.addEventListener(
+        "input",
+        () => {
+
+            const token =
+                input.value.trim();
+
+
+            if (
+                token
+            ) {
+
+                sessionStorage.setItem(
+                    TOKEN_KEY,
+                    token
+                );
+
+
+                status.textContent =
+                    "현재 탭에 토큰을 기억하고 있습니다.";
+
+            } else {
+
+                sessionStorage.removeItem(
+                    TOKEN_KEY
+                );
+
+
+                status.textContent =
+                    "토큰은 현재 브라우저 탭에서만 기억합니다.";
+            }
+        }
+    );
+}
+
+
+
+/* =========================================================
+   SITE SETTINGS
+========================================================= */
+
+function applySiteSettings(
+    settings
+) {
 
     const data = {
+
         ...DEFAULT_SITE_SETTINGS,
+
         ...(settings || {})
+
     };
 
 
-    document.getElementById(
-        "siteBrandMark"
-    ).value =
-        data.brandMark;
+    const map = {
+
+        brandMark:
+            data.brandMark,
+
+        brandName:
+            data.brandName,
+
+        brandSubtitle:
+            data.brandSubtitle,
+
+        colorsNav:
+            data.colorsLabel,
+
+        projectsNav:
+            data.projectsLabel,
+
+        guestbookNav:
+            data.guestbookLabel,
+
+        aboutNav:
+            data.aboutLabel,
+
+        manageNavLabel:
+            data.manageLabel,
+
+        aboutKicker:
+            data.aboutKicker,
+
+        aboutTitle:
+            data.aboutTitle,
+
+        aboutRole:
+            data.aboutRole,
+
+        aboutIntro:
+            data.aboutIntro,
+
+        aboutBody:
+            data.aboutBody,
+
+        aboutSignoff:
+            data.aboutSignoff,
+
+        footerCopyright:
+            data.footerCopyright
+
+    };
 
 
-    document.getElementById(
-        "siteBrandName"
-    ).value =
-        data.brandName;
+    Object.entries(
+        map
+    )
+    .forEach(
+        (
+            [
+                id,
+                value
+            ]
+        ) => {
+
+            const element =
+                document.getElementById(
+                    id
+                );
 
 
-    document.getElementById(
-        "siteBrandSubtitle"
-    ).value =
-        data.brandSubtitle;
+            if (
+                element
+            ) {
+
+                element.textContent =
+                    value || "";
+            }
+        }
+    );
+}
 
 
-    document.getElementById(
-        "siteArchiveKicker"
-    ).value =
-        data.archiveKicker;
 
+const SETTING_FIELDS = {
 
-    document.getElementById(
-        "siteHeroPrefix"
-    ).value =
-        data.heroPrefix;
+    brandMark:
+        "siteBrandMark",
 
+    brandName:
+        "siteBrandName",
 
-    document.getElementById(
-        "siteHeroEmphasis"
-    ).value =
-        data.heroEmphasis;
+    brandSubtitle:
+        "siteBrandSubtitle",
 
+    archiveKicker:
+        "siteArchiveKicker",
 
-    document.getElementById(
-        "siteHeroNote"
-    ).value =
-        data.heroNote;
+    heroPrefix:
+        "siteHeroPrefix",
 
+    heroEmphasis:
+        "siteHeroEmphasis",
 
-    document.getElementById(
-        "siteHeroCredit"
-    ).value =
-        data.heroCredit;
+    heroNote:
+        "siteHeroNote",
 
+    heroCredit:
+        "siteHeroCredit",
 
-    document.getElementById(
-        "siteGalleryTitle"
-    ).value =
-        data.galleryTitle;
+    galleryTitle:
+        "siteGalleryTitle",
 
+    archiveLabel:
+        "siteArchiveLabel",
 
-    document.getElementById(
-        "siteArchiveLabel"
-    ).value =
-        data.archiveLabel;
+    colorsLabel:
+        "siteColorsLabel",
 
+    projectsLabel:
+        "siteProjectsLabel",
 
-    document.getElementById(
-        "siteColorsLabel"
-    ).value =
-        data.colorsLabel;
+    guestbookLabel:
+        "siteGuestbookLabel",
 
+    aboutLabel:
+        "siteAboutLabel",
 
-    document.getElementById(
-        "siteProjectsLabel"
-    ).value =
-        data.projectsLabel;
+    manageLabel:
+        "siteManageLabel",
 
+    aboutKicker:
+        "siteAboutKicker",
 
-    document.getElementById(
-        "siteGuestbookLabel"
-    ).value =
-        data.guestbookLabel;
+    aboutTitle:
+        "siteAboutTitle",
 
+    aboutRole:
+        "siteAboutRole",
 
-    document.getElementById(
-        "siteAboutLabel"
-    ).value =
-        data.aboutLabel;
+    aboutIntro:
+        "siteAboutIntro",
 
+    aboutBody:
+        "siteAboutBody",
 
-    document.getElementById(
-        "siteManageLabel"
-    ).value =
-        data.manageLabel;
+    aboutSignoff:
+        "siteAboutSignoff",
 
-
-    document.getElementById(
-        "siteAboutKicker"
-    ).value =
-        data.aboutKicker;
-
-
-    document.getElementById(
-        "siteAboutTitle"
-    ).value =
-        data.aboutTitle;
-
-
-    document.getElementById(
-        "siteAboutRole"
-    ).value =
-        data.aboutRole;
-
-
-    document.getElementById(
-        "siteAboutIntro"
-    ).value =
-        data.aboutIntro;
-
-
-    document.getElementById(
-        "siteAboutBody"
-    ).value =
-        data.aboutBody;
-
-
-    document.getElementById(
-        "siteAboutSignoff"
-    ).value =
-        data.aboutSignoff;
-
-
-    document.getElementById(
+    footerCopyright:
         "siteFooterCopyright"
-    ).value =
-        data.footerCopyright;
+
+};
+
+
+
+function fillSiteSettingsForm(
+    settings
+) {
+
+    const data = {
+
+        ...DEFAULT_SITE_SETTINGS,
+
+        ...(settings || {})
+
+    };
+
+
+    Object.entries(
+        SETTING_FIELDS
+    )
+    .forEach(
+        (
+            [
+                key,
+                id
+            ]
+        ) => {
+
+            document.getElementById(
+                id
+            ).value =
+                data[key] ?? "";
+        }
+    );
 }
 
 
 
 function collectSiteSettingsForm() {
 
-    return {
+    const result =
+        {};
 
-        brandMark:
-            document.getElementById(
-                "siteBrandMark"
-            ).value.trim(),
 
-        brandName:
-            document.getElementById(
-                "siteBrandName"
-            ).value.trim(),
+    Object.entries(
+        SETTING_FIELDS
+    )
+    .forEach(
+        (
+            [
+                key,
+                id
+            ]
+        ) => {
 
-        brandSubtitle:
-            document.getElementById(
-                "siteBrandSubtitle"
-            ).value.trim(),
+            result[key] =
+                document
+                    .getElementById(
+                        id
+                    )
+                    .value
+                    .trim();
+        }
+    );
 
-        archiveKicker:
-            document.getElementById(
-                "siteArchiveKicker"
-            ).value.trim(),
 
-        heroPrefix:
-            document.getElementById(
-                "siteHeroPrefix"
-            ).value.trim(),
+    return result;
+}
 
-        heroEmphasis:
-            document.getElementById(
-                "siteHeroEmphasis"
-            ).value.trim(),
 
-        heroNote:
-            document.getElementById(
-                "siteHeroNote"
-            ).value.trim(),
 
-        heroCredit:
-            document.getElementById(
-                "siteHeroCredit"
-            ).value.trim(),
+async function loadPublicSiteSettings() {
 
-        galleryTitle:
-            document.getElementById(
-                "siteGalleryTitle"
-            ).value.trim(),
+    try {
 
-        archiveLabel:
-            document.getElementById(
-                "siteArchiveLabel"
-            ).value.trim(),
+        const response =
+            await fetch(
+                `site.json?v=${Date.now()}`,
+                {
+                    cache:
+                        "no-store"
+                }
+            );
 
-        colorsLabel:
-            document.getElementById(
-                "siteColorsLabel"
-            ).value.trim(),
 
-        projectsLabel:
-            document.getElementById(
-                "siteProjectsLabel"
-            ).value.trim(),
+        if (
+            !response.ok
+        ) {
 
-        guestbookLabel:
-            document.getElementById(
-                "siteGuestbookLabel"
-            ).value.trim(),
+            throw new Error(
+                "site.json 없음"
+            );
+        }
 
-        aboutLabel:
-            document.getElementById(
-                "siteAboutLabel"
-            ).value.trim(),
 
-        manageLabel:
-            document.getElementById(
-                "siteManageLabel"
-            ).value.trim(),
+        const settings =
+            await response.json();
 
-        aboutKicker:
-            document.getElementById(
-                "siteAboutKicker"
-            ).value.trim(),
 
-        aboutTitle:
-            document.getElementById(
-                "siteAboutTitle"
-            ).value.trim(),
+        fillSiteSettingsForm(
+            settings
+        );
 
-        aboutRole:
-            document.getElementById(
-                "siteAboutRole"
-            ).value.trim(),
 
-        aboutIntro:
-            document.getElementById(
-                "siteAboutIntro"
-            ).value.trim(),
+        applySiteSettings(
+            settings
+        );
 
-        aboutBody:
-            document.getElementById(
-                "siteAboutBody"
-            ).value.trim(),
 
-        aboutSignoff:
-            document.getElementById(
-                "siteAboutSignoff"
-            ).value.trim(),
+    } catch (error) {
 
-        footerCopyright:
-            document.getElementById(
-                "siteFooterCopyright"
-            ).value.trim()
-    };
+        fillSiteSettingsForm(
+            DEFAULT_SITE_SETTINGS
+        );
+
+
+        applySiteSettings(
+            DEFAULT_SITE_SETTINGS
+        );
+    }
 }
 
 
@@ -1136,9 +2577,7 @@ function collectSiteSettingsForm() {
 async function loadSiteSettingsFromGithub() {
 
     const token =
-        document.getElementById(
-            "token"
-        ).value.trim();
+        getToken();
 
 
     const status =
@@ -1147,7 +2586,9 @@ async function loadSiteSettingsFromGithub() {
         );
 
 
-    if (!token) {
+    if (
+        !token
+    ) {
 
         alert(
             "먼저 위에 GitHub 토큰을 입력해주세요."
@@ -1168,15 +2609,18 @@ async function loadSiteSettingsFromGithub() {
                 `https://api.github.com/repos/${repo}/contents/site.json`,
                 {
                     headers: {
-                        "Authorization":
+
+                        Authorization:
                             `token ${token}`
+
                     }
                 }
             );
 
 
         if (
-            response.status === 404
+            response.status ===
+            404
         ) {
 
             fillSiteSettingsForm(
@@ -1184,14 +2628,22 @@ async function loadSiteSettingsFromGithub() {
             );
 
 
+            applySiteSettings(
+                DEFAULT_SITE_SETTINGS
+            );
+
+
             status.textContent =
-                "ℹ️ 아직 site.json 파일이 없습니다.\n기본 문구를 불러왔습니다. 수정 후 [홈페이지 설정 저장]을 누르면 자동으로 생성됩니다.";
+                "ℹ️ 아직 site.json 파일이 없습니다. 기본 문구를 불러왔습니다.";
+
 
             return;
         }
 
 
-        if (!response.ok) {
+        if (
+            !response.ok
+        ) {
 
             throw new Error(
                 `GitHub 응답 오류: ${response.status}`
@@ -1205,21 +2657,18 @@ async function loadSiteSettingsFromGithub() {
 
         const settings =
             JSON.parse(
-                decodeURIComponent(
-                    escape(
-                        atob(
-                            fileData.content
-                                .replace(
-                                    /\n/g,
-                                    ""
-                                )
-                        )
-                    )
+                decodeBase64Utf8(
+                    fileData.content
                 )
             );
 
 
         fillSiteSettingsForm(
+            settings
+        );
+
+
+        applySiteSettings(
             settings
         );
 
@@ -1230,12 +2679,13 @@ async function loadSiteSettingsFromGithub() {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            error
+        );
 
 
         status.textContent =
             "❌ 홈페이지 설정을 불러오지 못했습니다.";
-
     }
 }
 
@@ -1244,9 +2694,7 @@ async function loadSiteSettingsFromGithub() {
 async function saveSiteSettingsToGithub() {
 
     const token =
-        document.getElementById(
-            "token"
-        ).value.trim();
+        getToken();
 
 
     const status =
@@ -1255,7 +2703,9 @@ async function saveSiteSettingsToGithub() {
         );
 
 
-    if (!token) {
+    if (
+        !token
+    ) {
 
         alert(
             "먼저 위에 GitHub 토큰을 입력해주세요."
@@ -1275,19 +2725,26 @@ async function saveSiteSettingsToGithub() {
 
     try {
 
+        const apiUrl =
+            `https://api.github.com/repos/${repo}/contents/site.json`;
+
+
         const currentResponse =
             await fetch(
-                `https://api.github.com/repos/${repo}/contents/site.json`,
+                apiUrl,
                 {
                     headers: {
-                        "Authorization":
+
+                        Authorization:
                             `token ${token}`
+
                     }
                 }
             );
 
 
-        let sha = null;
+        let sha =
+            null;
 
 
         if (
@@ -1301,9 +2758,9 @@ async function saveSiteSettingsToGithub() {
             sha =
                 currentData.sha;
 
-
         } else if (
-            currentResponse.status !== 404
+            currentResponse.status !==
+            404
         ) {
 
             throw new Error(
@@ -1312,31 +2769,26 @@ async function saveSiteSettingsToGithub() {
         }
 
 
-        const content =
-            btoa(
-                unescape(
-                    encodeURIComponent(
-                        JSON.stringify(
-                            settings,
-                            null,
-                            2
-                        )
-                    )
-                )
-            );
-
-
         const body = {
 
             message:
                 "Update homepage settings",
 
             content:
-                content
+                encodeBase64Utf8(
+                    JSON.stringify(
+                        settings,
+                        null,
+                        2
+                    )
+                )
+
         };
 
 
-        if (sha) {
+        if (
+            sha
+        ) {
 
             body.sha =
                 sha;
@@ -1345,18 +2797,19 @@ async function saveSiteSettingsToGithub() {
 
         const saveResponse =
             await fetch(
-                `https://api.github.com/repos/${repo}/contents/site.json`,
+                apiUrl,
                 {
                     method:
                         "PUT",
 
                     headers: {
 
-                        "Authorization":
+                        Authorization:
                             `token ${token}`,
 
                         "Content-Type":
                             "application/json"
+
                     },
 
                     body:
@@ -1367,10 +2820,16 @@ async function saveSiteSettingsToGithub() {
             );
 
 
-        if (!saveResponse.ok) {
+        if (
+            !saveResponse.ok
+        ) {
 
             const errorData =
-                await saveResponse.json();
+                await saveResponse
+                    .json()
+                    .catch(
+                        () => ({})
+                    );
 
 
             throw new Error(
@@ -1380,105 +2839,85 @@ async function saveSiteSettingsToGithub() {
         }
 
 
+        applySiteSettings(
+            settings
+        );
+
+
         status.textContent =
-            "✅ 홈페이지 설정 저장 완료!\n메인 홈페이지를 새로고침하면 변경된 문구가 적용됩니다.";
+            "✅ 홈페이지 설정 저장 완료! 메인 홈페이지를 새로고침하면 변경된 문구가 적용됩니다.";
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            error
+        );
 
 
         status.textContent =
-            "❌ 저장 실패: " +
-            error.message;
-
+            `❌ 저장 실패: ${error.message}`;
     }
 }
 
 
 
 /* =========================================================
-   COLOR OPTIONS
+   COLOR SELECT
 ========================================================= */
-
-const COLOR_OPTIONS = [
-
-    "Black",
-    "White",
-    "Gray",
-    "Brown",
-    "Red",
-    "Orange",
-    "Yellow",
-    "Green",
-    "Blue",
-    "Purple",
-    "Pink"
-
-];
-
-
 
 function createColorSelect(
     selectedValue = ""
 ) {
 
-    const normalizedSelected =
-        COLOR_OPTIONS.includes(
-            selectedValue
-        )
-        ? selectedValue
-        : "";
+    let html =
+        '<option value="">색상 선택</option>';
 
 
-    let optionsHtml =
-        `<option value="">색상 선택</option>`;
-
-
-    optionsHtml +=
+    html +=
         COLOR_OPTIONS
             .map(
                 color => {
 
                     const selected =
                         color ===
-                        normalizedSelected
+                        selectedValue
                         ? "selected"
                         : "";
 
 
-                    return `
-                        <option
-                            value="${color}"
-                            ${selected}
-                        >
-                            ${color}
-                        </option>
-                    `;
+                    return (
+                        `<option value="${color}" ${selected}>` +
+                        `${color}` +
+                        `</option>`
+                    );
                 }
             )
-            .join("");
+            .join(
+                ""
+            );
 
 
-    return `
-        <select class="edit-color">
-            ${optionsHtml}
-        </select>
-    `;
+    return (
+        `<select class="edit-color">` +
+        html +
+        `</select>`
+    );
 }
 
 
 
 /* =========================================================
-   EXPOSURE / METADATA HELPERS
+   EXPOSURE / METADATA
 ========================================================= */
 
 function formatExposureTime(
     exposureValue
 ) {
 
-    if (!exposureValue) {
+    if (
+        !exposureValue
+    ) {
 
         return "";
     }
@@ -1493,13 +2932,17 @@ function formatExposureTime(
             exposureValue.trim();
 
 
-        if (!trimmed) {
+        if (
+            !trimmed
+        ) {
 
             return "";
         }
 
 
-        return trimmed.endsWith("s")
+        return trimmed.endsWith(
+            "s"
+        )
             ? trimmed
             : `${trimmed}s`;
     }
@@ -1520,19 +2963,14 @@ function formatExposureTime(
 
         const denominator =
             Math.round(
-                1 / exposureValue
+                1 /
+                exposureValue
             );
 
 
-        if (
-            denominator > 0
-        ) {
-
-            return `1/${denominator}s`;
-        }
-
-
-        return `${exposureValue}s`;
+        return denominator > 0
+            ? `1/${denominator}s`
+            : `${exposureValue}s`;
     }
 
 
@@ -1549,24 +2987,12 @@ function formatExposureTime(
             exposureValue.denominator !== 0
         ) {
 
-            if (
-                exposureValue.numerator >=
+            return exposureValue.numerator >=
                 exposureValue.denominator
-            ) {
 
-                const seconds =
-                    exposureValue.numerator /
-                    exposureValue.denominator;
+                ? `${exposureValue.numerator / exposureValue.denominator}s`
 
-
-                return `${seconds}s`;
-            }
-
-
-            return (
-                `${exposureValue.numerator}/` +
-                `${exposureValue.denominator}s`
-            );
+                : `${exposureValue.numerator}/${exposureValue.denominator}s`;
         }
 
 
@@ -1585,26 +3011,15 @@ function formatExposureTime(
                 exposureValue.denominator();
 
 
-            if (denominator) {
+            if (
+                denominator
+            ) {
 
-                if (
-                    numerator >=
-                    denominator
-                ) {
+                return numerator >= denominator
 
-                    const seconds =
-                        numerator /
-                        denominator;
+                    ? `${numerator / denominator}s`
 
-
-                    return `${seconds}s`;
-                }
-
-
-                return (
-                    `${numerator}/` +
-                    `${denominator}s`
-                );
+                    : `${numerator}/${denominator}s`;
             }
         }
 
@@ -1620,13 +3035,17 @@ function formatExposureTime(
                     .trim();
 
 
-            if (!text) {
+            if (
+                !text
+            ) {
 
                 return "";
             }
 
 
-            return text.endsWith("s")
+            return text.endsWith(
+                "s"
+            )
                 ? text
                 : `${text}s`;
         }
@@ -1673,33 +3092,13 @@ function extractMetadataParts(
         );
 
 
-    const fPart =
-        fMatch
-        ? fMatch[0]
-        : "";
-
-
-    const shutterPart =
-        shutterMatch
-        ? shutterMatch[0]
-        : "";
-
-
-    const isoPart =
-        isoMatch
-        ? isoMatch[0]
-            .replace(
-                /\s+/g,
-                " "
-            )
-        : "";
-
-
     let cameraPart =
         text;
 
 
-    if (fMatch) {
+    if (
+        fMatch
+    ) {
 
         cameraPart =
             text
@@ -1718,10 +3117,6 @@ function extractMetadataParts(
                 ""
             )
             .replace(
-                /\bNIKKOR\b.*$/i,
-                ""
-            )
-            .replace(
                 /\s+/g,
                 " "
             )
@@ -1730,12 +3125,54 @@ function extractMetadataParts(
 
     return {
 
-        cameraPart,
-        fPart,
-        shutterPart,
-        isoPart
+        cameraPart:
+            cameraPart,
+
+        fPart:
+            fMatch
+            ? fMatch[0]
+            : "",
+
+        shutterPart:
+            shutterMatch
+            ? shutterMatch[0]
+            : "",
+
+        isoPart:
+            isoMatch
+            ? isoMatch[0]
+                .replace(
+                    /\s+/g,
+                    " "
+                )
+            : ""
 
     };
+}
+
+
+
+function buildNormalizedInfo(
+    ...parts
+) {
+
+    return parts
+        .filter(
+            value =>
+                value &&
+                String(
+                    value
+                )
+                .trim()
+        )
+        .join(
+            " "
+        )
+        .replace(
+            /\s+/g,
+            " "
+        )
+        .trim();
 }
 
 
@@ -1744,15 +3181,13 @@ async function getExposureFromImage(
     fileName
 ) {
 
-    const imgUrl =
-        `images/digital/${fileName}`;
-
-
     try {
 
         const response =
             await fetch(
-                imgUrl,
+                photoUrl(
+                    fileName
+                ),
                 {
                     cache:
                         "no-store"
@@ -1760,7 +3195,9 @@ async function getExposureFromImage(
             );
 
 
-        if (!response.ok) {
+        if (
+            !response.ok
+        ) {
 
             return "";
         }
@@ -1777,16 +3214,12 @@ async function getExposureFromImage(
                     blob,
                     function() {
 
-                        const exposureRaw =
-                            EXIF.getTag(
-                                this,
-                                "ExposureTime"
-                            );
-
-
                         resolve(
                             formatExposureTime(
-                                exposureRaw
+                                EXIF.getTag(
+                                    this,
+                                    "ExposureTime"
+                                )
                             )
                         );
                     }
@@ -1803,39 +3236,8 @@ async function getExposureFromImage(
 
 
 
-function buildNormalizedInfo(
-    cameraPart,
-    fPart,
-    shutterPart,
-    isoPart
-) {
-
-    return [
-
-        cameraPart,
-        fPart,
-        shutterPart,
-        isoPart
-
-    ]
-        .filter(
-            value =>
-                value &&
-                String(value)
-                    .trim() !== ""
-        )
-        .join(" ")
-        .replace(
-            /\s+/g,
-            " "
-        )
-        .trim();
-}
-
-
-
 /* =========================================================
-   COLOR DETECTION
+   COLOR ANALYSIS
 ========================================================= */
 
 function rgbToHsv(
@@ -1866,10 +3268,12 @@ function rgbToHsv(
 
 
     const diff =
-        max - min;
+        max -
+        min;
 
 
-    let h = 0;
+    let h =
+        0;
 
 
     const s =
@@ -1886,12 +3290,19 @@ function rgbToHsv(
         diff !== 0
     ) {
 
-        switch (max) {
+        switch (
+            max
+        ) {
 
             case r:
 
                 h =
-                    ((g - b) / diff) %
+                    (
+                        (
+                            g - b
+                        ) /
+                        diff
+                    ) %
                     6;
 
                 break;
@@ -1900,7 +3311,9 @@ function rgbToHsv(
             case g:
 
                 h =
-                    (b - r) /
+                    (
+                        b - r
+                    ) /
                     diff +
                     2;
 
@@ -1910,7 +3323,9 @@ function rgbToHsv(
             case b:
 
                 h =
-                    (r - g) /
+                    (
+                        r - g
+                    ) /
                     diff +
                     4;
 
@@ -1918,27 +3333,31 @@ function rgbToHsv(
         }
 
 
-        h *= 60;
+        h *=
+            60;
 
 
         if (
             h < 0
         ) {
 
-            h += 360;
+            h +=
+                360;
         }
     }
 
 
     return {
 
-        h,
+        h:
+            h,
 
         s:
             s * 100,
 
         v:
             v * 100
+
     };
 }
 
@@ -1988,8 +3407,14 @@ function classifyPixelColor(
 
 
     if (
-        (h >= 0 && h < 12) ||
-        (h >= 345 && h <= 360)
+        (
+            h >= 0 &&
+            h < 12
+        ) ||
+        (
+            h >= 345 &&
+            h <= 360
+        )
     ) {
 
         return "Red";
@@ -1997,7 +3422,6 @@ function classifyPixelColor(
 
 
     if (
-        h >= 12 &&
         h < 30
     ) {
 
@@ -2006,7 +3430,6 @@ function classifyPixelColor(
 
 
     if (
-        h >= 30 &&
         h < 65
     ) {
 
@@ -2015,7 +3438,6 @@ function classifyPixelColor(
 
 
     if (
-        h >= 65 &&
         h < 170
     ) {
 
@@ -2024,7 +3446,6 @@ function classifyPixelColor(
 
 
     if (
-        h >= 170 &&
         h < 255
     ) {
 
@@ -2033,7 +3454,6 @@ function classifyPixelColor(
 
 
     if (
-        h >= 255 &&
         h < 320
     ) {
 
@@ -2042,7 +3462,6 @@ function classifyPixelColor(
 
 
     if (
-        h >= 320 &&
         h < 345
     ) {
 
@@ -2066,8 +3485,14 @@ function getWeightedColorScore(
 
     const distance =
         Math.sqrt(
-            (x - centerX) ** 2 +
-            (y - centerY) ** 2
+            (
+                x -
+                centerX
+            ) ** 2 +
+            (
+                y -
+                centerY
+            ) ** 2
         );
 
 
@@ -2075,18 +3500,25 @@ function getWeightedColorScore(
         Math.sqrt(
             centerX ** 2 +
             centerY ** 2
-        ) || 1;
+        ) ||
+        1;
 
 
     const centerWeight =
         1.55 -
-        (distance / maxDistance) *
+        (
+            distance /
+            maxDistance
+        ) *
         0.75;
 
 
     const saturationBoost =
         1 +
-        (hsv.s / 100) *
+        (
+            hsv.s /
+            100
+        ) *
         1.25;
 
 
@@ -2099,25 +3531,19 @@ function getWeightedColorScore(
         : 1;
 
 
-    let colorBonus =
-        1;
-
-
-    if (
+    const colorBonus =
         [
             "Pink",
             "Purple",
             "Red",
             "Orange",
             "Yellow"
-        ].includes(
+        ]
+        .includes(
             colorName
         )
-    ) {
-
-        colorBonus =
-            1.12;
-    }
+        ? 1.12
+        : 1;
 
 
     return (
@@ -2138,15 +3564,18 @@ function pickDominantColor(
         Object.entries(
             scores
         )
-            .sort(
-                (a, b) =>
-                    b[1] -
-                    a[1]
-            );
+        .sort(
+            (
+                a,
+                b
+            ) =>
+                b[1] -
+                a[1]
+        );
 
 
     if (
-        entries.length === 0
+        !entries.length
     ) {
 
         return "Gray";
@@ -2167,10 +3596,12 @@ function pickDominantColor(
 
 
     if (
-        topColor === "Gray" &&
+        topColor ===
+        "Gray" &&
         entries[1] &&
         secondScore >
-        topScore * 0.72
+        topScore *
+        0.72
     ) {
 
         return entries[1][0];
@@ -2178,10 +3609,12 @@ function pickDominantColor(
 
 
     if (
-        topColor === "White" &&
+        topColor ===
+        "White" &&
         entries[1] &&
         secondScore >
-        topScore * 0.68
+        topScore *
+        0.68
     ) {
 
         return entries[1][0];
@@ -2210,18 +3643,22 @@ async function detectColorFromImageSource(
 
 
             reader.onload =
-                e => {
+                event => {
 
-                    const img =
+                    const image =
                         new Image();
 
 
-                    img.src =
-                        e.target.result;
+                    image.src =
+                        event.target.result;
 
 
-                    img.onload =
+                    image.onload =
                         () => {
+
+                            const size =
+                                90;
+
 
                             const canvas =
                                 document.createElement(
@@ -2229,7 +3666,7 @@ async function detectColorFromImageSource(
                                 );
 
 
-                            const ctx =
+                            const context =
                                 canvas.getContext(
                                     "2d",
                                     {
@@ -2237,10 +3674,6 @@ async function detectColorFromImageSource(
                                             true
                                     }
                                 );
-
-
-                            const size =
-                                90;
 
 
                             canvas.width =
@@ -2251,8 +3684,8 @@ async function detectColorFromImageSource(
                                 size;
 
 
-                            ctx.drawImage(
-                                img,
+                            context.drawImage(
+                                image,
                                 0,
                                 0,
                                 size,
@@ -2260,13 +3693,15 @@ async function detectColorFromImageSource(
                             );
 
 
-                            const imageData =
-                                ctx.getImageData(
-                                    0,
-                                    0,
-                                    size,
-                                    size
-                                ).data;
+                            const data =
+                                context
+                                    .getImageData(
+                                        0,
+                                        0,
+                                        size,
+                                        size
+                                    )
+                                    .data;
 
 
                             const scores = {
@@ -2288,81 +3723,97 @@ async function detectColorFromImageSource(
 
                             const startX =
                                 Math.floor(
-                                    size * 0.15
+                                    size *
+                                    0.15
                                 );
 
 
                             const endX =
                                 Math.floor(
-                                    size * 0.85
+                                    size *
+                                    0.85
                                 );
 
 
                             const startY =
                                 Math.floor(
-                                    size * 0.15
+                                    size *
+                                    0.15
                                 );
 
 
                             const endY =
                                 Math.floor(
-                                    size * 0.85
+                                    size *
+                                    0.85
                                 );
 
 
                             const centerX =
-                                size / 2;
+                                size /
+                                2;
 
 
                             const centerY =
-                                size / 2;
+                                size /
+                                2;
 
 
                             for (
                                 let y =
                                     startY;
-                                y < endY;
+                                y <
+                                endY;
                                 y++
                             ) {
 
                                 for (
                                     let x =
                                         startX;
-                                    x < endX;
+                                    x <
+                                    endX;
                                     x++
                                 ) {
 
-                                    const i =
+                                    const index =
                                         (
-                                            y * size +
+                                            y *
+                                            size +
                                             x
-                                        ) * 4;
+                                        ) *
+                                        4;
 
 
                                     const r =
-                                        imageData[i];
+                                        data[
+                                            index
+                                        ];
 
 
                                     const g =
-                                        imageData[
-                                            i + 1
+                                        data[
+                                            index +
+                                            1
                                         ];
 
 
                                     const b =
-                                        imageData[
-                                            i + 2
+                                        data[
+                                            index +
+                                            2
                                         ];
 
 
                                     const a =
-                                        imageData[
-                                            i + 3
+                                        data[
+                                            index +
+                                            3
                                         ];
 
 
                                     if (
-                                        a < 20
+                                        a <
+                                        20
                                     ) {
 
                                         continue;
@@ -2397,20 +3848,22 @@ async function detectColorFromImageSource(
                                             b > 125 &&
                                             r >= b &&
                                             b >=
-                                            g * 0.75
+                                            g *
+                                            0.75
                                         ) {
 
                                             colorName =
                                                 "Pink";
-
 
                                         } else if (
                                             r > 110 &&
                                             g > 80 &&
                                             g < r &&
                                             b <
-                                            g * 0.85 &&
-                                            hsv.v < 70
+                                            g *
+                                            0.85 &&
+                                            hsv.v <
+                                            70
                                         ) {
 
                                             colorName =
@@ -2419,7 +3872,9 @@ async function detectColorFromImageSource(
                                     }
 
 
-                                    const weight =
+                                    scores[
+                                        colorName
+                                    ] +=
                                         getWeightedColorScore(
                                             colorName,
                                             hsv,
@@ -2428,12 +3883,6 @@ async function detectColorFromImageSource(
                                             centerX,
                                             centerY
                                         );
-
-
-                                    scores[
-                                        colorName
-                                    ] +=
-                                        weight;
                                 }
                             }
 
@@ -2446,30 +3895,34 @@ async function detectColorFromImageSource(
                         };
 
 
-                    img.onerror =
-                        () =>
+                    image.onerror =
+                        () => {
+
                             resolve(
                                 "Gray"
                             );
+                        };
                 };
 
 
             reader.onerror =
-                () =>
+                () => {
+
                     resolve(
                         "Gray"
                     );
+                };
         }
     );
 }
 
 
 
-async function detectColorFromFile(
+function detectColorFromFile(
     file
 ) {
 
-    return await detectColorFromImageSource(
+    return detectColorFromImageSource(
         file
     );
 }
@@ -2480,15 +3933,13 @@ async function detectColorFromExistingImage(
     fileName
 ) {
 
-    const imgUrl =
-        `images/digital/${fileName}`;
-
-
     try {
 
         const response =
             await fetch(
-                imgUrl,
+                photoUrl(
+                    fileName
+                ),
                 {
                     cache:
                         "no-store"
@@ -2496,7 +3947,9 @@ async function detectColorFromExistingImage(
             );
 
 
-        if (!response.ok) {
+        if (
+            !response.ok
+        ) {
 
             return "";
         }
@@ -2520,63 +3973,61 @@ async function detectColorFromExistingImage(
 
 
 /* =========================================================
-   [1] PHOTO LIST
+   PHOTO LIST
 ========================================================= */
 
 async function loadPhotoList() {
 
     const token =
-        document.getElementById(
-            "token"
-        ).value;
+        getToken();
 
 
-    if (!token) {
+    if (
+        !token
+    ) {
 
-        return alert(
+        alert(
             "토큰을 입력해주세요!"
         );
+
+        return;
     }
 
 
     try {
 
-        const res =
+        const response =
             await fetch(
                 `https://api.github.com/repos/${repo}/contents/photos.json`,
                 {
                     headers: {
-                        "Authorization":
+
+                        Authorization:
                             `token ${token}`
+
                     }
                 }
             );
 
 
-        if (!res.ok) {
+        if (
+            !response.ok
+        ) {
 
             throw new Error(
-                `GitHub 오류: ${res.status}`
+                `GitHub 오류: ${response.status}`
             );
         }
 
 
-        const data =
-            await res.json();
+        const fileData =
+            await response.json();
 
 
         window.allPhotos =
             JSON.parse(
-                decodeURIComponent(
-                    escape(
-                        atob(
-                            data.content
-                                .replace(
-                                    /\n/g,
-                                    ""
-                                )
-                        )
-                    )
+                decodeBase64Utf8(
+                    fileData.content
                 )
             );
 
@@ -2590,9 +4041,12 @@ async function loadPhotoList() {
         renderList();
 
 
-    } catch (e) {
+    } catch (error) {
 
-        console.error(e);
+        console.error(
+            error
+        );
+
 
         alert(
             "로드 실패"
@@ -2604,13 +4058,19 @@ async function loadPhotoList() {
 
 function renderList() {
 
-    const listDiv =
+    const list =
         document.getElementById(
             "photoList"
         );
 
 
-    listDiv.innerHTML =
+    document.getElementById(
+        "photoCount"
+    ).textContent =
+        `${window.allPhotos.length} PHOTOS`;
+
+
+    list.innerHTML =
         "";
 
 
@@ -2618,7 +4078,10 @@ function renderList() {
         .slice()
         .reverse()
         .forEach(
-            (p, index) => {
+            (
+                photo,
+                index
+            ) => {
 
                 const realIndex =
                     window.allPhotos.length -
@@ -2636,11 +4099,11 @@ function renderList() {
                     "photo-item";
 
 
-                item.innerHTML = `
-
+                item.innerHTML =
+                    `
                     <img
-                        src="images/digital/${p.filename}"
-                        id="img-${realIndex}"
+                        src="${photoUrl(photo.filename)}"
+                        alt=""
                     >
 
                     <div class="photo-info-edit">
@@ -2649,52 +4112,64 @@ function renderList() {
                             type="date"
                             class="edit-date"
                             data-index="${realIndex}"
-                            value="${p.date || ""}"
+                            value="${escapeHtml(photo.date || "")}"
                         >
 
                         <input
                             type="text"
                             class="edit-info"
                             data-index="${realIndex}"
-                            value="${p.info || ""}"
+                            value="${escapeHtml(photo.info || "")}"
                         >
 
                         ${createColorSelect(
-                            p.color || ""
+                            photo.color ||
+                            ""
                         )}
 
                         <small>
-                            ${p.filename}
+                            ${escapeHtml(
+                                photo.filename
+                            )}
                         </small>
 
                     </div>
 
                     <button
                         class="delete-btn"
-                        onclick="deletePhoto(
-                            ${realIndex},
-                            '${p.filename}'
-                        )"
+                        type="button"
                     >
                         삭제
                     </button>
-                `;
+                    `;
 
 
-                listDiv.appendChild(
-                    item
-                );
-
-
-                const colorSelect =
-                    item.querySelector(
+                item
+                    .querySelector(
                         ".edit-color"
+                    )
+                    .dataset.index =
+                        realIndex;
+
+
+                item
+                    .querySelector(
+                        ".delete-btn"
+                    )
+                    .addEventListener(
+                        "click",
+                        () => {
+
+                            deletePhoto(
+                                realIndex,
+                                photo.filename
+                            );
+                        }
                     );
 
 
-                colorSelect.setAttribute(
-                    "data-index",
-                    realIndex
+                list.appendChild(
+                    item
                 );
             }
         );
@@ -2703,7 +4178,7 @@ function renderList() {
 
 
 /* =========================================================
-   [2] DATE RECOVERY
+   BULK DATE
 ========================================================= */
 
 async function autoFillDates() {
@@ -2714,7 +4189,7 @@ async function autoFillDates() {
         );
 
 
-    const dateInputs =
+    const inputs =
         document.querySelectorAll(
             ".edit-date"
         );
@@ -2724,111 +4199,110 @@ async function autoFillDates() {
         0;
 
 
-    status.innerText =
+    status.textContent =
         "⏳ 기존 사진 분석 시작...";
 
 
     for (
-        let input of dateInputs
+        const input of inputs
     ) {
 
         if (
-            !input.value
+            input.value
         ) {
 
-            const idx =
-                input.getAttribute(
-                    "data-index"
+            continue;
+        }
+
+
+        const index =
+            input.dataset.index;
+
+
+        const fileName =
+            window.allPhotos[
+                index
+            ].filename;
+
+
+        try {
+
+            const response =
+                await fetch(
+                    photoUrl(
+                        fileName
+                    )
                 );
 
 
-            const fileName =
-                window.allPhotos[
-                    idx
-                ].filename;
+            const blob =
+                await response.blob();
 
 
-            const imgUrl =
-                `images/digital/${fileName}`;
+            await new Promise(
+                resolve => {
+
+                    EXIF.getData(
+                        blob,
+                        function() {
+
+                            const exifDate =
+                                EXIF.getTag(
+                                    this,
+                                    "DateTimeOriginal"
+                                );
 
 
-            try {
+                            if (
+                                exifDate
+                            ) {
 
-                const response =
-                    await fetch(
-                        imgUrl
-                    );
-
-
-                const blob =
-                    await response.blob();
-
-
-                await new Promise(
-                    resolve => {
-
-                        EXIF.getData(
-                            blob,
-                            function() {
-
-                                const exifDate =
-                                    EXIF.getTag(
-                                        this,
-                                        "DateTimeOriginal"
-                                    );
-
-
-                                if (
+                                const parts =
                                     exifDate
-                                ) {
-
-                                    const parts =
-                                        exifDate
-                                            .split(
-                                                " "
-                                            )[0]
-                                            .split(
-                                                ":"
-                                            );
+                                        .split(
+                                            " "
+                                        )[0]
+                                        .split(
+                                            ":"
+                                        );
 
 
-                                    input.value =
-                                        `${parts[0]}-${parts[1]}-${parts[2]}`;
+                                input.value =
+                                    `${parts[0]}-${parts[1]}-${parts[2]}`;
 
 
-                                    input.style.border =
-                                        "2px solid #ff9800";
+                                input.style.border =
+                                    "2px solid #9d8a56";
 
 
-                                    count++;
-                                }
-
-
-                                resolve();
+                                count++;
                             }
-                        );
-                    }
-                );
 
 
-            } catch (err) {
+                            resolve();
+                        }
+                    );
+                }
+            );
 
-                console.log(
-                    err
-                );
-            }
+
+        } catch (error) {
+
+            console.log(
+                error
+            );
         }
     }
 
 
-    status.innerText =
-        `✅ 분석 완료! ${count}개의 날짜 복구. [저장하기]를 눌러주세요.`;
+    status.textContent =
+        `✅ 분석 완료! ${count}개의 날짜 복구. [변경 내용 저장]을 눌러주세요.`;
 }
 
 
 
 /* =========================================================
-   [3] METADATA NORMALIZATION
+   BULK METADATA
 ========================================================= */
 
 async function normalizeMetadata() {
@@ -2839,7 +4313,7 @@ async function normalizeMetadata() {
         );
 
 
-    const infoInputs =
+    const inputs =
         document.querySelectorAll(
             ".edit-info"
         );
@@ -2857,63 +4331,61 @@ async function normalizeMetadata() {
         0;
 
 
-    status.innerText =
+    status.textContent =
         "⏳ 기존 사진 메타데이터 정리 시작...";
 
 
     for (
-        let input of infoInputs
+        const input of inputs
     ) {
 
-        const idx =
-            input.getAttribute(
-                "data-index"
-            );
+        const index =
+            input.dataset.index;
 
 
         const photo =
             window.allPhotos[
-                idx
+                index
             ];
 
 
         const originalInfo =
-            photo.info || "";
+            photo.info ||
+            "";
 
 
-        const originalParts =
+        const parts =
             extractMetadataParts(
                 originalInfo
             );
 
 
-        const hadLensText =
+        const hadLens =
             /\bNikkor\b/i.test(
                 originalInfo
             );
 
 
-        let shutterPart =
-            originalParts
-                .shutterPart;
+        let shutter =
+            parts.shutterPart;
 
 
         if (
-            !shutterPart
+            !shutter
         ) {
 
-            const exifShutter =
+            const extracted =
                 await getExposureFromImage(
                     photo.filename
                 );
 
 
             if (
-                exifShutter
+                extracted
             ) {
 
-                shutterPart =
-                    exifShutter;
+                shutter =
+                    extracted;
 
 
                 shutterAddedCount++;
@@ -2921,24 +4393,22 @@ async function normalizeMetadata() {
         }
 
 
-        const normalizedInfo =
+        const normalized =
             buildNormalizedInfo(
 
-                originalParts
-                    .cameraPart,
+                parts.cameraPart,
 
-                originalParts
-                    .fPart,
+                parts.fPart,
 
-                shutterPart,
+                shutter,
 
-                originalParts
-                    .isoPart
+                parts.isoPart
+
             );
 
 
         if (
-            hadLensText
+            hadLens
         ) {
 
             lensRemovedCount++;
@@ -2946,18 +4416,17 @@ async function normalizeMetadata() {
 
 
         if (
-            normalizedInfo &&
-            normalizedInfo !==
+            normalized &&
+            normalized !==
             originalInfo.trim()
         ) {
 
             input.value =
-                normalizedInfo;
+                normalized;
 
 
             input.style.border =
-                "2px solid #ff9800";
-
+                "2px solid #9d8a56";
 
         } else {
 
@@ -2966,18 +4435,18 @@ async function normalizeMetadata() {
     }
 
 
-    status.innerText =
+    status.textContent =
 `✅ 메타데이터 정리 완료!
 렌즈 이름 제거 처리: ${lensRemovedCount}개
 셔터스피드 추가 성공: ${shutterAddedCount}개
 변경 없음: ${unchangedCount}개
-[저장하기]를 눌러주세요.`;
+[변경 내용 저장]을 눌러주세요.`;
 }
 
 
 
 /* =========================================================
-   [4] COLOR AUTO DETECTION
+   BULK COLOR
 ========================================================= */
 
 async function autoFillColors() {
@@ -2988,13 +4457,13 @@ async function autoFillColors() {
         );
 
 
-    const colorInputs =
+    const inputs =
         document.querySelectorAll(
             ".edit-color"
         );
 
 
-    let count =
+    let changedCount =
         0;
 
 
@@ -3002,48 +4471,45 @@ async function autoFillColors() {
         0;
 
 
-    status.innerText =
+    status.textContent =
         "⏳ 기존 사진 색상 분류 시작...";
 
 
     for (
-        let input of colorInputs
+        const input of inputs
     ) {
 
-        const idx =
-            input.getAttribute(
-                "data-index"
-            );
+        const index =
+            input.dataset.index;
 
 
         const fileName =
             window.allPhotos[
-                idx
+                index
             ].filename;
 
 
-        const detectedColor =
+        const color =
             await detectColorFromExistingImage(
                 fileName
             );
 
 
         if (
-            detectedColor &&
+            color &&
             input.value !==
-            detectedColor
+            color
         ) {
 
             input.value =
-                detectedColor;
+                color;
 
 
             input.style.border =
-                "2px solid #ff9800";
+                "2px solid #9d8a56";
 
 
-            count++;
-
+            changedCount++;
 
         } else {
 
@@ -3052,28 +4518,330 @@ async function autoFillColors() {
     }
 
 
-    status.innerText =
+    status.textContent =
 `✅ 색상 분류 완료!
-색상 적용: ${count}개
+색상 적용: ${changedCount}개
 변경 없음: ${unchangedCount}개
-[저장하기]를 눌러주세요.`;
+[변경 내용 저장]을 눌러주세요.`;
 }
 
 
 
 /* =========================================================
-   [5] MULTIPLE PHOTO UPLOAD
+   EXIF FOR NEW UPLOAD
+========================================================= */
+
+async function extractExif(
+    file
+) {
+
+    return await new Promise(
+        resolve => {
+
+            EXIF.getData(
+                file,
+                function() {
+
+                    const date =
+                        EXIF.getTag(
+                            this,
+                            "DateTimeOriginal"
+                        );
+
+
+                    const model =
+                        EXIF.getTag(
+                            this,
+                            "Model"
+                        ) ||
+                        "";
+
+
+                    const fNumberRaw =
+                        EXIF.getTag(
+                            this,
+                            "FNumber"
+                        );
+
+
+                    const isoRaw =
+                        EXIF.getTag(
+                            this,
+                            "ISOSpeedRatings"
+                        );
+
+
+                    const exposureRaw =
+                        EXIF.getTag(
+                            this,
+                            "ExposureTime"
+                        );
+
+
+                    let formattedDate =
+                        new Date()
+                            .toISOString()
+                            .substring(
+                                0,
+                                10
+                            );
+
+
+                    if (
+                        date
+                    ) {
+
+                        const parts =
+                            date
+                                .split(
+                                    " "
+                                )[0]
+                                .split(
+                                    ":"
+                                );
+
+
+                        formattedDate =
+                            `${parts[0]}-${parts[1]}-${parts[2]}`;
+                    }
+
+
+                    const info =
+                        [
+
+                            model,
+
+                            fNumberRaw
+                            ? `f${fNumberRaw}`
+                            : "",
+
+                            formatExposureTime(
+                                exposureRaw
+                            ),
+
+                            isoRaw
+                            ? `iso ${isoRaw}`
+                            : ""
+
+                        ]
+                        .filter(
+                            Boolean
+                        )
+                        .join(
+                            " "
+                        );
+
+
+                    resolve({
+
+                        date:
+                            formattedDate,
+
+                        info:
+                            info
+
+                    });
+                }
+            );
+        }
+    );
+}
+
+
+
+/* =========================================================
+   IMAGE OPTIMIZATION
+========================================================= */
+
+async function optimizeImage(
+    file
+) {
+
+    return await new Promise(
+        (
+            resolve,
+            reject
+        ) => {
+
+            const reader =
+                new FileReader();
+
+
+            reader.readAsDataURL(
+                file
+            );
+
+
+            reader.onload =
+                event => {
+
+                    const image =
+                        new Image();
+
+
+                    image.src =
+                        event.target.result;
+
+
+                    image.onload =
+                        () => {
+
+                            const canvas =
+                                document.createElement(
+                                    "canvas"
+                                );
+
+
+                            let width =
+                                image.width;
+
+
+                            let height =
+                                image.height;
+
+
+                            if (
+                                width >
+                                1920
+                            ) {
+
+                                height =
+                                    (
+                                        1920 *
+                                        height
+                                    ) /
+                                    width;
+
+
+                                width =
+                                    1920;
+                            }
+
+
+                            canvas.width =
+                                width;
+
+
+                            canvas.height =
+                                height;
+
+
+                            canvas
+                                .getContext(
+                                    "2d"
+                                )
+                                .drawImage(
+                                    image,
+                                    0,
+                                    0,
+                                    width,
+                                    height
+                                );
+
+
+                            canvas.toBlob(
+                                blob => {
+
+                                    if (
+                                        blob
+                                    ) {
+
+                                        resolve(
+                                            blob
+                                        );
+
+                                    } else {
+
+                                        reject(
+                                            new Error(
+                                                "이미지 변환 실패"
+                                            )
+                                        );
+                                    }
+                                },
+                                "image/jpeg",
+                                0.85
+                            );
+                        };
+
+
+                    image.onerror =
+                        () => {
+
+                            reject(
+                                new Error(
+                                    "이미지 읽기 실패"
+                                )
+                            );
+                        };
+                };
+
+
+            reader.onerror =
+                () => {
+
+                    reject(
+                        new Error(
+                            "파일 읽기 실패"
+                        )
+                    );
+                };
+        }
+    );
+}
+
+
+
+async function blobToBase64(
+    blob
+) {
+
+    return await new Promise(
+        (
+            resolve,
+            reject
+        ) => {
+
+            const reader =
+                new FileReader();
+
+
+            reader.readAsDataURL(
+                blob
+            );
+
+
+            reader.onload =
+                () => {
+
+                    resolve(
+                        reader.result
+                            .split(
+                                ","
+                            )[1]
+                    );
+                };
+
+
+            reader.onerror =
+                reject;
+        }
+    );
+}
+
+
+
+/* =========================================================
+   UPLOAD
 ========================================================= */
 
 async function handleUpload() {
 
     const token =
-        document.getElementById(
-            "token"
-        ).value;
+        getToken();
 
 
-    const fileInput =
+    const input =
         document.getElementById(
             "fileInput"
         );
@@ -3086,78 +4854,79 @@ async function handleUpload() {
 
 
     const files =
-        fileInput.files;
+        input.files;
 
 
     if (
         !token ||
-        files.length === 0
+        !files.length
     ) {
 
-        return alert(
+        alert(
             "토큰과 파일을 선택해주세요!"
         );
+
+        return;
     }
 
 
-    status.innerText =
+    status.textContent =
         `⏳ 총 ${files.length}장의 사진 업로드 준비 중...`;
 
 
     try {
 
-        const res =
+        const response =
             await fetch(
                 `https://api.github.com/repos/${repo}/contents/photos.json`,
                 {
                     headers: {
-                        "Authorization":
+
+                        Authorization:
                             `token ${token}`
+
                     }
                 }
             );
 
 
-        if (!res.ok) {
+        if (
+            !response.ok
+        ) {
 
             throw new Error(
-                `photos.json 로드 실패: ${res.status}`
+                `photos.json 로드 실패: ${response.status}`
             );
         }
 
 
         const fileData =
-            await res.json();
+            await response.json();
 
 
-        let photos =
+        const photos =
             JSON.parse(
-                decodeURIComponent(
-                    escape(
-                        atob(
-                            fileData.content
-                                .replace(
-                                    /\n/g,
-                                    ""
-                                )
-                        )
-                    )
+                decodeBase64Utf8(
+                    fileData.content
                 )
             );
 
 
         for (
-            let i = 0;
-            i < files.length;
-            i++
+            let index = 0;
+            index <
+            files.length;
+            index++
         ) {
 
             const file =
-                files[i];
+                files[
+                    index
+                ];
 
 
-            status.innerText =
-                `📤 업로드 중 (${i + 1}/${files.length}): ${file.name}`;
+            status.textContent =
+                `📤 업로드 중 (${index + 1}/${files.length}): ${file.name}`;
 
 
             const detectedColor =
@@ -3166,243 +4935,21 @@ async function handleUpload() {
                 );
 
 
-            const exifData =
-                await new Promise(
-                    resolve => {
-
-                        EXIF.getData(
-                            file,
-                            function() {
-
-                                const date =
-                                    EXIF.getTag(
-                                        this,
-                                        "DateTimeOriginal"
-                                    );
-
-
-                                const model =
-                                    EXIF.getTag(
-                                        this,
-                                        "Model"
-                                    ) || "";
-
-
-                                const fNumberRaw =
-                                    EXIF.getTag(
-                                        this,
-                                        "FNumber"
-                                    );
-
-
-                                const isoRaw =
-                                    EXIF.getTag(
-                                        this,
-                                        "ISOSpeedRatings"
-                                    );
-
-
-                                const exposureRaw =
-                                    EXIF.getTag(
-                                        this,
-                                        "ExposureTime"
-                                    );
-
-
-                                const fNum =
-                                    fNumberRaw
-                                    ? `f${fNumberRaw}`
-                                    : "";
-
-
-                                const shutter =
-                                    formatExposureTime(
-                                        exposureRaw
-                                    );
-
-
-                                const iso =
-                                    isoRaw
-                                    ? `iso ${isoRaw}`
-                                    : "";
-
-
-                                let formattedDate =
-                                    new Date()
-                                        .toISOString()
-                                        .substring(
-                                            0,
-                                            10
-                                        );
-
-
-                                if (
-                                    date
-                                ) {
-
-                                    const p =
-                                        date
-                                            .split(
-                                                " "
-                                            )[0]
-                                            .split(
-                                                ":"
-                                            );
-
-
-                                    formattedDate =
-                                        `${p[0]}-${p[1]}-${p[2]}`;
-                                }
-
-
-                                const info = [
-
-                                    model,
-                                    fNum,
-                                    shutter,
-                                    iso
-
-                                ]
-                                    .filter(
-                                        value =>
-                                            value &&
-                                            String(
-                                                value
-                                            )
-                                                .trim() !== ""
-                                    )
-                                    .join(
-                                        " "
-                                    );
-
-
-                                resolve({
-                                    date:
-                                        formattedDate,
-                                    info:
-                                        info
-                                });
-                            }
-                        );
-                    }
+            const exif =
+                await extractExif(
+                    file
                 );
 
 
             const optimizedBlob =
-                await new Promise(
-                    resolve => {
-
-                        const reader =
-                            new FileReader();
-
-
-                        reader.readAsDataURL(
-                            file
-                        );
-
-
-                        reader.onload =
-                            e => {
-
-                                const img =
-                                    new Image();
-
-
-                                img.src =
-                                    e.target.result;
-
-
-                                img.onload =
-                                    () => {
-
-                                        const canvas =
-                                            document.createElement(
-                                                "canvas"
-                                            );
-
-
-                                        let w =
-                                            img.width;
-
-
-                                        let h =
-                                            img.height;
-
-
-                                        if (
-                                            w > 1920
-                                        ) {
-
-                                            h =
-                                                (
-                                                    1920 *
-                                                    h
-                                                ) /
-                                                w;
-
-
-                                            w =
-                                                1920;
-                                        }
-
-
-                                        canvas.width =
-                                            w;
-
-
-                                        canvas.height =
-                                            h;
-
-
-                                        canvas
-                                            .getContext(
-                                                "2d"
-                                            )
-                                            .drawImage(
-                                                img,
-                                                0,
-                                                0,
-                                                w,
-                                                h
-                                            );
-
-
-                                        canvas.toBlob(
-                                            blob =>
-                                                resolve(
-                                                    blob
-                                                ),
-                                            "image/jpeg",
-                                            0.85
-                                        );
-                                    };
-                            };
-                    }
+                await optimizeImage(
+                    file
                 );
 
 
-            const base64Content =
-                await new Promise(
-                    resolve => {
-
-                        const reader =
-                            new FileReader();
-
-
-                        reader.readAsDataURL(
-                            optimizedBlob
-                        );
-
-
-                        reader.onload =
-                            () =>
-                                resolve(
-                                    reader.result
-                                        .split(
-                                            ","
-                                        )[1]
-                                );
-                    }
+            const base64 =
+                await blobToBase64(
+                    optimizedBlob
                 );
 
 
@@ -3418,27 +4965,39 @@ async function handleUpload() {
 
                 Date.now() +
 
+                "_" +
+
+                index +
+
                 ".jpg";
 
 
             const uploadResponse =
                 await fetch(
-                    `https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`,
+                    `https://api.github.com/repos/${repo}/contents/images/digital/${encodeURIComponent(fileName)}`,
                     {
                         method:
                             "PUT",
 
                         headers: {
-                            "Authorization":
-                                `token ${token}`
+
+                            Authorization:
+                                `token ${token}`,
+
+                            "Content-Type":
+                                "application/json"
+
                         },
 
                         body:
                             JSON.stringify({
+
                                 message:
                                     `Upload: ${fileName}`,
+
                                 content:
-                                    base64Content
+                                    base64
+
                             })
                     }
                 );
@@ -3460,10 +5019,10 @@ async function handleUpload() {
                     fileName,
 
                 info:
-                    exifData.info,
+                    exif.info,
 
                 date:
-                    exifData.date,
+                    exif.date,
 
                 color:
                     detectedColor ||
@@ -3473,7 +5032,7 @@ async function handleUpload() {
         }
 
 
-        status.innerText =
+        status.textContent =
             "💾 장부 업데이트 중...";
 
 
@@ -3484,112 +5043,100 @@ async function handleUpload() {
             `Batch upload ${files.length} photos`,
 
             photos
+
         );
 
 
-        status.innerText =
+        status.textContent =
             `✅ 총 ${files.length}장 업로드 완료!`;
 
 
-        fileInput.value =
+        input.value =
             "";
 
 
-        loadPhotoList();
+        await loadPhotoList();
 
 
-    } catch (e) {
+    } catch (error) {
 
-        console.error(e);
+        console.error(
+            error
+        );
 
 
-        status.innerText =
-            "❌ 실패: " +
-            e.message;
+        status.textContent =
+            `❌ 실패: ${error.message}`;
     }
 }
 
 
 
 /* =========================================================
-   [6] SAVE PHOTO METADATA
+   SAVE PHOTO CHANGES
 ========================================================= */
 
 async function saveAllChanges() {
 
     const token =
-        document.getElementById(
-            "token"
-        ).value;
+        getToken();
 
 
-    const dateInputs =
-        document.querySelectorAll(
+    if (
+        !token
+    ) {
+
+        alert(
+            "토큰을 입력해주세요!"
+        );
+
+        return;
+    }
+
+
+    document
+        .querySelectorAll(
             ".edit-date"
+        )
+        .forEach(
+            input => {
+
+                window.allPhotos[
+                    input.dataset.index
+                ].date =
+                    input.value;
+            }
         );
 
 
-    const infoInputs =
-        document.querySelectorAll(
+    document
+        .querySelectorAll(
             ".edit-info"
+        )
+        .forEach(
+            input => {
+
+                window.allPhotos[
+                    input.dataset.index
+                ].info =
+                    input.value;
+            }
         );
 
 
-    const colorInputs =
-        document.querySelectorAll(
+    document
+        .querySelectorAll(
             ".edit-color"
+        )
+        .forEach(
+            input => {
+
+                window.allPhotos[
+                    input.dataset.index
+                ].color =
+                    input.value;
+            }
         );
-
-
-    dateInputs.forEach(
-        input => {
-
-            const idx =
-                input.getAttribute(
-                    "data-index"
-                );
-
-
-            window.allPhotos[
-                idx
-            ].date =
-                input.value;
-        }
-    );
-
-
-    infoInputs.forEach(
-        input => {
-
-            const idx =
-                input.getAttribute(
-                    "data-index"
-                );
-
-
-            window.allPhotos[
-                idx
-            ].info =
-                input.value;
-        }
-    );
-
-
-    colorInputs.forEach(
-        input => {
-
-            const idx =
-                input.getAttribute(
-                    "data-index"
-                );
-
-
-            window.allPhotos[
-                idx
-            ].color =
-                input.value;
-        }
-    );
 
 
     try {
@@ -3601,6 +5148,7 @@ async function saveAllChanges() {
             "Batch update metadata",
 
             window.allPhotos
+
         );
 
 
@@ -3609,12 +5157,15 @@ async function saveAllChanges() {
         );
 
 
-        loadPhotoList();
+        await loadPhotoList();
 
 
-    } catch (e) {
+    } catch (error) {
 
-        console.error(e);
+        console.error(
+            error
+        );
+
 
         alert(
             "실패"
@@ -3625,82 +5176,90 @@ async function saveAllChanges() {
 
 
 /* =========================================================
-   SAVE photos.json
+   SAVE PHOTOS.JSON
 ========================================================= */
 
 async function saveJson(
     token,
-    msg,
+    message,
     data
 ) {
 
-    const res =
+    const apiUrl =
+        `https://api.github.com/repos/${repo}/contents/photos.json`;
+
+
+    const response =
         await fetch(
-            `https://api.github.com/repos/${repo}/contents/photos.json`,
+            apiUrl,
             {
                 headers: {
-                    "Authorization":
+
+                    Authorization:
                         `token ${token}`
+
                 }
             }
         );
 
 
-    if (!res.ok) {
+    if (
+        !response.ok
+    ) {
 
         throw new Error(
-            `photos.json 확인 실패: ${res.status}`
+            `photos.json 확인 실패: ${response.status}`
         );
     }
 
 
-    const fileData =
-        await res.json();
+    const current =
+        await response.json();
 
 
     const saveResponse =
         await fetch(
-            `https://api.github.com/repos/${repo}/contents/photos.json`,
+            apiUrl,
             {
                 method:
                     "PUT",
 
                 headers: {
 
-                    "Authorization":
+                    Authorization:
                         `token ${token}`,
 
                     "Content-Type":
                         "application/json"
+
                 },
 
                 body:
                     JSON.stringify({
 
                         message:
-                            msg,
+                            message,
 
                         content:
-                            btoa(
-                                unescape(
-                                    encodeURIComponent(
-                                        JSON.stringify(
-                                            data,
-                                            null,
-                                            2
-                                        )
-                                    )
+                            encodeBase64Utf8(
+                                JSON.stringify(
+                                    data,
+                                    null,
+                                    2
                                 )
                             ),
 
                         sha:
-                            fileData.sha
+                            current.sha
+
                     })
             }
         );
 
 
-    if (!saveResponse.ok) {
+    if (
+        !saveResponse.ok
+    ) {
 
         throw new Error(
             `photos.json 저장 실패: ${saveResponse.status}`
@@ -3720,9 +5279,19 @@ async function deletePhoto(
 ) {
 
     const token =
-        document.getElementById(
-            "token"
-        ).value;
+        getToken();
+
+
+    if (
+        !token
+    ) {
+
+        alert(
+            "토큰을 입력해주세요!"
+        );
+
+        return;
+    }
 
 
     if (
@@ -3756,39 +5325,51 @@ async function deletePhoto(
             `Delete ${fileName}`,
 
             photos
+
         );
 
 
-        const fileRes =
+        const apiUrl =
+            `https://api.github.com/repos/${repo}/contents/images/digital/${encodeURIComponent(fileName)}`;
+
+
+        const response =
             await fetch(
-                `https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`,
+                apiUrl,
                 {
                     headers: {
-                        "Authorization":
+
+                        Authorization:
                             `token ${token}`
+
                     }
                 }
             );
 
 
         if (
-            fileRes.ok
+            response.ok
         ) {
 
-            const fData =
-                await fileRes.json();
+            const fileData =
+                await response.json();
 
 
             const deleteResponse =
                 await fetch(
-                    `https://api.github.com/repos/${repo}/contents/images/digital/${fileName}`,
+                    apiUrl,
                     {
                         method:
                             "DELETE",
 
                         headers: {
-                            "Authorization":
-                                `token ${token}`
+
+                            Authorization:
+                                `token ${token}`,
+
+                            "Content-Type":
+                                "application/json"
+
                         },
 
                         body:
@@ -3798,7 +5379,7 @@ async function deletePhoto(
                                     "Delete file",
 
                                 sha:
-                                    fData.sha
+                                    fileData.sha
 
                             })
                     }
@@ -3816,12 +5397,15 @@ async function deletePhoto(
         }
 
 
-        loadPhotoList();
+        await loadPhotoList();
 
 
-    } catch (e) {
+    } catch (error) {
 
-        console.error(e);
+        console.error(
+            error
+        );
+
 
         alert(
             "오류"
@@ -3832,12 +5416,222 @@ async function deletePhoto(
 
 
 /* =========================================================
-   INITIALIZE HOMEPAGE SETTINGS FORM
+   MOBILE MENU
 ========================================================= */
 
-fillSiteSettingsForm(
-    DEFAULT_SITE_SETTINGS
+function toggleMobileMenu() {
+
+    const nav =
+        document.getElementById(
+            "mainNav"
+        );
+
+
+    const button =
+        document.getElementById(
+            "mobileMenuBtn"
+        );
+
+
+    const open =
+        nav.classList.toggle(
+            "open"
+        );
+
+
+    button.textContent =
+        open
+        ? "CLOSE"
+        : "MENU";
+}
+
+
+
+function closeMobileMenu() {
+
+    document
+        .getElementById(
+            "mainNav"
+        )
+        .classList
+        .remove(
+            "open"
+        );
+
+
+    document.getElementById(
+        "mobileMenuBtn"
+    ).textContent =
+        "MENU";
+}
+
+
+
+/* =========================================================
+   ABOUT
+========================================================= */
+
+function openAbout() {
+
+    const overlay =
+        document.getElementById(
+            "aboutOverlay"
+        );
+
+
+    overlay.classList.add(
+        "open"
+    );
+
+
+    overlay.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    document.body.classList.add(
+        "no-scroll"
+    );
+
+
+    closeMobileMenu();
+}
+
+
+
+function closeAbout() {
+
+    const overlay =
+        document.getElementById(
+            "aboutOverlay"
+        );
+
+
+    overlay.classList.remove(
+        "open"
+    );
+
+
+    overlay.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    document.body.classList.remove(
+        "no-scroll"
+    );
+}
+
+
+
+document
+    .getElementById(
+        "aboutOverlay"
+    )
+    .addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target.id ===
+                "aboutOverlay"
+            ) {
+
+                closeAbout();
+            }
+        }
+    );
+
+
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key !==
+            "Escape"
+        ) {
+
+            return;
+        }
+
+
+        if (
+            document
+                .getElementById(
+                    "aboutOverlay"
+                )
+                .classList
+                .contains(
+                    "open"
+                )
+        ) {
+
+            closeAbout();
+
+        } else {
+
+            closeMobileMenu();
+        }
+    }
 );
+
+
+
+/* =========================================================
+   TOP
+========================================================= */
+
+function scrollToTop() {
+
+    window.scrollTo({
+
+        top:
+            0,
+
+        behavior:
+            "smooth"
+
+    });
+}
+
+
+
+window.addEventListener(
+    "scroll",
+    () => {
+
+        document
+            .getElementById(
+                "topButton"
+            )
+            .classList
+            .toggle(
+                "show",
+                window.scrollY >
+                550
+            );
+    }
+);
+
+
+
+/* =========================================================
+   START
+========================================================= */
+
+async function initialize() {
+
+    initializeToken();
+
+    await loadPublicSiteSettings();
+}
+
+
+initialize();
 
 </script>
 
