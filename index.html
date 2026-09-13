@@ -190,12 +190,8 @@ body.no-scroll {
 
 
 /* =========================================================
-   HEADER ARCHIVE MENU
+   ARCHIVE MENU
 ========================================================= */
-
-.header-archive-wrap {
-    position:relative;
-}
 
 .header-archive-menu {
     position:absolute;
@@ -1367,25 +1363,6 @@ body.no-scroll {
             </a>
 
 
-            <div class="header-archive-wrap">
-
-                <button
-                    class="nav-button"
-                    id="headerArchiveButton"
-                    type="button"
-                    onclick="toggleHeaderArchive(event)"
-                >
-                    Archive
-                </button>
-
-                <div
-                    class="header-archive-menu"
-                    id="headerArchiveMenu"
-                ></div>
-
-            </div>
-
-
             <a
                 href="colors.html"
                 class="nav-link"
@@ -1520,7 +1497,7 @@ body.no-scroll {
                         type="button"
                         onclick="toggleGalleryArchive(event)"
                     >
-                        사진 기록
+                        Archive
                     </button>
 
 
@@ -1925,7 +1902,7 @@ const DEFAULT_SITE_SETTINGS = {
         "Photographs",
 
     archiveLabel:
-        "사진 기록",
+        "Archive",
 
     colorsLabel:
         "Colors",
@@ -2579,61 +2556,50 @@ function buildArchiveMenus() {
     );
 
 
-    const menus = [
-
-        document.getElementById(
-            "headerArchiveMenu"
-        ),
-
+    const menu =
         document.getElementById(
             "galleryArchiveMenu"
-        )
-    ];
+        );
 
 
-    menus.forEach(
-        menu => {
-
-            menu.innerHTML =
-                "";
+    menu.innerHTML =
+        "";
 
 
-            uniqueDates.forEach(
-                date => {
+    uniqueDates.forEach(
+        date => {
 
-                    const item =
-                        document.createElement(
-                            "button"
-                        );
-
-
-                    item.type =
-                        "button";
+            const item =
+                document.createElement(
+                    "button"
+                );
 
 
-                    item.className =
-                        "archive-date-item";
+            item.type =
+                "button";
 
 
-                    item.textContent =
-                        date;
+            item.className =
+                "archive-date-item";
 
 
-                    item.addEventListener(
-                        "click",
-                        () => {
-
-                            goToArchiveDate(
-                                date
-                            );
-                        }
-                    );
+            item.textContent =
+                date;
 
 
-                    menu.appendChild(
-                        item
+            item.addEventListener(
+                "click",
+                () => {
+
+                    goToArchiveDate(
+                        date
                     );
                 }
+            );
+
+
+            menu.appendChild(
+                item
             );
         }
     );
@@ -2668,36 +2634,6 @@ function goToArchiveDate(
 }
 
 
-function toggleHeaderArchive(
-    event
-) {
-
-    event.stopPropagation();
-
-
-    const menu =
-        document.getElementById(
-            "headerArchiveMenu"
-        );
-
-
-    const galleryMenu =
-        document.getElementById(
-            "galleryArchiveMenu"
-        );
-
-
-    galleryMenu.classList.remove(
-        "open"
-    );
-
-
-    menu.classList.toggle(
-        "open"
-    );
-}
-
-
 function toggleGalleryArchive(
     event
 ) {
@@ -2709,17 +2645,6 @@ function toggleGalleryArchive(
         document.getElementById(
             "galleryArchiveMenu"
         );
-
-
-    const headerMenu =
-        document.getElementById(
-            "headerArchiveMenu"
-        );
-
-
-    headerMenu.classList.remove(
-        "open"
-    );
 
 
     menu.classList.toggle(
@@ -3311,9 +3236,6 @@ document.addEventListener(
     event => {
 
         if (
-            !event.target.closest(
-                ".header-archive-wrap"
-            ) &&
             !event.target.closest(
                 ".gallery-archive-wrap"
             )
