@@ -1,372 +1,3576 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Archive</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        /* 프로필 수정 모달 스타일 */
-        .modal {
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
-            width: 100%; height: 100%; background-color: rgba(0,0,0,0.7);
-        }
-        .modal-content {
-            background-color: #fff; margin: 10% auto; padding: 25px;
-            border-radius: 15px; width: 90%; max-width: 400px; font-family: sans-serif;
-        }
-        .modal-content h3 { margin-top: 0; color: #333; }
-        .modal-content input, .modal-content textarea {
-            width: 100%; margin-bottom: 15px; padding: 10px;
-            box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px;
-        }
-        .modal-content button {
-            width: 100%; padding: 12px; border: none; border-radius: 8px;
-            cursor: pointer; font-weight: bold; margin-bottom: 5px;
-        }
-        .btn-save { background-color: #333; color: white; }
-        .btn-cancel { background-color: #eee; color: #666; }
-        
-        .profile-img, #displayName, #displayDescription { 
-            cursor: pointer; 
-            transition: opacity 0.3s; 
-        }
-        .profile-img:hover, #displayName:hover, #displayDescription:hover { 
-            opacity: 0.7; 
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        /* 오늘의 사진 영역 */
-        .today-photo-section {
-            margin-top: 45px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
+<title>Hamihamoo Photography</title>
 
-        .today-photo-title {
-            font-size: 1.4rem;
-            margin-bottom: 10px;
-            color: #333;
-        }
+<style>
+/* =========================================================
+   RESET / BASIC
+========================================================= */
 
-        .today-photo-subtitle {
-            color: #888;
-            margin-bottom: 18px;
-            font-size: 0.95rem;
-        }
+*,
+*::before,
+*::after {
+    box-sizing:border-box;
+}
 
-        .today-photo-card {
-            max-width: 760px;
-            border-radius: 18px;
-            overflow: hidden;
-            background: #fff;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-        }
+html {
+    scroll-behavior:smooth;
+}
 
-        .today-photo-image {
-            width: 100%;
-            display: block;
-            cursor: zoom-in;
-        }
+body {
+    margin:0;
+    background:#fff;
+    color:#1d1d1b;
 
-        .today-photo-info {
-            padding: 16px 18px 18px 18px;
-        }
+    font-family:
+        Arial,
+        "Apple SD Gothic Neo",
+        "Malgun Gothic",
+        sans-serif;
 
-        .today-photo-date {
-            font-size: 0.85rem;
-            color: #999;
-            margin-bottom: 8px;
-        }
+    -webkit-font-smoothing:antialiased;
+}
 
-        .today-photo-meta {
-            color: #555;
-            line-height: 1.6;
-            word-break: break-word;
-        }
+button,
+input,
+textarea,
+select {
+    font:inherit;
+}
 
-        .today-photo-empty {
-            color: #999;
-            font-size: 0.95rem;
-        }
+button,
+a {
+    -webkit-tap-highlight-color:transparent;
+}
 
-        /* 라이트박스 */
-        #todayLightbox {
-            display: none;
-            position: fixed;
-            z-index: 3000;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.95);
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-            flex-direction: column;
-        }
+button {
+    cursor:pointer;
+}
 
-        #todayLightbox img {
-            max-width: 92vw;
-            max-height: 74vh;
-            object-fit: contain;
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.6);
-            cursor: zoom-out;
-        }
+img {
+    display:block;
+    max-width:100%;
+}
 
-        .today-lightbox-caption {
-            margin-top: 16px;
-            color: #efefef;
-            text-align: center;
-            line-height: 1.6;
-            max-width: 760px;
-            word-break: break-word;
-        }
+body.no-scroll {
+    overflow:hidden;
+}
 
-        @media (max-width: 768px) {
-            .today-photo-title {
-                font-size: 1.2rem;
-            }
 
-            .today-photo-subtitle {
-                font-size: 0.88rem;
-            }
+/* =========================================================
+   PAGE
+========================================================= */
 
-            .today-photo-info {
-                padding: 14px;
-            }
+.site-shell {
+    width:min(1268px, calc(100% - 64px));
+    margin:0 auto;
+}
 
-            #todayLightbox img {
-                max-width: 94vw;
-                max-height: 62vh;
-            }
 
-            .today-lightbox-caption {
-                font-size: 0.9rem;
-                padding: 0 8px;
-            }
-        }
-    </style>
-    <link rel="stylesheet" href="journal.css">
+/* =========================================================
+   HEADER
+========================================================= */
+
+.site-header {
+    height:82px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    border-bottom:1px solid #deded8;
+}
+
+.brand {
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    color:#111;
+    text-decoration:none;
+}
+
+.brand-mark {
+    width:35px;
+    height:38px;
+
+    border:1px solid #222;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:29px;
+    font-style:italic;
+    line-height:1;
+}
+
+.brand-text {
+    display:flex;
+    flex-direction:column;
+}
+
+.brand-name {
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:-0.02em;
+    line-height:1.15;
+}
+
+.brand-subtitle {
+    margin-top:5px;
+
+    font-size:9px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+}
+
+
+/* =========================================================
+   DESKTOP NAV
+========================================================= */
+
+.main-nav {
+    display:flex;
+    align-items:center;
+    gap:34px;
+}
+
+.nav-link,
+.nav-button {
+    position:relative;
+
+    border:0;
+    padding:8px 0;
+
+    background:none;
+    color:#282824;
+
+    text-decoration:none;
+
+    font-size:12px;
+    line-height:1.3;
+
+    white-space:nowrap;
+}
+
+.nav-link:hover,
+.nav-button:hover {
+    color:#000;
+}
+
+.nav-link.current::after {
+    content:"";
+
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:-11px;
+
+    height:1px;
+    background:#111;
+}
+
+.nav-index {
+    margin-left:4px;
+    color:#9b9b92;
+    font-size:9px;
+}
+
+.nav-lock {
+    margin-right:5px;
+    font-size:11px;
+    opacity:0.7;
+}
+
+
+/* =========================================================
+   HEADER ARCHIVE MENU
+========================================================= */
+
+.header-archive-wrap {
+    position:relative;
+}
+
+.header-archive-menu {
+    position:absolute;
+
+    top:42px;
+    right:0;
+
+    width:190px;
+    max-height:370px;
+    overflow-y:auto;
+
+    padding:6px 0;
+
+    background:#fff;
+    border:1px solid #d7d7d1;
+
+    box-shadow:
+        0 12px 35px
+        rgba(0,0,0,0.08);
+
+    z-index:3000;
+
+    display:none;
+}
+
+.header-archive-menu.open {
+    display:block;
+}
+
+.archive-date-item {
+    width:100%;
+
+    padding:11px 16px;
+
+    border:0;
+    border-bottom:1px solid #efefe9;
+
+    background:#fff;
+
+    color:#44443e;
+    text-align:left;
+
+    font-size:11px;
+}
+
+.archive-date-item:last-child {
+    border-bottom:0;
+}
+
+.archive-date-item:hover {
+    background:#f6f6f2;
+}
+
+
+/* =========================================================
+   MOBILE MENU BUTTON
+========================================================= */
+
+.mobile-menu-btn {
+    display:none;
+
+    border:0;
+    background:none;
+
+    color:#111;
+
+    font-size:12px;
+    letter-spacing:0.08em;
+
+    padding:10px 0;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero {
+    padding:57px 0 54px;
+}
+
+.hero-kicker {
+    margin-bottom:23px;
+
+    font-size:10px;
+    letter-spacing:0.2em;
+
+    color:#57574f;
+}
+
+.hero-grid {
+    display:grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        220px;
+
+    gap:60px;
+    align-items:end;
+}
+
+.hero-title {
+    margin:0;
+
+    font-family:
+        Arial,
+        "Helvetica Neue",
+        sans-serif;
+
+    font-size:clamp(64px, 6.2vw, 92px);
+
+    font-weight:400;
+    letter-spacing:-0.065em;
+    line-height:0.96;
+
+    color:#222220;
+}
+
+.hero-title em {
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-weight:400;
+    font-style:italic;
+
+    letter-spacing:-0.055em;
+}
+
+.hero-note {
+    padding-bottom:5px;
+
+    font-size:13px;
+    line-height:1.8;
+
+    color:#262621;
+}
+
+.hero-note-main {
+    margin-bottom:16px;
+}
+
+.hero-credit {
+    color:#79796f;
+
+    font-size:10px;
+    line-height:1.5;
+}
+
+
+/* =========================================================
+   GALLERY HEADER
+========================================================= */
+
+.gallery-heading {
+    border-top:1px solid #242420;
+
+    padding-top:14px;
+    margin-bottom:19px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.gallery-heading-left {
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+.gallery-title {
+    font-size:12px;
+    color:#222;
+}
+
+.gallery-archive-wrap {
+    position:relative;
+}
+
+.gallery-archive-btn,
+.random-btn {
+    border:0;
+    background:none;
+
+    padding:4px 0;
+
+    color:#8b8b80;
+
+    font-size:11px;
+}
+
+.gallery-archive-btn:hover,
+.random-btn:hover {
+    color:#111;
+}
+
+.gallery-frame-count {
+    font-size:9px;
+
+    letter-spacing:0.16em;
+
+    color:#6f6f67;
+}
+
+
+/* =========================================================
+   GALLERY
+========================================================= */
+
+.gallery {
+    padding-bottom:100px;
+}
+
+
+/* 첫 두 장 */
+
+.feature-grid {
+    display:grid;
+
+    grid-template-columns:
+        minmax(0, 1.64fr)
+        minmax(0, 1fr);
+
+    gap:20px;
+
+    align-items:start;
+
+    margin-bottom:22px;
+}
+
+.feature-grid.one-photo {
+    grid-template-columns:1fr;
+}
+
+
+/* 이후 사진 */
+
+.archive-grid {
+    display:grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    column-gap:20px;
+    row-gap:27px;
+}
+
+
+/* 개별 사진 */
+
+.photo-card {
+    min-width:0;
+}
+
+.photo-image-wrap {
+    width:100%;
+    overflow:hidden;
+
+    background:#f4f4f0;
+}
+
+.photo-image {
+    width:100%;
+    height:auto;
+
+    object-fit:cover;
+
+    cursor:zoom-in;
+
+    transition:
+        opacity 0.25s ease,
+        transform 0.35s ease;
+}
+
+.photo-card:hover .photo-image {
+    opacity:0.94;
+}
+
+
+/* 사진 아래 정보 */
+
+.photo-caption {
+    margin-top:7px;
+
+    display:grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        auto;
+
+    gap:12px;
+
+    align-items:start;
+}
+
+.photo-caption-left {
+    min-width:0;
+
+    display:flex;
+    gap:9px;
+    align-items:baseline;
+}
+
+.photo-number {
+    flex:0 0 auto;
+
+    color:#8b8b82;
+
+    font-size:8px;
+    line-height:1.6;
+}
+
+.photo-text {
+    min-width:0;
+
+    color:#262622;
+
+    font-size:10px;
+    line-height:1.55;
+
+    overflow-wrap:anywhere;
+}
+
+.photo-date {
+    color:#8b8b82;
+
+    font-size:8px;
+    line-height:1.7;
+
+    white-space:nowrap;
+}
+
+
+/* =========================================================
+   EMPTY / LOADING
+========================================================= */
+
+.loading,
+.empty-gallery {
+    padding:80px 0;
+
+    color:#88887f;
+
+    text-align:center;
+
+    font-size:12px;
+}
+
+
+/* =========================================================
+   ABOUT MODAL
+========================================================= */
+
+.about-overlay {
+    position:fixed;
+
+    inset:0;
+
+    z-index:9000;
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+
+    padding:24px;
+
+    background:rgba(20,20,18,0.48);
+}
+
+.about-overlay.open {
+    display:flex;
+}
+
+.about-modal {
+    position:relative;
+
+    width:min(430px, 100%);
+
+    padding:
+        40px
+        38px
+        34px;
+
+    background:#fff;
+
+    border:1px solid #55554f;
+
+    box-shadow:
+        0 18px 55px
+        rgba(0,0,0,0.16);
+}
+
+.about-close {
+    position:absolute;
+
+    top:10px;
+    right:13px;
+
+    width:28px;
+    height:28px;
+
+    border:0;
+    background:none;
+
+    color:#66665f;
+
+    font-size:18px;
+}
+
+.about-kicker {
+    margin-bottom:34px;
+
+    color:#55554f;
+
+    font-size:10px;
+    letter-spacing:0.18em;
+}
+
+.about-title {
+    margin:0 0 7px;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:40px;
+    font-weight:400;
+    line-height:1.1;
+
+    color:#242421;
+}
+
+.about-role {
+    margin-bottom:23px;
+
+    color:#99998f;
+
+    font-size:12px;
+}
+
+.about-copy {
+    color:#66665d;
+
+    font-size:13px;
+    line-height:1.9;
+}
+
+.about-copy p {
+    margin:0 0 23px;
+}
+
+.about-divider {
+    height:1px;
+
+    margin:30px 0 22px;
+
+    background:#dfdfd9;
+}
+
+.about-signoff {
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:22px;
+    font-style:italic;
+
+    color:#34342f;
+}
+
+
+/* =========================================================
+   LIGHTBOX
+========================================================= */
+
+.lightbox {
+    position:fixed;
+    inset:0;
+
+    z-index:10000;
+
+    display:none;
+
+    background:rgba(8,8,8,0.97);
+
+    overflow-y:auto;
+}
+
+.lightbox.open {
+    display:block;
+}
+
+.lightbox-inner {
+    min-height:100vh;
+    min-height:100dvh;
+
+    width:min(1180px, calc(100% - 80px));
+
+    margin:0 auto;
+
+    padding:45px 0 55px;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+
+.lightbox-top {
+    width:100%;
+
+    display:flex;
+    justify-content:flex-end;
+
+    margin-bottom:10px;
+}
+
+.lightbox-close {
+    border:0;
+    background:none;
+
+    color:#eee;
+
+    font-size:25px;
+
+    padding:7px 0 7px 20px;
+}
+
+.lightbox-stage {
+    position:relative;
+
+    width:100%;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.lightbox-image {
+    max-width:100%;
+    max-height:70vh;
+    max-height:70dvh;
+
+    width:auto;
+    height:auto;
+
+    object-fit:contain;
+}
+
+.lightbox-prev,
+.lightbox-next {
+    position:absolute;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    border:0;
+    background:none;
+
+    color:#fff;
+
+    font-size:38px;
+
+    opacity:0.6;
+
+    padding:20px;
+}
+
+.lightbox-prev:hover,
+.lightbox-next:hover {
+    opacity:1;
+}
+
+.lightbox-prev {
+    left:-70px;
+}
+
+.lightbox-next {
+    right:-70px;
+}
+
+
+/* 라이트박스 제목 */
+
+.lightbox-caption {
+    width:min(850px, 100%);
+
+    margin-top:19px;
+
+    text-align:center;
+
+    color:#e9e9e4;
+}
+
+.lightbox-caption-main {
+    display:flex;
+    justify-content:center;
+    align-items:baseline;
+
+    gap:10px;
+
+    flex-wrap:wrap;
+}
+
+.lightbox-caption-number {
+    color:#999;
+
+    font-size:10px;
+}
+
+.lightbox-caption-text {
+    font-size:13px;
+}
+
+.lightbox-caption-date {
+    margin-top:6px;
+
+    color:#92928c;
+
+    font-size:10px;
+}
+
+
+/* 메타데이터 */
+
+.lightbox-meta {
+    width:min(780px, 100%);
+
+    margin-top:23px;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    border-top:1px solid #444;
+    border-bottom:1px solid #444;
+}
+
+.meta-item {
+    padding:13px 12px;
+
+    text-align:center;
+}
+
+.meta-label {
+    margin-bottom:5px;
+
+    color:#777;
+
+    font-size:8px;
+
+    letter-spacing:0.1em;
+
+    text-transform:uppercase;
+}
+
+.meta-value {
+    color:#ddd;
+
+    font-size:11px;
+
+    line-height:1.5;
+}
+
+
+/* 라이트박스 컨트롤 */
+
+.lightbox-controls {
+    margin-top:20px;
+
+    display:flex;
+    justify-content:center;
+
+    gap:8px;
+
+    flex-wrap:wrap;
+}
+
+.lightbox-control {
+    border:1px solid #4b4b47;
+
+    background:transparent;
+
+    color:#ccc;
+
+    padding:8px 14px;
+
+    font-size:10px;
+}
+
+.lightbox-control:hover {
+    border-color:#888;
+    color:#fff;
+}
+
+
+/* =========================================================
+   TOP BUTTON
+========================================================= */
+
+.top-button {
+    position:fixed;
+
+    right:26px;
+    bottom:24px;
+
+    z-index:5000;
+
+    width:44px;
+    height:44px;
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+
+    border:1px solid #c7c7c0;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,0.94);
+
+    color:#222;
+
+    font-size:17px;
+
+    box-shadow:
+        0 6px 22px
+        rgba(0,0,0,0.06);
+}
+
+.top-button.show {
+    display:flex;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.site-footer {
+    padding:30px 0 40px;
+
+    border-top:1px solid #deded8;
+
+    color:#96968d;
+
+    font-size:9px;
+
+    letter-spacing:0.05em;
+
+    display:flex;
+    justify-content:space-between;
+    gap:20px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width:900px) {
+
+    .site-shell {
+        width:min(100% - 40px, 1268px);
+    }
+
+    .main-nav {
+        gap:20px;
+    }
+
+    .hero {
+        padding-top:45px;
+    }
+
+    .hero-grid {
+        grid-template-columns:
+            minmax(0, 1fr)
+            180px;
+
+        gap:30px;
+    }
+
+    .hero-title {
+        font-size:clamp(54px, 7.7vw, 76px);
+    }
+
+    .archive-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width:700px) {
+
+    .site-shell {
+        width:calc(100% - 32px);
+    }
+
+
+    /* HEADER */
+
+    .site-header {
+        height:72px;
+    }
+
+    .brand {
+        gap:9px;
+    }
+
+    .brand-mark {
+        width:31px;
+        height:34px;
+
+        font-size:25px;
+    }
+
+    .brand-name {
+        font-size:14px;
+    }
+
+    .brand-subtitle {
+        font-size:8px;
+        margin-top:4px;
+    }
+
+    .main-nav {
+        position:fixed;
+
+        top:0;
+        right:0;
+        bottom:0;
+
+        z-index:7000;
+
+        width:min(300px, 82vw);
+
+        padding:
+            95px
+            30px
+            35px;
+
+        background:#fff;
+
+        border-left:1px solid #ddd;
+
+        display:flex;
+        flex-direction:column;
+        align-items:flex-start;
+
+        gap:9px;
+
+        transform:translateX(102%);
+
+        transition:transform 0.25s ease;
+
+        box-shadow:
+            -15px 0 40px
+            rgba(0,0,0,0.08);
+    }
+
+    .main-nav.open {
+        transform:translateX(0);
+    }
+
+    .main-nav .nav-link,
+    .main-nav .nav-button {
+        width:100%;
+
+        padding:13px 0;
+
+        border-bottom:1px solid #eee;
+
+        text-align:left;
+
+        font-size:13px;
+    }
+
+    .main-nav .nav-link.current::after {
+        display:none;
+    }
+
+    .mobile-menu-btn {
+        display:block;
+        position:relative;
+        z-index:7100;
+    }
+
+    .header-archive-menu {
+        position:static;
+
+        width:100%;
+        max-height:230px;
+
+        box-shadow:none;
+
+        margin-top:5px;
+    }
+
+
+    /* HERO */
+
+    .hero {
+        padding:
+            43px
+            0
+            38px;
+    }
+
+    .hero-kicker {
+        margin-bottom:18px;
+
+        font-size:8px;
+    }
+
+    .hero-grid {
+        display:block;
+    }
+
+    .hero-title {
+        font-size:clamp(49px, 15vw, 72px);
+        line-height:0.98;
+    }
+
+    .hero-note {
+        margin-top:32px;
+        padding:0;
+
+        max-width:280px;
+
+        font-size:12px;
+    }
+
+
+    /* GALLERY HEADING */
+
+    .gallery-heading {
+        align-items:flex-start;
+        gap:20px;
+    }
+
+    .gallery-heading-left {
+        flex-wrap:wrap;
+        gap:9px 15px;
+    }
+
+
+    /* 모든 사진을 1열로 */
+
+    .feature-grid,
+    .feature-grid.one-photo,
+    .archive-grid {
+        display:grid;
+
+        grid-template-columns:1fr;
+
+        gap:28px;
+    }
+
+    .feature-grid {
+        margin-bottom:28px;
+    }
+
+    .photo-caption {
+        margin-top:8px;
+    }
+
+    .photo-number,
+    .photo-date {
+        font-size:8px;
+    }
+
+    .photo-text {
+        font-size:10px;
+    }
+
+
+    /* ABOUT */
+
+    .about-overlay {
+        padding:16px;
+        align-items:center;
+    }
+
+    .about-modal {
+        padding:
+            36px
+            26px
+            29px;
+    }
+
+    .about-kicker {
+        margin-bottom:26px;
+    }
+
+    .about-title {
+        font-size:35px;
+    }
+
+    .about-copy {
+        font-size:12px;
+    }
+
+
+    /* LIGHTBOX */
+
+    .lightbox-inner {
+        width:calc(100% - 28px);
+
+        padding:20px 0 35px;
+
+        justify-content:center;
+    }
+
+    .lightbox-image {
+        max-height:58vh;
+        max-height:58dvh;
+    }
+
+    .lightbox-prev,
+    .lightbox-next {
+        display:none;
+    }
+
+    .lightbox-meta {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .meta-item {
+        border-bottom:1px solid #333;
+    }
+
+    .top-button {
+        right:15px;
+        bottom:17px;
+
+        width:42px;
+        height:42px;
+    }
+
+    .site-footer {
+        flex-direction:column;
+        gap:6px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width:390px) {
+
+    .site-shell {
+        width:calc(100% - 24px);
+    }
+
+    .hero-title {
+        font-size:46px;
+    }
+
+    .gallery-frame-count {
+        font-size:8px;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion:reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior:auto !important;
+        animation-duration:0.01ms !important;
+        transition-duration:0.01ms !important;
+    }
+}
+</style>
 </head>
-<body class="journal-page page-home">
-    <div class="container">
-        <div class="profile">
-            <div class="journal-brand">
-                <img src="images/KakaoTalk_20240406_232152395.jpg" alt="프로필 사진" class="profile-img" id="displayProfileImg" onclick="openProfileEdit()">
-                <div class="journal-brand-copy">
-                    <h2 id="displayName" onclick="openProfileEdit()">Hamihamoo</h2>
-            <p id="displayDescription" onclick="openProfileEdit()">Amateur Photographer</p>
+
+
+<body>
+
+
+<div class="site-shell">
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="site-header">
+
+        <a
+            class="brand"
+            href="index.html"
+            aria-label="Hamihamoo Photography"
+        >
+
+            <div
+                class="brand-mark"
+                id="brandMark"
+            >
+                h.
+            </div>
+
+
+            <div class="brand-text">
+
+                <div
+                    class="brand-name"
+                    id="brandName"
+                >
+                    hamihamoo
                 </div>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="index.html" aria-current="page">main page</a></li>
-                    <li><a href="digital.html">digital photos</a></li>
-                    <li><a href="film.html">film photos</a></li>
-                    <li><a href="colors.html">colors archive</a></li>
-                    <li><a href="analysis.html">analysis</a></li>
-                    <li><a href="guestbook.html">guestbook</a></li>
-                </ul>
-            </nav>
-        </div>
 
-        <div class="main-content">
-            <div class="journal-intro">
-                <h1>Photo Archive</h1>
-                <p>Hi! This is my personal Photo Archive.</p>
+                <div
+                    class="brand-subtitle"
+                    id="brandSubtitle"
+                >
+                    PHOTOGRAPHY
+                </div>
+
             </div>
 
-            <section class="today-photo-section">
-                <h2 class="today-photo-title">Today's Photo</h2>
-                <p class="today-photo-subtitle">오늘 하루 동안 고정으로 보여지는 사진이에요.</p>
-                <div id="todayPhotoWrap" class="today-photo-empty">사진을 불러오는 중입니다...</div>
-            </section>
-        </div>
-    </div>
+        </a>
 
-    <div id="profileModal" class="modal">
-        <div class="modal-content">
-            <h3>👤 프로필 수정</h3>
-            <input type="password" id="profileToken" placeholder="깃허브 토큰 입력">
-            
-            <label style="font-size: 0.8rem; display: block; margin-bottom: 5px;">📸 새 프로필 사진 (선택사항)</label>
-            <input type="file" id="profileFile" accept="image/*">
-            
-            <label style="font-size: 0.8rem; display: block; margin-bottom: 5px;">이름</label>
-            <input type="text" id="editName" placeholder="이름">
-            
-            <label style="font-size: 0.8rem; display: block; margin-bottom: 5px;">자기소개</label>
-            <textarea id="editDescription" rows="3" placeholder="자기소개"></textarea>
-            
-            <button class="btn-save" onclick="saveProfile()">저장하기</button>
-            <button class="btn-cancel" onclick="closeProfileEdit()">취소</button>
-            <div id="uploadStatus" style="font-size: 0.8rem; text-align: center; margin-top: 10px; color: blue;"></div>
-        </div>
-    </div>
 
-    <div id="todayLightbox" onclick="closeTodayLightbox()">
-        <img id="todayLightboxImg" src="" alt="오늘의 사진 확대">
-        <div class="today-lightbox-caption" id="todayLightboxCaption"></div>
-    </div>
+        <button
+            class="mobile-menu-btn"
+            id="mobileMenuBtn"
+            type="button"
+            onclick="toggleMobileMenu()"
+        >
+            MENU
+        </button>
 
-    <script>
-        const repo = "Helios0513/Photo_Archive.github.io";
 
-        async function loadProfile() {
-            try {
-                const res = await fetch(`https://api.github.com/repos/${repo}/contents/profile.json`);
-                if (res.ok) {
-                    const data = await res.json();
-                    const profile = JSON.parse(decodeURIComponent(escape(atob(data.content))));
-                    
-                    if(profile.profileImage) document.getElementById('displayProfileImg').src = profile.profileImage + "?v=" + Date.now();
-                    if(profile.name) document.getElementById('displayName').innerText = profile.name;
-                    if(profile.description) document.getElementById('displayDescription').innerText = profile.description;
-                    
-                    document.getElementById('editName').value = profile.name || "Hamihamoo";
-                    document.getElementById('editDescription').value = profile.description || "Amateur Photographer";
-                }
-            } catch (e) { console.log("기존 프로필 로드 실패"); }
-        }
+        <nav
+            class="main-nav"
+            id="mainNav"
+        >
 
-        async function loadTodayPhoto() {
-            const wrap = document.getElementById('todayPhotoWrap');
+            <a
+                href="index.html"
+                class="nav-link current"
+            >
+                사진
+                <span class="nav-index">
+                    01
+                </span>
+            </a>
 
-            try {
-                const res = await fetch('photos.json');
-                const photos = await res.json();
 
-                if (!Array.isArray(photos) || photos.length === 0) {
-                    wrap.innerHTML = `<div class="today-photo-empty">표시할 사진이 아직 없어요.</div>`;
-                    return;
-                }
+            <div class="header-archive-wrap">
 
-                // 한국 시간 기준 날짜 생성
-                const now = new Date();
-                const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                <button
+                    class="nav-button"
+                    id="headerArchiveButton"
+                    type="button"
+                    onclick="toggleHeaderArchive(event)"
+                >
+                    Archive
+                </button>
 
-                let seed = 0;
-                for (let i = 0; i < todayKey.length; i++) {
-                    seed += todayKey.charCodeAt(i);
-                }
+                <div
+                    class="header-archive-menu"
+                    id="headerArchiveMenu"
+                ></div>
 
-                const index = seed % photos.length;
-                const photo = photos[index];
-                const photoDate = photo.date || "날짜 미상";
-                const photoInfo = photo.info || "";
+            </div>
 
-                wrap.innerHTML = `
-                    <div class="today-photo-card">
-                        <img 
-                            src="images/digital/${photo.filename}" 
-                            alt="Today's Photo" 
-                            class="today-photo-image"
-                            loading="lazy"
-                            onclick="openTodayLightbox('images/digital/${photo.filename}', '${(photoDate + ' | ' + photoInfo).replace(/'/g, "\\'")}')"
-                        >
-                        <div class="today-photo-info">
-                            <div class="today-photo-date">${photoDate}</div>
-                            <div class="today-photo-meta">${photoInfo}</div>
-                        </div>
+
+            <a
+                href="colors.html"
+                class="nav-link"
+                id="colorsNav"
+            >
+                Colors
+            </a>
+
+
+            <a
+                href="analysis.html"
+                class="nav-link"
+                id="projectsNav"
+            >
+                Projects
+            </a>
+
+
+            <a
+                href="guestbook.html"
+                class="nav-link"
+                id="guestbookNav"
+            >
+                Guestbook
+            </a>
+
+
+            <button
+                class="nav-button"
+                id="aboutNav"
+                type="button"
+                onclick="openAbout()"
+            >
+                작가 소개
+            </button>
+
+
+            <a
+                href="upload.html"
+                class="nav-link"
+                id="manageNav"
+            >
+                <span class="nav-lock">
+                    ♙
+                </span>
+                사진 관리
+            </a>
+
+        </nav>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <main>
+
+        <section class="hero">
+
+            <div
+                class="hero-kicker"
+                id="archiveKicker"
+            >
+                THE PHOTOGRAPHIC ARCHIVE
+            </div>
+
+
+            <div class="hero-grid">
+
+                <h1 class="hero-title">
+
+                    <span id="heroPrefix">
+                        A way of
+                    </span>
+
+                    <em id="heroEmphasis">
+                        seeing.
+                    </em>
+
+                </h1>
+
+
+                <div class="hero-note">
+
+                    <div
+                        class="hero-note-main"
+                        id="heroNote"
+                    >
+                        스쳐 가는 순간을,<br>
+                        오래 머무는 장면으로.
                     </div>
-                `;
-            } catch (error) {
-                console.error(error);
-                wrap.innerHTML = `<div class="today-photo-empty">오늘의 사진을 불러오지 못했어요.</div>`;
-            }
+
+                    <div
+                        class="hero-credit"
+                        id="heroCredit"
+                    >
+                        Photographs by Hamihamoo
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             GALLERY HEADER
+        ================================================== -->
+
+        <section class="gallery-heading">
+
+            <div class="gallery-heading-left">
+
+                <div
+                    class="gallery-title"
+                    id="galleryTitle"
+                >
+                    Photographs
+                </div>
+
+
+                <div class="gallery-archive-wrap">
+
+                    <button
+                        class="gallery-archive-btn"
+                        id="galleryArchiveBtn"
+                        type="button"
+                        onclick="toggleGalleryArchive(event)"
+                    >
+                        사진 기록
+                    </button>
+
+
+                    <div
+                        class="header-archive-menu"
+                        id="galleryArchiveMenu"
+                    ></div>
+
+                </div>
+
+
+                <button
+                    class="random-btn"
+                    type="button"
+                    onclick="openRandomPhoto()"
+                >
+                    Random
+                </button>
+
+            </div>
+
+
+            <div
+                class="gallery-frame-count"
+                id="frameCount"
+            >
+                0 FRAMES
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             PHOTOS
+        ================================================== -->
+
+        <section class="gallery">
+
+            <div
+                id="galleryLoading"
+                class="loading"
+            >
+                photographs loading...
+            </div>
+
+
+            <div
+                class="feature-grid"
+                id="featureGrid"
+            ></div>
+
+
+            <div
+                class="archive-grid"
+                id="archiveGrid"
+            ></div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="site-footer">
+
+        <div id="footerCopyright">
+            © 2026 Hamihamoo
+        </div>
+
+        <div>
+            A photographic archive.
+        </div>
+
+    </footer>
+
+</div>
+
+
+
+<!-- =========================================================
+     ABOUT
+========================================================= -->
+
+<div
+    class="about-overlay"
+    id="aboutOverlay"
+    aria-hidden="true"
+>
+
+    <div
+        class="about-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="aboutTitle"
+    >
+
+        <button
+            class="about-close"
+            type="button"
+            onclick="closeAbout()"
+            aria-label="닫기"
+        >
+            ×
+        </button>
+
+
+        <div
+            class="about-kicker"
+            id="aboutKicker"
+        >
+            BEHIND THE CAMERA
+        </div>
+
+
+        <h2
+            class="about-title"
+            id="aboutTitle"
+        >
+            Hamihamoo
+        </h2>
+
+
+        <div
+            class="about-role"
+            id="aboutRole"
+        >
+            사진가의 기록
+        </div>
+
+
+        <div class="about-copy">
+
+            <p id="aboutIntro">
+                빛과 색, 그리고 일상 속 작은 장면들.
+            </p>
+
+            <p id="aboutBody">
+                발걸음을 멈추게 하는 순간을 사진으로 남깁니다.
+                이곳은 그렇게 모인 시선들을 나누는 공간입니다.
+            </p>
+
+        </div>
+
+
+        <div class="about-divider"></div>
+
+
+        <div
+            class="about-signoff"
+            id="aboutSignoff"
+        >
+            A way of seeing.
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     LIGHTBOX
+========================================================= -->
+
+<div
+    class="lightbox"
+    id="lightbox"
+    aria-hidden="true"
+>
+
+    <div class="lightbox-inner">
+
+
+        <div class="lightbox-top">
+
+            <button
+                class="lightbox-close"
+                type="button"
+                onclick="closeLightbox()"
+                aria-label="닫기"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="lightbox-stage">
+
+            <button
+                class="lightbox-prev"
+                type="button"
+                onclick="showPreviousPhoto()"
+                aria-label="이전 사진"
+            >
+                ‹
+            </button>
+
+
+            <img
+                class="lightbox-image"
+                id="lightboxImage"
+                src=""
+                alt="확대된 사진"
+            >
+
+
+            <button
+                class="lightbox-next"
+                type="button"
+                onclick="showNextPhoto()"
+                aria-label="다음 사진"
+            >
+                ›
+            </button>
+
+        </div>
+
+
+        <div class="lightbox-caption">
+
+            <div class="lightbox-caption-main">
+
+                <span
+                    class="lightbox-caption-number"
+                    id="lightboxNumber"
+                ></span>
+
+                <span
+                    class="lightbox-caption-text"
+                    id="lightboxText"
+                ></span>
+
+            </div>
+
+
+            <div
+                class="lightbox-caption-date"
+                id="lightboxDate"
+            ></div>
+
+        </div>
+
+
+        <div class="lightbox-meta">
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Date
+                </div>
+
+                <div
+                    class="meta-value"
+                    id="metaDate"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Camera
+                </div>
+
+                <div
+                    class="meta-value"
+                    id="metaCamera"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Aperture
+                </div>
+
+                <div
+                    class="meta-value"
+                    id="metaAperture"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="meta-item">
+
+                <div class="meta-label">
+                    Shutter / ISO
+                </div>
+
+                <div
+                    class="meta-value"
+                    id="metaShutterIso"
+                >
+                    -
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="lightbox-controls">
+
+            <button
+                class="lightbox-control"
+                type="button"
+                onclick="showPreviousPhoto()"
+            >
+                ← Prev
+            </button>
+
+
+            <button
+                class="lightbox-control"
+                type="button"
+                id="slideshowButton"
+                onclick="toggleSlideshow()"
+            >
+                ▶ Slideshow
+            </button>
+
+
+            <button
+                class="lightbox-control"
+                type="button"
+                onclick="showNextPhoto()"
+            >
+                Next →
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     TOP BUTTON
+========================================================= -->
+
+<button
+    class="top-button"
+    id="topButton"
+    type="button"
+    onclick="scrollToTop()"
+    aria-label="맨 위로"
+>
+    ↑
+</button>
+
+
+
+<script>
+
+/* =========================================================
+   DEFAULT SITE TEXT
+   나중에 upload.html에서 수정할 수 있도록 site.json과 연결함
+========================================================= */
+
+const DEFAULT_SITE_SETTINGS = {
+
+    brandMark:"h.",
+
+    brandName:"hamihamoo",
+
+    brandSubtitle:"PHOTOGRAPHY",
+
+    archiveKicker:
+        "THE PHOTOGRAPHIC ARCHIVE",
+
+    heroPrefix:
+        "A way of",
+
+    heroEmphasis:
+        "seeing.",
+
+    heroNote:
+        "스쳐 가는 순간을,\n오래 머무는 장면으로.",
+
+    heroCredit:
+        "Photographs by Hamihamoo",
+
+    galleryTitle:
+        "Photographs",
+
+    archiveLabel:
+        "사진 기록",
+
+    colorsLabel:
+        "Colors",
+
+    projectsLabel:
+        "Projects",
+
+    guestbookLabel:
+        "Guestbook",
+
+    aboutLabel:
+        "작가 소개",
+
+    manageLabel:
+        "사진 관리",
+
+    aboutKicker:
+        "BEHIND THE CAMERA",
+
+    aboutTitle:
+        "Hamihamoo",
+
+    aboutRole:
+        "사진가의 기록",
+
+    aboutIntro:
+        "빛과 색, 그리고 일상 속 작은 장면들.",
+
+    aboutBody:
+        "발걸음을 멈추게 하는 순간을 사진으로 남깁니다. 이곳은 그렇게 모인 시선들을 나누는 공간입니다.",
+
+    aboutSignoff:
+        "A way of seeing.",
+
+    footerCopyright:
+        "© 2026 Hamihamoo"
+};
+
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let siteSettings = {
+    ...DEFAULT_SITE_SETTINGS
+};
+
+let allPhotos = [];
+
+let displayedPhotos = [];
+
+let currentLightboxIndex = -1;
+
+let slideshowInterval = null;
+
+let touchStartX = 0;
+
+let touchEndX = 0;
+
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function photoUrl(filename) {
+
+    return (
+        "images/digital/" +
+        encodeURIComponent(filename)
+    );
+}
+
+
+function numberLabel(index) {
+
+    return String(index + 1)
+        .padStart(2, "0");
+}
+
+
+function formatDisplayDate(date) {
+
+    if (!date) {
+        return "";
+    }
+
+    return String(date)
+        .replace(/-/g, ".");
+}
+
+
+function dateTargetId(date) {
+
+    const safe =
+        String(date || "unknown")
+            .replace(
+                /[^a-zA-Z0-9_-]/g,
+                "-"
+            );
+
+    return `archive-date-${safe}`;
+}
+
+
+
+/* =========================================================
+   SITE SETTINGS
+========================================================= */
+
+async function loadSiteSettings() {
+
+    try {
+
+        const response =
+            await fetch(
+                `site.json?v=${Date.now()}`,
+                {
+                    cache:"no-store"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            applySiteSettings();
+
+            return;
         }
 
-        function openTodayLightbox(src, caption) {
-            const lightbox = document.getElementById('todayLightbox');
-            const img = document.getElementById('todayLightboxImg');
-            const text = document.getElementById('todayLightboxCaption');
 
-            img.src = src;
-            text.innerText = caption;
-            lightbox.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
+        const data =
+            await response.json();
 
-        function closeTodayLightbox() {
-            document.getElementById('todayLightbox').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
 
-        function openProfileEdit() { document.getElementById('profileModal').style.display = 'block'; }
-        function closeProfileEdit() { document.getElementById('profileModal').style.display = 'none'; }
+        siteSettings = {
 
-        async function saveProfile() {
-            const token = document.getElementById('profileToken').value;
-            const fileInput = document.getElementById('profileFile');
-            const newName = document.getElementById('editName').value;
-            const newDesc = document.getElementById('editDescription').value;
-            const status = document.getElementById('uploadStatus');
+            ...DEFAULT_SITE_SETTINGS,
 
-            if (!token) return alert("수정하려면 깃허브 토큰이 필요합니다.");
-            status.innerText = "⏳ 처리 중...";
-
-            try {
-                let currentImgPath = document.getElementById('displayProfileImg').src.split('?')[0];
-                if(currentImgPath.includes('images/')) {
-                    currentImgPath = "images/" + currentImgPath.split('images/')[1];
-                }
-
-                if (fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
-                    const base64 = await new Promise(resolve => {
-                        const reader = new FileReader();
-                        reader.onload = () => resolve(reader.result.split(',')[1]);
-                        reader.readAsDataURL(file);
-                    });
-                    
-                    const fileName = "profile_" + Date.now() + ".jpg";
-                    const newPath = "images/" + fileName;
-
-                    await fetch(`https://api.github.com/repos/${repo}/contents/${newPath}`, {
-                        method: "PUT",
-                        headers: { "Authorization": `token ${token}` },
-                        body: JSON.stringify({ message: "Update profile image", content: base64 })
-                    });
-                    currentImgPath = newPath;
-                }
-
-                const profileData = { profileImage: currentImgPath, name: newName, description: newDesc };
-                const res = await fetch(`https://api.github.com/repos/${repo}/contents/profile.json`, {
-                    headers: { "Authorization": `token ${token}` }
-                });
-                
-                let sha = "";
-                if (res.ok) {
-                    const existingJson = await res.json();
-                    sha = existingJson.sha;
-                }
-
-                const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/profile.json`, {
-                    method: "PUT",
-                    headers: { "Authorization": `token ${token}` },
-                    body: JSON.stringify({
-                        message: "Update profile info",
-                        content: btoa(unescape(encodeURIComponent(JSON.stringify(profileData, null, 2)))),
-                        sha: sha
-                    })
-                });
-
-                if(putRes.ok) {
-                    alert("✅ 프로필이 성공적으로 변경되었습니다!");
-                    location.reload();
-                } else {
-                    throw new Error("JSON 저장 실패");
-                }
-
-            } catch (e) {
-                alert("❌ 실패: " + e.message);
-                status.innerText = "";
-            }
-        }
-
-        window.onload = () => {
-            loadProfile();
-            loadTodayPhoto();
+            ...data
         };
-    </script>
+
+
+    } catch (error) {
+
+        siteSettings = {
+            ...DEFAULT_SITE_SETTINGS
+        };
+    }
+
+
+    applySiteSettings();
+}
+
+
+function applySiteSettings() {
+
+    document.getElementById(
+        "brandMark"
+    ).textContent =
+        siteSettings.brandMark;
+
+
+    document.getElementById(
+        "brandName"
+    ).textContent =
+        siteSettings.brandName;
+
+
+    document.getElementById(
+        "brandSubtitle"
+    ).textContent =
+        siteSettings.brandSubtitle;
+
+
+    document.getElementById(
+        "archiveKicker"
+    ).textContent =
+        siteSettings.archiveKicker;
+
+
+    document.getElementById(
+        "heroPrefix"
+    ).textContent =
+        siteSettings.heroPrefix;
+
+
+    document.getElementById(
+        "heroEmphasis"
+    ).textContent =
+        siteSettings.heroEmphasis;
+
+
+    document.getElementById(
+        "heroNote"
+    ).innerHTML =
+        escapeHtml(
+            siteSettings.heroNote
+        ).replace(
+            /\n/g,
+            "<br>"
+        );
+
+
+    document.getElementById(
+        "heroCredit"
+    ).textContent =
+        siteSettings.heroCredit;
+
+
+    document.getElementById(
+        "galleryTitle"
+    ).textContent =
+        siteSettings.galleryTitle;
+
+
+    document.getElementById(
+        "galleryArchiveBtn"
+    ).textContent =
+        siteSettings.archiveLabel;
+
+
+    document.getElementById(
+        "colorsNav"
+    ).textContent =
+        siteSettings.colorsLabel;
+
+
+    document.getElementById(
+        "projectsNav"
+    ).textContent =
+        siteSettings.projectsLabel;
+
+
+    document.getElementById(
+        "guestbookNav"
+    ).textContent =
+        siteSettings.guestbookLabel;
+
+
+    document.getElementById(
+        "aboutNav"
+    ).textContent =
+        siteSettings.aboutLabel;
+
+
+    document.getElementById(
+        "manageNav"
+    ).innerHTML =
+        `
+        <span class="nav-lock">
+            ♙
+        </span>
+        ${escapeHtml(siteSettings.manageLabel)}
+        `;
+
+
+    document.getElementById(
+        "aboutKicker"
+    ).textContent =
+        siteSettings.aboutKicker;
+
+
+    document.getElementById(
+        "aboutTitle"
+    ).textContent =
+        siteSettings.aboutTitle;
+
+
+    document.getElementById(
+        "aboutRole"
+    ).textContent =
+        siteSettings.aboutRole;
+
+
+    document.getElementById(
+        "aboutIntro"
+    ).textContent =
+        siteSettings.aboutIntro;
+
+
+    document.getElementById(
+        "aboutBody"
+    ).textContent =
+        siteSettings.aboutBody;
+
+
+    document.getElementById(
+        "aboutSignoff"
+    ).textContent =
+        siteSettings.aboutSignoff;
+
+
+    document.getElementById(
+        "footerCopyright"
+    ).textContent =
+        siteSettings.footerCopyright;
+}
+
+
+
+/* =========================================================
+   LOAD PHOTOS
+========================================================= */
+
+async function loadPhotos() {
+
+    const response =
+        await fetch(
+            `photos.json?v=${Date.now()}`,
+            {
+                cache:"no-store"
+            }
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            "photos.json을 불러오지 못했습니다."
+        );
+    }
+
+
+    const data =
+        await response.json();
+
+
+    allPhotos =
+        Array.isArray(data)
+        ? data
+        : [];
+
+
+    /*
+        최신 날짜 순.
+        동일 날짜 안에서는 photos.json의 순서를 유지.
+    */
+
+    displayedPhotos =
+        allPhotos
+            .map(
+                (photo, originalIndex) => ({
+                    ...photo,
+                    _originalIndex:
+                        originalIndex
+                })
+            )
+            .sort(
+                (a, b) => {
+
+                    const dateCompare =
+                        String(
+                            b.date || ""
+                        ).localeCompare(
+                            String(
+                                a.date || ""
+                            )
+                        );
+
+
+                    if (
+                        dateCompare !== 0
+                    ) {
+
+                        return dateCompare;
+                    }
+
+
+                    return (
+                        a._originalIndex -
+                        b._originalIndex
+                    );
+                }
+            );
+
+
+    renderGallery();
+
+    buildArchiveMenus();
+}
+
+
+
+/* =========================================================
+   GALLERY
+========================================================= */
+
+function createPhotoCard(
+    photo,
+    index,
+    isFirstOfDate
+) {
+
+    const card =
+        document.createElement(
+            "article"
+        );
+
+
+    card.className =
+        "photo-card";
+
+
+    if (isFirstOfDate) {
+
+        card.id =
+            dateTargetId(
+                photo.date
+            );
+    }
+
+
+    const caption =
+        photo.caption || "";
+
+
+    card.innerHTML = `
+
+        <div class="photo-image-wrap">
+
+            <img
+                class="photo-image"
+                src="${photoUrl(photo.filename)}"
+                alt="${escapeHtml(caption || "사진")}"
+                loading="${index < 2 ? "eager" : "lazy"}"
+                decoding="async"
+            >
+
+        </div>
+
+
+        <div class="photo-caption">
+
+            <div class="photo-caption-left">
+
+                <span class="photo-number">
+                    ${numberLabel(index)}
+                </span>
+
+                <span class="photo-text">
+                    ${escapeHtml(caption)}
+                </span>
+
+            </div>
+
+
+            <span class="photo-date">
+                ${escapeHtml(
+                    formatDisplayDate(
+                        photo.date
+                    )
+                )}
+            </span>
+
+        </div>
+    `;
+
+
+    card
+        .querySelector(
+            ".photo-image"
+        )
+        .addEventListener(
+            "click",
+            () => {
+
+                openLightbox(index);
+            }
+        );
+
+
+    return card;
+}
+
+
+function renderGallery() {
+
+    const loading =
+        document.getElementById(
+            "galleryLoading"
+        );
+
+
+    const featureGrid =
+        document.getElementById(
+            "featureGrid"
+        );
+
+
+    const archiveGrid =
+        document.getElementById(
+            "archiveGrid"
+        );
+
+
+    const frameCount =
+        document.getElementById(
+            "frameCount"
+        );
+
+
+    loading.style.display =
+        "none";
+
+
+    featureGrid.innerHTML =
+        "";
+
+    archiveGrid.innerHTML =
+        "";
+
+
+    frameCount.textContent =
+        `${displayedPhotos.length} FRAMES`;
+
+
+    if (
+        displayedPhotos.length === 0
+    ) {
+
+        loading.className =
+            "empty-gallery";
+
+        loading.textContent =
+            "표시할 사진이 없습니다.";
+
+        loading.style.display =
+            "block";
+
+        return;
+    }
+
+
+    if (
+        displayedPhotos.length === 1
+    ) {
+
+        featureGrid.classList.add(
+            "one-photo"
+        );
+
+    } else {
+
+        featureGrid.classList.remove(
+            "one-photo"
+        );
+    }
+
+
+    const usedDates =
+        new Set();
+
+
+    displayedPhotos.forEach(
+        (photo, index) => {
+
+            const dateKey =
+                photo.date ||
+                "unknown";
+
+
+            const isFirstOfDate =
+                !usedDates.has(
+                    dateKey
+                );
+
+
+            if (isFirstOfDate) {
+
+                usedDates.add(
+                    dateKey
+                );
+            }
+
+
+            const card =
+                createPhotoCard(
+                    photo,
+                    index,
+                    isFirstOfDate
+                );
+
+
+            if (
+                index < 2
+            ) {
+
+                featureGrid.appendChild(
+                    card
+                );
+
+            } else {
+
+                archiveGrid.appendChild(
+                    card
+                );
+            }
+        }
+    );
+}
+
+
+
+/* =========================================================
+   ARCHIVE MENU
+========================================================= */
+
+function buildArchiveMenus() {
+
+    const uniqueDates =
+        [];
+
+
+    const seen =
+        new Set();
+
+
+    displayedPhotos.forEach(
+        photo => {
+
+            const date =
+                photo.date ||
+                "날짜 미상";
+
+
+            if (
+                seen.has(date)
+            ) {
+
+                return;
+            }
+
+
+            seen.add(date);
+
+            uniqueDates.push(date);
+        }
+    );
+
+
+    const menus = [
+
+        document.getElementById(
+            "headerArchiveMenu"
+        ),
+
+        document.getElementById(
+            "galleryArchiveMenu"
+        )
+    ];
+
+
+    menus.forEach(
+        menu => {
+
+            menu.innerHTML =
+                "";
+
+
+            uniqueDates.forEach(
+                date => {
+
+                    const item =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    item.type =
+                        "button";
+
+
+                    item.className =
+                        "archive-date-item";
+
+
+                    item.textContent =
+                        date;
+
+
+                    item.addEventListener(
+                        "click",
+                        () => {
+
+                            goToArchiveDate(
+                                date
+                            );
+                        }
+                    );
+
+
+                    menu.appendChild(
+                        item
+                    );
+                }
+            );
+        }
+    );
+}
+
+
+function goToArchiveDate(
+    date
+) {
+
+    const target =
+        document.getElementById(
+            dateTargetId(date)
+        );
+
+
+    if (!target) {
+
+        return;
+    }
+
+
+    closeArchiveMenus();
+
+    closeMobileMenu();
+
+
+    target.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+    });
+}
+
+
+function toggleHeaderArchive(
+    event
+) {
+
+    event.stopPropagation();
+
+
+    const menu =
+        document.getElementById(
+            "headerArchiveMenu"
+        );
+
+
+    const galleryMenu =
+        document.getElementById(
+            "galleryArchiveMenu"
+        );
+
+
+    galleryMenu.classList.remove(
+        "open"
+    );
+
+
+    menu.classList.toggle(
+        "open"
+    );
+}
+
+
+function toggleGalleryArchive(
+    event
+) {
+
+    event.stopPropagation();
+
+
+    const menu =
+        document.getElementById(
+            "galleryArchiveMenu"
+        );
+
+
+    const headerMenu =
+        document.getElementById(
+            "headerArchiveMenu"
+        );
+
+
+    headerMenu.classList.remove(
+        "open"
+    );
+
+
+    menu.classList.toggle(
+        "open"
+    );
+}
+
+
+function closeArchiveMenus() {
+
+    document
+        .querySelectorAll(
+            ".header-archive-menu"
+        )
+        .forEach(
+            menu => {
+
+                menu.classList.remove(
+                    "open"
+                );
+            }
+        );
+}
+
+
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
+function toggleMobileMenu() {
+
+    const nav =
+        document.getElementById(
+            "mainNav"
+        );
+
+
+    const button =
+        document.getElementById(
+            "mobileMenuBtn"
+        );
+
+
+    const open =
+        nav.classList.toggle(
+            "open"
+        );
+
+
+    button.textContent =
+        open
+        ? "CLOSE"
+        : "MENU";
+}
+
+
+function closeMobileMenu() {
+
+    const nav =
+        document.getElementById(
+            "mainNav"
+        );
+
+
+    const button =
+        document.getElementById(
+            "mobileMenuBtn"
+        );
+
+
+    nav.classList.remove(
+        "open"
+    );
+
+
+    button.textContent =
+        "MENU";
+}
+
+
+
+/* =========================================================
+   ABOUT
+========================================================= */
+
+function openAbout() {
+
+    const overlay =
+        document.getElementById(
+            "aboutOverlay"
+        );
+
+
+    overlay.classList.add(
+        "open"
+    );
+
+
+    overlay.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    document.body.classList.add(
+        "no-scroll"
+    );
+
+
+    closeMobileMenu();
+
+    closeArchiveMenus();
+}
+
+
+function closeAbout() {
+
+    const overlay =
+        document.getElementById(
+            "aboutOverlay"
+        );
+
+
+    overlay.classList.remove(
+        "open"
+    );
+
+
+    overlay.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    document.body.classList.remove(
+        "no-scroll"
+    );
+}
+
+
+
+/* =========================================================
+   LIGHTBOX INFO
+========================================================= */
+
+function parseInfo(
+    infoText
+) {
+
+    const text =
+        String(
+            infoText || ""
+        ).trim();
+
+
+    const fMatch =
+        text.match(
+            /\bf\d+(\.\d+)?\b/i
+        );
+
+
+    const shutterMatch =
+        text.match(
+            /\b\d+\/\d+s\b|\b\d+(\.\d+)?s\b/i
+        );
+
+
+    const isoMatch =
+        text.match(
+            /\biso\s*\d+\b/i
+        );
+
+
+    const aperture =
+        fMatch
+        ? fMatch[0]
+        : "-";
+
+
+    const shutter =
+        shutterMatch
+        ? shutterMatch[0]
+        : "";
+
+
+    const iso =
+        isoMatch
+        ? isoMatch[0]
+            .replace(
+                /\s+/g,
+                " "
+            )
+        : "";
+
+
+    let camera =
+        text;
+
+
+    if (fMatch) {
+
+        camera =
+            text
+                .substring(
+                    0,
+                    fMatch.index
+                )
+                .trim();
+    }
+
+
+    if (!camera) {
+
+        camera = "-";
+    }
+
+
+    let shutterIso =
+        [
+            shutter,
+            iso
+        ]
+        .filter(Boolean)
+        .join(" / ");
+
+
+    if (!shutterIso) {
+
+        shutterIso = "-";
+    }
+
+
+    return {
+
+        camera,
+        aperture,
+        shutterIso
+    };
+}
+
+
+
+/* =========================================================
+   LIGHTBOX
+========================================================= */
+
+function openLightbox(
+    index
+) {
+
+    if (
+        index < 0 ||
+        index >=
+        displayedPhotos.length
+    ) {
+
+        return;
+    }
+
+
+    currentLightboxIndex =
+        index;
+
+
+    const photo =
+        displayedPhotos[index];
+
+
+    const caption =
+        photo.caption || "";
+
+
+    const parsed =
+        parseInfo(
+            photo.info
+        );
+
+
+    document.getElementById(
+        "lightboxImage"
+    ).src =
+        photoUrl(
+            photo.filename
+        );
+
+
+    document.getElementById(
+        "lightboxNumber"
+    ).textContent =
+        numberLabel(index);
+
+
+    document.getElementById(
+        "lightboxText"
+    ).textContent =
+        caption;
+
+
+    document.getElementById(
+        "lightboxDate"
+    ).textContent =
+        formatDisplayDate(
+            photo.date
+        );
+
+
+    document.getElementById(
+        "metaDate"
+    ).textContent =
+        photo.date ||
+        "-";
+
+
+    document.getElementById(
+        "metaCamera"
+    ).textContent =
+        parsed.camera;
+
+
+    document.getElementById(
+        "metaAperture"
+    ).textContent =
+        parsed.aperture;
+
+
+    document.getElementById(
+        "metaShutterIso"
+    ).textContent =
+        parsed.shutterIso;
+
+
+    const lightbox =
+        document.getElementById(
+            "lightbox"
+        );
+
+
+    lightbox.classList.add(
+        "open"
+    );
+
+
+    lightbox.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    document.body.classList.add(
+        "no-scroll"
+    );
+
+
+    updateSlideshowButton();
+}
+
+
+function closeLightbox() {
+
+    const lightbox =
+        document.getElementById(
+            "lightbox"
+        );
+
+
+    lightbox.classList.remove(
+        "open"
+    );
+
+
+    lightbox.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    document.body.classList.remove(
+        "no-scroll"
+    );
+
+
+    currentLightboxIndex =
+        -1;
+
+
+    stopSlideshow();
+}
+
+
+function showNextPhoto() {
+
+    if (
+        displayedPhotos.length === 0
+    ) {
+
+        return;
+    }
+
+
+    let nextIndex =
+        currentLightboxIndex + 1;
+
+
+    if (
+        nextIndex >=
+        displayedPhotos.length
+    ) {
+
+        nextIndex = 0;
+    }
+
+
+    openLightbox(
+        nextIndex
+    );
+}
+
+
+function showPreviousPhoto() {
+
+    if (
+        displayedPhotos.length === 0
+    ) {
+
+        return;
+    }
+
+
+    let previousIndex =
+        currentLightboxIndex - 1;
+
+
+    if (
+        previousIndex < 0
+    ) {
+
+        previousIndex =
+            displayedPhotos.length - 1;
+    }
+
+
+    openLightbox(
+        previousIndex
+    );
+}
+
+
+
+/* =========================================================
+   RANDOM
+========================================================= */
+
+function openRandomPhoto() {
+
+    if (
+        displayedPhotos.length === 0
+    ) {
+
+        return;
+    }
+
+
+    const randomIndex =
+        Math.floor(
+            Math.random() *
+            displayedPhotos.length
+        );
+
+
+    openLightbox(
+        randomIndex
+    );
+}
+
+
+
+/* =========================================================
+   SLIDESHOW
+========================================================= */
+
+function toggleSlideshow() {
+
+    if (
+        slideshowInterval
+    ) {
+
+        stopSlideshow();
+
+        return;
+    }
+
+
+    slideshowInterval =
+        setInterval(
+            () => {
+
+                showNextPhoto();
+
+            },
+            2500
+        );
+
+
+    updateSlideshowButton();
+}
+
+
+function stopSlideshow() {
+
+    if (
+        slideshowInterval
+    ) {
+
+        clearInterval(
+            slideshowInterval
+        );
+
+
+        slideshowInterval =
+            null;
+    }
+
+
+    updateSlideshowButton();
+}
+
+
+function updateSlideshowButton() {
+
+    const button =
+        document.getElementById(
+            "slideshowButton"
+        );
+
+
+    if (!button) {
+
+        return;
+    }
+
+
+    button.textContent =
+        slideshowInterval
+        ? "⏸ Stop Slideshow"
+        : "▶ Slideshow";
+}
+
+
+
+/* =========================================================
+   TOP
+========================================================= */
+
+function scrollToTop() {
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+}
+
+
+window.addEventListener(
+    "scroll",
+    () => {
+
+        const button =
+            document.getElementById(
+                "topButton"
+            );
+
+
+        button.classList.toggle(
+            "show",
+            window.scrollY > 550
+        );
+    }
+);
+
+
+
+/* =========================================================
+   GLOBAL CLICK
+========================================================= */
+
+document.addEventListener(
+    "click",
+    event => {
+
+        if (
+            !event.target.closest(
+                ".header-archive-wrap"
+            ) &&
+            !event.target.closest(
+                ".gallery-archive-wrap"
+            )
+        ) {
+
+            closeArchiveMenus();
+        }
+    }
+);
+
+
+
+/* =========================================================
+   MODAL BACKDROP
+========================================================= */
+
+document.getElementById(
+    "aboutOverlay"
+)
+.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target.id ===
+            "aboutOverlay"
+        ) {
+
+            closeAbout();
+        }
+    }
+);
+
+
+document.getElementById(
+    "lightbox"
+)
+.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target.id ===
+            "lightbox"
+        ) {
+
+            closeLightbox();
+        }
+    }
+);
+
+
+
+/* =========================================================
+   TOUCH SWIPE
+========================================================= */
+
+document.getElementById(
+    "lightbox"
+)
+.addEventListener(
+    "touchstart",
+    event => {
+
+        touchStartX =
+            event.changedTouches[0]
+                .screenX;
+    },
+    {
+        passive:true
+    }
+);
+
+
+document.getElementById(
+    "lightbox"
+)
+.addEventListener(
+    "touchend",
+    event => {
+
+        touchEndX =
+            event.changedTouches[0]
+                .screenX;
+
+
+        const diff =
+            touchStartX -
+            touchEndX;
+
+
+        if (
+            Math.abs(diff) < 50
+        ) {
+
+            return;
+        }
+
+
+        if (
+            diff > 0
+        ) {
+
+            showNextPhoto();
+
+        } else {
+
+            showPreviousPhoto();
+        }
+    },
+    {
+        passive:true
+    }
+);
+
+
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        const lightboxOpen =
+            document
+                .getElementById(
+                    "lightbox"
+                )
+                .classList
+                .contains(
+                    "open"
+                );
+
+
+        const aboutOpen =
+            document
+                .getElementById(
+                    "aboutOverlay"
+                )
+                .classList
+                .contains(
+                    "open"
+                );
+
+
+        if (
+            event.key ===
+            "Escape"
+        ) {
+
+            if (
+                lightboxOpen
+            ) {
+
+                closeLightbox();
+
+                return;
+            }
+
+
+            if (
+                aboutOpen
+            ) {
+
+                closeAbout();
+
+                return;
+            }
+
+
+            closeMobileMenu();
+
+            closeArchiveMenus();
+
+            return;
+        }
+
+
+        if (
+            !lightboxOpen
+        ) {
+
+            return;
+        }
+
+
+        if (
+            event.key ===
+            "ArrowRight"
+        ) {
+
+            showNextPhoto();
+        }
+
+
+        if (
+            event.key ===
+            "ArrowLeft"
+        ) {
+
+            showPreviousPhoto();
+        }
+
+
+        if (
+            event.key ===
+            " "
+        ) {
+
+            event.preventDefault();
+
+            toggleSlideshow();
+        }
+    }
+);
+
+
+
+/* =========================================================
+   START
+========================================================= */
+
+async function initialize() {
+
+    await loadSiteSettings();
+
+
+    try {
+
+        await loadPhotos();
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        const loading =
+            document.getElementById(
+                "galleryLoading"
+            );
+
+
+        loading.className =
+            "empty-gallery";
+
+
+        loading.textContent =
+            "사진을 불러오지 못했습니다.";
+    }
+}
+
+
+initialize();
+
+</script>
+
 </body>
 </html>
