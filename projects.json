@@ -15,5 +15,27 @@
     ],
     "createdAt": "2026-09-10T03:43:29.211Z",
     "updatedAt": "2026-09-14T14:41:43.826Z"
+  },
+  {
+    "id": "flowers-of-my-life-1789397003720",
+    "title": "Flowers of my life",
+    "subtitle": "",
+    "description": "지나가던 중 마주한 꽃들",
+    "cover": "DSC_test.jpg",
+    "photos": [
+      "DSCF0065_1787952761601.jpg",
+      "DSCF0066_1787952764365.jpg",
+      "DSCF0058_1787541107212.jpg",
+      "DSC_1930_1779448961133.jpg",
+      "DSC_1931_1779448964020.jpg",
+      "DSC_1932_1779448967488.jpg",
+      "DSC_1982_1779449012527.jpg",
+      "DSC_2001_1779449025331.jpg",
+      "DSC_test.jpg",
+      "DSC_0443_1769882289647.jpg",
+      "DSC_0095_1769882280475.jpg"
+    ],
+    "createdAt": "2026-09-14T14:43:23.720Z",
+    "updatedAt": "2026-09-14T14:43:23.720Z"
   }
 ]
