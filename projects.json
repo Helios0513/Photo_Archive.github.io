@@ -1,17 +1,19 @@
 [
   {
     "id": "test-01-1789011809211",
-    "title": "Test_01",
+    "title": "Cherry Blossoms",
     "subtitle": "April 2026",
-    "description": "This is a test project",
-    "cover": "DSC_1846_1775384557014.jpg",
+    "description": "버려진 미군 부대 옆 오래된 철로 위를 뒤덮은 벚꽃들",
+    "cover": "DSC_1856_1775384564610.jpg",
     "photos": [
       "DSC_1846_1775384557014.jpg",
       "DSC_1848_1775384561971.jpg",
       "DSC_1861_1775384566966.jpg",
-      "DSC_1847_1775384559624.jpg"
+      "DSC_1847_1775384559624.jpg",
+      "DSC_1856_1775384564610.jpg",
+      "DSC_1862_1775384568892.jpg"
     ],
     "createdAt": "2026-09-10T03:43:29.211Z",
-    "updatedAt": "2026-09-13T13:29:02.284Z"
+    "updatedAt": "2026-09-14T14:41:43.826Z"
   }
 ]
