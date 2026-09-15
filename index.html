@@ -482,11 +482,48 @@ body.no-scroll {
     height:auto;
     object-fit:cover;
     cursor:zoom-in;
-    transition:opacity 0.25s ease, transform 0.35s ease;
+    transition:
+        opacity 0.28s ease,
+        transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.photo-card:hover .photo-image {
-    opacity:0.94;
+.photo-caption {
+    transition:color 0.25s ease;
+}
+
+.photo-number,
+.photo-date {
+    transition:color 0.25s ease;
+}
+
+
+/* SCROLL REVEAL */
+
+.photo-card.reveal-item {
+    opacity:0;
+    transform:translateY(18px);
+    transition:
+        opacity 0.62s ease,
+        transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay:var(--reveal-delay, 0ms);
+}
+
+.photo-card.reveal-item.is-visible {
+    opacity:1;
+    transform:translateY(0);
+}
+
+@media (hover:hover) and (pointer:fine) {
+
+    .photo-card:hover .photo-image {
+        opacity:1;
+        transform:scale(1.018);
+    }
+
+    .photo-card:hover .photo-number,
+    .photo-card:hover .photo-date {
+        color:#34342f;
+    }
 }
 
 
@@ -765,6 +802,89 @@ body.no-scroll {
 .lightbox-control:hover {
     border-color:#888;
     color:#fff;
+}
+
+
+/* FULLSCREEN VIEW */
+
+.lightbox.fullscreen-view {
+    background:#050505;
+}
+
+.lightbox.fullscreen-view .lightbox-inner {
+    width:100%;
+    max-width:none;
+    min-height:100vh;
+    min-height:100dvh;
+    padding:12px 24px;
+}
+
+.lightbox.fullscreen-view .lightbox-top,
+.lightbox.fullscreen-view .lightbox-caption,
+.lightbox.fullscreen-view .lightbox-meta {
+    display:none;
+}
+
+.lightbox.fullscreen-view .lightbox-stage {
+    min-height:calc(100vh - 24px);
+    min-height:calc(100dvh - 24px);
+}
+
+.lightbox.fullscreen-view .lightbox-image {
+    max-width:calc(100vw - 80px);
+    max-height:92vh;
+    max-height:92dvh;
+}
+
+.lightbox.fullscreen-view .lightbox-prev {
+    left:10px;
+}
+
+.lightbox.fullscreen-view .lightbox-next {
+    right:10px;
+}
+
+.lightbox.fullscreen-view .lightbox-controls {
+    position:fixed;
+    left:50%;
+    bottom:17px;
+    z-index:2;
+    transform:translateX(-50%);
+    margin:0;
+    padding:7px 9px;
+    border:1px solid rgba(255,255,255,0.13);
+    background:rgba(8,8,8,0.46);
+    backdrop-filter:blur(8px);
+    opacity:0.28;
+    transition:opacity 0.2s ease;
+}
+
+.lightbox.fullscreen-view .lightbox-controls:hover {
+    opacity:1;
+}
+
+.share-toast {
+    position:fixed;
+    left:50%;
+    bottom:28px;
+    z-index:12000;
+    transform:translate(-50%, 18px);
+    padding:10px 14px;
+    border:1px solid rgba(255,255,255,0.2);
+    background:rgba(20,20,18,0.92);
+    color:#f3f3ef;
+    font-size:10px;
+    letter-spacing:0.03em;
+    opacity:0;
+    pointer-events:none;
+    transition:
+        opacity 0.22s ease,
+        transform 0.22s ease;
+}
+
+.share-toast.show {
+    opacity:1;
+    transform:translate(-50%, 0);
 }
 
 
@@ -1058,6 +1178,22 @@ body.no-scroll {
         border-bottom:1px solid #333;
     }
 
+    .lightbox.fullscreen-view .lightbox-inner {
+        padding:8px 10px;
+    }
+
+    .lightbox.fullscreen-view .lightbox-image {
+        max-width:100%;
+        max-height:88vh;
+        max-height:88dvh;
+    }
+
+    .lightbox.fullscreen-view .lightbox-controls {
+        width:calc(100% - 24px);
+        justify-content:center;
+        opacity:0.34;
+    }
+
     .top-button {
         right:15px;
         bottom:17px;
@@ -1098,6 +1234,11 @@ body.no-scroll {
         scroll-behavior:auto !important;
         animation-duration:0.01ms !important;
         transition-duration:0.01ms !important;
+    }
+
+    .photo-card.reveal-item {
+        opacity:1 !important;
+        transform:none !important;
     }
 }
 </style>
@@ -1575,6 +1716,23 @@ body.no-scroll {
             <button
                 class="lightbox-control"
                 type="button"
+                onclick="shareCurrentPhoto()"
+            >
+                Share
+            </button>
+
+            <button
+                class="lightbox-control"
+                type="button"
+                id="fullscreenButton"
+                onclick="toggleFullscreenViewing()"
+            >
+                ⛶ Fullscreen
+            </button>
+
+            <button
+                class="lightbox-control"
+                type="button"
                 onclick="showNextPhoto()"
             >
                 Next →
@@ -1596,6 +1754,16 @@ body.no-scroll {
 >
     ↑
 </button>
+
+
+<div
+    class="share-toast"
+    id="shareToast"
+    role="status"
+    aria-live="polite"
+>
+    링크를 복사했습니다.
+</div>
 
 
 <script>
@@ -1697,6 +1865,10 @@ let resizeTimer = null;
 
 let renderVersion = 0;
 
+let revealObserver = null;
+
+let shareToastTimer = null;
+
 const aspectRatioCache = new Map();
 
 
@@ -1748,6 +1920,55 @@ function dateTargetId(date) {
             );
 
     return `archive-date-${safe}`;
+}
+
+
+function setPhotoUrlParameter(
+    filename
+) {
+
+    const url =
+        new URL(
+            window.location.href
+        );
+
+    if (
+        filename
+    ) {
+
+        url.searchParams.set(
+            "photo",
+            filename
+        );
+
+    } else {
+
+        url.searchParams.delete(
+            "photo"
+        );
+    }
+
+    window.history.replaceState(
+        {},
+        "",
+        url
+    );
+}
+
+
+function getRequestedPhotoFilename() {
+
+    const url =
+        new URL(
+            window.location.href
+        );
+
+    return (
+        url.searchParams.get(
+            "photo"
+        ) ||
+        ""
+    );
 }
 
 
@@ -1929,9 +2150,11 @@ async function loadPhotos() {
                 }
             );
 
-    renderGallery();
+    await renderGallery();
 
     buildArchiveMenus();
+
+    openRequestedPhotoFromUrl();
 }
 
 
@@ -2060,7 +2283,12 @@ function createPhotoCard(
         );
 
     card.className =
-        "photo-card";
+        "photo-card reveal-item";
+
+    card.style.setProperty(
+        "--reveal-delay",
+        `${Math.min(index % 6, 5) * 55}ms`
+    );
 
     card.innerHTML = `
 
@@ -2114,6 +2342,88 @@ function createPhotoCard(
         );
 
     return card;
+}
+
+
+function activateRevealAnimations() {
+
+    if (
+        revealObserver
+    ) {
+
+        revealObserver.disconnect();
+    }
+
+    const cards =
+        document.querySelectorAll(
+            ".photo-card.reveal-item"
+        );
+
+    const reducedMotion =
+        window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+    if (
+        reducedMotion ||
+        !(
+            "IntersectionObserver" in
+            window
+        )
+    ) {
+
+        cards.forEach(
+            card => {
+
+                card.classList.add(
+                    "is-visible"
+                );
+            }
+        );
+
+        return;
+    }
+
+    revealObserver =
+        new IntersectionObserver(
+            entries => {
+
+                entries.forEach(
+                    entry => {
+
+                        if (
+                            !entry.isIntersecting
+                        ) {
+
+                            return;
+                        }
+
+                        entry.target.classList.add(
+                            "is-visible"
+                        );
+
+                        revealObserver.unobserve(
+                            entry.target
+                        );
+                    }
+                );
+            },
+            {
+                threshold:
+                    0.08,
+                rootMargin:
+                    "0px 0px -6% 0px"
+            }
+        );
+
+    cards.forEach(
+        card => {
+
+            revealObserver.observe(
+                card
+            );
+        }
+    );
 }
 
 
@@ -2653,6 +2963,8 @@ async function renderGallery() {
             archiveGrid
         );
 
+        activateRevealAnimations();
+
         return;
     }
 
@@ -2661,6 +2973,14 @@ async function renderGallery() {
         archiveGrid,
         version
     );
+
+    if (
+        version ===
+        renderVersion
+    ) {
+
+        activateRevealAnimations();
+    }
 }
 
 
@@ -3089,6 +3409,10 @@ function openLightbox(
             index
         ];
 
+    setPhotoUrlParameter(
+        photo.filename
+    );
+
     const originalIndex =
         currentViewPhotos.findIndex(
             item =>
@@ -3164,6 +3488,8 @@ function openLightbox(
     );
 
     updateSlideshowButton();
+
+    updateFullscreenButton();
 }
 
 
@@ -3185,6 +3511,14 @@ function closeLightbox() {
 
     document.body.classList.remove(
         "no-scroll"
+    );
+
+    setPhotoUrlParameter(
+        ""
+    );
+
+    exitFullscreenViewing(
+        true
     );
 
     currentLightboxIndex =
@@ -3327,6 +3661,305 @@ function openRandomPhoto() {
         0
     );
 }
+
+
+/* PHOTO LINK / SHARE */
+
+function openRequestedPhotoFromUrl() {
+
+    const filename =
+        getRequestedPhotoFilename();
+
+    if (
+        !filename
+    ) {
+
+        return;
+    }
+
+    isRandomMode =
+        false;
+
+    randomPhotos =
+        [];
+
+    const index =
+        currentViewPhotos.findIndex(
+            photo =>
+                photo.filename ===
+                filename
+        );
+
+    if (
+        index >= 0
+    ) {
+
+        openLightbox(
+            index
+        );
+
+        return;
+    }
+
+    setPhotoUrlParameter(
+        ""
+    );
+}
+
+
+function showShareToast(
+    message
+) {
+
+    const toast =
+        document.getElementById(
+            "shareToast"
+        );
+
+    toast.textContent =
+        message;
+
+    toast.classList.add(
+        "show"
+    );
+
+    clearTimeout(
+        shareToastTimer
+    );
+
+    shareToastTimer =
+        setTimeout(
+            () => {
+
+                toast.classList.remove(
+                    "show"
+                );
+            },
+            1900
+        );
+}
+
+
+async function shareCurrentPhoto() {
+
+    const lightboxPhotos =
+        getLightboxPhotos();
+
+    const photo =
+        lightboxPhotos[
+            currentLightboxIndex
+        ];
+
+    if (
+        !photo
+    ) {
+
+        return;
+    }
+
+    const shareUrl =
+        new URL(
+            window.location.href
+        );
+
+    shareUrl.searchParams.set(
+        "photo",
+        photo.filename
+    );
+
+    const url =
+        shareUrl.toString();
+
+    if (
+        navigator.share
+    ) {
+
+        try {
+
+            await navigator.share({
+                title:
+                    "Hamihamoo Photography",
+                url:
+                    url
+            });
+
+            return;
+
+        } catch (error) {
+
+            if (
+                error &&
+                error.name ===
+                "AbortError"
+            ) {
+
+                return;
+            }
+        }
+    }
+
+    try {
+
+        await navigator.clipboard.writeText(
+            url
+        );
+
+        showShareToast(
+            "사진 링크를 복사했습니다."
+        );
+
+    } catch (error) {
+
+        window.prompt(
+            "아래 링크를 복사해주세요.",
+            url
+        );
+    }
+}
+
+
+/* FULLSCREEN VIEW */
+
+function updateFullscreenButton() {
+
+    const button =
+        document.getElementById(
+            "fullscreenButton"
+        );
+
+    if (
+        !button
+    ) {
+
+        return;
+    }
+
+    const lightbox =
+        document.getElementById(
+            "lightbox"
+        );
+
+    button.textContent =
+        lightbox.classList.contains(
+            "fullscreen-view"
+        )
+        ? "⤢ Exit Fullscreen"
+        : "⛶ Fullscreen";
+}
+
+
+async function toggleFullscreenViewing() {
+
+    const lightbox =
+        document.getElementById(
+            "lightbox"
+        );
+
+    if (
+        !lightbox.classList.contains(
+            "open"
+        )
+    ) {
+
+        return;
+    }
+
+    if (
+        lightbox.classList.contains(
+            "fullscreen-view"
+        )
+    ) {
+
+        await exitFullscreenViewing(
+            true
+        );
+
+        return;
+    }
+
+    lightbox.classList.add(
+        "fullscreen-view"
+    );
+
+    updateFullscreenButton();
+
+    if (
+        lightbox.requestFullscreen
+    ) {
+
+        try {
+
+            await lightbox.requestFullscreen();
+
+        } catch (error) {
+
+            // 브라우저가 전체화면 API를 막아도
+            // 라이트박스 자체의 감상 모드는 유지합니다.
+        }
+    }
+}
+
+
+async function exitFullscreenViewing(
+    exitNative = true
+) {
+
+    const lightbox =
+        document.getElementById(
+            "lightbox"
+        );
+
+    lightbox.classList.remove(
+        "fullscreen-view"
+    );
+
+    updateFullscreenButton();
+
+    if (
+        exitNative &&
+        document.fullscreenElement &&
+        document.exitFullscreen
+    ) {
+
+        try {
+
+            await document.exitFullscreen();
+
+        } catch (error) {
+            // 아무 작업도 하지 않습니다.
+        }
+    }
+}
+
+
+document.addEventListener(
+    "fullscreenchange",
+    () => {
+
+        const lightbox =
+            document.getElementById(
+                "lightbox"
+            );
+
+        if (
+            document.fullscreenElement ===
+            lightbox
+        ) {
+
+            lightbox.classList.add(
+                "fullscreen-view"
+            );
+
+        } else {
+
+            lightbox.classList.remove(
+                "fullscreen-view"
+            );
+        }
+
+        updateFullscreenButton();
+    }
+);
 
 
 /* SLIDESHOW */
@@ -3595,6 +4228,24 @@ document.addEventListener(
             if (
                 lightboxOpen
             ) {
+
+                const lightbox =
+                    document.getElementById(
+                        "lightbox"
+                    );
+
+                if (
+                    lightbox.classList.contains(
+                        "fullscreen-view"
+                    )
+                ) {
+
+                    exitFullscreenViewing(
+                        true
+                    );
+
+                    return;
+                }
 
                 closeLightbox();
 
