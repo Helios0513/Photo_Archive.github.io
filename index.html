@@ -56,7 +56,9 @@ body.no-scroll {
 }
 
 
-/* HEADER */
+/* =========================================================
+   HEADER
+========================================================= */
 
 .site-header {
     height:82px;
@@ -107,7 +109,9 @@ body.no-scroll {
 }
 
 
-/* NAV */
+/* =========================================================
+   NAV
+========================================================= */
 
 .main-nav {
     display:flex;
@@ -143,12 +147,6 @@ body.no-scroll {
     background:#111;
 }
 
-.nav-index {
-    margin-left:4px;
-    color:#9b9b92;
-    font-size:9px;
-}
-
 .nav-lock {
     margin-right:5px;
     font-size:11px;
@@ -156,7 +154,9 @@ body.no-scroll {
 }
 
 
-/* ARCHIVE MENU */
+/* =========================================================
+   ARCHIVE MENU
+========================================================= */
 
 .header-archive-menu {
     position:absolute;
@@ -197,7 +197,9 @@ body.no-scroll {
 }
 
 
-/* MOBILE MENU BUTTON */
+/* =========================================================
+   MOBILE MENU BUTTON
+========================================================= */
 
 .mobile-menu-btn {
     display:none;
@@ -210,7 +212,9 @@ body.no-scroll {
 }
 
 
-/* HERO */
+/* =========================================================
+   HERO
+========================================================= */
 
 .hero {
     padding:57px 0 54px;
@@ -265,7 +269,133 @@ body.no-scroll {
 }
 
 
-/* GALLERY HEADER */
+/* =========================================================
+   SELECTED WORKS
+========================================================= */
+
+.selected-works {
+    display:none;
+    padding:0 0 82px;
+}
+
+.selected-works.show {
+    display:block;
+}
+
+.selected-works-heading {
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) 320px;
+    gap:60px;
+    align-items:end;
+    padding-top:17px;
+    margin-bottom:25px;
+    border-top:1px solid #242420;
+}
+
+.selected-works-heading-left {
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+}
+
+.selected-works-kicker {
+    color:#92928a;
+    font-size:9px;
+    letter-spacing:0.14em;
+}
+
+.selected-works-title {
+    margin:0;
+    color:#252522;
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:31px;
+    font-weight:400;
+    line-height:1.1;
+}
+
+.selected-works-description {
+    color:#77776f;
+    font-size:11px;
+    line-height:1.8;
+    text-align:right;
+    word-break:keep-all;
+}
+
+.selected-works-grid {
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:28px 20px;
+    align-items:start;
+}
+
+.selected-work-card {
+    min-width:0;
+}
+
+.selected-work-image-wrap {
+    position:relative;
+    overflow:hidden;
+    width:100%;
+    background:#f4f4f0;
+}
+
+.selected-work-image {
+    width:100%;
+    height:auto;
+    cursor:zoom-in;
+    transition:
+        opacity 0.28s ease,
+        transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.selected-work-caption {
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    margin-top:8px;
+    color:#8b8b82;
+    font-size:8px;
+    line-height:1.6;
+    transition:color 0.25s ease;
+}
+
+.selected-work-label {
+    letter-spacing:0.06em;
+}
+
+.selected-work-date {
+    white-space:nowrap;
+}
+
+.selected-work-card.reveal-item {
+    opacity:0;
+    transform:translateY(18px);
+    transition:
+        opacity 0.62s ease,
+        transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay:var(--reveal-delay, 0ms);
+}
+
+.selected-work-card.reveal-item.is-visible {
+    opacity:1;
+    transform:translateY(0);
+}
+
+@media (hover:hover) and (pointer:fine) {
+
+    .selected-work-card:hover .selected-work-image {
+        transform:scale(1.014);
+    }
+
+    .selected-work-card:hover .selected-work-caption {
+        color:#33332e;
+    }
+}
+
+
+/* =========================================================
+   GALLERY HEADER
+========================================================= */
 
 .gallery-heading {
     border-top:1px solid #242420;
@@ -377,7 +507,9 @@ body.no-scroll {
 }
 
 
-/* GALLERY */
+/* =========================================================
+   GALLERY
+========================================================= */
 
 .gallery {
     padding-bottom:100px;
@@ -497,7 +629,9 @@ body.no-scroll {
 }
 
 
-/* SCROLL REVEAL */
+/* =========================================================
+   SCROLL REVEAL
+========================================================= */
 
 .photo-card.reveal-item {
     opacity:0;
@@ -527,7 +661,9 @@ body.no-scroll {
 }
 
 
-/* PHOTO INFO */
+/* =========================================================
+   PHOTO INFO
+========================================================= */
 
 .photo-caption {
     margin-top:7px;
@@ -551,7 +687,9 @@ body.no-scroll {
 }
 
 
-/* EMPTY */
+/* =========================================================
+   EMPTY
+========================================================= */
 
 .loading,
 .empty-gallery {
@@ -562,7 +700,9 @@ body.no-scroll {
 }
 
 
-/* ABOUT */
+/* =========================================================
+   ABOUT
+========================================================= */
 
 .about-overlay {
     position:fixed;
@@ -646,7 +786,9 @@ body.no-scroll {
 }
 
 
-/* LIGHTBOX */
+/* =========================================================
+   LIGHTBOX
+========================================================= */
 
 .lightbox {
     position:fixed;
@@ -805,7 +947,9 @@ body.no-scroll {
 }
 
 
-/* FULLSCREEN VIEW */
+/* =========================================================
+   FULLSCREEN VIEW
+========================================================= */
 
 .lightbox.fullscreen-view {
     background:#050505;
@@ -863,6 +1007,11 @@ body.no-scroll {
     opacity:1;
 }
 
+
+/* =========================================================
+   SHARE TOAST
+========================================================= */
+
 .share-toast {
     position:fixed;
     left:50%;
@@ -888,7 +1037,9 @@ body.no-scroll {
 }
 
 
-/* TOP BUTTON */
+/* =========================================================
+   TOP BUTTON
+========================================================= */
 
 .top-button {
     position:fixed;
@@ -913,7 +1064,9 @@ body.no-scroll {
 }
 
 
-/* FOOTER */
+/* =========================================================
+   FOOTER
+========================================================= */
 
 .site-footer {
     padding:30px 0 40px;
@@ -927,7 +1080,9 @@ body.no-scroll {
 }
 
 
-/* TABLET */
+/* =========================================================
+   TABLET
+========================================================= */
 
 @media (max-width:900px) {
 
@@ -952,13 +1107,20 @@ body.no-scroll {
         font-size:clamp(54px, 7.7vw, 76px);
     }
 
+    .selected-works-heading {
+        grid-template-columns:minmax(0, 1fr) 250px;
+        gap:30px;
+    }
+
     .archive-grid.masonry-grid {
         column-count:2;
     }
 }
 
 
-/* MOBILE */
+/* =========================================================
+   MOBILE
+========================================================= */
 
 @media (max-width:700px) {
 
@@ -1062,6 +1224,39 @@ body.no-scroll {
         padding:0;
         max-width:280px;
         font-size:12px;
+    }
+
+    .selected-works {
+        padding-bottom:60px;
+    }
+
+    .selected-works-heading {
+        display:block;
+        margin-bottom:20px;
+    }
+
+    .selected-works-heading-left {
+        display:block;
+    }
+
+    .selected-works-kicker {
+        margin-bottom:8px;
+    }
+
+    .selected-works-title {
+        font-size:28px;
+    }
+
+    .selected-works-description {
+        margin-top:13px;
+        max-width:310px;
+        text-align:left;
+        font-size:10px;
+    }
+
+    .selected-works-grid {
+        grid-template-columns:1fr;
+        gap:28px;
     }
 
     .gallery-heading {
@@ -1208,7 +1403,9 @@ body.no-scroll {
 }
 
 
-/* VERY SMALL MOBILE */
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
 
 @media (max-width:390px) {
 
@@ -1236,7 +1433,8 @@ body.no-scroll {
         transition-duration:0.01ms !important;
     }
 
-    .photo-card.reveal-item {
+    .photo-card.reveal-item,
+    .selected-work-card.reveal-item {
         opacity:1 !important;
         transform:none !important;
     }
@@ -1343,6 +1541,11 @@ body.no-scroll {
 
 <main>
 
+
+<!-- =====================================================
+     HERO
+===================================================== -->
+
 <section class="hero">
 
     <div class="hero-kicker" id="archiveKicker">
@@ -1381,6 +1584,57 @@ body.no-scroll {
 
 </section>
 
+
+
+<!-- =====================================================
+     SELECTED WORKS
+===================================================== -->
+
+<section
+    class="selected-works"
+    id="selectedWorks"
+>
+
+    <div class="selected-works-heading">
+
+        <div class="selected-works-heading-left">
+
+            <div class="selected-works-kicker">
+                CURATED
+            </div>
+
+            <h2
+                class="selected-works-title"
+                id="selectedWorksTitle"
+            >
+                Selected Works
+            </h2>
+
+        </div>
+
+
+        <div
+            class="selected-works-description"
+            id="selectedWorksDescription"
+        >
+            오래 남겨두고 싶은 장면들.
+        </div>
+
+    </div>
+
+
+    <div
+        class="selected-works-grid"
+        id="selectedWorksGrid"
+    ></div>
+
+</section>
+
+
+
+<!-- =====================================================
+     GALLERY HEADER
+===================================================== -->
 
 <section class="gallery-heading">
 
@@ -1451,6 +1705,7 @@ body.no-scroll {
     class="active-filter-bar"
     id="activeFilterBar"
 >
+
     <div
         class="active-filter-label"
         id="activeFilterLabel"
@@ -1463,8 +1718,14 @@ body.no-scroll {
     >
         All
     </button>
+
 </div>
 
+
+
+<!-- =====================================================
+     GALLERY
+===================================================== -->
 
 <section class="gallery">
 
@@ -1505,7 +1766,10 @@ body.no-scroll {
 </div>
 
 
-<!-- ABOUT -->
+
+<!-- =========================================================
+     ABOUT
+========================================================= -->
 
 <div
     class="about-overlay"
@@ -1565,7 +1829,10 @@ body.no-scroll {
 </div>
 
 
-<!-- LIGHTBOX -->
+
+<!-- =========================================================
+     LIGHTBOX
+========================================================= -->
 
 <div
     class="lightbox"
@@ -1745,6 +2012,7 @@ body.no-scroll {
 </div>
 
 
+
 <button
     class="top-button"
     id="topButton"
@@ -1766,7 +2034,12 @@ body.no-scroll {
 </div>
 
 
+
 <script>
+
+/* =========================================================
+   SETTINGS
+========================================================= */
 
 const DEFAULT_SITE_SETTINGS = {
 
@@ -1793,6 +2066,15 @@ const DEFAULT_SITE_SETTINGS = {
 
     galleryTitle:
         "Photographs",
+
+    featuredTitle:
+        "Selected Works",
+
+    featuredDescription:
+        "오래 남겨두고 싶은 장면들.",
+
+    featuredPhotos:
+        [],
 
     archiveLabel:
         "Archive",
@@ -1839,88 +2121,165 @@ let siteSettings = {
     ...DEFAULT_SITE_SETTINGS
 };
 
-let allPhotos = [];
 
-let displayedPhotos = [];
-
-let currentViewPhotos = [];
-
-let currentGalleryMode = "masonry";
-
-let selectedArchiveDate = null;
-
-let currentLightboxIndex = -1;
-
-let isRandomMode = false;
-
-let randomPhotos = [];
-
-let slideshowInterval = null;
-
-let touchStartX = 0;
-
-let touchEndX = 0;
-
-let resizeTimer = null;
-
-let renderVersion = 0;
-
-let revealObserver = null;
-
-let shareToastTimer = null;
-
-const aspectRatioCache = new Map();
+let allPhotos =
+    [];
 
 
-function escapeHtml(value) {
+let displayedPhotos =
+    [];
 
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+let currentViewPhotos =
+    [];
+
+
+let featuredPhotosResolved =
+    [];
+
+
+let currentGalleryMode =
+    "masonry";
+
+
+let selectedArchiveDate =
+    null;
+
+
+let currentLightboxIndex =
+    -1;
+
+
+let isRandomMode =
+    false;
+
+
+let isFeaturedMode =
+    false;
+
+
+let randomPhotos =
+    [];
+
+
+let slideshowInterval =
+    null;
+
+
+let touchStartX =
+    0;
+
+
+let touchEndX =
+    0;
+
+
+let resizeTimer =
+    null;
+
+
+let renderVersion =
+    0;
+
+
+let revealObserver =
+    null;
+
+
+let shareToastTimer =
+    null;
+
+
+const aspectRatioCache =
+    new Map();
+
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 }
 
 
-function photoUrl(filename) {
+
+function photoUrl(
+    filename
+) {
 
     return (
         "images/digital/" +
-        encodeURIComponent(filename)
+        encodeURIComponent(
+            filename
+        )
     );
 }
 
 
-function numberLabel(index) {
 
-    return String(index + 1)
-        .padStart(2, "0");
+function numberLabel(
+    index
+) {
+
+    return String(
+        index + 1
+    )
+        .padStart(
+            2,
+            "0"
+        );
 }
 
 
-function formatDisplayDate(date) {
 
-    if (!date) {
+function formatDisplayDate(
+    date
+) {
+
+    if (
+        !date
+    ) {
+
         return "";
     }
 
-    return String(date)
-        .replace(/-/g, ".");
+
+    return String(
+        date
+    )
+        .replace(
+            /-/g,
+            "."
+        );
 }
 
-
-function dateTargetId(date) {
-
-    const safe =
-        String(date || "unknown")
-            .replace(
-                /[^a-zA-Z0-9_-]/g,
-                "-"
-            );
-
-    return `archive-date-${safe}`;
-}
 
 
 function setPhotoUrlParameter(
@@ -1931,6 +2290,7 @@ function setPhotoUrlParameter(
         new URL(
             window.location.href
         );
+
 
     if (
         filename
@@ -1948,6 +2308,7 @@ function setPhotoUrlParameter(
         );
     }
 
+
     window.history.replaceState(
         {},
         "",
@@ -1956,12 +2317,14 @@ function setPhotoUrlParameter(
 }
 
 
+
 function getRequestedPhotoFilename() {
 
     const url =
         new URL(
             window.location.href
         );
+
 
     return (
         url.searchParams.get(
@@ -1972,7 +2335,10 @@ function getRequestedPhotoFilename() {
 }
 
 
-/* SITE SETTINGS */
+
+/* =========================================================
+   SITE SETTINGS
+========================================================= */
 
 async function loadSiteSettings() {
 
@@ -1982,82 +2348,145 @@ async function loadSiteSettings() {
             await fetch(
                 `site.json?v=${Date.now()}`,
                 {
-                    cache:"no-store"
+                    cache:
+                        "no-store"
                 }
             );
 
-        if (!response.ok) {
+
+        if (
+            !response.ok
+        ) {
 
             applySiteSettings();
 
             return;
         }
 
+
         const data =
             await response.json();
 
+
         siteSettings = {
+
             ...DEFAULT_SITE_SETTINGS,
+
             ...data
+
         };
+
 
     } catch (error) {
 
         siteSettings = {
+
             ...DEFAULT_SITE_SETTINGS
+
         };
     }
+
 
     applySiteSettings();
 }
 
 
+
 function applySiteSettings() {
 
-    document.getElementById("brandMark").textContent =
+    document.getElementById(
+        "brandMark"
+    ).textContent =
         siteSettings.brandMark;
 
-    document.getElementById("brandName").textContent =
+
+    document.getElementById(
+        "brandName"
+    ).textContent =
         siteSettings.brandName;
 
-    document.getElementById("brandSubtitle").textContent =
+
+    document.getElementById(
+        "brandSubtitle"
+    ).textContent =
         siteSettings.brandSubtitle;
 
-    document.getElementById("archiveKicker").textContent =
+
+    document.getElementById(
+        "archiveKicker"
+    ).textContent =
         siteSettings.archiveKicker;
 
-    document.getElementById("heroPrefix").textContent =
+
+    document.getElementById(
+        "heroPrefix"
+    ).textContent =
         siteSettings.heroPrefix;
 
-    document.getElementById("heroEmphasis").textContent =
+
+    document.getElementById(
+        "heroEmphasis"
+    ).textContent =
         siteSettings.heroEmphasis;
 
-    document.getElementById("heroNote").innerHTML =
-        escapeHtml(siteSettings.heroNote)
-            .replace(/\n/g, "<br>");
 
-    document.getElementById("heroCredit").textContent =
+    document.getElementById(
+        "heroNote"
+    ).innerHTML =
+        escapeHtml(
+            siteSettings.heroNote
+        )
+        .replace(
+            /\n/g,
+            "<br>"
+        );
+
+
+    document.getElementById(
+        "heroCredit"
+    ).textContent =
         siteSettings.heroCredit;
 
-    document.getElementById("galleryTitle").textContent =
+
+    document.getElementById(
+        "galleryTitle"
+    ).textContent =
         siteSettings.galleryTitle;
 
-    document.getElementById("galleryArchiveBtn").textContent =
+
+    document.getElementById(
+        "galleryArchiveBtn"
+    ).textContent =
         siteSettings.archiveLabel;
 
-    document.getElementById("colorsNav").textContent =
+
+    document.getElementById(
+        "colorsNav"
+    ).textContent =
         siteSettings.colorsLabel;
 
-    document.getElementById("projectsNav").textContent =
+
+    document.getElementById(
+        "projectsNav"
+    ).textContent =
         siteSettings.projectsLabel;
 
-    document.getElementById("guestbookNav").textContent =
+
+    document.getElementById(
+        "guestbookNav"
+    ).textContent =
         siteSettings.guestbookLabel;
 
-    document.getElementById("aboutNav").textContent =
+
+    document.getElementById(
+        "aboutNav"
+    ).textContent =
         siteSettings.aboutLabel;
 
-    document.getElementById("manageNav").innerHTML =
+
+    document.getElementById(
+        "manageNav"
+    ).innerHTML =
         `
         <span class="nav-lock">
             ♙
@@ -2065,30 +2494,71 @@ function applySiteSettings() {
         ${escapeHtml(siteSettings.manageLabel)}
         `;
 
-    document.getElementById("aboutKicker").textContent =
+
+    document.getElementById(
+        "aboutKicker"
+    ).textContent =
         siteSettings.aboutKicker;
 
-    document.getElementById("aboutTitle").textContent =
+
+    document.getElementById(
+        "aboutTitle"
+    ).textContent =
         siteSettings.aboutTitle;
 
-    document.getElementById("aboutRole").textContent =
+
+    document.getElementById(
+        "aboutRole"
+    ).textContent =
         siteSettings.aboutRole;
 
-    document.getElementById("aboutIntro").textContent =
+
+    document.getElementById(
+        "aboutIntro"
+    ).textContent =
         siteSettings.aboutIntro;
 
-    document.getElementById("aboutBody").textContent =
+
+    document.getElementById(
+        "aboutBody"
+    ).textContent =
         siteSettings.aboutBody;
 
-    document.getElementById("aboutSignoff").textContent =
+
+    document.getElementById(
+        "aboutSignoff"
+    ).textContent =
         siteSettings.aboutSignoff;
 
-    document.getElementById("footerCopyright").textContent =
+
+    document.getElementById(
+        "footerCopyright"
+    ).textContent =
         siteSettings.footerCopyright;
+
+
+    document.getElementById(
+        "selectedWorksTitle"
+    ).textContent =
+        siteSettings.featuredTitle ||
+        DEFAULT_SITE_SETTINGS.featuredTitle;
+
+
+    document.getElementById(
+        "selectedWorksDescription"
+    ).textContent =
+        siteSettings.featuredDescription ||
+        "";
+
+
+    renderSelectedWorks();
 }
 
 
-/* LOAD PHOTOS */
+
+/* =========================================================
+   LOAD PHOTOS
+========================================================= */
 
 async function loadPhotos() {
 
@@ -2096,52 +2566,78 @@ async function loadPhotos() {
         await fetch(
             `photos.json?v=${Date.now()}`,
             {
-                cache:"no-store"
+                cache:
+                    "no-store"
             }
         );
 
-    if (!response.ok) {
+
+    if (
+        !response.ok
+    ) {
 
         throw new Error(
             "photos.json을 불러오지 못했습니다."
         );
     }
 
+
     const data =
         await response.json();
 
+
     allPhotos =
-        Array.isArray(data)
+        Array.isArray(
+            data
+        )
         ? data
         : [];
 
+
     displayedPhotos =
         allPhotos
+
             .map(
-                (photo, originalIndex) => ({
+                (
+                    photo,
+                    originalIndex
+                ) => ({
+
                     ...photo,
+
                     _originalIndex:
                         originalIndex
+
                 })
             )
+
             .sort(
-                (a, b) => {
+                (
+                    a,
+                    b
+                ) => {
 
                     const dateCompare =
                         String(
-                            b.date || ""
-                        ).localeCompare(
+                            b.date ||
+                            ""
+                        )
+                        .localeCompare(
                             String(
-                                a.date || ""
+                                a.date ||
+                                ""
                             )
                         );
 
+
                     if (
-                        dateCompare !== 0
+                        dateCompare !==
+                        0
                     ) {
 
                         return dateCompare;
                     }
+
 
                     return (
                         a._originalIndex -
@@ -2150,31 +2646,278 @@ async function loadPhotos() {
                 }
             );
 
+
+    renderSelectedWorks();
+
+
     await renderGallery();
 
+
     buildArchiveMenus();
+
 
     openRequestedPhotoFromUrl();
 }
 
 
-/* GALLERY */
+
+/* =========================================================
+   SELECTED WORKS
+========================================================= */
+
+function getFeaturedPhotoNames() {
+
+    if (
+        !Array.isArray(
+            siteSettings.featuredPhotos
+        )
+    ) {
+
+        return [];
+    }
+
+
+    return [
+
+        ...new Set(
+
+            siteSettings.featuredPhotos
+
+                .map(
+                    value =>
+                        String(
+                            value ||
+                            ""
+                        )
+                        .trim()
+                )
+
+                .filter(
+                    Boolean
+                )
+        )
+
+    ];
+}
+
+
+
+function renderSelectedWorks() {
+
+    const section =
+        document.getElementById(
+            "selectedWorks"
+        );
+
+
+    const grid =
+        document.getElementById(
+            "selectedWorksGrid"
+        );
+
+
+    if (
+        !section ||
+        !grid
+    ) {
+
+        return;
+    }
+
+
+    if (
+        !displayedPhotos.length
+    ) {
+
+        section.classList.remove(
+            "show"
+        );
+
+
+        grid.innerHTML =
+            "";
+
+
+        featuredPhotosResolved =
+            [];
+
+
+        return;
+    }
+
+
+    const byFilename =
+        new Map(
+
+            displayedPhotos.map(
+                photo => [
+
+                    photo.filename,
+
+                    photo
+
+                ]
+            )
+        );
+
+
+    featuredPhotosResolved =
+        getFeaturedPhotoNames()
+
+            .map(
+                filename =>
+                    byFilename.get(
+                        filename
+                    )
+            )
+
+            .filter(
+                Boolean
+            );
+
+
+    grid.innerHTML =
+        "";
+
+
+    if (
+        featuredPhotosResolved.length ===
+        0
+    ) {
+
+        section.classList.remove(
+            "show"
+        );
+
+
+        return;
+    }
+
+
+    section.classList.add(
+        "show"
+    );
+
+
+    featuredPhotosResolved.forEach(
+        (
+            photo,
+            index
+        ) => {
+
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+
+            card.className =
+                "selected-work-card reveal-item";
+
+
+            card.style.setProperty(
+                "--reveal-delay",
+                `${Math.min(index, 5) * 70}ms`
+            );
+
+
+            card.innerHTML =
+                `
+                <div class="selected-work-image-wrap">
+
+                    <img
+                        class="selected-work-image"
+                        src="${photoUrl(photo.filename)}"
+                        alt="Selected Work ${numberLabel(index)}"
+                        loading="${index < 2 ? "eager" : "lazy"}"
+                        decoding="async"
+                    >
+
+                </div>
+
+                <div class="selected-work-caption">
+
+                    <span class="selected-work-label">
+                        SELECTED ${numberLabel(index)}
+                    </span>
+
+                    <span class="selected-work-date">
+                        ${escapeHtml(
+                            formatDisplayDate(
+                                photo.date
+                            )
+                        )}
+                    </span>
+
+                </div>
+                `;
+
+
+            card
+                .querySelector(
+                    ".selected-work-image"
+                )
+                .addEventListener(
+                    "click",
+                    () => {
+
+                        isRandomMode =
+                            false;
+
+
+                        randomPhotos =
+                            [];
+
+
+                        isFeaturedMode =
+                            true;
+
+
+                        openLightbox(
+                            index
+                        );
+                    }
+                );
+
+
+            grid.appendChild(
+                card
+            );
+        }
+    );
+
+
+    activateRevealAnimations();
+}
+
+
+
+/* =========================================================
+   GALLERY
+========================================================= */
 
 function getActivePhotos() {
 
-    if (!selectedArchiveDate) {
+    if (
+        !selectedArchiveDate
+    ) {
 
         return [
             ...displayedPhotos
         ];
     }
 
+
     return displayedPhotos.filter(
         photo =>
-            (photo.date || "날짜 미상") ===
+            (
+                photo.date ||
+                "날짜 미상"
+            ) ===
             selectedArchiveDate
     );
 }
+
 
 
 function updateViewControls() {
@@ -2184,20 +2927,24 @@ function updateViewControls() {
             "masonryModeBtn"
         );
 
+
     const dateButton =
         document.getElementById(
             "dateModeBtn"
         );
+
 
     const filterBar =
         document.getElementById(
             "activeFilterBar"
         );
 
+
     const filterLabel =
         document.getElementById(
             "activeFilterLabel"
         );
+
 
     masonryButton.classList.toggle(
         "active",
@@ -2205,16 +2952,19 @@ function updateViewControls() {
         "masonry"
     );
 
+
     dateButton.classList.toggle(
         "active",
         currentGalleryMode ===
         "date"
     );
 
+
     masonryButton.disabled =
         Boolean(
             selectedArchiveDate
         );
+
 
     if (
         selectedArchiveDate
@@ -2224,8 +2974,10 @@ function updateViewControls() {
             "show"
         );
 
+
         filterLabel.textContent =
             `${selectedArchiveDate} · ${currentViewPhotos.length} PHOTOS`;
+
 
     } else {
 
@@ -2233,10 +2985,12 @@ function updateViewControls() {
             "show"
         );
 
+
         filterLabel.textContent =
             "";
     }
 }
+
 
 
 function setGalleryMode(
@@ -2244,32 +2998,45 @@ function setGalleryMode(
 ) {
 
     if (
-        mode !== "masonry" &&
-        mode !== "date"
+        mode !==
+        "masonry" &&
+        mode !==
+        "date"
     ) {
 
         return;
     }
+
 
     if (
         selectedArchiveDate &&
-        mode === "masonry"
+        mode ===
+        "masonry"
     ) {
 
         return;
     }
+
 
     currentGalleryMode =
         mode;
 
+
     isRandomMode =
         false;
+
+
+    isFeaturedMode =
+        false;
+
 
     randomPhotos =
         [];
 
+
     renderGallery();
 }
+
 
 
 function createPhotoCard(
@@ -2282,16 +3049,19 @@ function createPhotoCard(
             "article"
         );
 
+
     card.className =
         "photo-card reveal-item";
+
 
     card.style.setProperty(
         "--reveal-delay",
         `${Math.min(index % 6, 5) * 55}ms`
     );
 
-    card.innerHTML = `
 
+    card.innerHTML =
+        `
         <div class="photo-image-wrap">
 
             <img
@@ -2319,7 +3089,8 @@ function createPhotoCard(
             </span>
 
         </div>
-    `;
+        `;
+
 
     card
         .querySelector(
@@ -2332,8 +3103,14 @@ function createPhotoCard(
                 isRandomMode =
                     false;
 
+
+                isFeaturedMode =
+                    false;
+
+
                 randomPhotos =
                     [];
+
 
                 openLightbox(
                     index
@@ -2341,8 +3118,10 @@ function createPhotoCard(
             }
         );
 
+
     return card;
 }
+
 
 
 function activateRevealAnimations() {
@@ -2354,15 +3133,18 @@ function activateRevealAnimations() {
         revealObserver.disconnect();
     }
 
+
     const cards =
         document.querySelectorAll(
-            ".photo-card.reveal-item"
+            ".reveal-item"
         );
+
 
     const reducedMotion =
         window.matchMedia(
             "(prefers-reduced-motion: reduce)"
         ).matches;
+
 
     if (
         reducedMotion ||
@@ -2381,8 +3163,10 @@ function activateRevealAnimations() {
             }
         );
 
+
         return;
     }
+
 
     revealObserver =
         new IntersectionObserver(
@@ -2398,9 +3182,11 @@ function activateRevealAnimations() {
                             return;
                         }
 
+
                         entry.target.classList.add(
                             "is-visible"
                         );
+
 
                         revealObserver.unobserve(
                             entry.target
@@ -2411,10 +3197,12 @@ function activateRevealAnimations() {
             {
                 threshold:
                     0.08,
+
                 rootMargin:
                     "0px 0px -6% 0px"
             }
         );
+
 
     cards.forEach(
         card => {
@@ -2427,6 +3215,7 @@ function activateRevealAnimations() {
 }
 
 
+
 function renderMasonryView(
     featureGrid,
     archiveGrid
@@ -2435,17 +3224,23 @@ function renderMasonryView(
     featureGrid.style.display =
         "none";
 
+
     archiveGrid.className =
         "archive-grid masonry-grid";
 
+
     currentViewPhotos.forEach(
-        (photo, index) => {
+        (
+            photo,
+            index
+        ) => {
 
             const card =
                 createPhotoCard(
                     photo,
                     index
                 );
+
 
             archiveGrid.appendChild(
                 card
@@ -2455,6 +3250,7 @@ function renderMasonryView(
 }
 
 
+
 function groupPhotosByDate(
     photos
 ) {
@@ -2462,11 +3258,14 @@ function groupPhotosByDate(
     const groups =
         [];
 
+
     let currentDate =
         null;
 
+
     let currentGroup =
         null;
+
 
     photos.forEach(
         (
@@ -2478,6 +3277,7 @@ function groupPhotosByDate(
                 photo.date ||
                 "날짜 미상";
 
+
             if (
                 date !==
                 currentDate
@@ -2486,29 +3286,40 @@ function groupPhotosByDate(
                 currentDate =
                     date;
 
+
                 currentGroup = {
+
                     date:
                         date,
+
                     items:
                         []
+
                 };
+
 
                 groups.push(
                     currentGroup
                 );
             }
 
+
             currentGroup.items.push({
+
                 photo:
                     photo,
+
                 index:
                     index
+
             });
         }
     );
 
+
     return groups;
 }
+
 
 
 function getTargetRowHeight() {
@@ -2521,6 +3332,7 @@ function getTargetRowHeight() {
         return 0;
     }
 
+
     if (
         window.innerWidth <=
         900
@@ -2529,8 +3341,10 @@ function getTargetRowHeight() {
         return 205;
     }
 
+
     return 255;
 }
+
 
 
 function getPhotoAspectRatio(
@@ -2550,11 +3364,13 @@ function getPhotoAspectRatio(
         );
     }
 
+
     return new Promise(
         resolve => {
 
             const image =
                 new Image();
+
 
             image.onload =
                 () => {
@@ -2562,19 +3378,24 @@ function getPhotoAspectRatio(
                     const ratio =
                         image.naturalWidth &&
                         image.naturalHeight
+
                         ? image.naturalWidth /
                           image.naturalHeight
+
                         : 1.5;
+
 
                     aspectRatioCache.set(
                         photo.filename,
                         ratio
                     );
 
+
                     resolve(
                         ratio
                     );
                 };
+
 
             image.onerror =
                 () => {
@@ -2584,10 +3405,12 @@ function getPhotoAspectRatio(
                         1.5
                     );
 
+
                     resolve(
                         1.5
                     );
                 };
+
 
             image.src =
                 photoUrl(
@@ -2596,6 +3419,7 @@ function getPhotoAspectRatio(
         }
     );
 }
+
 
 
 async function buildJustifiedGrid(
@@ -2608,11 +3432,14 @@ async function buildJustifiedGrid(
     const gap =
         20;
 
+
     const targetHeight =
         getTargetRowHeight();
 
+
     if (
-        targetHeight === 0
+        targetHeight ===
+        0
     ) {
 
         items.forEach(
@@ -2623,8 +3450,10 @@ async function buildJustifiedGrid(
                         "div"
                     );
 
+
                 row.className =
                     "justified-row";
+
 
                 const card =
                     createPhotoCard(
@@ -2632,12 +3461,15 @@ async function buildJustifiedGrid(
                         item.index
                     );
 
+
                 card.style.width =
                     "100%";
+
 
                 row.appendChild(
                     card
                 );
+
 
                 container.appendChild(
                     row
@@ -2645,11 +3477,14 @@ async function buildJustifiedGrid(
             }
         );
 
+
         return;
     }
 
+
     const ratios =
         await Promise.all(
+
             items.map(
                 item =>
                     getPhotoAspectRatio(
@@ -2657,6 +3492,7 @@ async function buildJustifiedGrid(
                     )
             )
         );
+
 
     if (
         version !==
@@ -2666,30 +3502,37 @@ async function buildJustifiedGrid(
         return;
     }
 
+
     let rowItems =
         [];
 
+
     let rowRatioSum =
         0;
+
 
     function appendRow(
         isLastRow = false
     ) {
 
         if (
-            rowItems.length === 0
+            rowItems.length ===
+            0
         ) {
 
             return;
         }
+
 
         const row =
             document.createElement(
                 "div"
             );
 
+
         row.className =
             "justified-row";
+
 
         const availableWidth =
             containerWidth -
@@ -2699,9 +3542,11 @@ async function buildJustifiedGrid(
                 1
             );
 
+
         let rowHeight =
             availableWidth /
             rowRatioSum;
+
 
         if (
             isLastRow
@@ -2714,6 +3559,7 @@ async function buildJustifiedGrid(
                 );
         }
 
+
         rowItems.forEach(
             item => {
 
@@ -2723,6 +3569,7 @@ async function buildJustifiedGrid(
                         item.index
                     );
 
+
                 card.style.width =
                     `${Math.max(
                         90,
@@ -2730,22 +3577,27 @@ async function buildJustifiedGrid(
                         rowHeight
                     )}px`;
 
+
                 row.appendChild(
                     card
                 );
             }
         );
 
+
         container.appendChild(
             row
         );
 
+
         rowItems =
             [];
+
 
         rowRatioSum =
             0;
     }
+
 
     items.forEach(
         (
@@ -2758,14 +3610,20 @@ async function buildJustifiedGrid(
                     itemIndex
                 ];
 
+
             rowItems.push({
+
                 ...item,
+
                 ratio:
                     ratio
+
             });
+
 
             rowRatioSum +=
                 ratio;
+
 
             const predictedWidth =
                 rowRatioSum *
@@ -2775,6 +3633,7 @@ async function buildJustifiedGrid(
                     rowItems.length -
                     1
                 );
+
 
             if (
                 predictedWidth >=
@@ -2788,10 +3647,12 @@ async function buildJustifiedGrid(
         }
     );
 
+
     appendRow(
         true
     );
 }
+
 
 
 async function renderDateOrderView(
@@ -2803,13 +3664,16 @@ async function renderDateOrderView(
     featureGrid.style.display =
         "none";
 
+
     archiveGrid.className =
         "archive-grid date-order-container";
+
 
     const groups =
         groupPhotosByDate(
             currentViewPhotos
         );
+
 
     const containerWidth =
         Math.max(
@@ -2821,6 +3685,7 @@ async function renderDateOrderView(
                 )
                 .clientWidth
         );
+
 
     for (
         const group of groups
@@ -2834,24 +3699,29 @@ async function renderDateOrderView(
             return;
         }
 
+
         const section =
             document.createElement(
                 "section"
             );
 
+
         section.className =
             "date-group";
+
 
         const heading =
             document.createElement(
                 "div"
             );
 
+
         heading.className =
             "date-group-heading";
 
-        heading.innerHTML = `
 
+        heading.innerHTML =
+            `
             <div class="date-group-date">
                 ${escapeHtml(
                     formatDisplayDate(
@@ -2863,27 +3733,33 @@ async function renderDateOrderView(
             <div class="date-group-count">
                 ${group.items.length} PHOTOS
             </div>
-        `;
+            `;
+
 
         const grid =
             document.createElement(
                 "div"
             );
 
+
         grid.className =
             "justified-grid";
+
 
         section.appendChild(
             heading
         );
 
+
         section.appendChild(
             grid
         );
 
+
         archiveGrid.appendChild(
             section
         );
+
 
         await buildJustifiedGrid(
             grid,
@@ -2895,63 +3771,80 @@ async function renderDateOrderView(
 }
 
 
+
 async function renderGallery() {
 
     const version =
         ++renderVersion;
+
 
     const loading =
         document.getElementById(
             "galleryLoading"
         );
 
+
     const featureGrid =
         document.getElementById(
             "featureGrid"
         );
+
 
     const archiveGrid =
         document.getElementById(
             "archiveGrid"
         );
 
+
     const frameCount =
         document.getElementById(
             "frameCount"
         );
 
+
     currentViewPhotos =
         getActivePhotos();
+
 
     loading.style.display =
         "none";
 
+
     featureGrid.innerHTML =
         "";
+
 
     archiveGrid.innerHTML =
         "";
 
+
     frameCount.textContent =
         `${currentViewPhotos.length} FRAMES`;
 
+
     updateViewControls();
 
+
     if (
-        currentViewPhotos.length === 0
+        currentViewPhotos.length ===
+        0
     ) {
 
         loading.className =
             "empty-gallery";
 
+
         loading.textContent =
             "표시할 사진이 없습니다.";
+
 
         loading.style.display =
             "block";
 
+
         return;
     }
+
 
     if (
         currentGalleryMode ===
@@ -2963,16 +3856,20 @@ async function renderGallery() {
             archiveGrid
         );
 
+
         activateRevealAnimations();
+
 
         return;
     }
+
 
     await renderDateOrderView(
         featureGrid,
         archiveGrid,
         version
     );
+
 
     if (
         version ===
@@ -2984,15 +3881,20 @@ async function renderGallery() {
 }
 
 
-/* ARCHIVE */
+
+/* =========================================================
+   ARCHIVE
+========================================================= */
 
 function buildArchiveMenus() {
 
     const uniqueDates =
         [];
 
+
     const seen =
         new Set();
+
 
     displayedPhotos.forEach(
         photo => {
@@ -3000,6 +3902,7 @@ function buildArchiveMenus() {
             const date =
                 photo.date ||
                 "날짜 미상";
+
 
             if (
                 seen.has(
@@ -3010,9 +3913,11 @@ function buildArchiveMenus() {
                 return;
             }
 
+
             seen.add(
                 date
             );
+
 
             uniqueDates.push(
                 date
@@ -3020,27 +3925,34 @@ function buildArchiveMenus() {
         }
     );
 
+
     const menu =
         document.getElementById(
             "galleryArchiveMenu"
         );
 
+
     menu.innerHTML =
         "";
+
 
     const allItem =
         document.createElement(
             "button"
         );
 
+
     allItem.type =
         "button";
+
 
     allItem.className =
         "archive-date-item";
 
+
     allItem.textContent =
         "All photographs";
+
 
     allItem.addEventListener(
         "click",
@@ -3050,9 +3962,11 @@ function buildArchiveMenus() {
         }
     );
 
+
     menu.appendChild(
         allItem
     );
+
 
     uniqueDates.forEach(
         date => {
@@ -3062,14 +3976,18 @@ function buildArchiveMenus() {
                     "button"
                 );
 
+
             item.type =
                 "button";
+
 
             item.className =
                 "archive-date-item";
 
+
             item.textContent =
                 date;
+
 
             item.addEventListener(
                 "click",
@@ -3081,12 +3999,14 @@ function buildArchiveMenus() {
                 }
             );
 
+
             menu.appendChild(
                 item
             );
         }
     );
 }
+
 
 
 function goToArchiveDate(
@@ -3096,20 +4016,31 @@ function goToArchiveDate(
     selectedArchiveDate =
         date;
 
+
     currentGalleryMode =
         "date";
+
 
     isRandomMode =
         false;
 
+
+    isFeaturedMode =
+        false;
+
+
     randomPhotos =
         [];
 
+
     closeArchiveMenus();
+
 
     closeMobileMenu();
 
+
     renderGallery();
+
 
     document
         .querySelector(
@@ -3118,10 +4049,12 @@ function goToArchiveDate(
         .scrollIntoView({
             behavior:
                 "smooth",
+
             block:
                 "start"
         });
 }
+
 
 
 function clearArchiveDateFilter() {
@@ -3129,20 +4062,31 @@ function clearArchiveDateFilter() {
     selectedArchiveDate =
         null;
 
+
     currentGalleryMode =
         "masonry";
+
 
     isRandomMode =
         false;
 
+
+    isFeaturedMode =
+        false;
+
+
     randomPhotos =
         [];
 
+
     closeArchiveMenus();
+
 
     closeMobileMenu();
 
+
     renderGallery();
+
 
     document
         .querySelector(
@@ -3151,10 +4095,12 @@ function clearArchiveDateFilter() {
         .scrollIntoView({
             behavior:
                 "smooth",
+
             block:
                 "start"
         });
 }
+
 
 
 function toggleGalleryArchive(
@@ -3163,15 +4109,18 @@ function toggleGalleryArchive(
 
     event.stopPropagation();
 
+
     const menu =
         document.getElementById(
             "galleryArchiveMenu"
         );
 
+
     menu.classList.toggle(
         "open"
     );
 }
+
 
 
 function closeArchiveMenus() {
@@ -3191,7 +4140,10 @@ function closeArchiveMenus() {
 }
 
 
-/* MOBILE MENU */
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
 
 function toggleMobileMenu() {
 
@@ -3200,21 +4152,25 @@ function toggleMobileMenu() {
             "mainNav"
         );
 
+
     const button =
         document.getElementById(
             "mobileMenuBtn"
         );
+
 
     const open =
         nav.classList.toggle(
             "open"
         );
 
+
     button.textContent =
         open
         ? "CLOSE"
         : "MENU";
 }
+
 
 
 function closeMobileMenu() {
@@ -3224,21 +4180,27 @@ function closeMobileMenu() {
             "mainNav"
         );
 
+
     const button =
         document.getElementById(
             "mobileMenuBtn"
         );
 
+
     nav.classList.remove(
         "open"
     );
+
 
     button.textContent =
         "MENU";
 }
 
 
-/* ABOUT */
+
+/* =========================================================
+   ABOUT
+========================================================= */
 
 function openAbout() {
 
@@ -3247,23 +4209,29 @@ function openAbout() {
             "aboutOverlay"
         );
 
+
     overlay.classList.add(
         "open"
     );
+
 
     overlay.setAttribute(
         "aria-hidden",
         "false"
     );
 
+
     document.body.classList.add(
         "no-scroll"
     );
 
+
     closeMobileMenu();
+
 
     closeArchiveMenus();
 }
+
 
 
 function closeAbout() {
@@ -3273,14 +4241,17 @@ function closeAbout() {
             "aboutOverlay"
         );
 
+
     overlay.classList.remove(
         "open"
     );
+
 
     overlay.setAttribute(
         "aria-hidden",
         "true"
     );
+
 
     document.body.classList.remove(
         "no-scroll"
@@ -3288,7 +4259,10 @@ function closeAbout() {
 }
 
 
-/* PHOTO INFO */
+
+/* =========================================================
+   PHOTO INFO
+========================================================= */
 
 function parseInfo(
     infoText
@@ -3296,33 +4270,41 @@ function parseInfo(
 
     const text =
         String(
-            infoText || ""
-        ).trim();
+            infoText ||
+            ""
+        )
+        .trim();
+
 
     const fMatch =
         text.match(
             /\bf\d+(\.\d+)?\b/i
         );
 
+
     const shutterMatch =
         text.match(
             /\b\d+\/\d+s\b|\b\d+(\.\d+)?s\b/i
         );
+
 
     const isoMatch =
         text.match(
             /\biso\s*\d+\b/i
         );
 
+
     const aperture =
         fMatch
         ? fMatch[0]
         : "-";
 
+
     const shutter =
         shutterMatch
         ? shutterMatch[0]
         : "";
+
 
     const iso =
         isoMatch
@@ -3333,10 +4315,14 @@ function parseInfo(
             )
         : "";
 
+
     let camera =
         text;
 
-    if (fMatch) {
+
+    if (
+        fMatch
+    ) {
 
         camera =
             text
@@ -3347,42 +4333,76 @@ function parseInfo(
                 .trim();
     }
 
-    if (!camera) {
 
-        camera = "-";
+    if (
+        !camera
+    ) {
+
+        camera =
+            "-";
     }
+
 
     let shutterIso =
         [
             shutter,
             iso
         ]
-        .filter(Boolean)
-        .join(" / ");
+        .filter(
+            Boolean
+        )
+        .join(
+            " / "
+        );
 
-    if (!shutterIso) {
 
-        shutterIso = "-";
+    if (
+        !shutterIso
+    ) {
+
+        shutterIso =
+            "-";
     }
 
+
     return {
+
         camera,
+
         aperture,
+
         shutterIso
+
     };
 }
 
 
-/* LIGHTBOX */
+
+/* =========================================================
+   LIGHTBOX
+========================================================= */
 
 function getLightboxPhotos() {
 
-    return (
+    if (
         isRandomMode
-        ? randomPhotos
-        : currentViewPhotos
-    );
+    ) {
+
+        return randomPhotos;
+    }
+
+
+    if (
+        isFeaturedMode
+    ) {
+
+        return featuredPhotosResolved;
+    }
+
+
+    return currentViewPhotos;
 }
+
 
 
 function openLightbox(
@@ -3391,6 +4411,7 @@ function openLightbox(
 
     const lightboxPhotos =
         getLightboxPhotos();
+
 
     if (
         index < 0 ||
@@ -3401,29 +4422,52 @@ function openLightbox(
         return;
     }
 
+
     currentLightboxIndex =
         index;
+
 
     const photo =
         lightboxPhotos[
             index
         ];
 
+
     setPhotoUrlParameter(
         photo.filename
     );
 
-    const originalIndex =
-        currentViewPhotos.findIndex(
-            item =>
-                item.filename ===
-                photo.filename
-        );
+
+    let originalIndex;
+
+
+    if (
+        isFeaturedMode
+    ) {
+
+        originalIndex =
+            displayedPhotos.findIndex(
+                item =>
+                    item.filename ===
+                    photo.filename
+            );
+
+    } else {
+
+        originalIndex =
+            currentViewPhotos.findIndex(
+                item =>
+                    item.filename ===
+                    photo.filename
+            );
+    }
+
 
     const parsed =
         parseInfo(
             photo.info
         );
+
 
     document.getElementById(
         "lightboxImage"
@@ -3431,6 +4475,7 @@ function openLightbox(
         photoUrl(
             photo.filename
         );
+
 
     document.getElementById(
         "lightboxNumber"
@@ -3441,6 +4486,7 @@ function openLightbox(
             : index
         );
 
+
     document.getElementById(
         "lightboxDate"
     ).textContent =
@@ -3448,49 +4494,60 @@ function openLightbox(
             photo.date
         );
 
+
     document.getElementById(
         "metaDate"
     ).textContent =
         photo.date ||
         "-";
 
+
     document.getElementById(
         "metaCamera"
     ).textContent =
         parsed.camera;
+
 
     document.getElementById(
         "metaAperture"
     ).textContent =
         parsed.aperture;
 
+
     document.getElementById(
         "metaShutterIso"
     ).textContent =
         parsed.shutterIso;
+
 
     const lightbox =
         document.getElementById(
             "lightbox"
         );
 
+
     lightbox.classList.add(
         "open"
     );
+
 
     lightbox.setAttribute(
         "aria-hidden",
         "false"
     );
 
+
     document.body.classList.add(
         "no-scroll"
     );
 
+
     updateSlideshowButton();
+
 
     updateFullscreenButton();
 }
+
 
 
 function closeLightbox() {
@@ -3500,38 +4557,52 @@ function closeLightbox() {
             "lightbox"
         );
 
+
     lightbox.classList.remove(
         "open"
     );
+
 
     lightbox.setAttribute(
         "aria-hidden",
         "true"
     );
 
+
     document.body.classList.remove(
         "no-scroll"
     );
+
 
     setPhotoUrlParameter(
         ""
     );
 
+
     exitFullscreenViewing(
         true
     );
 
+
     currentLightboxIndex =
         -1;
+
 
     isRandomMode =
         false;
 
+
+    isFeaturedMode =
+        false;
+
+
     randomPhotos =
         [];
 
+
     stopSlideshow();
 }
+
 
 
 function showNextPhoto() {
@@ -3539,15 +4610,20 @@ function showNextPhoto() {
     const lightboxPhotos =
         getLightboxPhotos();
 
+
     if (
-        lightboxPhotos.length === 0
+        lightboxPhotos.length ===
+        0
     ) {
 
         return;
     }
 
+
     let nextIndex =
-        currentLightboxIndex + 1;
+        currentLightboxIndex +
+        1;
+
 
     if (
         nextIndex >=
@@ -3558,10 +4634,12 @@ function showNextPhoto() {
             0;
     }
 
+
     openLightbox(
         nextIndex
     );
 }
+
 
 
 function showPreviousPhoto() {
@@ -3569,23 +4647,31 @@ function showPreviousPhoto() {
     const lightboxPhotos =
         getLightboxPhotos();
 
+
     if (
-        lightboxPhotos.length === 0
+        lightboxPhotos.length ===
+        0
     ) {
 
         return;
     }
 
+
     let previousIndex =
-        currentLightboxIndex - 1;
+        currentLightboxIndex -
+        1;
+
 
     if (
-        previousIndex < 0
+        previousIndex <
+        0
     ) {
 
         previousIndex =
-            lightboxPhotos.length - 1;
+            lightboxPhotos.length -
+            1;
     }
+
 
     openLightbox(
         previousIndex
@@ -3593,7 +4679,10 @@ function showPreviousPhoto() {
 }
 
 
-/* RANDOM */
+
+/* =========================================================
+   RANDOM
+========================================================= */
 
 function shufflePhotos(
     photos
@@ -3604,10 +4693,12 @@ function shufflePhotos(
             ...photos
         ];
 
+
     for (
         let index =
             shuffled.length - 1;
-        index > 0;
+        index >
+        0;
         index--
     ) {
 
@@ -3615,9 +4706,11 @@ function shufflePhotos(
             Math.floor(
                 Math.random() *
                 (
-                    index + 1
+                    index +
+                    1
                 )
             );
+
 
         [
             shuffled[
@@ -3636,26 +4729,36 @@ function shufflePhotos(
         ];
     }
 
+
     return shuffled;
 }
+
 
 
 function openRandomPhoto() {
 
     if (
-        currentViewPhotos.length === 0
+        currentViewPhotos.length ===
+        0
     ) {
 
         return;
     }
+
 
     randomPhotos =
         shufflePhotos(
             currentViewPhotos
         );
 
+
+    isFeaturedMode =
+        false;
+
+
     isRandomMode =
         true;
+
 
     openLightbox(
         0
@@ -3663,12 +4766,16 @@ function openRandomPhoto() {
 }
 
 
-/* PHOTO LINK / SHARE */
+
+/* =========================================================
+   PHOTO LINK / SHARE
+========================================================= */
 
 function openRequestedPhotoFromUrl() {
 
     const filename =
         getRequestedPhotoFilename();
+
 
     if (
         !filename
@@ -3677,11 +4784,18 @@ function openRequestedPhotoFromUrl() {
         return;
     }
 
+
     isRandomMode =
         false;
 
+
+    isFeaturedMode =
+        false;
+
+
     randomPhotos =
         [];
+
 
     const index =
         currentViewPhotos.findIndex(
@@ -3690,21 +4804,26 @@ function openRequestedPhotoFromUrl() {
                 filename
         );
 
+
     if (
-        index >= 0
+        index >=
+        0
     ) {
 
         openLightbox(
             index
         );
 
+
         return;
     }
+
 
     setPhotoUrlParameter(
         ""
     );
 }
+
 
 
 function showShareToast(
@@ -3716,16 +4835,20 @@ function showShareToast(
             "shareToast"
         );
 
+
     toast.textContent =
         message;
+
 
     toast.classList.add(
         "show"
     );
 
+
     clearTimeout(
         shareToastTimer
     );
+
 
     shareToastTimer =
         setTimeout(
@@ -3734,10 +4857,12 @@ function showShareToast(
                 toast.classList.remove(
                     "show"
                 );
+
             },
             1900
         );
 }
+
 
 
 async function shareCurrentPhoto() {
@@ -3745,10 +4870,12 @@ async function shareCurrentPhoto() {
     const lightboxPhotos =
         getLightboxPhotos();
 
+
     const photo =
         lightboxPhotos[
             currentLightboxIndex
         ];
+
 
     if (
         !photo
@@ -3757,18 +4884,22 @@ async function shareCurrentPhoto() {
         return;
     }
 
+
     const shareUrl =
         new URL(
             window.location.href
         );
+
 
     shareUrl.searchParams.set(
         "photo",
         photo.filename
     );
 
+
     const url =
         shareUrl.toString();
+
 
     if (
         navigator.share
@@ -3777,13 +4908,18 @@ async function shareCurrentPhoto() {
         try {
 
             await navigator.share({
+
                 title:
                     "Hamihamoo Photography",
+
                 url:
                     url
+
             });
 
+
             return;
+
 
         } catch (error) {
 
@@ -3798,15 +4934,18 @@ async function shareCurrentPhoto() {
         }
     }
 
+
     try {
 
         await navigator.clipboard.writeText(
             url
         );
 
+
         showShareToast(
             "사진 링크를 복사했습니다."
         );
+
 
     } catch (error) {
 
@@ -3818,7 +4957,10 @@ async function shareCurrentPhoto() {
 }
 
 
-/* FULLSCREEN VIEW */
+
+/* =========================================================
+   FULLSCREEN VIEW
+========================================================= */
 
 function updateFullscreenButton() {
 
@@ -3827,6 +4969,7 @@ function updateFullscreenButton() {
             "fullscreenButton"
         );
 
+
     if (
         !button
     ) {
@@ -3834,10 +4977,12 @@ function updateFullscreenButton() {
         return;
     }
 
+
     const lightbox =
         document.getElementById(
             "lightbox"
         );
+
 
     button.textContent =
         lightbox.classList.contains(
@@ -3848,12 +4993,14 @@ function updateFullscreenButton() {
 }
 
 
+
 async function toggleFullscreenViewing() {
 
     const lightbox =
         document.getElementById(
             "lightbox"
         );
+
 
     if (
         !lightbox.classList.contains(
@@ -3863,6 +5010,7 @@ async function toggleFullscreenViewing() {
 
         return;
     }
+
 
     if (
         lightbox.classList.contains(
@@ -3874,14 +5022,18 @@ async function toggleFullscreenViewing() {
             true
         );
 
+
         return;
     }
+
 
     lightbox.classList.add(
         "fullscreen-view"
     );
 
+
     updateFullscreenButton();
+
 
     if (
         lightbox.requestFullscreen
@@ -3891,17 +5043,18 @@ async function toggleFullscreenViewing() {
 
             await lightbox.requestFullscreen();
 
+
         } catch (error) {
 
-            // 브라우저가 전체화면 API를 막아도
-            // 라이트박스 자체의 감상 모드는 유지합니다.
         }
     }
 }
 
 
+
 async function exitFullscreenViewing(
-    exitNative = true
+    exitNative =
+        true
 ) {
 
     const lightbox =
@@ -3909,11 +5062,14 @@ async function exitFullscreenViewing(
             "lightbox"
         );
 
+
     lightbox.classList.remove(
         "fullscreen-view"
     );
 
+
     updateFullscreenButton();
+
 
     if (
         exitNative &&
@@ -3925,11 +5081,13 @@ async function exitFullscreenViewing(
 
             await document.exitFullscreen();
 
+
         } catch (error) {
-            // 아무 작업도 하지 않습니다.
+
         }
     }
 }
+
 
 
 document.addEventListener(
@@ -3941,6 +5099,7 @@ document.addEventListener(
                 "lightbox"
             );
 
+
         if (
             document.fullscreenElement ===
             lightbox
@@ -3950,6 +5109,7 @@ document.addEventListener(
                 "fullscreen-view"
             );
 
+
         } else {
 
             lightbox.classList.remove(
@@ -3957,12 +5117,16 @@ document.addEventListener(
             );
         }
 
+
         updateFullscreenButton();
     }
 );
 
 
-/* SLIDESHOW */
+
+/* =========================================================
+   SLIDESHOW
+========================================================= */
 
 function toggleSlideshow() {
 
@@ -3972,8 +5136,10 @@ function toggleSlideshow() {
 
         stopSlideshow();
 
+
         return;
     }
+
 
     slideshowInterval =
         setInterval(
@@ -3985,8 +5151,10 @@ function toggleSlideshow() {
             2500
         );
 
+
     updateSlideshowButton();
 }
+
 
 
 function stopSlideshow() {
@@ -3999,12 +5167,15 @@ function stopSlideshow() {
             slideshowInterval
         );
 
+
         slideshowInterval =
             null;
     }
 
+
     updateSlideshowButton();
 }
+
 
 
 function updateSlideshowButton() {
@@ -4014,10 +5185,14 @@ function updateSlideshowButton() {
             "slideshowButton"
         );
 
-    if (!button) {
+
+    if (
+        !button
+    ) {
 
         return;
     }
+
 
     button.textContent =
         slideshowInterval
@@ -4026,15 +5201,24 @@ function updateSlideshowButton() {
 }
 
 
-/* TOP */
+
+/* =========================================================
+   TOP
+========================================================= */
 
 function scrollToTop() {
 
     window.scrollTo({
-        top:0,
-        behavior:"smooth"
+
+        top:
+            0,
+
+        behavior:
+            "smooth"
+
     });
 }
+
 
 
 window.addEventListener(
@@ -4046,12 +5230,15 @@ window.addEventListener(
                 "topButton"
             );
 
+
         button.classList.toggle(
             "show",
-            window.scrollY > 550
+            window.scrollY >
+            550
         );
     }
 );
+
 
 
 window.addEventListener(
@@ -4061,6 +5248,7 @@ window.addEventListener(
         clearTimeout(
             resizeTimer
         );
+
 
         resizeTimer =
             setTimeout(
@@ -4073,6 +5261,7 @@ window.addEventListener(
 
                         renderGallery();
                     }
+
                 },
                 180
             );
@@ -4080,7 +5269,10 @@ window.addEventListener(
 );
 
 
-/* GLOBAL CLICK */
+
+/* =========================================================
+   GLOBAL CLICK
+========================================================= */
 
 document.addEventListener(
     "click",
@@ -4098,103 +5290,132 @@ document.addEventListener(
 );
 
 
-/* MODALS */
 
-document.getElementById(
-    "aboutOverlay"
-)
-.addEventListener(
-    "click",
-    event => {
+/* =========================================================
+   MODALS
+========================================================= */
 
-        if (
-            event.target.id ===
-            "aboutOverlay"
-        ) {
+document
+    .getElementById(
+        "aboutOverlay"
+    )
+    .addEventListener(
+        "click",
+        event => {
 
-            closeAbout();
+            if (
+                event.target.id ===
+                "aboutOverlay"
+            ) {
+
+                closeAbout();
+            }
         }
-    }
-);
+    );
 
 
-document.getElementById(
-    "lightbox"
-)
-.addEventListener(
-    "click",
-    event => {
 
-        if (
-            event.target.id ===
-            "lightbox"
-        ) {
+document
+    .getElementById(
+        "lightbox"
+    )
+    .addEventListener(
+        "click",
+        event => {
 
-            closeLightbox();
+            if (
+                event.target.id ===
+                "lightbox"
+            ) {
+
+                closeLightbox();
+            }
         }
-    }
-);
+    );
 
 
-/* TOUCH */
 
-document.getElementById(
-    "lightbox"
-)
-.addEventListener(
-    "touchstart",
-    event => {
+/* =========================================================
+   TOUCH
+========================================================= */
 
-        touchStartX =
-            event.changedTouches[0]
+document
+    .getElementById(
+        "lightbox"
+    )
+    .addEventListener(
+        "touchstart",
+        event => {
+
+            touchStartX =
+                event.changedTouches[
+                    0
+                ]
                 .screenX;
-    },
-    {
-        passive:true
-    }
-);
+        },
+        {
+            passive:
+                true
+        }
+    );
 
 
-document.getElementById(
-    "lightbox"
-)
-.addEventListener(
-    "touchend",
-    event => {
 
-        touchEndX =
-            event.changedTouches[0]
+document
+    .getElementById(
+        "lightbox"
+    )
+    .addEventListener(
+        "touchend",
+        event => {
+
+            touchEndX =
+                event.changedTouches[
+                    0
+                ]
                 .screenX;
 
-        const diff =
-            touchStartX -
-            touchEndX;
 
-        if (
-            Math.abs(diff) < 50
-        ) {
+            const diff =
+                touchStartX -
+                touchEndX;
 
-            return;
+
+            if (
+                Math.abs(
+                    diff
+                ) <
+                50
+            ) {
+
+                return;
+            }
+
+
+            if (
+                diff >
+                0
+            ) {
+
+                showNextPhoto();
+
+
+            } else {
+
+                showPreviousPhoto();
+            }
+        },
+        {
+            passive:
+                true
         }
-
-        if (
-            diff > 0
-        ) {
-
-            showNextPhoto();
-
-        } else {
-
-            showPreviousPhoto();
-        }
-    },
-    {
-        passive:true
-    }
-);
+    );
 
 
-/* KEYBOARD */
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
 
 document.addEventListener(
     "keydown",
@@ -4210,6 +5431,7 @@ document.addEventListener(
                     "open"
                 );
 
+
         const aboutOpen =
             document
                 .getElementById(
@@ -4219,6 +5441,7 @@ document.addEventListener(
                 .contains(
                     "open"
                 );
+
 
         if (
             event.key ===
@@ -4234,6 +5457,7 @@ document.addEventListener(
                         "lightbox"
                     );
 
+
                 if (
                     lightbox.classList.contains(
                         "fullscreen-view"
@@ -4244,13 +5468,17 @@ document.addEventListener(
                         true
                     );
 
+
                     return;
                 }
 
+
                 closeLightbox();
+
 
                 return;
             }
+
 
             if (
                 aboutOpen
@@ -4258,15 +5486,20 @@ document.addEventListener(
 
                 closeAbout();
 
+
                 return;
             }
 
+
             closeMobileMenu();
+
 
             closeArchiveMenus();
 
+
             return;
         }
+
 
         if (
             !lightboxOpen
@@ -4274,6 +5507,7 @@ document.addEventListener(
 
             return;
         }
+
 
         if (
             event.key ===
@@ -4283,6 +5517,7 @@ document.addEventListener(
             showNextPhoto();
         }
 
+
         if (
             event.key ===
             "ArrowLeft"
@@ -4291,6 +5526,7 @@ document.addEventListener(
             showPreviousPhoto();
         }
 
+
         if (
             event.key ===
             " "
@@ -4298,33 +5534,44 @@ document.addEventListener(
 
             event.preventDefault();
 
+
             toggleSlideshow();
         }
     }
 );
 
 
-/* START */
+
+/* =========================================================
+   START
+========================================================= */
 
 async function initialize() {
 
     await loadSiteSettings();
 
+
     try {
 
         await loadPhotos();
 
+
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            error
+        );
+
 
         const loading =
             document.getElementById(
                 "galleryLoading"
             );
 
+
         loading.className =
             "empty-gallery";
+
 
         loading.textContent =
             "사진을 불러오지 못했습니다.";
