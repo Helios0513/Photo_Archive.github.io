@@ -2052,7 +2052,7 @@ Manage photo locations.
 <p class="section-description">
 GPS가 남아 있는 기존 사진의 위치를 자동 복구하고,
 위치가 없는 사진은 장소 검색 또는 좌표 입력으로 직접 지정합니다.
-자동·수동 위치는 모두 같은 location 구조로 photos.json에 저장됩니다.
+자동·수동 위치는 모두 같은 location 구조로 저장되며, 화면에는 시/도 + 시/군/구 수준으로 단순하게 표시합니다.
 </p>
 </div>
 <div class="section-meta" id="locationSectionMeta">
@@ -2132,6 +2132,7 @@ Manual location assignment
 <div class="location-editor-help">
 사진을 하나 또는 여러 장 선택한 뒤 장소를 검색하세요.
 검색 결과를 적용하면 GPS 자동 복구와 동일한 상세 location 구조로 저장됩니다.
+정확한 좌표·도로·장소명은 내부에 보존하지만 기본 표시명은 시/도 + 시/군/구 수준으로 통일합니다.
 한 장만 수정하고 싶다면 그 사진만 선택한 뒤 새 위치를 적용하면 됩니다.
 </div>
 <div class="location-search-row">
@@ -3793,6 +3794,7 @@ houseNumber = null,
 postcode = null,
 placeName = null,
 formattedName = null,
+displayName = null,
 precision = null,
 source = null,
 provider = null,
@@ -3854,6 +3856,9 @@ null,
 formattedName:
 formattedName ||
 null,
+displayName:
+displayName ||
+null,
 precision:
 precision ||
 null,
@@ -3874,6 +3879,176 @@ osmId
 )
 : null
 };
+}
+function cleanLocationPart(
+value
+) {
+return String(
+value ||
+""
+)
+.trim();
+}
+function uniqueLocationParts(
+parts
+) {
+const seen =
+new Set();
+return parts
+.map(
+cleanLocationPart
+)
+.filter(
+Boolean
+)
+.filter(
+part => {
+const key =
+part
+.toLowerCase()
+.replace(
+/\s+/g,
+""
+);
+if (
+seen.has(
+key
+)
+) {
+return false;
+}
+seen.add(
+key
+);
+return true;
+}
+);
+}
+function buildCoarseLocationDisplayName(
+location
+) {
+if (
+!location ||
+typeof location !==
+"object"
+) {
+return null;
+}
+const countryCode =
+String(
+location.countryCode ||
+""
+)
+.toUpperCase();
+const region =
+cleanLocationPart(
+location.region
+);
+const county =
+cleanLocationPart(
+location.county
+);
+const city =
+cleanLocationPart(
+location.city
+);
+const district =
+cleanLocationPart(
+location.district
+);
+const country =
+cleanLocationPart(
+location.country
+);
+if (
+countryCode ===
+"KR"
+) {
+const broad =
+region ||
+city ||
+county ||
+country;
+const candidates =
+uniqueLocationParts([
+district,
+city,
+county
+])
+.filter(
+part =>
+part !==
+broad
+);
+const districtLevel =
+candidates.find(
+part =>
+/(구|군)$/.test(
+part
+)
+);
+const cityLevel =
+candidates.find(
+part =>
+/시$/.test(
+part
+)
+);
+const second =
+districtLevel ||
+cityLevel ||
+null;
+const parts =
+uniqueLocationParts([
+broad,
+second
+]);
+if (
+parts.length
+) {
+return parts.join(
+" "
+);
+}
+}
+const broad =
+region ||
+city ||
+county ||
+country;
+const second =
+[
+district,
+city,
+county
+]
+.map(
+cleanLocationPart
+)
+.find(
+part =>
+part &&
+part !==
+broad
+) ||
+null;
+const parts =
+uniqueLocationParts([
+broad,
+second
+]);
+if (
+parts.length
+) {
+return parts.join(
+" "
+);
+}
+return (
+location.displayName ||
+location.formattedName ||
+null
+);
 }
 function normalizeLocationObject(
 location
@@ -3906,6 +4081,11 @@ null
 ) {
 return null;
 }
+normalized.displayName =
+buildCoarseLocationDisplayName(
+normalized
+) ||
+normalized.displayName;
 return normalized;
 }
 function hasValidLocation(
@@ -4041,7 +4221,8 @@ address.leisure ||
 address.office ||
 address.building ||
 null;
-return createLocationObject({
+const location =
+createLocationObject({
 latitude:
 latitude,
 longitude:
@@ -4119,6 +4300,11 @@ osmId:
 result?.osm_id ||
 null
 });
+location.displayName =
+buildCoarseLocationDisplayName(
+location
+);
+return location;
 }
 function buildCoordinateOnlyLocation(
 latitude,
@@ -4320,27 +4506,12 @@ if (
 ) {
 return "위치 없음";
 }
-if (
-data.placeName &&
-data.district
-) {
-return `${data.placeName} · ${data.district}`;
-}
-if (
-data.district &&
-data.region
-) {
-return `${data.region} ${data.district}`;
-}
-if (
-data.city &&
-data.country
-) {
-return `${data.city}, ${data.country}`;
-}
 return (
-data.formattedName ||
-`${data.latitude}, ${data.longitude}`
+data.displayName ||
+buildCoarseLocationDisplayName(
+data
+) ||
+"위치 정보 있음"
 );
 }
 function getLocationSourceType(
@@ -4587,7 +4758,8 @@ location?.subdistrict,
 location?.neighborhood,
 location?.road,
 location?.placeName,
-location?.formattedName
+location?.formattedName,
+location?.displayName
 ]
 .map(
 value =>
