@@ -3,900 +3,1464 @@
     "filename": "DSC_0675.jpeg",
     "info": "Nikon Z fc f9 1/40s iso 400",
     "color": "Black",
-    "date": "2025-01-22"
+    "date": "2025-01-22",
+    "location": null
   },
   {
     "filename": "DSC_0706.jpeg",
     "info": "Nikon Z fc f9 1/400s iso 200",
     "color": "Black",
-    "date": "2025-01-24"
+    "date": "2025-01-24",
+    "location": {
+      "latitude": 37.6133817,
+      "longitude": 126.8285967,
+      "altitude": 17,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": "경기도",
+      "county": null,
+      "city": "고양시",
+      "district": "덕양구",
+      "subdistrict": "행신2동",
+      "neighborhood": null,
+      "road": "소원로",
+      "houseNumber": "49",
+      "postcode": "10522",
+      "placeName": "임마누엘교회",
+      "formattedName": "임마누엘교회, 49, 소원로, 강매동, 행신2동, 덕양구, 고양시, 경기도, 10522, 대한민국",
+      "displayName": "경기도 덕양구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "way",
+      "osmId": "612124403"
+    }
   },
   {
     "filename": "DSC_0888.jpeg",
     "info": "Nikon Z fc f5 1/200s iso 1600",
     "color": "Orange",
-    "date": "2025-01-30"
+    "date": "2025-01-30",
+    "location": null
   },
   {
     "filename": "DSC_0885.jpeg",
     "info": "Nikon Z fc f6.3 1/2000s iso 1600",
     "color": "Gray",
-    "date": "2025-01-30"
+    "date": "2025-01-30",
+    "location": null
   },
   {
     "filename": "DSC_1234.jpeg",
     "info": "Nikon Z fc f6.3 1/640s iso 800",
     "color": "Blue",
-    "date": "2025-02-18"
+    "date": "2025-02-18",
+    "location": {
+      "latitude": 35.1606633,
+      "longitude": 129.1913667,
+      "altitude": 9,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": null,
+      "county": null,
+      "city": "부산광역시",
+      "district": "해운대구",
+      "subdistrict": "중2동",
+      "neighborhood": null,
+      "road": "청사포로58번길",
+      "houseNumber": null,
+      "postcode": "48113",
+      "placeName": "청사포로58번길",
+      "formattedName": "청사포로58번길, 중2동, 해운대구, 부산광역시, 48113, 대한민국",
+      "displayName": "부산광역시 해운대구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "way",
+      "osmId": "168413327"
+    }
   },
   {
     "filename": "DSC_1254.jpeg",
     "info": "Nikon Z fc f14 1/800s iso 800",
     "color": "Blue",
-    "date": "2025-02-18"
+    "date": "2025-02-18",
+    "location": {
+      "latitude": 35.1606633,
+      "longitude": 129.1913667,
+      "altitude": 9,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": null,
+      "county": null,
+      "city": "부산광역시",
+      "district": "해운대구",
+      "subdistrict": "중2동",
+      "neighborhood": null,
+      "road": "청사포로58번길",
+      "houseNumber": null,
+      "postcode": "48113",
+      "placeName": "청사포로58번길",
+      "formattedName": "청사포로58번길, 중2동, 해운대구, 부산광역시, 48113, 대한민국",
+      "displayName": "부산광역시 해운대구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "way",
+      "osmId": "168413327"
+    }
   },
   {
     "filename": "DSC_1293.jpeg",
     "info": "Nikon Z fc f11 1/500s iso 800",
     "color": "Black",
-    "date": "2025-02-19"
+    "date": "2025-02-19",
+    "location": null
   },
   {
     "filename": "DSC_1374.jpeg",
     "info": "Nikon Z fc f6 1/6s iso 800",
     "color": "Orange",
-    "date": "2025-02-19"
+    "date": "2025-02-19",
+    "location": {
+      "latitude": 35.8340533,
+      "longitude": 129.226865,
+      "altitude": 53,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": "경상북도",
+      "county": null,
+      "city": "경주시",
+      "district": "월성동",
+      "subdistrict": "인왕동",
+      "neighborhood": null,
+      "road": "경주 역사탐방 자전거길",
+      "houseNumber": null,
+      "postcode": "38161",
+      "placeName": null,
+      "formattedName": "경주 역사탐방 자전거길, 인왕동, 월성동, 경주시, 경상북도, 38161, 대한민국",
+      "displayName": "경상북도 경주시",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "node",
+      "osmId": "12052339599"
+    }
   },
   {
     "filename": "DSC_1381.jpeg",
     "info": "Nikon Z fc f5 1/20s iso 800",
     "color": "Blue",
-    "date": "2025-02-19"
+    "date": "2025-02-19",
+    "location": {
+      "latitude": 35.8340533,
+      "longitude": 129.226865,
+      "altitude": 53,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": "경상북도",
+      "county": null,
+      "city": "경주시",
+      "district": "월성동",
+      "subdistrict": "인왕동",
+      "neighborhood": null,
+      "road": "경주 역사탐방 자전거길",
+      "houseNumber": null,
+      "postcode": "38161",
+      "placeName": null,
+      "formattedName": "경주 역사탐방 자전거길, 인왕동, 월성동, 경주시, 경상북도, 38161, 대한민국",
+      "displayName": "경상북도 경주시",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "node",
+      "osmId": "12052339599"
+    }
   },
   {
     "filename": "DSC_1500.jpeg",
     "info": "Nikon Z fc f6.3 1/160s iso 800",
     "color": "Gray",
-    "date": "2025-02-21"
+    "date": "2025-02-21",
+    "location": {
+      "latitude": 35.8358283,
+      "longitude": 129.211435,
+      "altitude": 42,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": "경상북도",
+      "county": null,
+      "city": "경주시",
+      "district": null,
+      "subdistrict": "사정동",
+      "neighborhood": null,
+      "road": null,
+      "houseNumber": null,
+      "postcode": "38166",
+      "placeName": null,
+      "formattedName": "사정동, 황남동, 국당마을, 경주시, 경상북도, 38166, 대한민국",
+      "displayName": "경상북도 경주시",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "way",
+      "osmId": "1120058323"
+    }
   },
   {
     "filename": "DSC_1132.jpeg",
     "info": "Nikon Z fc f9 1/640s iso 100",
     "color": "Blue",
-    "date": "2025-02-18"
+    "date": "2025-02-18",
+    "location": {
+      "latitude": 35.1589567,
+      "longitude": 129.1690767,
+      "altitude": 4,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": null,
+      "county": null,
+      "city": "부산광역시",
+      "district": "해운대구",
+      "subdistrict": "중1동",
+      "neighborhood": null,
+      "road": "갈맷길",
+      "houseNumber": null,
+      "postcode": "48099",
+      "placeName": "갈맷길",
+      "formattedName": "갈맷길, 중동, 중1동, 해운대구, 부산광역시, 48099, 대한민국",
+      "displayName": "부산광역시 해운대구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "way",
+      "osmId": "504637309"
+    }
   },
   {
     "filename": "DSC_0903.jpeg",
     "info": "Nikon Z fc f5 1/500s iso 800",
     "color": "Gray",
-    "date": "2025-01-30"
+    "date": "2025-01-30",
+    "location": null
   },
   {
     "filename": "DSC_0945.jpeg",
     "info": "Nikon Z fc f6 1/20s iso 400",
     "color": "Black",
-    "date": "2025-01-30"
+    "date": "2025-01-30",
+    "location": null
   },
   {
     "filename": "DSC_0731.jpeg",
     "info": "Nikon Z fc f9 1/100s iso 200",
     "color": "Gray",
-    "date": "2025-01-24"
+    "date": "2025-01-24",
+    "location": {
+      "latitude": 37.6160517,
+      "longitude": 126.8248967,
+      "altitude": 10,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": "경기도",
+      "county": null,
+      "city": "고양시",
+      "district": "덕양구",
+      "subdistrict": "행주동",
+      "neighborhood": null,
+      "road": "행신로",
+      "houseNumber": "90",
+      "postcode": "10520",
+      "placeName": "토당초등학교",
+      "formattedName": "토당초등학교, 90, 행신로, 행신동, 행주동, 덕양구, 고양시, 경기도, 10520, 대한민국",
+      "displayName": "경기도 덕양구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "way",
+      "osmId": "479987430"
+    }
   },
   {
     "filename": "DSC_0637.jpeg",
     "info": "Nikon Z fc f6.3 1/400s iso 400",
     "color": "Gray",
-    "date": "2025-01-22"
+    "date": "2025-01-22",
+    "location": null
   },
   {
     "filename": "IMG_4122.jpeg",
     "info": "Nikon Z fc f4.8 1/125s iso 1100",
     "color": "Black",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": null
   },
   {
     "filename": "IMG_4123.jpeg",
     "info": "Nikon Z fc f6.3 1/60s iso 4500",
     "color": "Gray",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": null
   },
   {
     "filename": "IMG_4124.jpeg",
     "info": "Nikon Z fc f2.8 1/125s iso 900",
     "color": "Red",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": null
   },
   {
     "filename": "IMG_4125.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
     "color": "Yellow",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": null
   },
   {
     "filename": "IMG_4126.jpeg",
     "info": "Nikon Z fc f6.3 1/320s iso 100",
     "color": "Black",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": null
   },
   {
     "filename": "IMG_4127.jpeg",
     "info": "Nikon Z fc f7.1 1/400s iso 100",
     "color": "Black",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": null
   },
   {
     "filename": "IMG_4128.jpeg",
     "info": "Nikon Z fc f2.8 1/125s iso 3200",
     "color": "Black",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": null
   },
   {
     "filename": "IMG_4204.jpeg",
     "info": "Nikon Z fc f4.2 1/250s iso 320",
     "color": "Black",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": null
   },
   {
     "filename": "IMG_4205.jpeg",
     "info": "Nikon Z fc f6.3 1/40s iso 2000",
     "color": "Brown",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": null
   },
   {
     "filename": "IMG_4206.jpeg",
     "info": "Nikon Z fc f6.3 1/640s iso 2000",
     "color": "Black",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": null
   },
   {
     "filename": "IMG_4208.jpeg",
     "info": "Nikon Z fc f5.6 1/250s iso 160",
     "color": "Gray",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": null
   },
   {
     "filename": "IMG_4209.jpeg",
     "info": "Nikon Z fc f5.6 1/250s iso 140",
     "color": "Gray",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": null
   },
   {
     "filename": "IMG_4401.jpeg",
     "info": "Nikon Z fc f9 1/640s iso 100",
     "color": "Blue",
-    "date": "2025-03-30"
+    "date": "2025-03-30",
+    "location": null
   },
   {
     "filename": "IMG_4402.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
     "color": "Blue",
-    "date": "2025-03-30"
+    "date": "2025-03-30",
+    "location": null
   },
   {
     "filename": "IMG_4404.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
     "color": "Blue",
-    "date": "2025-03-30"
+    "date": "2025-03-30",
+    "location": null
   },
   {
     "filename": "IMG_4406.jpeg",
     "info": "Nikon Z fc f7.1 1/400s iso 100",
     "color": "Blue",
-    "date": "2025-03-30"
+    "date": "2025-03-30",
+    "location": null
   },
   {
     "filename": "IMG_4407.jpeg",
     "info": "Nikon Z fc f9 1/500s iso 100",
     "color": "Blue",
-    "date": "2025-03-30"
+    "date": "2025-03-30",
+    "location": null
   },
   {
     "filename": "IMG_4408.jpeg",
     "info": "Nikon Z fc f6.3 1/320s iso 100",
     "color": "Blue",
-    "date": "2025-03-30"
+    "date": "2025-03-30",
+    "location": null
   },
   {
     "filename": "IMG_4409.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
     "color": "Blue",
-    "date": "2025-03-30"
+    "date": "2025-03-30",
+    "location": null
   },
   {
     "filename": "IMG_4410.jpeg",
     "info": "Nikon Z fc f8 1/400s iso 100",
     "color": "Blue",
-    "date": "2025-03-30"
+    "date": "2025-03-30",
+    "location": null
   },
   {
     "filename": "IMG_4412.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
     "color": "Blue",
-    "date": "2025-03-30"
+    "date": "2025-03-30",
+    "location": null
   },
   {
     "filename": "DSC_1766.jpeg",
     "info": "Nikon Z fc f13 1/30s iso 2000",
     "color": "Gray",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": {
+      "latitude": 37.5789283,
+      "longitude": 126.9804783,
+      "altitude": 33,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": null,
+      "county": null,
+      "city": "서울특별시",
+      "district": "종로구",
+      "subdistrict": "삼청동",
+      "neighborhood": null,
+      "road": "삼청로",
+      "houseNumber": "30",
+      "postcode": "03062",
+      "placeName": "매표소",
+      "formattedName": "매표소, 30, 삼청로, 창성동, 삼청동, 종로구, 서울특별시, 03062, 대한민국",
+      "displayName": "서울특별시 종로구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "node",
+      "osmId": "12001887302"
+    }
   },
   {
     "filename": "DSC_1767.jpeg",
     "info": "Nikon Z fc f9 1/30s iso 2000",
     "color": "White",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": {
+      "latitude": 37.5791111,
+      "longitude": 126.9804861,
+      "altitude": 33,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": null,
+      "county": null,
+      "city": "서울특별시",
+      "district": "종로구",
+      "subdistrict": "삼청동",
+      "neighborhood": null,
+      "road": "삼청로",
+      "houseNumber": "30",
+      "postcode": "03062",
+      "placeName": "매표소",
+      "formattedName": "매표소, 30, 삼청로, 창성동, 삼청동, 종로구, 서울특별시, 03062, 대한민국",
+      "displayName": "서울특별시 종로구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "node",
+      "osmId": "12001887302"
+    }
   },
   {
     "filename": "DSC_1770.jpeg",
     "info": "Nikon Z fc f9 1/30s iso 2000",
     "color": "White",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": {
+      "latitude": 37.578955,
+      "longitude": 126.9805033,
+      "altitude": 33,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": null,
+      "county": null,
+      "city": "서울특별시",
+      "district": "종로구",
+      "subdistrict": "삼청동",
+      "neighborhood": null,
+      "road": "삼청로",
+      "houseNumber": "30",
+      "postcode": "03062",
+      "placeName": "매표소",
+      "formattedName": "매표소, 30, 삼청로, 창성동, 삼청동, 종로구, 서울특별시, 03062, 대한민국",
+      "displayName": "서울특별시 종로구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "node",
+      "osmId": "12001887302"
+    }
   },
   {
     "filename": "DSC_1776.jpeg",
     "info": "Nikon Z fc f6.3 1/30s iso 2000",
     "color": "White",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": {
+      "latitude": 37.57926,
+      "longitude": 126.9803817,
+      "altitude": 33,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": null,
+      "county": null,
+      "city": "서울특별시",
+      "district": "종로구",
+      "subdistrict": "삼청동",
+      "neighborhood": null,
+      "road": "삼청로",
+      "houseNumber": "30",
+      "postcode": "03062",
+      "placeName": "매표소",
+      "formattedName": "매표소, 30, 삼청로, 창성동, 삼청동, 종로구, 서울특별시, 03062, 대한민국",
+      "displayName": "서울특별시 종로구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "node",
+      "osmId": "12001887302"
+    }
   },
   {
     "filename": "DSC_1791.jpeg",
     "info": "Nikon Z fc f6.3 1/30s iso 2000",
     "color": "Black",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": {
+      "latitude": 37.57915,
+      "longitude": 126.9803861,
+      "altitude": 33,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": null,
+      "county": null,
+      "city": "서울특별시",
+      "district": "종로구",
+      "subdistrict": "삼청동",
+      "neighborhood": null,
+      "road": "삼청로",
+      "houseNumber": "30",
+      "postcode": "03062",
+      "placeName": "매표소",
+      "formattedName": "매표소, 30, 삼청로, 창성동, 삼청동, 종로구, 서울특별시, 03062, 대한민국",
+      "displayName": "서울특별시 종로구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "node",
+      "osmId": "12001887302"
+    }
   },
   {
     "filename": "DSC_1780.jpeg",
     "info": "Nikon Z fc f14 1/30s iso 2000",
     "color": "White",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": {
+      "latitude": 37.5792133,
+      "longitude": 126.9804717,
+      "altitude": 33,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": null,
+      "county": null,
+      "city": "서울특별시",
+      "district": "종로구",
+      "subdistrict": "삼청동",
+      "neighborhood": null,
+      "road": "삼청로",
+      "houseNumber": "30",
+      "postcode": "03062",
+      "placeName": "매표소",
+      "formattedName": "매표소, 30, 삼청로, 창성동, 삼청동, 종로구, 서울특별시, 03062, 대한민국",
+      "displayName": "서울특별시 종로구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "node",
+      "osmId": "12001887302"
+    }
   },
   {
     "filename": "DSC_1797.jpeg",
     "info": "Nikon Z fc f5.3 1/3200s iso 2000",
     "color": "Gray",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": {
+      "latitude": 37.579025,
+      "longitude": 126.9804583,
+      "altitude": 45,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": null,
+      "county": null,
+      "city": "서울특별시",
+      "district": "종로구",
+      "subdistrict": "삼청동",
+      "neighborhood": null,
+      "road": "삼청로",
+      "houseNumber": "30",
+      "postcode": "03062",
+      "placeName": "매표소",
+      "formattedName": "매표소, 30, 삼청로, 창성동, 삼청동, 종로구, 서울특별시, 03062, 대한민국",
+      "displayName": "서울특별시 종로구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "node",
+      "osmId": "12001887302"
+    }
   },
   {
     "filename": "DSC_1819.jpeg",
     "info": "Nikon Z fc f6.3 1/1600s iso 2000",
     "color": "Green",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": {
+      "latitude": 37.579025,
+      "longitude": 126.9804583,
+      "altitude": 45,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": null,
+      "county": null,
+      "city": "서울특별시",
+      "district": "종로구",
+      "subdistrict": "삼청동",
+      "neighborhood": null,
+      "road": "삼청로",
+      "houseNumber": "30",
+      "postcode": "03062",
+      "placeName": "매표소",
+      "formattedName": "매표소, 30, 삼청로, 창성동, 삼청동, 종로구, 서울특별시, 03062, 대한민국",
+      "displayName": "서울특별시 종로구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "node",
+      "osmId": "12001887302"
+    }
   },
   {
     "filename": "DSC_1832.jpeg",
     "info": "Nikon Z fc f6.3 1/4000s iso 2000",
     "color": "Gray",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": {
+      "latitude": 37.579025,
+      "longitude": 126.9804583,
+      "altitude": 45,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": null,
+      "county": null,
+      "city": "서울특별시",
+      "district": "종로구",
+      "subdistrict": "삼청동",
+      "neighborhood": null,
+      "road": "삼청로",
+      "houseNumber": "30",
+      "postcode": "03062",
+      "placeName": "매표소",
+      "formattedName": "매표소, 30, 삼청로, 창성동, 삼청동, 종로구, 서울특별시, 03062, 대한민국",
+      "displayName": "서울특별시 종로구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "node",
+      "osmId": "12001887302"
+    }
   },
   {
     "filename": "DSC_1836.jpeg",
     "info": "Nikon Z fc f6.3 1/1600s iso 2000",
     "color": "Black",
-    "date": "2025-04-17"
+    "date": "2025-04-17",
+    "location": {
+      "latitude": 37.579025,
+      "longitude": 126.9804583,
+      "altitude": 45,
+      "countryCode": "KR",
+      "country": "대한민국",
+      "region": null,
+      "county": null,
+      "city": "서울특별시",
+      "district": "종로구",
+      "subdistrict": "삼청동",
+      "neighborhood": null,
+      "road": "삼청로",
+      "houseNumber": "30",
+      "postcode": "03062",
+      "placeName": "매표소",
+      "formattedName": "매표소, 30, 삼청로, 창성동, 삼청동, 종로구, 서울특별시, 03062, 대한민국",
+      "displayName": "서울특별시 종로구",
+      "precision": "gps",
+      "source": "exif",
+      "provider": "OpenStreetMap Nominatim",
+      "osmType": "node",
+      "osmId": "12001887302"
+    }
   },
   {
     "filename": "DSC_test.jpg",
     "info": "Nikon Z 5 f2 1/1000s iso 320",
     "color": "Yellow",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "location": null
   },
   {
     "filename": "DSC_0825.jpg",
     "info": "Nikon Z 5 f4 1/200s iso 2500",
     "color": "Black",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "location": null
   },
   {
     "filename": "DSC_0637.jpg",
     "info": "Nikon Z 5 f6.3 1/320s iso 320",
     "color": "Red",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "location": null
   },
   {
     "filename": "DSC_0687.jpg",
     "info": "NIKON Z 5 86mm f5.6 1/400s iso 125",
     "color": "Orange",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "location": null
   },
   {
     "filename": "DSC_0770.jpg",
     "info": "NIKON Z 5 120mm f4 1/640s iso 125",
     "color": "Orange",
-    "date": "2025-11-22"
+    "date": "2025-11-22",
+    "location": null
   },
   {
     "filename": "DSC_0693.jpg",
     "info": "NIKON Z 5 93mm f4 1/15s iso 125",
     "date": "2025-11-22",
-    "color": "Orange"
+    "color": "Orange",
+    "location": null
   },
   {
     "filename": "DSC_0768.jpg",
     "info": "NIKON Z 5 120mm f4 1/640s iso 125",
     "date": "2025-11-22",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_0629_1769879274483.jpg",
     "info": "NIKON Z 5 f5 iso 320",
     "date": "2025-11-22",
-    "color": "Gray"
+    "color": "Gray",
+    "location": null
   },
   {
     "filename": "DSC_0643_1769879277148.jpg",
     "info": "NIKON Z 5 f6.3 iso 320",
     "date": "2025-11-22",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_0675_1769879279259.jpg",
     "info": "NIKON Z 5 f6.3 iso 125",
     "date": "2025-11-22",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSC_0682_1769879281593.jpg",
     "info": "NIKON Z 5 f6.3 iso 125",
     "date": "2025-11-22",
-    "color": "Red"
+    "color": "Red",
+    "location": null
   },
   {
     "filename": "DSC_0776_1769879284033.jpg",
     "info": "NIKON Z 5 f4 iso 1800",
     "date": "2025-11-22",
-    "color": "Black"
+    "color": "Black",
+    "location": null
   },
   {
     "filename": "DSC_0780_1769879285847.jpg",
     "info": "NIKON Z 5 f4 iso 3200",
     "date": "2025-11-22",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSC_0095_1769882280475.jpg",
     "info": "NIKON Z 5 f4 iso 1000",
     "date": "2025-10-05",
-    "color": "Orange"
+    "color": "Orange",
+    "location": null
   },
   {
     "filename": "DSC_0167_1769882282577.jpg",
     "info": "NIKON Z 5 f4 iso 400",
     "date": "2025-10-11",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_0178_1769882284344.jpg",
     "info": "NIKON Z 5 f4.5 iso 400",
     "date": "2025-10-11",
-    "color": "Black"
+    "color": "Black",
+    "location": null
   },
   {
     "filename": "DSC_0237_1769882285710.jpg",
     "info": "NIKON Z 5 f2.8 iso 160",
     "date": "2025-10-19",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_0360_1769882287773.jpg",
     "info": "NIKON Z 5 f4 iso 160",
     "date": "2025-10-25",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_0443_1769882289647.jpg",
     "info": "NIKON Z 5 f4 iso 160",
     "date": "2025-10-25",
-    "color": "Orange"
+    "color": "Orange",
+    "location": null
   },
   {
     "filename": "DSC_0445_1769882291122.jpg",
     "info": "NIKON Z 5 f6.3 iso 160",
     "date": "2025-10-25",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_0456_1769882293039.jpg",
     "info": "NIKON Z 5 f6.3 iso 160",
     "date": "2025-10-25",
-    "color": "Orange"
+    "color": "Orange",
+    "location": null
   },
   {
     "filename": "DSC_0510_1769882294741.jpg",
     "info": "NIKON Z 5 f10 iso 320",
     "date": "2025-10-25",
-    "color": "Orange"
+    "color": "Orange",
+    "location": null
   },
   {
     "filename": "DSC_0524_1769882296049.jpg",
     "info": "NIKON Z 5 f8 iso 320",
     "date": "2025-10-25",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_0546_1769882297198.jpg",
     "info": "NIKON Z 5 f10 iso 320",
     "date": "2025-10-25",
-    "color": "Orange"
+    "color": "Orange",
+    "location": null
   },
   {
     "filename": "DSC_0859_1769883338751.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
     "date": "2025-11-29",
-    "color": "Orange"
+    "color": "Orange",
+    "location": null
   },
   {
     "filename": "DSC_0905_1769883340516.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
     "date": "2025-11-29",
-    "color": "Orange"
+    "color": "Orange",
+    "location": null
   },
   {
     "filename": "DSC_0924_1769883341899.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
     "date": "2025-11-29",
-    "color": "Orange"
+    "color": "Orange",
+    "location": null
   },
   {
     "filename": "DSC_0925_1769883344001.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
     "date": "2025-11-29",
-    "color": "Orange"
+    "color": "Orange",
+    "location": null
   },
   {
     "filename": "DSC_0955_1769883345947.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
     "date": "2025-11-29",
-    "color": "Brown"
+    "color": "Brown",
+    "location": null
   },
   {
     "filename": "DSC_1061_1769930816328.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_1062_1769930818302.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Black"
+    "color": "Black",
+    "location": null
   },
   {
     "filename": "DSC_1065_1769930820276.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_1067_1769930822122.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSC_1074_1769930824140.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Brown"
+    "color": "Brown",
+    "location": null
   },
   {
     "filename": "DSC_1094_1769930826161.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Brown"
+    "color": "Brown",
+    "location": null
   },
   {
     "filename": "DSC_1111_1769930828074.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-01-17",
-    "color": "Black"
+    "color": "Black",
+    "location": null
   },
   {
     "filename": "DSC_1124_1769930829641.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-01-17",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_0640_1770190316873.jpg",
     "info": "NIKON Z 5 f6.3 iso 320",
     "date": "2025-11-22",
-    "color": "Orange"
+    "color": "Orange",
+    "location": null
   },
   {
     "filename": "DSC_1169_1772453697035.jpg",
     "info": "NIKON Z 5 f9 iso 500",
     "date": "2026-02-15",
-    "color": "Red"
+    "color": "Red",
+    "location": null
   },
   {
     "filename": "DSC_1172_1772453699509.jpg",
     "info": "NIKON Z 5 f5.6 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSC_1185_1772453702147.jpg",
     "info": "NIKON Z 5 f5 iso 500",
     "date": "2026-02-15",
-    "color": "Brown"
+    "color": "Brown",
+    "location": null
   },
   {
     "filename": "DSC_1186_1772453704472.jpg",
     "info": "NIKON Z 5 f5 iso 500",
     "date": "2026-02-15",
-    "color": "Gray"
+    "color": "Gray",
+    "location": null
   },
   {
     "filename": "DSC_1190_1772453706085.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Black"
+    "color": "Black",
+    "location": null
   },
   {
     "filename": "DSC_1203_1772453708233.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Yellow"
+    "color": "Yellow",
+    "location": null
   },
   {
     "filename": "DSC_1211_1772453710215.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSC_1215_1772453712930.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSC_1217_1772453715453.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSC_1228_1772453717725.jpg",
     "info": "NIKON Z 5 f4 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSC_1238_1772453719980.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Gray"
+    "color": "Gray",
+    "location": null
   },
   {
     "filename": "DSC_1250_1772453723336.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSC_1252_1772453725783.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSC_1325_1772453729477.jpg",
     "info": "NIKON Z 5 f8 iso 200",
     "date": "2026-02-15",
-    "color": "White"
+    "color": "White",
+    "location": null
   },
   {
     "filename": "DSC_1330_1772453732422.jpg",
     "info": "NIKON Z 5 f8 iso 200",
     "date": "2026-02-15",
-    "color": "Gray"
+    "color": "Gray",
+    "location": null
   },
   {
     "filename": "DSC_1337_1772453735702.jpg",
     "info": "NIKON Z 5 f8 iso 200",
     "date": "2026-02-15",
-    "color": "Brown"
+    "color": "Brown",
+    "location": null
   },
   {
     "filename": "DSC_1340_1772453738937.jpg",
     "info": "NIKON Z 5 f4 iso 400",
     "date": "2026-02-15",
-    "color": "White"
+    "color": "White",
+    "location": null
   },
   {
     "filename": "DSC_1351_1772453741709.jpg",
     "info": "NIKON Z 5 f6.3 iso 400",
     "date": "2026-02-15",
-    "color": "Brown"
+    "color": "Brown",
+    "location": null
   },
   {
     "filename": "DSC_1378_1772453745055.jpg",
     "info": "NIKON Z 5 f8 iso 400",
     "date": "2026-02-15",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_1404_1772453747963.jpg",
     "info": "NIKON Z 5 f8 iso 100",
     "date": "2026-02-15",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_1426_1772453751215.jpg",
     "info": "NIKON Z 5 f4 iso 4000",
     "date": "2026-02-15",
-    "color": "Red"
+    "color": "Red",
+    "location": null
   },
   {
     "filename": "DSC_1439_1772453753492.jpg",
     "info": "NIKON Z 5 f4 iso 250",
     "date": "2026-02-15",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_1482_1772453756259.jpg",
     "info": "NIKON Z 5 f4 iso 1000",
     "date": "2026-02-15",
-    "color": "Brown"
+    "color": "Brown",
+    "location": null
   },
   {
     "filename": "DSC_1549_1772453759554.jpg",
     "info": "NIKON Z 5 f4 iso 640",
     "date": "2026-02-15",
-    "color": "Black"
+    "color": "Black",
+    "location": null
   },
   {
     "filename": "DSC_1568_1772453762704.jpg",
     "info": "NIKON Z 5 f4 iso 1000",
     "date": "2026-02-16",
-    "color": "Black"
+    "color": "Black",
+    "location": null
   },
   {
     "filename": "DSC_1569_1772453766146.jpg",
     "info": "NIKON Z 5 f4 iso 3200",
     "date": "2026-02-16",
-    "color": "Black"
+    "color": "Black",
+    "location": null
   },
   {
     "filename": "DSC_1629_1772453769458.jpg",
     "info": "NIKON Z 5 f11 iso 250",
     "date": "2026-02-17",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_1641_1772453775724.jpg",
     "info": "NIKON Z 5 f11 iso 250",
     "date": "2026-02-17",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_1699_1772453778924.jpg",
     "info": "NIKON Z 5 f4 iso 250",
     "date": "2026-02-17",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_1755_1775318453922.jpg",
     "info": "NIKON Z 5 f4.5 iso 200",
     "date": "2026-03-21",
-    "color": "Black"
+    "color": "Black",
+    "location": null
   },
   {
     "filename": "DSC_1776_1775318457082.jpg",
     "info": "NIKON Z 5 f4.5 iso 250",
     "date": "2026-03-21",
-    "color": "Red"
+    "color": "Red",
+    "location": null
   },
   {
     "filename": "DSC_1873_1775381912004.jpg",
     "info": "NIKON Z 5 f5.6 iso 500",
     "date": "2026-04-04",
-    "color": "Yellow"
+    "color": "Yellow",
+    "location": null
   },
   {
     "filename": "DSC_1870_1775383182426.jpg",
     "info": "NIKON Z 5 f5.6 1/2000s iso 500",
     "date": "2026-04-04",
-    "color": "Yellow"
+    "color": "Yellow",
+    "location": null
   },
   {
     "filename": "DSC_1846_1775384557014.jpg",
     "info": "NIKON Z 5 f9 1/320s iso 250",
     "date": "2026-04-04",
-    "color": "White"
+    "color": "White",
+    "location": null
   },
   {
     "filename": "DSC_1847_1775384559624.jpg",
     "info": "NIKON Z 5 f9 1/640s iso 250",
     "date": "2026-04-04",
-    "color": "White"
+    "color": "White",
+    "location": null
   },
   {
     "filename": "DSC_1848_1775384561971.jpg",
     "info": "NIKON Z 5 f9 1/500s iso 250",
     "date": "2026-04-04",
-    "color": "White"
+    "color": "White",
+    "location": null
   },
   {
     "filename": "DSC_1856_1775384564610.jpg",
     "info": "NIKON Z 5 f4 1/800s iso 250",
     "date": "2026-04-04",
-    "color": "White"
+    "color": "White",
+    "location": null
   },
   {
     "filename": "DSC_1861_1775384566966.jpg",
     "info": "NIKON Z 5 f4 1/2000s iso 250",
     "date": "2026-04-04",
-    "color": "White"
+    "color": "White",
+    "location": null
   },
   {
     "filename": "DSC_1862_1775384568892.jpg",
     "info": "NIKON Z 5 f5.6 1/1600s iso 500",
     "date": "2026-04-04",
-    "color": "White"
+    "color": "White",
+    "location": null
   },
   {
     "filename": "DSC_2018_1779447828265.jpg",
     "info": "NIKON Z 5 f4 1/100s iso 500",
     "date": "2026-05-22",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_2026_1779447831767.jpg",
     "info": "NIKON Z 5 f4 1/100s iso 500",
     "date": "2026-05-22",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSC_1915_1779448957781.jpg",
     "info": "NIKON Z 5 f7.1 1/1000s iso 500",
     "date": "2026-04-23",
-    "color": "Red"
+    "color": "Red",
+    "location": null
   },
   {
     "filename": "DSC_1930_1779448961133.jpg",
     "info": "NIKON Z 5 f7.1 1/400s iso 200",
     "date": "2026-04-23",
-    "color": "Pink"
+    "color": "Pink",
+    "location": null
   },
   {
     "filename": "DSC_1931_1779448964020.jpg",
     "info": "NIKON Z 5 f7.1 1/400s iso 200",
     "date": "2026-04-23",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSC_1932_1779448967488.jpg",
     "info": "NIKON Z 5 f7.1 1/200s iso 200",
     "date": "2026-04-23",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSC_1944_1779448972255.jpg",
     "info": "NIKON Z 5 f4 1/20s iso 500",
     "date": "2026-04-23",
-    "color": "Brown"
+    "color": "Brown",
+    "location": null
   },
   {
     "filename": "DSC_1945_1779448976416.jpg",
     "info": "NIKON Z 5 f4 1/15s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "Gray",
+    "location": null
   },
   {
     "filename": "DSC_1946_1779448980404.jpg",
     "info": "NIKON Z 5 f4 1/20s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "Gray",
+    "location": null
   },
   {
     "filename": "DSC_1947_1779448983936.jpg",
     "info": "NIKON Z 5 f4 1/25s iso 500",
     "date": "2026-04-23",
-    "color": "Orange"
+    "color": "Orange",
+    "location": null
   },
   {
     "filename": "DSC_1950_1779448987125.jpg",
     "info": "NIKON Z 5 f4 1/13s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "Gray",
+    "location": null
   },
   {
     "filename": "DSC_1953_1779448990105.jpg",
     "info": "NIKON Z 5 f4 1/4s iso 500",
     "date": "2026-04-23",
-    "color": "Yellow"
+    "color": "Yellow",
+    "location": null
   },
   {
     "filename": "DSC_1961_1779448992706.jpg",
     "info": "NIKON Z 5 f4 1/10s iso 500",
     "date": "2026-04-23",
-    "color": "Black"
+    "color": "Black",
+    "location": null
   },
   {
     "filename": "DSC_1964_1779448995395.jpg",
     "info": "NIKON Z 5 f4 1/125s iso 500",
     "date": "2026-04-23",
-    "color": "Brown"
+    "color": "Brown",
+    "location": null
   },
   {
     "filename": "DSC_1965_1779448998422.jpg",
     "info": "NIKON Z 5 f4 1/125s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "Gray",
+    "location": null
   },
   {
     "filename": "DSC_1968_1779449001036.jpg",
     "info": "NIKON Z 5 f4 1/400s iso 500",
     "date": "2026-04-23",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSC_1971_1779449004781.jpg",
     "info": "NIKON Z 5 f4 1/2s iso 500",
     "date": "2026-04-23",
-    "color": "Black"
+    "color": "Black",
+    "location": null
   },
   {
     "filename": "DSC_1979_1779449008754.jpg",
     "info": "NIKON Z 5 f4 1/640s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "Gray",
+    "location": null
   },
   {
     "filename": "DSC_1982_1779449012527.jpg",
     "info": "NIKON Z 5 f4 1/800s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "Gray",
+    "location": null
   },
   {
     "filename": "DSC_1985_1779449017064.jpg",
     "info": "NIKON Z 5 f4 1/125s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "Gray",
+    "location": null
   },
   {
     "filename": "DSC_1987_1779449021447.jpg",
     "info": "NIKON Z 5 f4 1/1250s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "Gray",
+    "location": null
   },
   {
     "filename": "DSC_2001_1779449025331.jpg",
     "info": "NIKON Z 5 f4 1/640s iso 500",
     "date": "2026-04-23",
-    "color": "Green"
+    "color": "Green",
+    "location": null
   },
   {
     "filename": "DSCF0058_1787541107212.jpg",
     "info": "X-M5 f3.2 10/1500s iso 160",
     "date": "2026-08-24",
-    "color": "Yellow"
+    "color": "Yellow",
+    "location": null
   },
   {
     "filename": "DSCF0059_1787541455750.jpg",
     "info": "X-M5 f4.5 1/240s iso 320",
     "date": "2026-08-24",
-    "color": "Black"
+    "color": "Black",
+    "location": null
   },
   {
     "filename": "DSCF0063_1787952758613.jpg",
     "info": "X-M5 f5.6 1/320s iso 160",
     "date": "2026-08-29",
-    "color": "Blue"
+    "color": "Blue",
+    "location": null
   },
   {
     "filename": "DSCF0065_1787952761601.jpg",
     "info": "X-M5 f4.5 10/1250s iso 6400",
     "date": "2026-08-29",
-    "color": "Orange"
+    "color": "Orange",
+    "location": null
   },
   {
     "filename": "DSCF0066_1787952764365.jpg",
     "info": "X-M5 f4.5 1/125s iso 6400",
     "date": "2026-08-29",
-    "color": "Yellow"
+    "color": "Yellow",
+    "location": null
   }
 ]
