@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Location Audit — Hamihamoo Photography</title>
+
+<script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background: #fff;
+    color: #1d1d1b;
+    font-family: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+button {
+    font: inherit;
+    cursor: pointer;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+.site-shell {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+}
+
+.site-header {
+    height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #deded8;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #111;
+    text-decoration: none;
+}
+
+.brand-mark {
+    width: 35px;
+    height: 38px;
+    border: 1px solid #222;
+    display: grid;
+    place-items: center;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 29px;
+    font-style: italic;
+}
+
+.brand-copy {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-name {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.brand-subtitle {
+    margin-top: 5px;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+}
+
+.back-link {
+    color: #77776f;
+    font-size: 11px;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    color: #111;
+}
+
+.hero {
+    padding: 56px 0 40px;
+}
+
+.hero-kicker {
+    margin-bottom: 17px;
+    color: #66665f;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 50px;
+    align-items: end;
+}
+
+.hero h1 {
+    margin: 0;
+    color: #252522;
+    font-size: clamp(48px, 6vw, 78px);
+    font-weight: 400;
+    letter-spacing: -0.06em;
+    line-height: 0.96;
+}
+
+.hero h1 em {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 400;
+}
+
+.hero p {
+    margin: 0;
+    color: #77776f;
+    font-size: 11px;
+    line-height: 1.85;
+    word-break: keep-all;
+}
+
+.audit-panel {
+    border-top: 1px solid #222;
+    padding-top: 18px;
+    padding-bottom: 80px;
+}
+
+.audit-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.audit-actions-left {
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    border: 1px solid #222;
+    padding: 10px 15px;
+    background: #222;
+    color: #fff;
+    font-size: 10px;
+}
+
+.secondary-btn {
+    border: 1px solid #cfcfc8;
+    padding: 10px 15px;
+    background: #fff;
+    color: #33332e;
+    font-size: 10px;
+}
+
+.action-btn:disabled,
+.secondary-btn:disabled {
+    cursor: default;
+    opacity: 0.35;
+}
+
+.progress-text {
+    color: #7d7d75;
+    font-size: 9px;
+    text-align: right;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.stat {
+    padding-top: 11px;
+    border-top: 1px solid #d9d9d3;
+}
+
+.stat-value {
+    display: block;
+    margin-bottom: 4px;
+    color: #252522;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 34px;
+    font-weight: 400;
+}
+
+.stat-label {
+    color: #96968e;
+    font-size: 8px;
+    letter-spacing: 0.13em;
+}
+
+.explanation {
+    margin-bottom: 20px;
+    padding: 15px 17px;
+    border: 1px solid #e0e0da;
+    background: #fafaf7;
+    color: #73736c;
+    font-size: 9px;
+    line-height: 1.75;
+}
+
+.explanation strong {
+    color: #33332e;
+}
+
+.result-toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.result-title {
+    color: #34342f;
+    font-size: 11px;
+}
+
+.result-filter {
+    display: flex;
+    gap: 6px;
+}
+
+.filter-btn {
+    border: 1px solid #d5d5ce;
+    padding: 6px 9px;
+    background: #fff;
+    color: #77776f;
+    font-size: 8px;
+}
+
+.filter-btn.active {
+    border-color: #222;
+    background: #222;
+    color: #fff;
+}
+
+.result-list {
+    border-top: 1px solid #dddcd6;
+}
+
+.result-placeholder {
+    padding: 60px 10px;
+    border-bottom: 1px solid #dddcd6;
+    color: #999991;
+    text-align: center;
+    font-size: 10px;
+}
+
+.result-row {
+    display: grid;
+    grid-template-columns: 100px minmax(0, 1fr) 130px;
+    gap: 18px;
+    align-items: center;
+    padding: 13px 0;
+    border-bottom: 1px solid #e2e2dc;
+}
+
+.result-row img {
+    width: 100px;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background: #f3f3ef;
+}
+
+.result-main {
+    min-width: 0;
+}
+
+.result-file {
+    color: #393934;
+    font-size: 9px;
+    line-height: 1.5;
+    word-break: break-all;
+}
+
+.result-date {
+    margin-top: 4px;
+    color: #9a9a92;
+    font-size: 8px;
+}
+
+.result-coordinates {
+    margin-top: 7px;
+    color: #686860;
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+.status-pill {
+    justify-self: end;
+    min-width: 88px;
+    padding: 7px 8px;
+    border: 1px solid #d7d7d0;
+    color: #8c8c84;
+    text-align: center;
+    font-size: 8px;
+    letter-spacing: 0.06em;
+}
+
+.status-pill.found {
+    border-color: #75836f;
+    color: #52624d;
+}
+
+.status-pill.saved {
+    border-color: #9a865f;
+    color: #796746;
+}
+
+.status-pill.error {
+    border-color: #b88989;
+    color: #975a5a;
+}
+
+footer {
+    padding: 28px 0 38px;
+    border-top: 1px solid #deded8;
+    color: #999991;
+    font-size: 9px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+@media (max-width: 700px) {
+    .site-shell {
+        width: calc(100% - 28px);
+    }
+
+    .site-header {
+        height: 72px;
+    }
+
+    .brand-mark {
+        width: 31px;
+        height: 34px;
+        font-size: 25px;
+    }
+
+    .brand-name {
+        font-size: 14px;
+    }
+
+    .hero {
+        padding: 40px 0 30px;
+    }
+
+    .hero-grid {
+        display: block;
+    }
+
+    .hero p {
+        margin-top: 22px;
+    }
+
+    .audit-actions {
+        display: block;
+    }
+
+    .progress-text {
+        margin-top: 12px;
+        text-align: left;
+    }
+
+    .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .result-toolbar {
+        display: block;
+    }
+
+    .result-filter {
+        margin-top: 10px;
+    }
+
+    .result-row {
+        grid-template-columns: 78px minmax(0, 1fr);
+        gap: 11px;
+    }
+
+    .result-row img {
+        width: 78px;
+    }
+
+    .status-pill {
+        grid-column: 2;
+        justify-self: start;
+    }
+
+    footer {
+        flex-direction: column;
+        gap: 6px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="site-shell">
+
+<header class="site-header">
+
+    <a class="brand" href="index.html">
+        <div class="brand-mark">h.</div>
+
+        <div class="brand-copy">
+            <div class="brand-name">hamihamoo</div>
+            <div class="brand-subtitle">PHOTOGRAPHY</div>
+        </div>
+    </a>
+
+    <a class="back-link" href="upload.html">
+        ← 사진 관리로 돌아가기
+    </a>
+
+</header>
+
+<main>
+
+<section class="hero">
+
+    <div class="hero-kicker">
+        LOCATION RECOVERY / STEP 01
+    </div>
+
+    <div class="hero-grid">
+
+        <h1>
+            GPS <em>Audit.</em>
+        </h1>
+
+        <p>
+            현재 홈페이지에 올라가 있는 JPEG 파일에
+            GPS EXIF 정보가 실제로 남아 있는지 전수 검사합니다.
+            이 페이지에서는 아무 데이터도 수정하지 않습니다.
+        </p>
+
+    </div>
+
+</section>
+
+<section class="audit-panel">
+
+    <div class="explanation">
+        <strong>이번 단계의 목적</strong><br>
+        기존 사진에 GPS가 남아 있다면 위도·경도·고도를 읽어냅니다.
+        결과가 0장이어도 실패가 아닙니다. 그 경우 다음 단계에서
+        원본 사진을 한꺼번에 선택해 홈페이지 사진과 자동 매칭하는 방식으로 넘어갑니다.
+        이미 <code>photos.json</code>에 location 좌표가 있는 사진은
+        <strong>ALREADY SAVED</strong>로 따로 표시합니다.
+    </div>
+
+    <div class="audit-actions">
+
+        <div class="audit-actions-left">
+
+            <button
+                class="action-btn"
+                id="scanButton"
+                type="button"
+                onclick="startAudit()"
+            >
+                기존 사진 GPS 전수검사
+            </button>
+
+            <button
+                class="secondary-btn"
+                id="copyButton"
+                type="button"
+                onclick="copyFoundResults()"
+                disabled
+            >
+                발견 결과 복사
+            </button>
+
+        </div>
+
+        <div class="progress-text" id="progressText">
+            아직 검사를 시작하지 않았습니다.
+        </div>
+
+    </div>
+
+    <div class="stats">
+
+        <div class="stat">
+            <span class="stat-value" id="totalCount">0</span>
+            <span class="stat-label">TOTAL</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-value" id="foundCount">0</span>
+            <span class="stat-label">GPS FOUND</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-value" id="missingCount">0</span>
+            <span class="stat-label">NO GPS</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-value" id="savedCount">0</span>
+            <span class="stat-label">ALREADY SAVED</span>
+        </div>
+
+    </div>
+
+    <div class="result-toolbar">
+
+        <div class="result-title">
+            Scan results
+        </div>
+
+        <div class="result-filter">
+
+            <button
+                class="filter-btn active"
+                type="button"
+                data-filter="all"
+                onclick="setFilter('all')"
+            >
+                ALL
+            </button>
+
+            <button
+                class="filter-btn"
+                type="button"
+                data-filter="found"
+                onclick="setFilter('found')"
+            >
+                GPS FOUND
+            </button>
+
+            <button
+                class="filter-btn"
+                type="button"
+                data-filter="missing"
+                onclick="setFilter('missing')"
+            >
+                NO GPS
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="result-list" id="resultList">
+
+        <div class="result-placeholder">
+            전수검사를 실행하면 사진별 결과가 이곳에 표시됩니다.
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+<footer>
+    <div>© 2026 Hamihamoo</div>
+    <div>Temporary location recovery utility.</div>
+</footer>
+
+</div>
+
+<script>
+
+let allPhotos = [];
+let auditResults = [];
+let currentFilter = "all";
+
+function photoUrl(filename) {
+    return "images/digital/" + encodeURIComponent(filename);
+}
+
+function ratioToNumber(value) {
+
+    if (value == null) {
+        return null;
+    }
+
+    if (
+        typeof value === "number" &&
+        Number.isFinite(value)
+    ) {
+        return value;
+    }
+
+    if (
+        typeof value === "object" &&
+        typeof value.numerator === "number" &&
+        typeof value.denominator === "number" &&
+        value.denominator !== 0
+    ) {
+        return value.numerator / value.denominator;
+    }
+
+    const numeric = Number(value);
+
+    return Number.isFinite(numeric)
+        ? numeric
+        : null;
+}
+
+function gpsToDecimal(parts, reference) {
+
+    if (
+        !Array.isArray(parts) ||
+        parts.length < 3
+    ) {
+        return null;
+    }
+
+    const degrees = ratioToNumber(parts[0]);
+    const minutes = ratioToNumber(parts[1]);
+    const seconds = ratioToNumber(parts[2]);
+
+    if (
+        degrees == null ||
+        minutes == null ||
+        seconds == null
+    ) {
+        return null;
+    }
+
+    let value =
+        degrees +
+        minutes / 60 +
+        seconds / 3600;
+
+    if (
+        reference === "S" ||
+        reference === "W"
+    ) {
+        value *= -1;
+    }
+
+    return Number(value.toFixed(7));
+}
+
+function extractGpsFromExifContext(context) {
+
+    const latitude =
+        gpsToDecimal(
+            EXIF.getTag(context, "GPSLatitude"),
+            EXIF.getTag(context, "GPSLatitudeRef")
+        );
+
+    const longitude =
+        gpsToDecimal(
+            EXIF.getTag(context, "GPSLongitude"),
+            EXIF.getTag(context, "GPSLongitudeRef")
+        );
+
+    if (
+        latitude == null ||
+        longitude == null ||
+        Math.abs(latitude) > 90 ||
+        Math.abs(longitude) > 180
+    ) {
+        return null;
+    }
+
+    let altitude =
+        ratioToNumber(
+            EXIF.getTag(context, "GPSAltitude")
+        );
+
+    const altitudeReference =
+        EXIF.getTag(context, "GPSAltitudeRef");
+
+    if (
+        altitude != null &&
+        Number(altitudeReference) === 1
+    ) {
+        altitude *= -1;
+    }
+
+    return {
+        latitude,
+        longitude,
+        altitude
+    };
+}
+
+function hasSavedLocation(photo) {
+
+    if (
+        !photo ||
+        !photo.location
+    ) {
+        return false;
+    }
+
+    const latitude =
+        Number(photo.location.latitude);
+
+    const longitude =
+        Number(photo.location.longitude);
+
+    return (
+        Number.isFinite(latitude) &&
+        Number.isFinite(longitude)
+    );
+}
+
+async function inspectOnePhoto(photo) {
+
+    if (
+        hasSavedLocation(photo)
+    ) {
+        return {
+            status: "saved",
+            photo,
+            location: {
+                latitude:
+                    Number(photo.location.latitude),
+
+                longitude:
+                    Number(photo.location.longitude),
+
+                altitude:
+                    photo.location.altitude ?? null
+            }
+        };
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                photoUrl(photo.filename),
+                {
+                    cache: "no-store"
+                }
+            );
+
+        if (
+            !response.ok
+        ) {
+            return {
+                status: "error",
+                photo,
+                location: null,
+                message:
+                    `HTTP ${response.status}`
+            };
+        }
+
+        const blob =
+            await response.blob();
+
+        const location =
+            await new Promise(
+                resolve => {
+
+                    EXIF.getData(
+                        blob,
+                        function() {
+
+                            resolve(
+                                extractGpsFromExifContext(
+                                    this
+                                )
+                            );
+                        }
+                    );
+                }
+            );
+
+        if (
+            location
+        ) {
+            return {
+                status: "found",
+                photo,
+                location
+            };
+        }
+
+        return {
+            status: "missing",
+            photo,
+            location: null
+        };
+
+    } catch (error) {
+
+        return {
+            status: "error",
+            photo,
+            location: null,
+            message:
+                error.message ||
+                "검사 실패"
+        };
+    }
+}
+
+function updateStats() {
+
+    const completed =
+        auditResults.filter(Boolean);
+
+    const found =
+        completed.filter(
+            result =>
+                result.status === "found"
+        ).length;
+
+    const missing =
+        completed.filter(
+            result =>
+                result.status === "missing"
+        ).length;
+
+    const saved =
+        completed.filter(
+            result =>
+                result.status === "saved"
+        ).length;
+
+    document.getElementById(
+        "totalCount"
+    ).textContent =
+        completed.length;
+
+    document.getElementById(
+        "foundCount"
+    ).textContent =
+        found;
+
+    document.getElementById(
+        "missingCount"
+    ).textContent =
+        missing;
+
+    document.getElementById(
+        "savedCount"
+    ).textContent =
+        saved;
+
+    document.getElementById(
+        "copyButton"
+    ).disabled =
+        found === 0 &&
+        saved === 0;
+}
+
+function renderResults() {
+
+    const root =
+        document.getElementById(
+            "resultList"
+        );
+
+    const filtered =
+        auditResults
+            .filter(Boolean)
+            .filter(
+                result => {
+
+                    if (
+                        currentFilter === "all"
+                    ) {
+                        return true;
+                    }
+
+                    if (
+                        currentFilter === "found"
+                    ) {
+                        return (
+                            result.status === "found" ||
+                            result.status === "saved"
+                        );
+                    }
+
+                    return (
+                        result.status ===
+                        currentFilter
+                    );
+                }
+            )
+            .sort(
+                (a, b) => {
+
+                    const order = {
+                        found: 0,
+                        saved: 1,
+                        error: 2,
+                        missing: 3
+                    };
+
+                    return (
+                        order[a.status] -
+                        order[b.status]
+                    );
+                }
+            );
+
+    if (
+        filtered.length === 0
+    ) {
+        root.innerHTML =
+            `
+            <div class="result-placeholder">
+                이 조건에 해당하는 사진이 없습니다.
+            </div>
+            `;
+
+        updateStats();
+        return;
+    }
+
+    root.innerHTML = "";
+
+    filtered.forEach(
+        result => {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.className =
+                "result-row";
+
+            let coordinateText =
+                "GPS EXIF 없음";
+
+            if (
+                result.location
+            ) {
+
+                coordinateText =
+                    `Lat ${result.location.latitude} · Lng ${result.location.longitude}`;
+
+                if (
+                    result.location.altitude != null
+                ) {
+
+                    coordinateText +=
+                        ` · Alt ${Number(result.location.altitude).toFixed(1)}m`;
+                }
+            }
+
+            let statusText =
+                "NO GPS";
+
+            let statusClass =
+                "";
+
+            if (
+                result.status === "found"
+            ) {
+
+                statusText =
+                    "GPS FOUND";
+
+                statusClass =
+                    "found";
+
+            } else if (
+                result.status === "saved"
+            ) {
+
+                statusText =
+                    "ALREADY SAVED";
+
+                statusClass =
+                    "saved";
+
+            } else if (
+                result.status === "error"
+            ) {
+
+                statusText =
+                    "ERROR";
+
+                statusClass =
+                    "error";
+
+                coordinateText =
+                    result.message ||
+                    "검사 실패";
+            }
+
+            row.innerHTML =
+                `
+                <img
+                    src="${photoUrl(result.photo.filename)}"
+                    alt=""
+                    loading="lazy"
+                >
+
+                <div class="result-main">
+
+                    <div class="result-file">
+                        ${escapeHtml(result.photo.filename)}
+                    </div>
+
+                    <div class="result-date">
+                        ${escapeHtml(result.photo.date || "날짜 미상")}
+                    </div>
+
+                    <div class="result-coordinates">
+                        ${escapeHtml(coordinateText)}
+                    </div>
+
+                </div>
+
+                <div class="status-pill ${statusClass}">
+                    ${statusText}
+                </div>
+                `;
+
+            root.appendChild(
+                row
+            );
+        }
+    );
+
+    updateStats();
+}
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function setFilter(filter) {
+
+    currentFilter =
+        filter;
+
+    document
+        .querySelectorAll(
+            ".filter-btn"
+        )
+        .forEach(
+            button => {
+
+                button.classList.toggle(
+                    "active",
+                    button.dataset.filter ===
+                    filter
+                );
+            }
+        );
+
+    renderResults();
+}
+
+async function startAudit() {
+
+    const scanButton =
+        document.getElementById(
+            "scanButton"
+        );
+
+    const progressText =
+        document.getElementById(
+            "progressText"
+        );
+
+    scanButton.disabled =
+        true;
+
+    auditResults =
+        [];
+
+    currentFilter =
+        "all";
+
+    document
+        .querySelectorAll(
+            ".filter-btn"
+        )
+        .forEach(
+            button => {
+
+                button.classList.toggle(
+                    "active",
+                    button.dataset.filter ===
+                    "all"
+                );
+            }
+        );
+
+    document.getElementById(
+        "resultList"
+    ).innerHTML =
+        `
+        <div class="result-placeholder">
+            photos.json을 불러오는 중...
+        </div>
+        `;
+
+    updateStats();
+
+    try {
+
+        const response =
+            await fetch(
+                `photos.json?v=${Date.now()}`,
+                {
+                    cache: "no-store"
+                }
+            );
+
+        if (
+            !response.ok
+        ) {
+            throw new Error(
+                "photos.json을 불러오지 못했습니다."
+            );
+        }
+
+        const data =
+            await response.json();
+
+        allPhotos =
+            Array.isArray(data)
+            ? data
+            : [];
+
+        const total =
+            allPhotos.length;
+
+        auditResults =
+            new Array(total);
+
+        if (
+            total === 0
+        ) {
+
+            progressText.textContent =
+                "photos.json에 사진이 없습니다.";
+
+            renderResults();
+            return;
+        }
+
+        let nextIndex =
+            0;
+
+        let completed =
+            0;
+
+        const workerCount =
+            Math.min(
+                4,
+                total
+            );
+
+        async function worker() {
+
+            while (
+                true
+            ) {
+
+                const index =
+                    nextIndex++;
+
+                if (
+                    index >= total
+                ) {
+                    return;
+                }
+
+                auditResults[index] =
+                    await inspectOnePhoto(
+                        allPhotos[index]
+                    );
+
+                completed++;
+
+                progressText.textContent =
+                    `검사 중... ${completed} / ${total}`;
+
+                if (
+                    completed % 5 === 0 ||
+                    completed === total
+                ) {
+
+                    updateStats();
+                }
+            }
+        }
+
+        await Promise.all(
+            Array.from(
+                {
+                    length:
+                        workerCount
+                },
+                () => worker()
+            )
+        );
+
+        renderResults();
+
+        const found =
+            auditResults.filter(
+                result =>
+                    result &&
+                    result.status ===
+                    "found"
+            ).length;
+
+        const saved =
+            auditResults.filter(
+                result =>
+                    result &&
+                    result.status ===
+                    "saved"
+            ).length;
+
+        if (
+            found > 0
+        ) {
+
+            progressText.textContent =
+                `검사 완료 · ${total}장 중 새 GPS ${found}장 발견`;
+
+        } else if (
+            saved > 0
+        ) {
+
+            progressText.textContent =
+                `검사 완료 · 새 GPS는 없고 기존 location ${saved}장이 있습니다.`;
+
+        } else {
+
+            progressText.textContent =
+                `검사 완료 · ${total}장의 웹 JPEG에서는 GPS를 찾지 못했습니다.`;
+        }
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+        progressText.textContent =
+            `오류: ${error.message}`;
+
+        document.getElementById(
+            "resultList"
+        ).innerHTML =
+            `
+            <div class="result-placeholder">
+                검사를 완료하지 못했습니다.
+            </div>
+            `;
+
+    } finally {
+
+        scanButton.disabled =
+            false;
+    }
+}
+
+async function copyFoundResults() {
+
+    const useful =
+        auditResults
+            .filter(
+                result =>
+                    result &&
+                    (
+                        result.status ===
+                        "found" ||
+                        result.status ===
+                        "saved"
+                    )
+            )
+            .map(
+                result => ({
+                    filename:
+                        result.photo.filename,
+
+                    date:
+                        result.photo.date ||
+                        null,
+
+                    latitude:
+                        result.location.latitude,
+
+                    longitude:
+                        result.location.longitude,
+
+                    altitude:
+                        result.location.altitude ??
+                        null,
+
+                    status:
+                        result.status
+                })
+            );
+
+    const text =
+        JSON.stringify(
+            useful,
+            null,
+            2
+        );
+
+    try {
+
+        await navigator.clipboard.writeText(
+            text
+        );
+
+        document.getElementById(
+            "progressText"
+        ).textContent =
+            `GPS 결과 ${useful.length}장을 클립보드에 복사했습니다.`;
+
+    } catch (error) {
+
+        window.prompt(
+            "아래 내용을 복사해주세요.",
+            text
+        );
+    }
+}
+
+</script>
+
+</body>
+</html>
