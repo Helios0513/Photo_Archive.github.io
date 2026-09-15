@@ -8,6 +8,11 @@
   "heroNote": "지나가는 순간들을,\n오래 머무는 장면으로.",
   "heroCredit": "Photographs by Hamihamoo",
   "galleryTitle": "Photographs",
+  "featuredTitle": "Selected Works",
+  "featuredDescription": "오래 남겨두고 싶은 장면들.",
+  "featuredPhotos": [
+    "DSC_test.jpg"
+  ],
   "archiveLabel": "Archive",
   "colorsLabel": "Colors",
   "projectsLabel": "Projects",
