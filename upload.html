@@ -924,6 +924,203 @@ white-space: pre-wrap;
 font-size: 9px;
 line-height: 1.6;
 }
+
+/* =========================================================
+ORIGINAL FILE LOCATION RECOVERY
+========================================================= */
+.original-recovery-box {
+margin: 15px 0;
+padding: 15px;
+border: 1px solid #deded8;
+background: #fff;
+}
+.original-recovery-title {
+margin-bottom: 7px;
+color: #33332f;
+font-size: 10px;
+font-weight: 600;
+}
+.original-recovery-help {
+margin-bottom: 13px;
+color: #8c8c84;
+font-size: 9px;
+line-height: 1.7;
+word-break: keep-all;
+}
+.original-folder-picker {
+display: grid;
+grid-template-columns: minmax(0, 1fr) auto;
+gap: 8px;
+align-items: end;
+}
+.original-folder-picker input[type="file"] {
+width: 100%;
+min-height: 38px;
+border: 1px solid #d8d8d2;
+padding: 8px 10px;
+background: #fafaf7;
+color: #55554f;
+font-size: 9px;
+}
+.original-folder-picker button {
+height: 38px;
+}
+.original-folder-note {
+margin-top: 8px;
+color: #9a9a92;
+font-size: 8px;
+line-height: 1.6;
+}
+.original-folder-breakdown {
+display: flex;
+gap: 7px;
+flex-wrap: wrap;
+margin-top: 9px;
+}
+.original-folder-chip {
+padding: 5px 7px;
+border: 1px solid #deded8;
+background: #fafaf7;
+color: #77776f;
+font-size: 8px;
+}
+.original-recovery-stats {
+display: grid;
+grid-template-columns: repeat(6, minmax(0, 1fr));
+gap: 8px;
+margin-top: 14px;
+}
+.original-recovery-stat {
+padding: 10px 9px;
+border-top: 1px solid #dcdcd6;
+}
+.original-recovery-stat-value {
+display: block;
+margin-bottom: 4px;
+color: #292925;
+font-family: Georgia, "Times New Roman", serif;
+font-size: 22px;
+line-height: 1;
+}
+.original-recovery-stat-label {
+color: #96968d;
+font-size: 7px;
+letter-spacing: 0.08em;
+}
+.original-recovery-toolbar {
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 12px;
+margin-top: 15px;
+padding-top: 11px;
+border-top: 1px solid #e4e4de;
+}
+.original-recovery-filter {
+height: 32px;
+border: 1px solid #d8d8d2;
+background: #fff;
+color: #55554f;
+padding: 0 9px;
+font-size: 8px;
+}
+.original-recovery-actions {
+display: flex;
+gap: 7px;
+flex-wrap: wrap;
+}
+.original-recovery-actions button:disabled {
+cursor: default;
+opacity: 0.35;
+}
+.original-recovery-results {
+margin-top: 10px;
+max-height: 360px;
+overflow-y: auto;
+border-top: 1px solid #deded8;
+border-bottom: 1px solid #deded8;
+scrollbar-gutter: stable;
+}
+.original-recovery-empty {
+padding: 35px 12px;
+color: #999991;
+text-align: center;
+font-size: 9px;
+line-height: 1.7;
+}
+.original-recovery-row {
+display: grid;
+grid-template-columns: 74px minmax(0, 1fr) 105px;
+gap: 11px;
+align-items: center;
+padding: 9px 0;
+border-bottom: 1px solid #e6e6e0;
+}
+.original-recovery-row:last-child {
+border-bottom: 0;
+}
+.original-recovery-row img {
+width: 74px;
+aspect-ratio: 4 / 3;
+object-fit: cover;
+background: #f3f3ef;
+}
+.original-recovery-file {
+color: #3f3f3a;
+font-size: 8px;
+line-height: 1.45;
+word-break: break-all;
+}
+.original-recovery-source {
+margin-top: 4px;
+color: #999991;
+font-size: 7px;
+line-height: 1.45;
+word-break: break-all;
+}
+.original-recovery-detail {
+margin-top: 4px;
+color: #74746d;
+font-size: 7px;
+line-height: 1.45;
+}
+.original-recovery-pill {
+justify-self: end;
+width: 96px;
+padding: 6px 5px;
+border: 1px solid #d5d5cf;
+color: #86867e;
+text-align: center;
+font-size: 7px;
+letter-spacing: 0.04em;
+}
+.original-recovery-pill.gps,
+.original-recovery-pill.applied {
+border-color: #8d9d88;
+color: #60705b;
+}
+.original-recovery-pill.no-gps {
+border-color: #b4aa8e;
+color: #786f55;
+}
+.original-recovery-pill.ambiguous,
+.original-recovery-pill.raw-only {
+border-color: #b8a67b;
+color: #876f39;
+}
+.original-recovery-pill.unmatched {
+border-color: #d0b2b2;
+color: #925d5d;
+}
+#originalRecoveryStatus {
+min-height: 18px;
+margin-top: 10px;
+color: #66665f;
+white-space: pre-wrap;
+font-size: 9px;
+line-height: 1.6;
+}
+
 /* =========================================================
 PHOTO LIBRARY
 ========================================================= */
@@ -1395,6 +1592,41 @@ grid-template-columns: 1fr;
 width: 100%;
 min-width: 0;
 }
+
+.original-folder-picker {
+grid-template-columns: 1fr;
+}
+.original-folder-picker button {
+width: 100%;
+}
+.original-recovery-stats {
+grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.original-recovery-toolbar {
+display: block;
+}
+.original-recovery-filter {
+width: 100%;
+}
+.original-recovery-actions {
+margin-top: 8px;
+display: grid;
+grid-template-columns: 1fr;
+}
+.original-recovery-actions button {
+width: 100%;
+}
+.original-recovery-row {
+grid-template-columns: 64px minmax(0, 1fr);
+}
+.original-recovery-row img {
+width: 64px;
+}
+.original-recovery-pill {
+grid-column: 2;
+justify-self: start;
+}
+
 .manage-toolbar {
 display: block;
 }
@@ -2177,6 +2409,115 @@ onclick="applyManualCoordinates()"
 <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a>
 </div>
 </div>
+
+<div class="original-recovery-box">
+<div class="original-recovery-title">
+Original file location recovery
+</div>
+<div class="original-recovery-help">
+SD카드의 공통 상위 폴더를 한 번만 선택하면 하위 폴더까지 모두 읽습니다.
+예를 들어 DCIM을 선택하면 101NZ_FC, 102NCZ_5, 103_FUJI 안의 파일을 함께 검사합니다.
+홈페이지에 이미 위치가 저장된 사진은 건너뛰며, 원본 자체는 업로드하거나 수정하지 않습니다.
+JPEG/JPG를 우선 사용하고 RAW 파일은 이름 매칭 참고용으로 함께 인덱싱합니다.
+</div>
+<div class="original-folder-picker">
+<div>
+<label class="field-label" for="originalFolderInput">
+SD카드 공통 상위 폴더 선택
+</label>
+<input
+type="file"
+id="originalFolderInput"
+webkitdirectory
+directory
+multiple
+>
+</div>
+<button
+class="secondary-btn"
+type="button"
+onclick="analyzeOriginalFolder()"
+>
+원본 폴더 분석
+</button>
+</div>
+<div class="original-folder-note">
+사진을 하나씩 고를 필요 없습니다. DCIM처럼 세 카메라 폴더를 함께 담고 있는 상위 폴더를 선택하세요.
+</div>
+<div
+class="original-folder-breakdown"
+id="originalFolderBreakdown"
+></div>
+<div class="original-recovery-stats">
+<div class="original-recovery-stat">
+<span class="original-recovery-stat-value" id="originalSourceCount">0</span>
+<span class="original-recovery-stat-label">SOURCE FILES</span>
+</div>
+<div class="original-recovery-stat">
+<span class="original-recovery-stat-value" id="originalTargetCount">0</span>
+<span class="original-recovery-stat-label">NO LOCATION</span>
+</div>
+<div class="original-recovery-stat">
+<span class="original-recovery-stat-value" id="originalMatchCount">0</span>
+<span class="original-recovery-stat-label">NAME MATCH</span>
+</div>
+<div class="original-recovery-stat">
+<span class="original-recovery-stat-value" id="originalGpsFoundCount">0</span>
+<span class="original-recovery-stat-label">GPS FOUND</span>
+</div>
+<div class="original-recovery-stat">
+<span class="original-recovery-stat-value" id="originalNoGpsCount">0</span>
+<span class="original-recovery-stat-label">NO GPS</span>
+</div>
+<div class="original-recovery-stat">
+<span class="original-recovery-stat-value" id="originalUnmatchedCount">0</span>
+<span class="original-recovery-stat-label">UNRESOLVED</span>
+</div>
+</div>
+<div class="original-recovery-toolbar">
+<select
+class="original-recovery-filter"
+id="originalRecoveryFilter"
+aria-label="원본 복구 결과 필터"
+>
+<option value="all">전체 결과</option>
+<option value="gps">GPS 발견</option>
+<option value="no-gps">원본 매칭 · GPS 없음</option>
+<option value="raw-only">RAW만 발견</option>
+<option value="ambiguous">중복 후보</option>
+<option value="unmatched">매칭 실패</option>
+<option value="applied">적용 완료</option>
+</select>
+<div class="original-recovery-actions">
+<button
+class="location-small-btn"
+type="button"
+onclick="resetOriginalRecovery()"
+>
+결과 초기화
+</button>
+<button
+class="action-btn"
+id="applyOriginalRecoveryButton"
+type="button"
+onclick="applyOriginalRecoveryCandidates()"
+disabled
+>
+GPS 복구 후보 적용
+</button>
+</div>
+</div>
+<div
+class="original-recovery-results"
+id="originalRecoveryResults"
+>
+<div class="original-recovery-empty">
+원본 폴더를 선택하고 [원본 폴더 분석]을 누르면 홈페이지 사진과 자동 매칭한 결과가 표시됩니다.
+</div>
+</div>
+<div id="originalRecoveryStatus"></div>
+</div>
+
 <div class="location-library-scroll" id="locationLibraryScroll">
 <div class="location-grid" id="locationGrid">
 <div class="location-empty">
@@ -2459,6 +2800,18 @@ let locationDirty =
 false;
 let locationScanRunning =
 false;
+
+let originalRecoveryResults =
+[];
+let originalRecoveryFilterValue =
+"all";
+let originalRecoveryRunning =
+false;
+let originalRecoveryApplying =
+false;
+let originalRecoveryExifCache =
+new WeakMap();
+
 let nominatimQueue =
 Promise.resolve();
 let lastNominatimRequestAt =
@@ -5678,6 +6031,1305 @@ status.textContent =
 `❌ 위치 저장 실패: ${error.message}`;
 }
 }
+
+/* =========================================================
+ORIGINAL FILE LOCATION RECOVERY
+========================================================= */
+const ORIGINAL_JPEG_EXTENSIONS =
+new Set([
+"jpg",
+"jpeg"
+]);
+const ORIGINAL_RAW_EXTENSIONS =
+new Set([
+"raf",
+"nef",
+"nrw",
+"arw",
+"cr2",
+"cr3",
+"dng",
+"rw2",
+"orf",
+"pef",
+"srw"
+]);
+function getFileExtension(
+name
+) {
+const match =
+String(
+name ||
+""
+)
+.toLowerCase()
+.match(
+/\.([a-z0-9]+)$/
+);
+return match
+? match[1]
+: "";
+}
+function stripFileExtension(
+name
+) {
+return String(
+name ||
+""
+)
+.replace(
+/\.[^/.]+$/,
+""
+);
+}
+function normalizeRecoveryStem(
+name
+) {
+return stripFileExtension(
+name
+)
+.trim()
+.toUpperCase();
+}
+function getWebsiteOriginalStem(
+filename
+) {
+const stem =
+stripFileExtension(
+filename
+);
+return stem.replace(
+/_\d{10,17}_\d+$/,
+""
+);
+}
+function getRecoverySequenceToken(
+name
+) {
+const stem =
+normalizeRecoveryStem(
+name
+);
+const match =
+stem.match(
+/(?:^|[^A-Z0-9])(_?DSC[FNM]?|DSCN|IMG|PXL|SAM|MVIMG)[-_ ]?(\d{3,8})(?:$|[^A-Z0-9])/
+);
+if (
+!match
+) {
+return "";
+}
+return (
+String(
+match[1] ||
+""
+)
+.replace(
+/[^A-Z]/g,
+""
+) +
+String(
+match[2] ||
+""
+)
+);
+}
+function normalizeRecoveryDate(
+value
+) {
+const text =
+String(
+value ||
+""
+)
+.trim();
+if (
+!text
+) {
+return "";
+}
+const match =
+text.match(
+/(\d{4})[:\-](\d{2})[:\-](\d{2})/
+);
+return match
+? `${match[1]}-${match[2]}-${match[3]}`
+: "";
+}
+function normalizeRecoveryModel(
+value
+) {
+return String(
+value ||
+""
+)
+.toUpperCase()
+.replace(
+/[^A-Z0-9가-힣]/g,
+""
+);
+}
+function getRecoveryTopFolder(
+file
+) {
+const relative =
+String(
+file.webkitRelativePath ||
+file.name ||
+""
+);
+const parts =
+relative
+.split(
+"/"
+)
+.filter(
+Boolean
+);
+if (
+parts.length >=
+3
+) {
+return parts[1];
+}
+if (
+parts.length >=
+2
+) {
+return parts[0];
+}
+return "ROOT";
+}
+function buildOriginalRecoveryFileIndex(
+files
+) {
+const exact =
+new Map();
+const token =
+new Map();
+const folderCounts =
+new Map();
+let jpegCount =
+0;
+let rawCount =
+0;
+let indexedCount =
+0;
+files.forEach(
+file => {
+const extension =
+getFileExtension(
+file.name
+);
+const isJpeg =
+ORIGINAL_JPEG_EXTENSIONS.has(
+extension
+);
+const isRaw =
+ORIGINAL_RAW_EXTENSIONS.has(
+extension
+);
+if (
+!isJpeg &&
+!isRaw
+) {
+return;
+}
+indexedCount++;
+if (
+isJpeg
+) {
+jpegCount++;
+}
+if (
+isRaw
+) {
+rawCount++;
+}
+const folder =
+getRecoveryTopFolder(
+file
+);
+folderCounts.set(
+folder,
+(
+folderCounts.get(
+folder
+) ||
+0
+) +
+1
+);
+const stem =
+normalizeRecoveryStem(
+file.name
+);
+if (
+!exact.has(
+stem
+)
+) {
+exact.set(
+stem,
+[]
+);
+}
+exact.get(
+stem
+).push({
+file:
+file,
+extension:
+extension,
+isJpeg:
+isJpeg,
+isRaw:
+isRaw
+});
+const sequenceToken =
+getRecoverySequenceToken(
+file.name
+);
+if (
+sequenceToken
+) {
+if (
+!token.has(
+sequenceToken
+)
+) {
+token.set(
+sequenceToken,
+[]
+);
+}
+token.get(
+sequenceToken
+).push({
+file:
+file,
+extension:
+extension,
+isJpeg:
+isJpeg,
+isRaw:
+isRaw
+});
+}
+}
+);
+return {
+exact:
+exact,
+token:
+token,
+folderCounts:
+folderCounts,
+jpegCount:
+jpegCount,
+rawCount:
+rawCount,
+indexedCount:
+indexedCount
+};
+}
+function renderOriginalFolderBreakdown(
+indexData
+) {
+const root =
+document.getElementById(
+"originalFolderBreakdown"
+);
+if (
+!root
+) {
+return;
+}
+root.innerHTML =
+"";
+if (
+!indexData ||
+indexData.folderCounts.size ===
+0
+) {
+return;
+}
+[
+...indexData.folderCounts.entries()
+]
+.sort(
+(
+a,
+b
+) =>
+a[0].localeCompare(
+b[0]
+)
+)
+.forEach(
+(
+[
+folder,
+count
+]
+) => {
+const chip =
+document.createElement(
+"span"
+);
+chip.className =
+"original-folder-chip";
+chip.textContent =
+`${folder} · ${count} files`;
+root.appendChild(
+chip
+);
+}
+);
+}
+async function readOriginalRecoveryExif(
+file
+) {
+if (
+originalRecoveryExifCache.has(
+file
+)
+) {
+return originalRecoveryExifCache.get(
+file
+);
+}
+const promise =
+new Promise(
+resolve => {
+const extension =
+getFileExtension(
+file.name
+);
+if (
+!ORIGINAL_JPEG_EXTENSIONS.has(
+extension
+)
+) {
+resolve({
+supported:
+false,
+date:
+"",
+model:
+"",
+gps:
+null
+});
+return;
+}
+try {
+EXIF.getData(
+file,
+function() {
+const date =
+normalizeRecoveryDate(
+EXIF.getTag(
+this,
+"DateTimeOriginal"
+) ||
+EXIF.getTag(
+this,
+"DateTimeDigitized"
+) ||
+EXIF.getTag(
+this,
+"DateTime"
+)
+);
+const model =
+String(
+EXIF.getTag(
+this,
+"Model"
+) ||
+""
+)
+.trim();
+const gps =
+extractGpsFromExifContext(
+this
+);
+resolve({
+supported:
+true,
+date:
+date,
+model:
+model,
+gps:
+gps
+});
+}
+);
+} catch (error) {
+resolve({
+supported:
+true,
+date:
+"",
+model:
+"",
+gps:
+null,
+error:
+error.message ||
+"EXIF read error"
+});
+}
+}
+);
+originalRecoveryExifCache.set(
+file,
+promise
+);
+return promise;
+}
+function getRecoveryCandidateScore(
+photo,
+metadata
+) {
+let score =
+0;
+const photoDate =
+normalizeRecoveryDate(
+photo.date
+);
+if (
+photoDate &&
+metadata.date &&
+photoDate ===
+metadata.date
+) {
+score +=
+5;
+}
+const localModel =
+normalizeRecoveryModel(
+metadata.model
+);
+const webInfo =
+normalizeRecoveryModel(
+photo.info
+);
+if (
+localModel &&
+webInfo &&
+webInfo.includes(
+localModel
+)
+) {
+score +=
+4;
+}
+return score;
+}
+function recoveryCandidatesHaveEquivalentMetadata(
+items
+) {
+if (
+items.length <=
+1
+) {
+return true;
+}
+const first =
+items[0];
+return items.every(
+item => {
+const sameDate =
+(
+item.metadata.date ||
+""
+) ===
+(
+first.metadata.date ||
+""
+);
+const sameModel =
+normalizeRecoveryModel(
+item.metadata.model
+) ===
+normalizeRecoveryModel(
+first.metadata.model
+);
+const firstGps =
+first.metadata.gps;
+const itemGps =
+item.metadata.gps;
+const sameGps =
+(
+!firstGps &&
+!itemGps
+) ||
+(
+firstGps &&
+itemGps &&
+Math.abs(
+firstGps.latitude -
+itemGps.latitude
+) <
+0.000001 &&
+Math.abs(
+firstGps.longitude -
+itemGps.longitude
+) <
+0.000001
+);
+return (
+sameDate &&
+sameModel &&
+sameGps
+);
+}
+);
+}
+async function resolveOriginalRecoveryMatch(
+photo,
+photoIndex,
+indexData
+) {
+const websiteStem =
+getWebsiteOriginalStem(
+photo.filename
+);
+const exactKey =
+normalizeRecoveryStem(
+websiteStem
+);
+let candidates =
+indexData.exact.get(
+exactKey
+) ||
+[];
+let matchMethod =
+"exact";
+if (
+candidates.length ===
+0
+) {
+const sequenceToken =
+getRecoverySequenceToken(
+websiteStem
+);
+if (
+sequenceToken
+) {
+candidates =
+indexData.token.get(
+sequenceToken
+) ||
+[];
+matchMethod =
+"sequence";
+}
+}
+if (
+candidates.length ===
+0
+) {
+return {
+status:
+"unmatched",
+photo:
+photo,
+photoIndex:
+photoIndex,
+matchMethod:
+null,
+sourceFile:
+null,
+metadata:
+null,
+candidateCount:
+0
+};
+}
+const jpegCandidates =
+candidates.filter(
+item =>
+item.isJpeg
+);
+if (
+jpegCandidates.length ===
+0
+) {
+return {
+status:
+"raw-only",
+photo:
+photo,
+photoIndex:
+photoIndex,
+matchMethod:
+matchMethod,
+sourceFile:
+candidates[0].file,
+metadata:
+null,
+candidateCount:
+candidates.length
+};
+}
+const evaluated =
+[];
+for (
+const candidate of jpegCandidates
+) {
+const metadata =
+await readOriginalRecoveryExif(
+candidate.file
+);
+evaluated.push({
+candidate:
+candidate,
+metadata:
+metadata,
+score:
+getRecoveryCandidateScore(
+photo,
+metadata
+)
+});
+}
+let chosen =
+null;
+if (
+evaluated.length ===
+1
+) {
+if (
+matchMethod ===
+"exact"
+) {
+chosen =
+evaluated[0];
+} else if (
+evaluated[0].score >=
+5
+) {
+chosen =
+evaluated[0];
+}
+} else {
+evaluated.sort(
+(
+a,
+b
+) =>
+b.score -
+a.score
+);
+const topScore =
+evaluated[0].score;
+const topItems =
+evaluated.filter(
+item =>
+item.score ===
+topScore
+);
+if (
+topItems.length ===
+1 &&
+(
+matchMethod ===
+"exact" ||
+topScore >=
+5
+)
+) {
+chosen =
+topItems[0];
+} else if (
+topItems.length >
+1 &&
+recoveryCandidatesHaveEquivalentMetadata(
+topItems
+)
+) {
+chosen =
+topItems[0];
+}
+}
+if (
+!chosen
+) {
+return {
+status:
+"ambiguous",
+photo:
+photo,
+photoIndex:
+photoIndex,
+matchMethod:
+matchMethod,
+sourceFile:
+null,
+metadata:
+null,
+candidateCount:
+jpegCandidates.length
+};
+}
+const gps =
+chosen.metadata.gps;
+return {
+status:
+gps
+? "gps"
+: "no-gps",
+photo:
+photo,
+photoIndex:
+photoIndex,
+matchMethod:
+matchMethod,
+sourceFile:
+chosen.candidate.file,
+metadata:
+chosen.metadata,
+candidateCount:
+jpegCandidates.length
+};
+}
+function getOriginalRecoverySummary() {
+const results =
+originalRecoveryResults;
+const matched =
+results.filter(
+result =>
+result.status !==
+"unmatched"
+).length;
+const gps =
+results.filter(
+result =>
+[
+"gps",
+"applied"
+]
+.includes(
+result.status
+)
+).length;
+const noGps =
+results.filter(
+result =>
+result.status ===
+"no-gps"
+).length;
+const unresolved =
+results.filter(
+result =>
+[
+"unmatched",
+"ambiguous",
+"raw-only"
+]
+.includes(
+result.status
+)
+).length;
+return {
+matched:
+matched,
+gps:
+gps,
+noGps:
+noGps,
+unresolved:
+unresolved
+};
+}
+function updateOriginalRecoveryStats(
+sourceCount = null,
+targetCount = null
+) {
+const summary =
+getOriginalRecoverySummary();
+const sourceElement =
+document.getElementById(
+"originalSourceCount"
+);
+const targetElement =
+document.getElementById(
+"originalTargetCount"
+);
+if (
+sourceCount !==
+null
+) {
+sourceElement.textContent =
+sourceCount;
+}
+if (
+targetCount !==
+null
+) {
+targetElement.textContent =
+targetCount;
+}
+document.getElementById(
+"originalMatchCount"
+).textContent =
+summary.matched;
+document.getElementById(
+"originalGpsFoundCount"
+).textContent =
+summary.gps;
+document.getElementById(
+"originalNoGpsCount"
+).textContent =
+summary.noGps;
+document.getElementById(
+"originalUnmatchedCount"
+).textContent =
+summary.unresolved;
+const applyButton =
+document.getElementById(
+"applyOriginalRecoveryButton"
+);
+if (
+applyButton
+) {
+applyButton.disabled =
+!resultsContainRecoverableGps();
+}
+}
+function resultsContainRecoverableGps() {
+return originalRecoveryResults.some(
+result =>
+result.status ===
+"gps"
+);
+}
+function getOriginalRecoveryStatusLabel(
+status
+) {
+const labels = {
+gps:
+"GPS FOUND",
+"no-gps":
+"NO GPS",
+"raw-only":
+"RAW ONLY",
+ambiguous:
+"CHECK MATCH",
+unmatched:
+"NO MATCH",
+applied:
+"APPLIED"
+};
+return labels[
+status
+] ||
+status;
+}
+function renderOriginalRecoveryResults() {
+const root =
+document.getElementById(
+"originalRecoveryResults"
+);
+if (
+!root
+) {
+return;
+}
+const filtered =
+originalRecoveryResults.filter(
+result =>
+originalRecoveryFilterValue ===
+"all" ||
+result.status ===
+originalRecoveryFilterValue
+);
+root.innerHTML =
+"";
+if (
+filtered.length ===
+0
+) {
+root.innerHTML =
+'<div class="original-recovery-empty">표시할 결과가 없습니다.</div>';
+updateOriginalRecoveryStats();
+return;
+}
+filtered.forEach(
+result => {
+const row =
+document.createElement(
+"div"
+);
+row.className =
+"original-recovery-row";
+let sourceText =
+"원본 후보 없음";
+if (
+result.sourceFile
+) {
+sourceText =
+result.sourceFile.webkitRelativePath ||
+result.sourceFile.name;
+}
+let detailText =
+"";
+if (
+result.metadata?.gps
+) {
+detailText =
+`${result.metadata.gps.latitude.toFixed(5)}, ${result.metadata.gps.longitude.toFixed(5)}`;
+} else if (
+result.status ===
+"ambiguous"
+) {
+detailText =
+`동일 후보 ${result.candidateCount}개 · 자동 확정 안 함`;
+} else if (
+result.status ===
+"raw-only"
+) {
+detailText =
+"같은 이름의 RAW는 찾았지만 JPEG 원본이 없음";
+} else if (
+result.status ===
+"no-gps"
+) {
+detailText =
+"원본 JPEG는 찾았지만 GPS EXIF 없음";
+} else if (
+result.status ===
+"unmatched"
+) {
+detailText =
+"파일명 기준 원본을 찾지 못함";
+} else if (
+result.status ===
+"applied"
+) {
+detailText =
+"통합 location 구조로 적용 완료 · 아직 GitHub 미저장";
+}
+row.innerHTML =
+`
+<img
+src="${photoUrl(result.photo.filename)}"
+alt=""
+loading="lazy"
+>
+<div>
+<div class="original-recovery-file">
+${escapeHtml(result.photo.filename)}
+</div>
+<div class="original-recovery-source">
+${escapeHtml(sourceText)}
+</div>
+<div class="original-recovery-detail">
+${escapeHtml(detailText)}
+</div>
+</div>
+<div class="original-recovery-pill ${escapeHtml(result.status)}">
+${escapeHtml(getOriginalRecoveryStatusLabel(result.status))}
+</div>
+`;
+root.appendChild(
+row
+);
+}
+);
+updateOriginalRecoveryStats();
+}
+async function analyzeOriginalFolder() {
+const input =
+document.getElementById(
+"originalFolderInput"
+);
+const status =
+document.getElementById(
+"originalRecoveryStatus"
+);
+if (
+originalRecoveryRunning
+) {
+return;
+}
+if (
+!Array.isArray(
+window.allPhotos
+) ||
+window.allPhotos.length ===
+0
+) {
+alert(
+"먼저 [위치 목록 불러오기]를 눌러주세요."
+);
+return;
+}
+const files =
+Array.from(
+input.files ||
+[]
+);
+if (
+files.length ===
+0
+) {
+alert(
+"먼저 SD카드의 공통 상위 폴더를 선택해주세요."
+);
+return;
+}
+const targets =
+window.allPhotos
+.map(
+(
+photo,
+index
+) => ({
+photo:
+photo,
+index:
+index
+})
+)
+.filter(
+item =>
+!hasValidLocation(
+item.photo
+)
+);
+if (
+targets.length ===
+0
+) {
+status.textContent =
+"✅ 이미 모든 홈페이지 사진에 위치 정보가 있습니다.";
+return;
+}
+originalRecoveryRunning =
+true;
+originalRecoveryResults =
+[];
+originalRecoveryExifCache =
+new WeakMap();
+const indexData =
+buildOriginalRecoveryFileIndex(
+files
+);
+renderOriginalFolderBreakdown(
+indexData
+);
+document.getElementById(
+"originalSourceCount"
+).textContent =
+indexData.indexedCount;
+document.getElementById(
+"originalTargetCount"
+).textContent =
+targets.length;
+updateOriginalRecoveryStats();
+status.textContent =
+`⏳ 폴더 인덱싱 완료 · JPEG ${indexData.jpegCount}개 · RAW ${indexData.rawCount}개\n홈페이지의 위치 없는 ${targets.length}장과 자동 매칭을 시작합니다.`;
+try {
+for (
+let index =
+0;
+index <
+targets.length;
+index++
+) {
+const target =
+targets[
+index
+];
+const result =
+await resolveOriginalRecoveryMatch(
+target.photo,
+target.index,
+indexData
+);
+originalRecoveryResults.push(
+result
+);
+if (
+index %
+5 ===
+0 ||
+index ===
+targets.length -
+1
+) {
+const summary =
+getOriginalRecoverySummary();
+status.textContent =
+`⏳ 자동 매칭 중... ${index + 1} / ${targets.length}\nGPS ${summary.gps} · GPS 없음 ${summary.noGps} · 미해결 ${summary.unresolved}`;
+updateOriginalRecoveryStats();
+}
+}
+renderOriginalRecoveryResults();
+const summary =
+getOriginalRecoverySummary();
+status.textContent =
+`✅ 분석 완료 · 이름 매칭 ${summary.matched}장 · GPS 발견 ${summary.gps}장 · GPS 없음 ${summary.noGps}장 · 미해결 ${summary.unresolved}장\n아직 어떤 위치도 GitHub에 저장하지 않았습니다.`;
+} catch (error) {
+console.error(
+error
+);
+status.textContent =
+`❌ 원본 폴더 분석 중 오류: ${error.message}`;
+} finally {
+originalRecoveryRunning =
+false;
+}
+}
+async function applyOriginalRecoveryCandidates() {
+const status =
+document.getElementById(
+"originalRecoveryStatus"
+);
+const button =
+document.getElementById(
+"applyOriginalRecoveryButton"
+);
+if (
+originalRecoveryApplying
+) {
+return;
+}
+const candidates =
+originalRecoveryResults.filter(
+result =>
+result.status ===
+"gps" &&
+result.metadata?.gps
+);
+if (
+candidates.length ===
+0
+) {
+status.textContent =
+"ℹ️ 적용할 GPS 복구 후보가 없습니다.";
+return;
+}
+originalRecoveryApplying =
+true;
+button.disabled =
+true;
+try {
+for (
+let index =
+0;
+index <
+candidates.length;
+index++
+) {
+const result =
+candidates[
+index
+];
+const gps =
+result.metadata.gps;
+status.textContent =
+`📍 GPS 후보 ${candidates.length}장 주소 변환 중... ${index + 1} / ${candidates.length}\n정확 좌표와 상세 주소는 내부에 보존하고 기본 표시는 시/도 + 시/군/구 수준으로 만듭니다.`;
+const location =
+await reverseGeocodeLocation(
+gps.latitude,
+gps.longitude,
+gps.altitude,
+"exif"
+);
+if (
+window.allPhotos[
+result.photoIndex
+]
+) {
+window.allPhotos[
+result.photoIndex
+].location =
+location;
+result.status =
+"applied";
+}
+renderOriginalRecoveryResults();
+}
+locationDirty =
+true;
+renderLocationManager();
+renderFeaturedManager();
+status.textContent =
+`✅ GPS ${candidates.length}장을 Location Manager에 적용했습니다. 아직 GitHub에는 저장하지 않았습니다.\n카드의 지역명을 확인한 뒤 기존 [위치 정보 저장] 버튼을 눌러 확정하세요.`;
+} catch (error) {
+console.error(
+error
+);
+status.textContent =
+`❌ GPS 후보 적용 중 오류: ${error.message}`;
+} finally {
+originalRecoveryApplying =
+false;
+updateOriginalRecoveryStats();
+}
+}
+function resetOriginalRecovery() {
+if (
+originalRecoveryRunning ||
+originalRecoveryApplying
+) {
+return;
+}
+originalRecoveryResults =
+[];
+originalRecoveryExifCache =
+new WeakMap();
+originalRecoveryFilterValue =
+"all";
+const filter =
+document.getElementById(
+"originalRecoveryFilter"
+);
+if (
+filter
+) {
+filter.value =
+"all";
+}
+document.getElementById(
+"originalRecoveryResults"
+).innerHTML =
+'<div class="original-recovery-empty">원본 폴더를 선택하고 [원본 폴더 분석]을 누르면 홈페이지 사진과 자동 매칭한 결과가 표시됩니다.</div>';
+document.getElementById(
+"originalFolderBreakdown"
+).innerHTML =
+"";
+[
+"originalSourceCount",
+"originalTargetCount",
+"originalMatchCount",
+"originalGpsFoundCount",
+"originalNoGpsCount",
+"originalUnmatchedCount"
+].forEach(
+id => {
+document.getElementById(
+id
+).textContent =
+"0";
+}
+);
+document.getElementById(
+"applyOriginalRecoveryButton"
+).disabled =
+true;
+document.getElementById(
+"originalRecoveryStatus"
+).textContent =
+"";
+}
+
 /* =========================================================
 TOKEN MEMORY
 ========================================================= */
@@ -8092,6 +9744,24 @@ searchManualLocation();
 }
 );
 }
+
+const originalRecoveryFilter =
+document.getElementById(
+"originalRecoveryFilter"
+);
+if (
+originalRecoveryFilter
+) {
+originalRecoveryFilter.addEventListener(
+"change",
+() => {
+originalRecoveryFilterValue =
+originalRecoveryFilter.value;
+renderOriginalRecoveryResults();
+}
+);
+}
+
 await loadPublicSiteSettings();
 }
 initialize();
