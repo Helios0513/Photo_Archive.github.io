@@ -229,6 +229,44 @@ border-bottom: 1px solid #deded8;
 .admin-section:last-child {
 margin-bottom: 0;
 }
+
+/* =========================================================
+COLLAPSIBLE ADMIN SECTIONS
+========================================================= */
+.collapsible-section .section-toggle-heading {
+cursor: pointer;
+user-select: none;
+transition: opacity 0.18s ease;
+}
+.collapsible-section .section-toggle-heading:hover .section-title {
+opacity: 0.68;
+}
+.collapsible-section .section-meta::after {
+content: "＋";
+display: inline-block;
+margin-left: 10px;
+color: #55554f;
+font-size: 12px;
+line-height: 1;
+vertical-align: -1px;
+}
+.collapsible-section:not(.is-collapsed) .section-meta::after {
+content: "−";
+}
+.collapsible-section.is-collapsed {
+padding-bottom: 24px;
+margin-bottom: 24px;
+}
+.collapsible-section.is-collapsed .section-heading {
+margin-bottom: 0;
+}
+.collapsible-section.is-collapsed > :not(.section-heading) {
+display: none;
+}
+.section-toggle-heading:focus-visible {
+outline: 1px solid #77776f;
+outline-offset: 8px;
+}
 .section-heading {
 display: grid;
 grid-template-columns: 190px minmax(0, 1fr) auto;
@@ -684,7 +722,7 @@ letter-spacing: 0.11em;
 }
 .location-toolbar {
 display: grid;
-grid-template-columns: 150px 150px minmax(0, 1fr);
+grid-template-columns: 140px 140px 180px minmax(0, 1fr);
 gap: 9px;
 margin-bottom: 10px;
 }
@@ -1507,6 +1545,9 @@ font-size: 28px;
 .section-meta {
 margin-top: 12px;
 }
+.collapsible-section.is-collapsed .section-meta {
+margin-top: 10px;
+}
 .upload-panel {
 display: block;
 }
@@ -1824,8 +1865,15 @@ PRIVATE ADMIN TOOL
 <!-- =====================================================
 01 UPLOAD
 ===================================================== -->
-<section class="admin-section">
-<div class="section-heading">
+<section class="admin-section collapsible-section is-collapsed">
+<div
+class="section-heading section-toggle-heading"
+role="button"
+tabindex="0"
+aria-expanded="false"
+onclick="toggleAdminSection(this)"
+onkeydown="handleAdminSectionKeydown(event, this)"
+>
 <div class="section-index">
 01 / UPLOAD
 </div>
@@ -1882,8 +1930,15 @@ Upload process
 <!-- =====================================================
 02 SITE SETTINGS
 ===================================================== -->
-<section class="admin-section">
-<div class="section-heading">
+<section class="admin-section collapsible-section is-collapsed">
+<div
+class="section-heading section-toggle-heading"
+role="button"
+tabindex="0"
+aria-expanded="false"
+onclick="toggleAdminSection(this)"
+onkeydown="handleAdminSectionKeydown(event, this)"
+>
 <div class="section-index">
 02 / SITE TEXT
 </div>
@@ -2144,8 +2199,15 @@ onclick="saveSiteSettingsToGithub()"
 <!-- =====================================================
 03 SELECTED WORKS
 ===================================================== -->
-<section class="admin-section">
-<div class="section-heading">
+<section class="admin-section collapsible-section is-collapsed">
+<div
+class="section-heading section-toggle-heading"
+role="button"
+tabindex="0"
+aria-expanded="false"
+onclick="toggleAdminSection(this)"
+onkeydown="handleAdminSectionKeydown(event, this)"
+>
 <div class="section-index">
 03 / SELECTED WORKS
 </div>
@@ -2272,8 +2334,15 @@ onclick="saveFeaturedSettingsToGithub()"
 <!-- =====================================================
 04 LOCATIONS
 ===================================================== -->
-<section class="admin-section">
-<div class="section-heading">
+<section class="admin-section collapsible-section is-collapsed">
+<div
+class="section-heading section-toggle-heading"
+role="button"
+tabindex="0"
+aria-expanded="false"
+onclick="toggleAdminSection(this)"
+onkeydown="handleAdminSectionKeydown(event, this)"
+>
 <div class="section-index">
 04 / LOCATIONS
 </div>
@@ -2320,6 +2389,9 @@ NOT LOADED
 <select id="locationMonthFilter" aria-label="촬영 월 필터">
 <option value="">전체 월</option>
 </select>
+<select id="locationDateFilter" aria-label="촬영일 필터">
+<option value="">전체 날짜</option>
+</select>
 <input
 type="search"
 id="locationPhotoSearch"
@@ -2339,7 +2411,7 @@ class="location-small-btn"
 type="button"
 onclick="selectVisibleLocationPhotos()"
 >
-현재 목록 전체 선택
+현재 필터 결과 전체 선택
 </button>
 <button
 class="location-small-btn"
@@ -5082,6 +5154,98 @@ select.value =
 currentValue;
 }
 }
+function rebuildLocationDateFilter() {
+const select =
+document.getElementById(
+"locationDateFilter"
+);
+if (
+!select ||
+!Array.isArray(
+window.allPhotos
+)
+) {
+return;
+}
+const currentValue =
+select.value;
+const month =
+document.getElementById(
+"locationMonthFilter"
+)?.value ||
+"";
+const dateCounts =
+new Map();
+window.allPhotos.forEach(
+photo => {
+const date =
+String(
+photo.date ||
+""
+);
+if (
+!/^\d{4}-\d{2}-\d{2}$/.test(
+date
+)
+) {
+return;
+}
+if (
+month &&
+!date.startsWith(
+month
+)
+) {
+return;
+}
+dateCounts.set(
+date,
+(
+dateCounts.get(
+date
+) ||
+0
+) +
+1
+);
+}
+);
+const dates =
+[
+...dateCounts.keys()
+]
+.sort(
+(
+a,
+b
+) =>
+b.localeCompare(
+a
+)
+);
+select.innerHTML =
+'<option value="">전체 날짜</option>' +
+dates
+.map(
+date =>
+`<option value="${escapeHtml(date)}">${escapeHtml(date.replace(/-/g, "."))} · ${dateCounts.get(date)}장</option>`
+)
+.join(
+""
+);
+if (
+dates.includes(
+currentValue
+)
+) {
+select.value =
+currentValue;
+} else {
+select.value =
+"";
+}
+}
+
 function getFilteredLocationPhotos() {
 if (
 !Array.isArray(
@@ -5094,6 +5258,13 @@ const month =
 document
 .getElementById(
 "locationMonthFilter"
+)
+?.value ||
+"";
+const exactDate =
+document
+.getElementById(
+"locationDateFilter"
 )
 ?.value ||
 "";
@@ -5145,6 +5316,16 @@ photo.date ||
 .startsWith(
 month
 )
+) {
+return false;
+}
+if (
+exactDate &&
+String(
+photo.date ||
+""
+) !==
+exactDate
 ) {
 return false;
 }
@@ -5226,8 +5407,14 @@ document.getElementById(
 if (
 element
 ) {
+const visibleCount =
+Array.isArray(
+window.allPhotos
+)
+? getFilteredLocationPhotos().length
+: 0;
 element.textContent =
-`${selectedLocationPhotoNames.size}장 선택`;
+`${selectedLocationPhotoNames.size}장 선택 · 현재 ${visibleCount}장 표시`;
 }
 }
 function renderLocationManager() {
@@ -5259,6 +5446,7 @@ grid.innerHTML =
 return;
 }
 rebuildLocationMonthFilter();
+rebuildLocationDateFilter();
 const validNames =
 new Set(
 window.allPhotos.map(
@@ -9613,6 +9801,50 @@ alert(
 }
 }
 /* =========================================================
+ADMIN SECTION COLLAPSE
+========================================================= */
+function toggleAdminSection(
+heading
+) {
+const section =
+heading?.closest(
+".collapsible-section"
+);
+if (
+!section
+) {
+return;
+}
+const collapsed =
+section.classList.toggle(
+"is-collapsed"
+);
+heading.setAttribute(
+"aria-expanded",
+collapsed
+? "false"
+: "true"
+);
+}
+function handleAdminSectionKeydown(
+event,
+heading
+) {
+if (
+event.key !==
+"Enter" &&
+event.key !==
+" "
+) {
+return;
+}
+event.preventDefault();
+toggleAdminSection(
+heading
+);
+}
+
+/* =========================================================
 MOBILE MENU
 ========================================================= */
 function toggleMobileMenu() {
@@ -9800,6 +10032,10 @@ const locationMonthFilter =
 document.getElementById(
 "locationMonthFilter"
 );
+const locationDateFilter =
+document.getElementById(
+"locationDateFilter"
+);
 const locationPhotoSearch =
 document.getElementById(
 "locationPhotoSearch"
@@ -9824,6 +10060,17 @@ if (
 locationMonthFilter
 ) {
 locationMonthFilter.addEventListener(
+"change",
+() => {
+rebuildLocationDateFilter();
+renderLocationManager();
+}
+);
+}
+if (
+locationDateFilter
+) {
+locationDateFilter.addEventListener(
 "change",
 renderLocationManager
 );
