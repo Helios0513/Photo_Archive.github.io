@@ -108,7 +108,7 @@ img {
 .main-nav {
     display: flex;
     align-items: center;
-    gap: 34px;
+    gap: 30px;
 }
 
 .nav-link,
@@ -895,6 +895,15 @@ img {
 
 
         <a
+            href="map.html"
+            class="nav-link"
+            id="mapNav"
+        >
+            Map
+        </a>
+
+
+        <a
             href="guestbook.html"
             class="nav-link"
             id="guestbookNav"
@@ -1323,6 +1332,9 @@ const DEFAULT_SITE_SETTINGS = {
     projectsLabel:
         "Projects",
 
+    mapLabel:
+        "Map",
+
     guestbookLabel:
         "Guestbook",
 
@@ -1503,6 +1515,13 @@ function applySiteSettings() {
         "projectsNav"
     ).textContent =
         siteSettings.projectsLabel;
+
+
+    document.getElementById(
+        "mapNav"
+    ).textContent =
+        siteSettings.mapLabel ||
+        "Map";
 
 
     document.getElementById(
