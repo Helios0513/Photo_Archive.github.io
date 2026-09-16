@@ -90,7 +90,7 @@ letter-spacing: 0.16em;
 .main-nav {
 display: flex;
 align-items: center;
-gap: 34px;
+gap: 30px;
 }
 .nav-link,
 .nav-button {
@@ -1797,6 +1797,13 @@ id="projectsNav"
 Projects
 </a>
 <a
+href="map.html"
+class="nav-link"
+id="mapNav"
+>
+Map
+</a>
+<a
 href="guestbook.html"
 class="nav-link"
 id="guestbookNav"
@@ -2075,6 +2082,15 @@ Projects
 <input
 type="text"
 id="siteProjectsLabel"
+>
+</div>
+<div class="settings-field">
+<label for="siteMapLabel">
+Map
+</label>
+<input
+type="text"
+id="siteMapLabel"
 >
 </div>
 <div class="settings-field">
@@ -2837,6 +2853,8 @@ colorsLabel:
 "Colors",
 projectsLabel:
 "Projects",
+mapLabel:
+"Map",
 guestbookLabel:
 "Guestbook",
 aboutLabel:
@@ -7696,6 +7714,8 @@ colorsNav:
 data.colorsLabel,
 projectsNav:
 data.projectsLabel,
+mapNav:
+data.mapLabel,
 guestbookNav:
 data.guestbookLabel,
 aboutNav:
@@ -7765,6 +7785,8 @@ colorsLabel:
 "siteColorsLabel",
 projectsLabel:
 "siteProjectsLabel",
+mapLabel:
+"siteMapLabel",
 guestbookLabel:
 "siteGuestbookLabel",
 aboutLabel:
