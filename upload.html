@@ -2798,6 +2798,8 @@ let locationSearchResults =
 [];
 let locationDirty =
 false;
+let locationBaselineSignature =
+"";
 let locationScanRunning =
 false;
 
@@ -3944,6 +3946,63 @@ filename
 /* =========================================================
 LOCATION MANAGER
 ========================================================= */
+function getLocationStateSignature(
+photos = window.allPhotos
+) {
+if (
+!Array.isArray(
+photos
+)
+) {
+return "";
+}
+return JSON.stringify(
+photos.map(
+photo => ({
+filename:
+String(
+photo?.filename ||
+""
+),
+location:
+normalizeLocationObject(
+photo?.location
+)
+})
+)
+);
+}
+function syncLocationBaseline() {
+locationBaselineSignature =
+getLocationStateSignature();
+}
+function hasUnsavedLocationChanges() {
+if (
+locationDirty
+) {
+return true;
+}
+if (
+!locationBaselineSignature
+) {
+return false;
+}
+return (
+getLocationStateSignature() !==
+locationBaselineSignature
+);
+}
+function confirmDiscardLocationChanges() {
+if (
+!hasUnsavedLocationChanges()
+) {
+return true;
+}
+return confirm(
+"아직 저장하지 않은 위치 변경 사항이 있습니다.\n다시 불러오면 현재 변경 내용이 사라집니다. 그래도 계속할까요?"
+);
+}
+
 function numberOrNull(
 value
 ) {
@@ -5713,6 +5772,11 @@ alert(
 );
 return;
 }
+if (
+!confirmDiscardLocationChanges()
+) {
+return;
+}
 status.textContent =
 "⏳ 위치 데이터를 불러오는 중...";
 try {
@@ -5744,6 +5808,7 @@ photo.location
 selectedLocationPhotoNames.clear();
 locationDirty =
 false;
+syncLocationBaseline();
 renderLocationManager();
 renderFeaturedManager();
 status.textContent =
@@ -5991,7 +6056,7 @@ alert(
 return;
 }
 if (
-!locationDirty
+!hasUnsavedLocationChanges()
 ) {
 status.textContent =
 "ℹ️ 저장할 위치 변경 사항이 없습니다.";
@@ -6019,6 +6084,7 @@ window.allPhotos =
 photosToSave;
 locationDirty =
 false;
+syncLocationBaseline();
 renderLocationManager();
 renderFeaturedManager();
 status.textContent =
@@ -7219,6 +7285,8 @@ originalRecoveryApplying =
 true;
 button.disabled =
 true;
+let appliedCount =
+0;
 try {
 for (
 let index =
@@ -7242,26 +7310,52 @@ gps.longitude,
 gps.altitude,
 "exif"
 );
+const currentPhotoIndex =
+window.allPhotos.findIndex(
+photo =>
+photo.filename ===
+result.photo.filename
+);
 if (
-window.allPhotos[
-result.photoIndex
-]
+currentPhotoIndex >=
+0
 ) {
 window.allPhotos[
-result.photoIndex
+currentPhotoIndex
 ].location =
 location;
+result.photoIndex =
+currentPhotoIndex;
 result.status =
 "applied";
+appliedCount++;
+locationDirty =
+true;
 }
 renderOriginalRecoveryResults();
 }
-locationDirty =
-true;
 renderLocationManager();
 renderFeaturedManager();
+if (
+appliedCount >
+0
+) {
 status.textContent =
-`✅ GPS ${candidates.length}장을 Location Manager에 적용했습니다. 아직 GitHub에는 저장하지 않았습니다.\n카드의 지역명을 확인한 뒤 기존 [위치 정보 저장] 버튼을 눌러 확정하세요.`;
+`✅ GPS ${appliedCount}장을 Location Manager에 적용했습니다. 아직 GitHub에는 저장하지 않았습니다.\n아래 사진 카드의 지역명을 확인한 뒤 [위치 정보 저장]을 누르면 확정 저장됩니다.`;
+const locationStatus =
+document.getElementById(
+"locationStatus"
+);
+if (
+locationStatus
+) {
+locationStatus.textContent =
+`● 원본 GPS ${appliedCount}장의 위치가 변경되었습니다. 아직 저장되지 않았습니다. [위치 정보 저장]을 눌러주세요.`;
+}
+} else {
+status.textContent =
+"ℹ️ 적용 가능한 홈페이지 사진을 찾지 못했습니다. 위치 데이터는 변경되지 않았습니다.";
+}
 } catch (error) {
 console.error(
 error
@@ -9655,6 +9749,20 @@ window.scrollY >
 );
 }
 );
+window.addEventListener(
+"beforeunload",
+event => {
+if (
+!hasUnsavedLocationChanges()
+) {
+return;
+}
+event.preventDefault();
+event.returnValue =
+"";
+}
+);
+
 /* =========================================================
 START
 ========================================================= */
