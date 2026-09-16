@@ -112,7 +112,7 @@ img {
 .main-nav {
     display: flex;
     align-items: center;
-    gap: 34px;
+    gap: 30px;
 }
 
 .nav-link,
@@ -1387,6 +1387,14 @@ img {
         </a>
 
         <a
+            href="map.html"
+            class="nav-link"
+            id="mapNav"
+        >
+            Map
+        </a>
+
+        <a
             href="guestbook.html"
             class="nav-link"
             id="guestbookNav"
@@ -1796,6 +1804,7 @@ const DEFAULT_SITE_SETTINGS = {
 
     colorsLabel: "Colors",
     projectsLabel: "Projects",
+    mapLabel: "Map",
     guestbookLabel: "Guestbook",
     aboutLabel: "작가 소개",
     manageLabel: "사진 관리",
@@ -2009,6 +2018,13 @@ function applySiteSettings() {
         "projectsNav"
     ).textContent =
         siteSettings.projectsLabel;
+
+
+    document.getElementById(
+        "mapNav"
+    ).textContent =
+        siteSettings.mapLabel ||
+        "Map";
 
 
     document.getElementById(
