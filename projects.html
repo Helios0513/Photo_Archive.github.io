@@ -416,6 +416,33 @@ img {
     color: #111;
 }
 
+.project-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.project-share-btn {
+    border: 0;
+    border-bottom: 1px solid #77776f;
+    padding: 5px 0;
+    background: none;
+    color: #55554f;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+}
+
+.project-share-btn:hover {
+    color: #111;
+    border-color: #111;
+}
+
+.project-share-btn.copied {
+    color: #34784b;
+    border-color: #34784b;
+}
+
 .project-menu-wrap {
     position: relative;
 }
@@ -1940,6 +1967,311 @@ function showEditorMessage(
 }
 
 
+function getProjectIdFromUrl() {
+
+    return new URL(
+        window.location.href
+    ).searchParams.get(
+        "project"
+    );
+}
+
+
+function getProjectShareUrl(
+    projectId
+) {
+
+    const url =
+        new URL(
+            window.location.href
+        );
+
+
+    url.searchParams.set(
+        "project",
+        projectId
+    );
+
+
+    url.hash =
+        "";
+
+
+    return url.toString();
+}
+
+
+function updateProjectUrl(
+    projectId,
+    replace = false
+) {
+
+    const url =
+        new URL(
+            window.location.href
+        );
+
+
+    if (
+        projectId
+    ) {
+
+        url.searchParams.set(
+            "project",
+            projectId
+        );
+
+    } else {
+
+        url.searchParams.delete(
+            "project"
+        );
+    }
+
+
+    url.hash =
+        "";
+
+
+    const method =
+        replace
+        ? "replaceState"
+        : "pushState";
+
+
+    window.history[
+        method
+    ](
+        {},
+        "",
+        url
+    );
+}
+
+
+async function copyProjectLink(
+    url
+) {
+
+    if (
+        navigator.clipboard &&
+        window.isSecureContext
+    ) {
+
+        await navigator.clipboard.writeText(
+            url
+        );
+
+
+        return;
+    }
+
+
+    const textarea =
+        document.createElement(
+            "textarea"
+        );
+
+
+    textarea.value =
+        url;
+
+
+    textarea.setAttribute(
+        "readonly",
+        ""
+    );
+
+
+    textarea.style.position =
+        "fixed";
+
+
+    textarea.style.opacity =
+        "0";
+
+
+    document.body.appendChild(
+        textarea
+    );
+
+
+    textarea.select();
+
+
+    const copied =
+        document.execCommand(
+            "copy"
+        );
+
+
+    textarea.remove();
+
+
+    if (
+        !copied
+    ) {
+
+        throw new Error(
+            "링크 복사에 실패했습니다."
+        );
+    }
+}
+
+
+function setShareButtonState(
+    button,
+    text,
+    copied = false
+) {
+
+    if (
+        !button
+    ) {
+
+        return;
+    }
+
+
+    const originalText =
+        button.dataset.originalText ||
+        "Share";
+
+
+    button.dataset.originalText =
+        originalText;
+
+
+    button.textContent =
+        text;
+
+
+    button.classList.toggle(
+        "copied",
+        copied
+    );
+
+
+    window.clearTimeout(
+        button._shareResetTimer
+    );
+
+
+    button._shareResetTimer =
+        window.setTimeout(
+            () => {
+
+                button.textContent =
+                    originalText;
+
+
+                button.classList.remove(
+                    "copied"
+                );
+            },
+            1800
+        );
+}
+
+
+async function shareProject(
+    projectId,
+    event = null
+) {
+
+    const project =
+        projects.find(
+            item =>
+                item.id ===
+                projectId
+        );
+
+
+    if (
+        !project
+    ) {
+
+        return;
+    }
+
+
+    const button =
+        event?.currentTarget ||
+        null;
+
+
+    const url =
+        getProjectShareUrl(
+            project.id
+        );
+
+
+    const shareData = {
+
+        title:
+            `${project.title} — Hamihamoo Photography`,
+
+        text:
+            project.subtitle
+            ? `${project.title} — ${project.subtitle}`
+            : project.title,
+
+        url:
+            url
+    };
+
+
+    if (
+        navigator.share
+    ) {
+
+        try {
+
+            await navigator.share(
+                shareData
+            );
+
+
+            return;
+
+
+        } catch (error) {
+
+            if (
+                error?.name ===
+                "AbortError"
+            ) {
+
+                return;
+            }
+        }
+    }
+
+
+    try {
+
+        await copyProjectLink(
+            url
+        );
+
+
+        setShareButtonState(
+            button,
+            "Link copied",
+            true
+        );
+
+
+    } catch (error) {
+
+        window.prompt(
+            "아래 프로젝트 링크를 복사해주세요.",
+            url
+        );
+    }
+}
+
+
 /* =========================================================
    SITE SETTINGS
 ========================================================= */
@@ -2526,11 +2858,41 @@ function renderProjects() {
 }
 
 
+function showProjectList(
+    replaceHistory = false
+) {
+
+    renderProjects();
+
+
+    updateProjectUrl(
+        null,
+        replaceHistory
+    );
+
+
+    document.title =
+        "Projects — Hamihamoo Photography";
+
+
+    window.scrollTo({
+        top:
+            0,
+
+        behavior:
+            "smooth"
+    });
+}
+
+
 /* =========================================================
    PROJECT DETAIL
 ========================================================= */
 
-function openProject(projectId) {
+function openProject(
+    projectId,
+    updateHistory = true
+) {
 
     const project =
         projects.find(
@@ -2542,8 +2904,24 @@ function openProject(projectId) {
 
     if (!project) {
 
-        return;
+        return false;
     }
+
+
+    if (
+        updateHistory &&
+        getProjectIdFromUrl() !==
+        project.id
+    ) {
+
+        updateProjectUrl(
+            project.id
+        );
+    }
+
+
+    document.title =
+        `${project.title} — Hamihamoo Photography`;
 
 
     const intro =
@@ -2609,44 +2987,58 @@ function openProject(projectId) {
                 <button
                     class="project-back-btn"
                     type="button"
-                    onclick="renderProjects()"
+                    onclick="showProjectList()"
                 >
                     ← Projects
                 </button>
 
 
-                <div class="project-menu-wrap">
+                <div class="project-toolbar-actions">
 
                     <button
-                        class="project-menu-btn"
+                        class="project-share-btn"
                         type="button"
-                        onclick="toggleProjectMenu(event)"
-                        aria-label="Project settings"
+                        onclick="shareProject('${escapeHtml(project.id)}', event)"
+                        aria-label="프로젝트 공유"
                     >
-                        •••
+                        Share
                     </button>
 
 
-                    <div
-                        class="project-menu"
-                        id="projectMenu"
-                    >
+                    <div class="project-menu-wrap">
 
                         <button
+                            class="project-menu-btn"
                             type="button"
-                            onclick="openProjectEditor('${escapeHtml(project.id)}')"
+                            onclick="toggleProjectMenu(event)"
+                            aria-label="Project settings"
                         >
-                            Edit Project
+                            •••
                         </button>
 
 
-                        <button
-                            type="button"
-                            class="delete"
-                            onclick="deleteProject('${escapeHtml(project.id)}')"
+                        <div
+                            class="project-menu"
+                            id="projectMenu"
                         >
-                            Delete Project
-                        </button>
+
+                            <button
+                                type="button"
+                                onclick="openProjectEditor('${escapeHtml(project.id)}')"
+                            >
+                                Edit Project
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="delete"
+                                onclick="deleteProject('${escapeHtml(project.id)}')"
+                            >
+                                Delete Project
+                            </button>
+
+                        </div>
 
                     </div>
 
@@ -2707,6 +3099,9 @@ function openProject(projectId) {
         behavior:
             "smooth"
     });
+
+
+    return true;
 }
 
 
@@ -4095,7 +4490,9 @@ async function saveProject() {
 
                 closeProjectEditor();
 
-                renderProjects();
+                showProjectList(
+                    true
+                );
 
             },
             300
@@ -4221,7 +4618,9 @@ async function deleteProject(
             nextProjects;
 
 
-        renderProjects();
+        showProjectList(
+            true
+        );
 
 
         alert(
@@ -4455,11 +4854,76 @@ document.addEventListener(
    START
 ========================================================= */
 
+window.addEventListener(
+    "popstate",
+    () => {
+
+        const projectId =
+            getProjectIdFromUrl();
+
+
+        if (
+            projectId &&
+            openProject(
+                projectId,
+                false
+            )
+        ) {
+
+            return;
+        }
+
+
+        renderProjects();
+
+
+        document.title =
+            "Projects — Hamihamoo Photography";
+
+
+        window.scrollTo({
+            top:
+                0,
+
+            behavior:
+                "auto"
+        });
+    }
+);
+
+
 async function initializePage() {
 
     await loadSiteSettings();
 
     await initializeProjectsPage();
+
+
+    const projectId =
+        getProjectIdFromUrl();
+
+
+    if (
+        projectId
+    ) {
+
+        const opened =
+            openProject(
+                projectId,
+                false
+            );
+
+
+        if (
+            !opened
+        ) {
+
+            updateProjectUrl(
+                null,
+                true
+            );
+        }
+    }
 }
 
 
