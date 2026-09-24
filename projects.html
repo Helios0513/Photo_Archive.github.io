@@ -2643,25 +2643,102 @@ function getProjectIdFromUrl() {
 }
 
 
+
+function projectShortCode(
+    projectId
+) {
+
+    const alphabet =
+        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+
+    let hash =
+        2166136261;
+
+
+    const text =
+        String(
+            projectId ||
+            ""
+        );
+
+
+    for (
+        let index = 0;
+        index < text.length;
+        index++
+    ) {
+
+        hash ^=
+            text.charCodeAt(
+                index
+            );
+
+
+        hash =
+            Math.imul(
+                hash,
+                16777619
+            );
+    }
+
+
+    hash >>>=
+        0;
+
+
+    let code =
+        "";
+
+
+    do {
+
+        code =
+            alphabet[
+                hash %
+                alphabet.length
+            ] +
+            code;
+
+
+        hash =
+            Math.floor(
+                hash /
+                alphabet.length
+            );
+
+    } while (
+        hash >
+        0
+    );
+
+
+    return code.padStart(
+        6,
+        "0"
+    );
+}
+
+
 function getProjectShareUrl(
     projectId
 ) {
 
     const url =
         new URL(
-            "project.html",
+            "p.html",
             window.location.href
         );
 
 
-    url.searchParams.set(
-        "id",
-        projectId
-    );
+    url.search =
+        "";
 
 
     url.hash =
-        "";
+        projectShortCode(
+            projectId
+        );
 
 
     return url.toString();
