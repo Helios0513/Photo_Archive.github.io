@@ -11,11 +11,11 @@
 #graphCanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}#graphCanvas.dragging{cursor:grabbing}
 .header{position:absolute;z-index:30;top:0;left:0;right:0;height:74px;padding:0 26px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(12,16,19,.82);backdrop-filter:blur(14px)}
 .brand{display:flex;align-items:center;gap:11px}.mark{width:32px;height:35px;display:grid;place-items:center;border:1px solid #b9c0c3;font:italic 25px/1 Georgia,serif}.brand strong{font-size:14px}.brand small{display:block;margin-top:4px;color:#909a9f;font-size:8px;letter-spacing:.16em}.brand-title{margin-left:18px;padding-left:18px;border-left:1px solid rgba(255,255,255,.12);color:#aab2b6;font-size:9px;letter-spacing:.17em}
-.actions,.mode-switch,.layer-bar,.year-list{display:flex;align-items:center}.actions{gap:8px}.btn,.mode-btn,.layer-btn,.year-btn{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.035);color:#b9c1c5}.btn:hover,.mode-btn:hover,.layer-btn:hover,.year-btn:hover{color:#fff;border-color:rgba(255,255,255,.32)}.btn{height:34px;padding:0 12px;font-size:9px}.btn.accent{color:#8aefa9;border-color:rgba(97,227,142,.34)}
+.actions,.mode-switch,.layer-bar,.year-list{display:flex;align-items:center}.actions{gap:8px}.archive-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.archive-short{display:none}.btn,.mode-btn,.layer-btn,.year-btn{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.035);color:#b9c1c5}.btn:hover,.mode-btn:hover,.layer-btn:hover,.year-btn:hover{color:#fff;border-color:rgba(255,255,255,.32)}.btn{height:34px;padding:0 12px;font-size:9px}.btn.accent{color:#8aefa9;border-color:rgba(97,227,142,.34)}
 .top-controls{position:absolute;z-index:22;top:90px;left:26px;display:block}.simple-search{display:block}.mode-switch{background:rgba(15,19,22,.8);backdrop-filter:blur(12px)}.mode-btn{border:0;border-right:1px solid rgba(255,255,255,.08);padding:9px 13px;font-size:9px;letter-spacing:.1em}.mode-btn:last-child{border-right:0}.mode-btn.active{background:rgba(255,255,255,.11);color:#fff}
 .search{position:relative}.search input{width:220px;height:34px;padding:0 32px 0 11px;border:1px solid rgba(255,255,255,.12);outline:0;background:rgba(15,19,22,.82);color:#fff;font-size:10px}.search input::placeholder{color:#667178}.search button{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:#748087;font-size:15px}
 .stats{position:absolute;z-index:20;right:26px;top:93px;text-align:right;pointer-events:none}.stats strong{display:block;font:400 28px/1 Georgia,serif}.stats span{display:block;margin-top:5px;color:#637078;font-size:8px;letter-spacing:.11em;text-transform:uppercase}
-.legend{position:absolute;z-index:20;left:26px;top:145px;padding-left:10px;border-left:1px solid rgba(255,255,255,.13);color:#59656c;font-size:8px;line-height:1.8}.legend b{color:#89949a;font-weight:400}
+
 .timeline{position:absolute;z-index:22;left:26px;bottom:25px;width:275px;padding:10px 12px;border:1px solid rgba(255,255,255,.1);background:rgba(15,19,22,.82);backdrop-filter:blur(13px)}.timeline-head{display:flex;justify-content:space-between;margin-bottom:7px;color:#68747b;font-size:8px;letter-spacing:.12em}.year-list{gap:4px;overflow:auto;scrollbar-width:none}.year-btn{flex:0 0 auto;border-color:transparent;padding:5px 7px;background:transparent;font-size:9px}.year-btn.active{color:#fff;border-color:rgba(255,255,255,.2)}
 .layer-bar{position:absolute;z-index:22;left:50%;bottom:24px;transform:translateX(-50%);gap:5px;padding:6px;border:1px solid rgba(255,255,255,.1);background:rgba(15,19,22,.82);backdrop-filter:blur(13px)}.layer-btn{border-color:transparent;padding:8px 10px;background:transparent;font-size:8px;letter-spacing:.11em}.layer-btn.active{color:#8ff2ae;border-color:rgba(97,227,142,.28);background:rgba(97,227,142,.06)}
 .panel{position:absolute;z-index:28;top:74px;right:0;bottom:0;width:360px;transform:translateX(100%);transition:transform .28s cubic-bezier(.22,1,.36,1);border-left:1px solid rgba(255,255,255,.09);background:rgba(15,19,22,.96);backdrop-filter:blur(18px);overflow:auto}.panel.open{transform:translateX(0)}.panel-head{position:sticky;top:0;z-index:2;padding:15px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(15,19,22,.95)}.panel-head span{color:#6f7a80;font-size:8px;letter-spacing:.16em}.panel-head button{border:0;background:none;color:#9aa4aa;font-size:20px}
@@ -25,7 +25,7 @@
 .loading{position:absolute;inset:0;z-index:60;display:grid;place-items:center;background:var(--bg);transition:.35s}.loading.hide{opacity:0;visibility:hidden}.loading-box{text-align:center}.loading-mark{width:42px;height:46px;margin:0 auto 18px;display:grid;place-items:center;border:1px solid #879096;font:italic 34px/1 Georgia,serif}.loading-text{color:#879096;font-size:9px;letter-spacing:.18em}
 .lightbox{position:fixed;inset:0;z-index:100;display:none;background:rgba(5,7,8,.97)}.lightbox.open{display:flex}.lightbox-close{position:absolute;top:17px;right:22px;z-index:2;border:0;background:none;color:#fff;font-size:28px}.lb-grid{width:100%;height:100%;display:grid;grid-template-columns:1fr 290px}.lb-stage{position:relative;display:grid;place-items:center;padding:30px}.lb-image{max-width:100%;max-height:90vh;object-fit:contain}.lb-prev,.lb-next{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border:1px solid rgba(255,255,255,.15);border-radius:50%;background:rgba(0,0,0,.28);color:#fff;font-size:25px}.lb-prev{left:18px}.lb-next{right:18px}.lb-info{padding:80px 22px 30px;border-left:1px solid rgba(255,255,255,.08);overflow:auto}.lb-no{color:#677279;font-size:9px}.lb-date{margin-top:10px;font:400 32px/1 Georgia,serif}.lb-meta{margin-top:25px;color:#88949a;font-size:10px;line-height:1.8}
 @media(max-width:900px){.brand-title{display:none}.desktop-only{display:none}.search input{width:175px}.timeline{width:225px}.layer-bar{left:auto;right:16px;transform:none;max-width:calc(100% - 260px);overflow:auto}.panel{width:330px}}
-@media(max-width:700px){.header{height:64px;padding:0 14px}.mark{width:29px;height:32px;font-size:23px}.brand strong{font-size:12px}.brand small{font-size:7px}.btn{height:31px;padding:0 8px}.top-controls{top:77px;left:12px;right:12px;display:block}.search input{width:100%}.legend{display:none}.stats{top:127px;right:14px}.stats strong{font-size:21px}.timeline{left:12px;right:12px;bottom:12px;width:auto}.layer-bar{left:12px;right:12px;bottom:12px;transform:none;max-width:none;overflow:auto;justify-content:flex-start}.panel{
+@media(max-width:700px){.header{height:64px;padding:0 12px}.mark{width:29px;height:32px;font-size:23px}.brand strong{font-size:12px}.brand small{font-size:7px}.actions{gap:5px}.btn{height:31px;padding:0 8px}.archive-long{display:none}.archive-short{display:inline}.archive-link{width:31px;padding:0}.top-controls{top:77px;left:12px;right:12px;display:block}.search input{width:100%}.stats{top:127px;right:14px}.stats strong{font-size:21px}.timeline{left:12px;right:12px;bottom:12px;width:auto}.layer-bar{left:12px;right:12px;bottom:12px;transform:none;max-width:none;overflow:auto;justify-content:flex-start}.panel{
     top:auto;left:10px;right:10px;bottom:10px;width:auto;height:150px;
     transform:translateY(calc(100% + 20px));
     border:1px solid rgba(255,255,255,.11);
@@ -92,11 +92,14 @@ body.mobile-panel-expanded .timeline{opacity:0;pointer-events:none}.lb-grid{disp
     <a class="brand" href="index.html">
         <div class="mark" id="brandMark">h.</div>
         <div><strong id="brandName">hamihamoo</strong><small id="brandSubtitle">PHOTOGRAPHY</small></div>
-        <div class="brand-title">PHOTO GRAPH</div>
+        <div class="brand-title" id="graphTitle">PHOTO GRAPH</div>
     </a>
     <div class="actions">
-        <button class="btn accent" id="journeyBtn">▶ JOURNEY</button>
-        <button class="btn" id="fullscreenBtn">⤢</button>
+        <a class="btn archive-link" href="index.html" aria-label="사진 아카이브로 돌아가기">
+            <span class="archive-long">← ARCHIVE</span>
+            <span class="archive-short">←</span>
+        </a>
+        <button class="btn" id="fullscreenBtn" type="button" aria-label="전체 화면">⤢</button>
     </div>
 </header>
 
@@ -107,7 +110,6 @@ body.mobile-panel-expanded .timeline{opacity:0;pointer-events:none}.lb-grid{disp
     </div>
 </div>
 
-<div class="legend"><b>IDLE</b> 3D FIELD ROTATION<br><b>SWEEP CURSOR</b> DISTURB<br><b>SCROLL</b> ZOOM<br><b>DRAG NODE</b> MOVE<br><b>DRAG SPACE</b> PAN<br><b>CLICK</b> FOCUS</div>
 <div class="stats"><strong id="statCount">0</strong><span id="statCopy">photographs · 0 connections</span></div>
 
 <div class="timeline">
@@ -140,7 +142,7 @@ body.mobile-panel-expanded .timeline{opacity:0;pointer-events:none}.lb-grid{disp
         <div class="related" id="relatedList"></div>
         <div class="panel-actions">
             <button id="openSelectedBtn">Open</button>
-            <button id="focusSelectedBtn" title="선택한 노드가 정면을 향하도록 구체를 회전">Center</button>
+            <button id="focusSelectedBtn" title="선택한 노드가 정면을 향하도록 3D 필드를 회전">Center</button>
         </div>
     </div>
 </aside>
@@ -188,7 +190,7 @@ let camera={x:width/2,y:height/2,zoom:1};
 let pointer={down:false,moved:false,lastX:0,lastY:0,x:0,y:0,active:false,id:null,type:"mouse",downNode:null,draggingNode:null,longPressTimer:null,moveX:0,moveY:0,lastMoveTime:0,speed:0,energy:0};
 const activePointers=new Map();
 let pinch={active:false,startDistance:0,startZoom:1,worldX:0,worldY:0};
-let journeyTimer=null,journeyRunning=false,lightboxIndex=-1;
+let lightboxIndex=-1;
 
 const safe=v=>String(v??"");
 const photoUrl=f=>"images/digital/"+encodeURIComponent(f);
@@ -987,11 +989,10 @@ relatedList.onclick=e=>{
 };
 function updateStats(){statCount.textContent=visibleNodes().length;statCopy.textContent=`photographs · ${edges.length} visible connections`}
 function buildYears(){const years=[...new Set(photos.map(getYear).filter(Boolean))].sort();yearList.innerHTML=`<button class="year-btn active" data-year="all">ALL</button>`+years.map(y=>`<button class="year-btn" data-year="${y}">${y}</button>`).join("");yearList.onclick=e=>{const b=e.target.closest(".year-btn");if(!b)return;activeYear=b.dataset.year;document.querySelectorAll(".year-btn").forEach(x=>x.classList.toggle("active",x===b));activeYearLabel.textContent=activeYear==="all"?"ALL YEARS":activeYear;setSelected(null,false);buildEdges()}}
-function toggleJourney(){centeredNode=null;journeyRunning=!journeyRunning;journeyBtn.textContent=journeyRunning?"■ STOP":"▶ JOURNEY";clearInterval(journeyTimer);journeyTimer=null;if(!journeyRunning)return;if(!selectedNode){const v=visibleNodes();if(v.length)setSelected(v[Math.floor(Math.random()*v.length)],false)}journeyTimer=setInterval(()=>{if(!selectedNode)return;const r=strongestConnections(selectedNode),v=visibleNodes(),next=r.length?r[Math.floor(Math.random()*Math.min(3,r.length))].node:v[Math.floor(Math.random()*v.length)];if(next)setSelected(next,false)},2300)}journeyBtn.onclick=toggleJourney;
 const currentVisibleOrdered=()=>visibleNodes();function openLightbox(n){const l=currentVisibleOrdered();lightboxIndex=l.indexOf(n);if(lightboxIndex<0)return;lightbox.classList.add("open");renderLightbox()}function renderLightbox(){const l=currentVisibleOrdered(),n=l[lightboxIndex];if(!n)return;const p=n.photo;lightboxImage.src=photoUrl(p.filename);lbNumber.textContent=`${String(lightboxIndex+1).padStart(2,"0")} / ${String(l.length).padStart(2,"0")}`;lbDate.textContent=formatDate(p.date)||"Undated";lbMeta.innerHTML=[getLocation(p),getCamera(p),normalizeColor(p.color)].filter(Boolean).map(escapeHtml).join("<br>")}function moveLightbox(d){const l=currentVisibleOrdered();if(!l.length)return;lightboxIndex=(lightboxIndex+d+l.length)%l.length;renderLightbox()}lightboxClose.onclick=()=>lightbox.classList.remove("open");lbPrev.onclick=()=>moveLightbox(-1);lbNext.onclick=()=>moveLightbox(1);document.addEventListener("keydown",e=>{if(lightbox.classList.contains("open")){if(e.key==="Escape")lightbox.classList.remove("open");if(e.key==="ArrowLeft")moveLightbox(-1);if(e.key==="ArrowRight")moveLightbox(1);return}if(e.key==="Escape")setSelected(null,false)});
 
 async function loadJson(file,fallback){try{const r=await fetch(`${file}?v=${Date.now()}`,{cache:"no-store"});return r.ok?await r.json():fallback}catch{return fallback}}
-async function init(){resize();const site=await loadJson("site.json",{});brandMark.textContent=site.brandMark||"h.";brandName.textContent=site.brandName||"hamihamoo";brandSubtitle.textContent=site.brandSubtitle||"PHOTOGRAPHY";const [pd,pr]=await Promise.all([loadJson("photos.json",[]),loadJson("projects.json",[])]);photos=Array.isArray(pd)?pd:[];projects=Array.isArray(pr)?pr:[];buildProjectMaps();buildNodes();buildYears();buildEdges();camera={x:width/2,y:height/2,zoom:1};loading.classList.add("hide");loop()}
+async function init(){resize();const site=await loadJson("site.json",{});brandMark.textContent=site.brandMark||"h.";brandName.textContent=site.brandName||"hamihamoo";brandSubtitle.textContent=site.brandSubtitle||"PHOTOGRAPHY";graphTitle.textContent=`PHOTO ${String(site.graphLabel||"Graph").toUpperCase()}`;const [pd,pr]=await Promise.all([loadJson("photos.json",[]),loadJson("projects.json",[])]);photos=Array.isArray(pd)?pd:[];projects=Array.isArray(pr)?pr:[];buildProjectMaps();buildNodes();buildYears();buildEdges();camera={x:width/2,y:height/2,zoom:1};loading.classList.add("hide");loop()}
 init();
 </script>
 </body>
