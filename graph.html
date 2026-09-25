@@ -55,7 +55,7 @@
     </div>
 </div>
 
-<div class="legend"><b>SCROLL</b> ZOOM<br><b>DRAG NODE</b> MOVE<br><b>DRAG SPACE</b> PAN<br><b>CLICK</b> FOCUS<br><b>DOUBLE CLICK</b> OPEN</div>
+<div class="legend"><b>SWEEP CURSOR</b> DISTURB<br><b>SCROLL</b> ZOOM<br><b>DRAG NODE</b> MOVE<br><b>DRAG SPACE</b> PAN<br><b>CLICK</b> FOCUS</div>
 <div class="stats"><strong id="statCount">0</strong><span id="statCopy">photographs · 0 connections</span></div>
 
 <div class="timeline">
@@ -120,7 +120,7 @@ let photos=[],projects=[],nodes=[],edges=[],projectMap=new Map(),photoProjectMap
 let mode="graph",layer="all",activeYear="all",showClusters=true,selectedNode=null,hoveredNode=null,currentSearch="";
 let width=innerWidth,height=innerHeight,dpr=Math.max(1,Math.min(2,devicePixelRatio||1)),simulationTicks=0;
 let camera={x:width/2,y:height/2,zoom:1};
-let pointer={down:false,moved:false,lastX:0,lastY:0,x:0,y:0,active:false,id:null,type:"mouse",downNode:null,draggingNode:null,longPressTimer:null};
+let pointer={down:false,moved:false,lastX:0,lastY:0,x:0,y:0,active:false,id:null,type:"mouse",downNode:null,draggingNode:null,longPressTimer:null,moveX:0,moveY:0,lastMoveTime:0,speed:0,energy:0};
 const activePointers=new Map();
 let pinch={active:false,startDistance:0,startZoom:1,worldX:0,worldY:0};
 let journeyTimer=null,journeyRunning=false,lightboxIndex=-1;
@@ -144,7 +144,7 @@ const visibleNodes=()=>nodes.filter(n=>activeYear==="all"||getYear(n.photo)===ac
 function searchMatch(n){if(!currentSearch)return true;const p=n.photo,pt=projectIdsFor(p.filename).map(id=>projectMap.get(id)?.title||"").join(" ");return[p.filename,p.date,p.info,p.color,getLocation(p),pt].filter(Boolean).join(" ").toLowerCase().includes(currentSearch)}
 
 function buildProjectMaps(){projectMap.clear();photoProjectMap.clear();projects.forEach(p=>{projectMap.set(p.id,p);(p.photos||[]).forEach(f=>{if(!photoProjectMap.has(f))photoProjectMap.set(f,[]);photoProjectMap.get(f).push(p.id)})})}
-function buildNodes(){nodes=photos.map((photo,id)=>{const a=Math.random()*Math.PI*2,r=110+Math.random()*340;return{id,photo,x:Math.cos(a)*r,y:Math.sin(a)*r,vx:0,vy:0,tx:0,ty:0}});updateMapTargets()}
+function buildNodes(){nodes=photos.map((photo,id)=>{const a=Math.random()*Math.PI*2,r=110+Math.random()*340;return{id,photo,x:Math.cos(a)*r,y:Math.sin(a)*r,vx:0,vy:0,tx:0,ty:0,ox:0,oy:0,ovx:0,ovy:0}});updateMapTargets()}
 function buildEdges(){const v=visibleNodes(),c=[];for(let i=0;i<v.length;i++)for(let j=i+1;j<v.length;j++){const rel=relation(v[i].photo,v[j].photo);if(rel.weight>0)c.push({a:v[i],b:v[j],...rel})}c.sort((a,b)=>b.weight-a.weight);const deg=new Map(),max=layer==="all"?5:7;edges=[];for(const e of c){const da=deg.get(e.a.id)||0,db=deg.get(e.b.id)||0,threshold=layer==="all"?2:.45;if(e.weight<threshold)continue;if(da<max&&db<max){edges.push(e);deg.set(e.a.id,da+1);deg.set(e.b.id,db+1)}}simulationTicks=0;updateStats()}
 function resize(){width=innerWidth;height=innerHeight;dpr=Math.max(1,Math.min(2,devicePixelRatio||1));canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);canvas.style.width=width+"px";canvas.style.height=height+"px";ctx.setTransform(dpr,0,0,dpr,0,0)}window.addEventListener("resize",()=>{resize();updateMapTargets()});
 const worldToScreen=(x,y)=>({x:x*camera.zoom+camera.x,y:y*camera.zoom+camera.y});
@@ -154,75 +154,164 @@ function resetCamera(){animateCamera({x:width/2,y:height/2,zoom:1})}
 function centerOnNode(n,z=Math.max(camera.zoom,1.35)){animateCamera({x:width/2-n.x*z,y:height/2-n.y*z,zoom:z},600)}
 function updateMapTargets(){const l=nodes.map(n=>({n,ll:getLatLng(n.photo)})).filter(x=>x.ll);if(!l.length)return;const la=l.map(x=>x.ll.lat),lo=l.map(x=>x.ll.lng);let a=Math.min(...la),b=Math.max(...la),c=Math.min(...lo),d=Math.max(...lo);if(b-a<.001){a-=.001;b+=.001}if(d-c<.001){c-=.001;d+=.001}const fw=Math.min(900,width*.7),fh=Math.min(600,height*.65);l.forEach(({n,ll})=>{n.tx=((ll.lng-c)/(d-c)-.5)*fw;n.ty=(.5-(ll.lat-a)/(b-a))*fh});nodes.filter(n=>!getLatLng(n.photo)).forEach((n,i,arr)=>{const ang=i/Math.max(1,arr.length)*Math.PI*2,r=Math.min(fw,fh)*.6;n.tx=Math.cos(ang)*r;n.ty=Math.sin(ang)*r})}
 
-function applyPointerGravity(v){
-    if(!pointer.active||pinch.active)return;
-    const radius=pointer.type==="touch"?190:260;
-    const strength=pointer.type==="touch"?.20:.28;
-    v.forEach(n=>{
+function applyCursorSweepImpulse(x,y,dx,dy,dt){
+    if(pointer.type!=="mouse"||pointer.down||pinch.active)return;
+
+    const speed=Math.hypot(dx,dy)/Math.max(8,dt);
+    pointer.speed=speed;
+
+    // 가만히 있거나 천천히 움직일 때는 아무 반응도 하지 않음.
+    if(speed<0.42)return;
+
+    const radius=165;
+    const speedPower=Math.min(1.15,(speed-.42)/1.45);
+    if(speedPower<=0)return;
+
+    pointer.energy=Math.max(pointer.energy,Math.min(1,speedPower));
+
+    visibleNodes().forEach(n=>{
         if(n===pointer.draggingNode)return;
-        const p=worldToScreen(n.x,n.y);
-        let dx=pointer.x-p.x,dy=pointer.y-p.y;
-        const dist=Math.hypot(dx,dy);
+
+        const p=worldToScreen(n.x+(n.ox||0),n.y+(n.oy||0));
+        let tx=x-p.x,ty=y-p.y;
+        const dist=Math.hypot(tx,ty);
         if(!dist||dist>=radius)return;
+
         const falloff=Math.pow(1-dist/radius,2);
-        dx/=dist;dy/=dist;
-        n.vx+=(dx/camera.zoom)*strength*falloff;
-        n.vy+=(dy/camera.zoom)*strength*falloff;
+        tx/=dist;
+        ty/=dist;
+
+        // 커서가 빠르게 스쳐갈 때만 아주 작은 일시적 힘을 준다.
+        const impulse=(0.95*speedPower*falloff)/Math.max(.55,camera.zoom);
+        n.ovx=(n.ovx||0)+tx*impulse;
+        n.ovy=(n.ovy||0)+ty*impulse;
     });
 }
+
+function updateCursorOffsets(){
+    const spring=.18;
+    const damping=.72;
+    const maxScreenOffset=18;
+
+    nodes.forEach(n=>{
+        if(n===pointer.draggingNode){
+            n.ox=0;n.oy=0;n.ovx=0;n.ovy=0;
+            return;
+        }
+
+        n.ovx=(n.ovx||0)-(n.ox||0)*spring;
+        n.ovy=(n.ovy||0)-(n.oy||0)*spring;
+        n.ovx*=damping;
+        n.ovy*=damping;
+        n.ox=(n.ox||0)+n.ovx;
+        n.oy=(n.oy||0)+n.ovy;
+
+        const maxWorld=maxScreenOffset/Math.max(.45,camera.zoom);
+        const d=Math.hypot(n.ox,n.oy);
+        if(d>maxWorld){
+            n.ox=n.ox/d*maxWorld;
+            n.oy=n.oy/d*maxWorld;
+        }
+
+        if(Math.abs(n.ox)<.002&&Math.abs(n.oy)<.002&&Math.abs(n.ovx)<.002&&Math.abs(n.ovy)<.002){
+            n.ox=0;n.oy=0;n.ovx=0;n.ovy=0;
+        }
+    });
+
+    pointer.energy*=.84;
+    if(pointer.energy<.01)pointer.energy=0;
+}
+
 function simulate(){
     const v=visibleNodes();
     if(!v.length)return;
+
+    updateCursorOffsets();
+
     simulationTicks++;
     const settled=simulationTicks>750;
     const physicsScale=settled?.10:1;
+
     if(mode==="map"){
         v.forEach(n=>{
             if(n===pointer.draggingNode)return;
             n.vx+=(n.tx-n.x)*.018*physicsScale;
             n.vy+=(n.ty-n.y)*.018*physicsScale;
-            n.vx*=.84;n.vy*=.84;n.x+=n.vx;n.y+=n.vy;
+            n.vx*=.84;
+            n.vy*=.84;
+            n.x+=n.vx;
+            n.y+=n.vy;
         });
-        applyPointerGravity(v);
-        v.forEach(n=>{if(n!==pointer.draggingNode){n.x+=n.vx*.12;n.y+=n.vy*.12}});
         return;
     }
-    v.forEach(n=>{if(n!==pointer.draggingNode){n.vx+=-n.x*.0007*physicsScale;n.vy+=-n.y*.0007*physicsScale}});
+
+    v.forEach(n=>{
+        if(n!==pointer.draggingNode){
+            n.vx+=-n.x*.0007*physicsScale;
+            n.vy+=-n.y*.0007*physicsScale;
+        }
+    });
+
     if(!settled){
-        for(let i=0;i<v.length;i++)for(let j=i+1;j<v.length;j++){
-            const A=v[i],B=v[j];if(A===pointer.draggingNode||B===pointer.draggingNode)continue;
-            let dx=B.x-A.x,dy=B.y-A.y,d2=dx*dx+dy*dy+.1;if(d2>52000)continue;
-            const dist=Math.sqrt(d2),f=1700/d2;dx/=dist;dy/=dist;
-            A.vx-=dx*f;A.vy-=dy*f;B.vx+=dx*f;B.vy+=dy*f;
+        for(let i=0;i<v.length;i++){
+            for(let j=i+1;j<v.length;j++){
+                const A=v[i],B=v[j];
+                if(A===pointer.draggingNode||B===pointer.draggingNode)continue;
+                let dx=B.x-A.x,dy=B.y-A.y,d2=dx*dx+dy*dy+.1;
+                if(d2>52000)continue;
+                const dist=Math.sqrt(d2),f=1700/d2;
+                dx/=dist;
+                dy/=dist;
+                A.vx-=dx*f;A.vy-=dy*f;
+                B.vx+=dx*f;B.vy+=dy*f;
+            }
         }
     }
+
     edges.forEach(e=>{
         let dx=e.b.x-e.a.x,dy=e.b.y-e.a.y,dist=Math.hypot(dx,dy)||1,target=75+110/(1+e.weight);
-        const f=(dist-target)*.0009*Math.min(4,e.weight)*physicsScale;dx/=dist;dy/=dist;
+        const f=(dist-target)*.0009*Math.min(4,e.weight)*physicsScale;
+        dx/=dist;
+        dy/=dist;
         if(e.a!==pointer.draggingNode){e.a.vx+=dx*f;e.a.vy+=dy*f}
         if(e.b!==pointer.draggingNode){e.b.vx-=dx*f;e.b.vy-=dy*f}
     });
-    applyPointerGravity(v);
+
     v.forEach(n=>{
         if(n===pointer.draggingNode)return;
-        n.vx*=settled?.86:.89;n.vy*=settled?.86:.89;
-        n.x+=n.vx;n.y+=n.vy;
+        n.vx*=settled?.86:.89;
+        n.vy*=settled?.86:.89;
+        n.x+=n.vx;
+        n.y+=n.vy;
     });
 }
-function drawPointerField(){if(!pointer.active||pinch.active)return;const r=pointer.type==="touch"?90:115,g=ctx.createRadialGradient(pointer.x,pointer.y,0,pointer.x,pointer.y,r);g.addColorStop(0,"rgba(97,227,142,.055)");g.addColorStop(.5,"rgba(97,227,142,.018)");g.addColorStop(1,"rgba(97,227,142,0)");ctx.fillStyle=g;ctx.beginPath();ctx.arc(pointer.x,pointer.y,r,0,Math.PI*2);ctx.fill()}
+function drawPointerField(){
+    if(pointer.energy<=0||pointer.type!=="mouse"||pointer.down||pinch.active)return;
+
+    const r=62+pointer.energy*34;
+    const a=.012+.025*pointer.energy;
+    const g=ctx.createRadialGradient(pointer.x,pointer.y,0,pointer.x,pointer.y,r);
+    g.addColorStop(0,`rgba(97,227,142,${a})`);
+    g.addColorStop(.55,`rgba(97,227,142,${a*.32})`);
+    g.addColorStop(1,"rgba(97,227,142,0)");
+    ctx.fillStyle=g;
+    ctx.beginPath();
+    ctx.arc(pointer.x,pointer.y,r,0,Math.PI*2);
+    ctx.fill();
+}
 function drawBackground(){ctx.clearRect(0,0,width,height);if(mode==="map"){ctx.strokeStyle="rgba(255,255,255,.035)";for(let x=0;x<width;x+=90){ctx.beginPath();ctx.moveTo(x,74);ctx.lineTo(x,height);ctx.stroke()}for(let y=74;y<height;y+=90){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke()}ctx.fillStyle="rgba(255,255,255,.12)";ctx.font="9px Arial";ctx.fillText("GEOGRAPHIC FIELD · GPS NODES",26,height-102)}}
 function drawNebula(){if(mode!=="graph"||camera.zoom<.55)return;visibleNodes().forEach((n,i)=>{if(i%3)return;const p=worldToScreen(n.x,n.y),rgb=hexToRgb(n.photo.color),r=38*camera.zoom,g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);g.addColorStop(0,`rgba(${rgb.r},${rgb.g},${rgb.b},.045)`);g.addColorStop(1,`rgba(${rgb.r},${rgb.g},${rgb.b},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill()})}
-function drawEdges(){const vis=new Set(visibleNodes().map(n=>n.id));edges.forEach(e=>{if(!vis.has(e.a.id)||!vis.has(e.b.id))return;const a=worldToScreen(e.a.x,e.a.y),b=worldToScreen(e.b.x,e.b.y),sel=selectedNode&&(e.a===selectedNode||e.b===selectedNode),dim=selectedNode&&!sel;let alpha=Math.min(.32,.055+e.weight*.018);if(sel)alpha=.62;if(dim)alpha*=.17;ctx.strokeStyle=sel?`rgba(112,235,149,${alpha})`:`rgba(184,196,202,${alpha})`;ctx.lineWidth=sel?1.15:.65;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()})}
+function drawEdges(){const vis=new Set(visibleNodes().map(n=>n.id));edges.forEach(e=>{if(!vis.has(e.a.id)||!vis.has(e.b.id))return;const a=worldToScreen(e.a.x+(e.a.ox||0),e.a.y+(e.a.oy||0)),b=worldToScreen(e.b.x+(e.b.ox||0),e.b.y+(e.b.oy||0)),sel=selectedNode&&(e.a===selectedNode||e.b===selectedNode),dim=selectedNode&&!sel;let alpha=Math.min(.32,.055+e.weight*.018);if(sel)alpha=.62;if(dim)alpha*=.17;ctx.strokeStyle=sel?`rgba(112,235,149,${alpha})`:`rgba(184,196,202,${alpha})`;ctx.lineWidth=sel?1.15:.65;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()})}
 function drawClusters(){if(!showClusters||mode!=="graph")return;const vis=visibleNodes();projects.forEach(p=>{const m=(p.photos||[]).map(f=>nodes.find(n=>n.photo.filename===f)).filter(Boolean).filter(n=>vis.includes(n));if(m.length<3)return;const x=m.reduce((s,n)=>s+n.x,0)/m.length,y=m.reduce((s,n)=>s+n.y,0)/m.length,q=worldToScreen(x,y);ctx.fillStyle="rgba(255,255,255,.18)";ctx.font="9px Arial";ctx.textAlign="center";ctx.fillText((p.title||"PROJECT").toUpperCase(),q.x,q.y-18);ctx.textAlign="left"})}
-function drawNodes(){visibleNodes().forEach((n,i)=>{const p=worldToScreen(n.x,n.y);if(p.x<-40||p.x>width+40||p.y<50||p.y>height+40)return;const match=searchMatch(n),sel=selectedNode===n,hover=hoveredNode===n;let alpha=match?.92:.12;if(selectedNode&&!sel){const connected=edges.some(e=>(e.a===selectedNode&&e.b===n)||(e.b===selectedNode&&e.a===n));alpha*=connected?.95:.26}const rgb=hexToRgb(n.photo.color),r=(sel?7.2:hover?5.5:3.15)*Math.max(.78,Math.min(1.5,camera.zoom));if(sel||hover){ctx.fillStyle=`rgba(${rgb.r},${rgb.g},${rgb.b},.12)`;ctx.beginPath();ctx.arc(p.x,p.y,r*3.2,0,Math.PI*2);ctx.fill()}ctx.fillStyle=sel?`rgba(97,227,142,1)`:`rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`;ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();if(i%6===0&&camera.zoom>1.55&&match){ctx.fillStyle="rgba(255,255,255,.32)";ctx.font="7px Arial";ctx.fillText(formatDate(n.photo.date),p.x+7,p.y+3)}})}
+function drawNodes(){visibleNodes().forEach((n,i)=>{const p=worldToScreen(n.x+(n.ox||0),n.y+(n.oy||0));if(p.x<-40||p.x>width+40||p.y<50||p.y>height+40)return;const match=searchMatch(n),sel=selectedNode===n,hover=hoveredNode===n;let alpha=match?.92:.12;if(selectedNode&&!sel){const connected=edges.some(e=>(e.a===selectedNode&&e.b===n)||(e.b===selectedNode&&e.a===n));alpha*=connected?.95:.26}const rgb=hexToRgb(n.photo.color),r=(sel?7.2:hover?5.5:3.15)*Math.max(.78,Math.min(1.5,camera.zoom));if(sel||hover){ctx.fillStyle=`rgba(${rgb.r},${rgb.g},${rgb.b},.12)`;ctx.beginPath();ctx.arc(p.x,p.y,r*3.2,0,Math.PI*2);ctx.fill()}ctx.fillStyle=sel?`rgba(97,227,142,1)`:`rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`;ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();if(i%6===0&&camera.zoom>1.55&&match){ctx.fillStyle="rgba(255,255,255,.32)";ctx.font="7px Arial";ctx.fillText(formatDate(n.photo.date),p.x+7,p.y+3)}})}
 function loop(){simulate();drawBackground();drawNebula();drawEdges();drawPointerField();drawClusters();drawNodes();requestAnimationFrame(loop)}
-function hitTest(x,y){let best=null,bd=Infinity;for(const n of visibleNodes()){const p=worldToScreen(n.x,n.y),d=Math.hypot(x-p.x,y-p.y);if(d<Math.max(10,7*camera.zoom)&&d<bd){best=n;bd=d}}return best}
+function hitTest(x,y){let best=null,bd=Infinity;for(const n of visibleNodes()){const p=worldToScreen(n.x+(n.ox||0),n.y+(n.oy||0)),d=Math.hypot(x-p.x,y-p.y);if(d<Math.max(10,7*camera.zoom)&&d<bd){best=n;bd=d}}return best}
 function tooltipFor(n,x,y){const t=document.getElementById("tooltip");if(!n){t.classList.remove("show");return}document.getElementById("tooltipImage").src=photoUrl(n.photo.filename);document.getElementById("tooltipDate").textContent=formatDate(n.photo.date)||"Undated";document.getElementById("tooltipCopy").textContent=[getLocation(n.photo),getCamera(n.photo)].filter(Boolean).join(" · ");t.style.left=Math.min(width-184,x+14)+"px";t.style.top=Math.min(height-160,y+14)+"px";t.classList.add("show")}
 const strongestConnections=n=>edges.filter(e=>e.a===n||e.b===n).map(e=>({node:e.a===n?e.b:e.a,weight:e.weight})).sort((a,b)=>b.weight-a.weight);
 function setSelected(n,center=true){selectedNode=n;if(!n){document.getElementById("infoPanel").classList.remove("open");return}if(center)centerOnNode(n);const p=n.photo,ids=projectIdsFor(p.filename),rel=strongestConnections(n);panelImage.src=photoUrl(p.filename);panelNumber.textContent=`PHOTO ${String(n.id+1).padStart(3,"0")}`;panelDate.textContent=formatDate(p.date)||"Undated";panelLocation.textContent=getLocation(p)||"Location unavailable";panelCamera.textContent=getCamera(p);panelColor.textContent=normalizeColor(p.color);panelConnections.textContent=`${rel.length} strongest`;panelProjects.innerHTML=ids.map(id=>`<span class="chip">${escapeHtml(projectMap.get(id)?.title||"Project")}</span>`).join("");relatedList.innerHTML=rel.slice(0,6).map(x=>`<div data-node="${x.node.id}"><img src="${photoUrl(x.node.photo.filename)}" alt=""></div>`).join("");infoPanel.classList.add("open")}
 function escapeHtml(v){return safe(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
 function clearLongPress(){if(pointer.longPressTimer){clearTimeout(pointer.longPressTimer);pointer.longPressTimer=null}}
-function startNodeDrag(n){if(!n)return;pointer.draggingNode=n;n.vx=0;n.vy=0;simulationTicks=0;canvas.classList.add("dragging")}
+function startNodeDrag(n){if(!n)return;pointer.draggingNode=n;n.vx=0;n.vy=0;n.ox=0;n.oy=0;n.ovx=0;n.ovy=0;simulationTicks=0;canvas.classList.add("dragging")}
 function stopNodeDrag(){if(pointer.draggingNode){pointer.draggingNode.vx=0;pointer.draggingNode.vy=0;pointer.draggingNode=null;simulationTicks=0}canvas.classList.remove("dragging")}
 function beginPinch(){if(activePointers.size<2)return;const pts=[...activePointers.values()].slice(0,2),dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y,cx=(pts[0].x+pts[1].x)/2,cy=(pts[0].y+pts[1].y)/2,w=screenToWorld(cx,cy);pinch={active:true,startDistance:Math.max(1,Math.hypot(dx,dy)),startZoom:camera.zoom,worldX:w.x,worldY:w.y};clearLongPress();stopNodeDrag();pointer.moved=true}
 function updatePinch(){if(!pinch.active||activePointers.size<2)return;const pts=[...activePointers.values()].slice(0,2),dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y,cx=(pts[0].x+pts[1].x)/2,cy=(pts[0].y+pts[1].y)/2,dist=Math.max(1,Math.hypot(dx,dy)),z=Math.max(.28,Math.min(4.2,pinch.startZoom*(dist/pinch.startDistance)));camera.zoom=z;camera.x=cx-pinch.worldX*z;camera.y=cy-pinch.worldY*z}
@@ -236,7 +325,21 @@ canvas.addEventListener("pointerdown",e=>{
 });
 canvas.addEventListener("pointermove",e=>{
     if(activePointers.has(e.pointerId))activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY,type:e.pointerType});
-    pointer.x=e.clientX;pointer.y=e.clientY;pointer.active=true;pointer.type=e.pointerType||pointer.type;
+
+    const now=performance.now();
+    const prevX=pointer.x,prevY=pointer.y;
+    const dt=pointer.lastMoveTime?now-pointer.lastMoveTime:16;
+    const mdx=e.clientX-prevX,mdy=e.clientY-prevY;
+
+    pointer.x=e.clientX;
+    pointer.y=e.clientY;
+    pointer.active=true;
+    pointer.type=e.pointerType||pointer.type;
+    pointer.lastMoveTime=now;
+
+    if(pointer.type==="mouse"&&!pointer.down&&activePointers.size<2){
+        applyCursorSweepImpulse(e.clientX,e.clientY,mdx,mdy,dt);
+    }
     if(activePointers.size>=2){if(!pinch.active)beginPinch();updatePinch();tooltipFor(null);return}
     if(pointer.draggingNode&&pointer.id===e.pointerId){const dx=e.clientX-pointer.lastX,dy=e.clientY-pointer.lastY;if(Math.abs(dx)+Math.abs(dy)>2)pointer.moved=true;const w=screenToWorld(e.clientX,e.clientY);pointer.draggingNode.x=w.x;pointer.draggingNode.y=w.y;pointer.draggingNode.vx=0;pointer.draggingNode.vy=0;pointer.lastX=e.clientX;pointer.lastY=e.clientY;tooltipFor(null);return}
     if(pointer.down&&pointer.id===e.pointerId){const dx=e.clientX-pointer.lastX,dy=e.clientY-pointer.lastY;if(Math.abs(dx)+Math.abs(dy)>2){pointer.moved=true;clearLongPress()}camera.x+=dx;camera.y+=dy;pointer.lastX=e.clientX;pointer.lastY=e.clientY;tooltipFor(null);return}
@@ -245,7 +348,7 @@ canvas.addEventListener("pointermove",e=>{
 function finishPointer(e,cancelled=false){clearLongPress();const pinching=pinch.active;activePointers.delete(e.pointerId);if(pinching){if(activePointers.size<2)pinch.active=false;pointer.down=false;pointer.id=null;pointer.downNode=null;stopNodeDrag();return}const dragged=pointer.draggingNode,moved=pointer.moved;if(dragged){stopNodeDrag();if(!moved&&!cancelled)setSelected(dragged,true)}else if(pointer.down&&pointer.id===e.pointerId&&!moved&&!cancelled){const n=hitTest(e.clientX,e.clientY);n?setSelected(n,true):setSelected(null,false)}pointer.down=false;pointer.id=null;pointer.downNode=null;if(e.pointerType==="touch"){pointer.active=false;hoveredNode=null;tooltipFor(null)}}
 canvas.addEventListener("pointerup",e=>finishPointer(e,false));
 canvas.addEventListener("pointercancel",e=>finishPointer(e,true));
-canvas.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"&&!pointer.down){pointer.active=false;hoveredNode=null;tooltipFor(null)}});
+canvas.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"&&!pointer.down){pointer.active=false;pointer.energy=0;pointer.speed=0;hoveredNode=null;tooltipFor(null)}});
 canvas.addEventListener("dblclick",e=>{const n=hitTest(e.clientX,e.clientY);if(n)openLightbox(n)});
 canvas.addEventListener("wheel",e=>{e.preventDefault();const before=screenToWorld(e.clientX,e.clientY),f=e.deltaY>0?.9:1.1;camera.zoom=Math.max(.28,Math.min(4.2,camera.zoom*f));const after=worldToScreen(before.x,before.y);camera.x+=e.clientX-after.x;camera.y+=e.clientY-after.y},{passive:false});
 
