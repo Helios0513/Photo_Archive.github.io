@@ -49,7 +49,7 @@
     </div>
 </div>
 
-<div class="legend"><b>IDLE</b> SLOW ROTATION<br><b>SWEEP CURSOR</b> DISTURB<br><b>SCROLL</b> ZOOM<br><b>DRAG NODE</b> MOVE<br><b>DRAG SPACE</b> PAN<br><b>CLICK</b> FOCUS</div>
+<div class="legend"><b>IDLE</b> 3D SPHERE ROTATION<br><b>SWEEP CURSOR</b> DISTURB<br><b>SCROLL</b> ZOOM<br><b>DRAG NODE</b> MOVE<br><b>DRAG SPACE</b> PAN<br><b>CLICK</b> FOCUS</div>
 <div class="stats"><strong id="statCount">0</strong><span id="statCopy">photographs · 0 connections</span></div>
 
 <div class="timeline">
@@ -107,6 +107,10 @@ let photos=[],projects=[],nodes=[],edges=[],allRelations=[],projectMap=new Map()
 let activeYear="all",selectedNode=null,hoveredNode=null,currentSearch="";
 let orbitMap=new Map();
 let ambientRotationEnabled=true;
+let sphereRotationY=0;
+let sphereRotationX=-0.22;
+const sphereRadius=365;
+const spherePerspective=1050;
 let width=innerWidth,height=innerHeight,dpr=Math.max(1,Math.min(2,devicePixelRatio||1)),simulationTicks=0;
 let camera={x:width/2,y:height/2,zoom:1};
 let pointer={down:false,moved:false,lastX:0,lastY:0,x:0,y:0,active:false,id:null,type:"mouse",downNode:null,draggingNode:null,longPressTimer:null,moveX:0,moveY:0,lastMoveTime:0,speed:0,energy:0};
@@ -135,18 +139,28 @@ function searchMatch(n){if(!currentSearch)return true;const p=n.photo,pt=project
 function buildProjectMaps(){projectMap.clear();photoProjectMap.clear();projects.forEach(p=>{projectMap.set(p.id,p);(p.photos||[]).forEach(f=>{if(!photoProjectMap.has(f))photoProjectMap.set(f,[]);photoProjectMap.get(f).push(p.id)})})}
 function buildNodes(){
     const total=Math.max(1,photos.length);
-    const golden=2.399963229728653;
+    const golden=Math.PI*(3-Math.sqrt(5));
 
     nodes=photos.map((photo,id)=>{
-        const t=(id+.5)/total;
-        const angle=id*golden+(Math.random()-.5)*.16;
-        const radius=95+Math.sqrt(t)*470;
-        const x=Math.cos(angle)*radius;
-        const y=Math.sin(angle)*radius*.82;
+        const y=total===1?0:1-(id/(total-1))*2;
+        const ring=Math.sqrt(Math.max(0,1-y*y));
+        const theta=id*golden;
 
-        return{id,photo,x,y,homeX:x,homeY:y,vx:0,vy:0,ox:0,oy:0,ovx:0,ovy:0,orbitMix:0};
+        const sx=Math.cos(theta)*ring*sphereRadius;
+        const sy=y*sphereRadius;
+        const sz=Math.sin(theta)*ring*sphereRadius;
+
+        return{
+            id,photo,
+            sx,sy,sz,
+            x:sx,y:sy,homeX:sx,homeY:sy,
+            vx:0,vy:0,
+            ox:0,oy:0,ovx:0,ovy:0,
+            orbitMix:0
+        };
     });
 }
+
 function buildEdges(){
     const v=visibleNodes(),c=[];
 
@@ -175,7 +189,7 @@ function buildEdges(){
         if(da>=2||db>=2)return false;
 
         // 매우 긴 선은 정말 강한 관계일 때만 남긴다.
-        const dist=Math.hypot(edge.b.x-edge.a.x,edge.b.y-edge.a.y);
+        const dist=Math.hypot(edge.b.sx-edge.a.sx,edge.b.sy-edge.a.sy,edge.b.sz-edge.a.sz);
         if(dist>360&&edge.weight<6)return false;
 
         edges.push(edge);
@@ -210,7 +224,54 @@ const worldToScreen=(x,y)=>({x:x*camera.zoom+camera.x,y:y*camera.zoom+camera.y})
 const screenToWorld=(x,y)=>({x:(x-camera.x)/camera.zoom,y:(y-camera.y)/camera.zoom});
 function animateCamera(target,d=500){const s={...camera},t0=performance.now();function f(now){const t=Math.min(1,(now-t0)/d),e=1-Math.pow(1-t,3);camera.x=s.x+(target.x-s.x)*e;camera.y=s.y+(target.y-s.y)*e;camera.zoom=s.zoom+(target.zoom-s.zoom)*e;if(t<1)requestAnimationFrame(f)}requestAnimationFrame(f)}
 function resetCamera(){animateCamera({x:width/2,y:height/2,zoom:1})}
-function centerOnNode(n,z=Math.max(camera.zoom,1.35)){animateCamera({x:width/2-n.x*z,y:height/2-n.y*z,zoom:z},600)}
+
+function rotateSpherePoint(n){
+    let x=n.sx,y=n.sy,z=n.sz;
+
+    const cy=Math.cos(sphereRotationY),sy=Math.sin(sphereRotationY);
+    const x1=x*cy+z*sy;
+    const z1=-x*sy+z*cy;
+
+    const cx=Math.cos(sphereRotationX),sx=Math.sin(sphereRotationX);
+    const y2=y*cx-z1*sx;
+    const z2=y*sx+z1*cx;
+
+    return{x:x1,y:y2,z:z2};
+}
+
+function projectedSphereWorld(n){
+    const r=rotateSpherePoint(n);
+    const perspective=spherePerspective/(spherePerspective-r.z);
+
+    return{
+        x:r.x*perspective,
+        y:r.y*perspective,
+        z:r.z,
+        perspective,
+        depth:(r.z+sphereRadius)/(sphereRadius*2)
+    };
+}
+
+function rawSphereScreen(n){
+    const p=projectedSphereWorld(n);
+
+    return{
+        x:p.x*camera.zoom+camera.x+(n.ox||0)*camera.zoom,
+        y:p.y*camera.zoom+camera.y+(n.oy||0)*camera.zoom,
+        z:p.z,
+        depth:Math.max(0,Math.min(1,p.depth)),
+        scale:p.perspective
+    };
+}
+
+function centerOnNode(n,z=Math.max(camera.zoom,1.35)){
+    const p=projectedSphereWorld(n);
+    animateCamera({
+        x:width/2-p.x*z,
+        y:height/2-p.y*z,
+        zoom:z
+    },600);
+}
 
 
 
@@ -266,9 +327,8 @@ function refreshOrbitTargets(){
         .forEach((item,index)=>orbitMap.set(item.node.id,index));
 }
 
-function visualWorld(n,now=performance.now()){
-    let x=n.x+(n.ox||0);
-    let y=n.y+(n.oy||0);
+function screenPosition(n,now=performance.now()){
+    const base=rawSphereScreen(n);
 
     const idx=orbitMap.get(n.id);
     const shouldOrbit=selectedNode&&idx!==undefined&&n!==selectedNode;
@@ -276,7 +336,14 @@ function visualWorld(n,now=performance.now()){
 
     n.orbitMix+=(target-n.orbitMix)*.10;
 
+    let x=base.x;
+    let y=base.y;
+    let z=base.z;
+    let depth=base.depth;
+    let scale=base.scale;
+
     if(n.orbitMix>.001&&selectedNode&&n!==selectedNode){
+        const center=rawSphereScreen(selectedNode);
         const ring=idx<4?92:137;
         const localIndex=idx<4?idx:idx-4;
         const groupCount=idx<4
@@ -286,21 +353,52 @@ function visualWorld(n,now=performance.now()){
         const direction=idx%2===0?1:-1;
         const angle=(localIndex/Math.max(1,groupCount))*Math.PI*2 + now*.00018*direction;
 
-        const cx=selectedNode.x+(selectedNode.ox||0);
-        const cy=selectedNode.y+(selectedNode.oy||0);
-        const tx=cx+Math.cos(angle)*ring;
-        const ty=cy+Math.sin(angle)*ring;
+        const tx=center.x+Math.cos(angle)*ring;
+        const ty=center.y+Math.sin(angle)*ring;
 
         x+=(tx-x)*n.orbitMix;
         y+=(ty-y)*n.orbitMix;
+        z+=(sphereRadius-z)*n.orbitMix*.35;
+        depth+=(1-depth)*n.orbitMix*.35;
+        scale+=(1.12-scale)*n.orbitMix*.35;
     }
 
-    return{x,y};
+    return{x,y,z,depth,scale};
 }
 
-function screenPosition(n,now=performance.now()){
-    const w=visualWorld(n,now);
-    return worldToScreen(w.x,w.y);
+function screenToSphereLocal(screenX,screenY){
+    const u=(screenX-camera.x)/Math.max(.01,camera.zoom);
+    const v=(screenY-camera.y)/Math.max(.01,camera.zoom);
+
+    // Perspective ray from virtual camera (0,0,P) to projected point (u,v,0).
+    const P=spherePerspective;
+    const a=u*u+v*v+P*P;
+    const b=-2*P*P;
+    const c=P*P-sphereRadius*sphereRadius;
+    const disc=Math.max(0,b*b-4*a*c);
+    const t=(-b-Math.sqrt(disc))/(2*a);
+
+    let x=t*u;
+    let y=t*v;
+    let z=P*(1-t);
+
+    // Inverse X rotation.
+    const cx=Math.cos(-sphereRotationX),sx=Math.sin(-sphereRotationX);
+    const y1=y*cx-z*sx;
+    const z1=y*sx+z*cx;
+
+    // Inverse Y rotation.
+    const cy=Math.cos(-sphereRotationY),sy=Math.sin(-sphereRotationY);
+    const x2=x*cy+z1*sy;
+    const z2=-x*sy+z1*cy;
+
+    const len=Math.hypot(x2,y1,z2)||1;
+
+    return{
+        x:x2/len*sphereRadius,
+        y:y1/len*sphereRadius,
+        z:z2/len*sphereRadius
+    };
 }
 
 function updateCursorOffsets(){
@@ -341,73 +439,19 @@ function updateCursorOffsets(){
 function applyAmbientRotation(){
     if(!ambientRotationEnabled)return;
 
-    // 아주 느린 자동 회전: 약 15~16분에 한 바퀴.
-    const angle=.00011;
-    const cos=Math.cos(angle);
-    const sin=Math.sin(angle);
-
-    nodes.forEach(n=>{
-        if(n===pointer.draggingNode)return;
-
-        const x=n.x,y=n.y;
-        n.x=x*cos-y*sin;
-        n.y=x*sin+y*cos;
-
-        const hx=n.homeX,hy=n.homeY;
-        n.homeX=hx*cos-hy*sin;
-        n.homeY=hx*sin+hy*cos;
-    });
+    // 실제 3D 구체가 천천히 도는 느낌:
+    // Y축을 중심으로 계속 회전하고, X축은 아주 조금 호흡하듯 기울어진다.
+    sphereRotationY+=.00028;
+    sphereRotationX=-.22+Math.sin(performance.now()*.00010)*.055;
 }
 
 function simulate(){
-    const v=visibleNodes();
-    if(!v.length)return;
+    if(!visibleNodes().length)return;
 
     applyAmbientRotation();
     updateCursorOffsets();
-    simulationTicks++;
-    const settling=simulationTicks<300;
-
-    // 중앙으로 모으는 힘은 전혀 사용하지 않는다.
-    // 각 노드는 자신의 최초/드롭 위치(home)만 기준으로 안정된다.
-    v.forEach(n=>{
-        if(n===pointer.draggingNode)return;
-        n.vx+=(n.homeX-n.x)*.0042;
-        n.vy+=(n.homeY-n.y)*.0042;
-    });
-
-    if(settling){
-        for(let i=0;i<v.length;i++){
-            for(let j=i+1;j<v.length;j++){
-                const A=v[i],B=v[j];
-                if(A===pointer.draggingNode||B===pointer.draggingNode)continue;
-                let dx=B.x-A.x,dy=B.y-A.y;
-                const d2=dx*dx+dy*dy+.1;
-                if(d2>28000)continue;
-                const dist=Math.sqrt(d2),force=760/d2;
-                dx/=dist;dy/=dist;
-                A.vx-=dx*force;A.vy-=dy*force;
-                B.vx+=dx*force;B.vy+=dy*force;
-            }
-        }
-
-        // 관계선은 아주 약한 미세 조정만 한다.
-        edges.forEach(e=>{
-            let dx=e.b.x-e.a.x,dy=e.b.y-e.a.y;
-            const dist=Math.hypot(dx,dy)||1;
-            const force=(dist-155)*.000055*Math.min(3,e.weight);
-            dx/=dist;dy/=dist;
-            if(e.a!==pointer.draggingNode){e.a.vx+=dx*force;e.a.vy+=dy*force}
-            if(e.b!==pointer.draggingNode){e.b.vx-=dx*force;e.b.vy-=dy*force}
-        });
-    }
-
-    v.forEach(n=>{
-        if(n===pointer.draggingNode)return;
-        n.vx*=.78;n.vy*=.78;
-        n.x+=n.vx;n.y+=n.vy;
-    });
 }
+
 function drawPointerField(){
     if(pointer.energy<=0||pointer.type!=="mouse"||pointer.down||pinch.active)return;
 
@@ -422,8 +466,50 @@ function drawPointerField(){
     ctx.arc(pointer.x,pointer.y,r,0,Math.PI*2);
     ctx.fill();
 }
-function drawBackground(){ctx.clearRect(0,0,width,height)}
-function drawNebula(){if(camera.zoom<.55)return;visibleNodes().forEach((n,i)=>{if(i%3)return;const p=worldToScreen(n.x,n.y),rgb=hexToRgb(n.photo.color),r=38*camera.zoom,g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);g.addColorStop(0,`rgba(${rgb.r},${rgb.g},${rgb.b},.045)`);g.addColorStop(1,`rgba(${rgb.r},${rgb.g},${rgb.b},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill()})}
+function drawBackground(){
+    ctx.clearRect(0,0,width,height);
+
+    const radius=sphereRadius*camera.zoom*1.02;
+    const glow=ctx.createRadialGradient(
+        camera.x,camera.y,radius*.12,
+        camera.x,camera.y,radius
+    );
+    glow.addColorStop(0,"rgba(255,255,255,.012)");
+    glow.addColorStop(.70,"rgba(255,255,255,.005)");
+    glow.addColorStop(1,"rgba(255,255,255,0)");
+    ctx.fillStyle=glow;
+    ctx.beginPath();
+    ctx.arc(camera.x,camera.y,radius,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle="rgba(255,255,255,.025)";
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.arc(camera.x,camera.y,radius,0,Math.PI*2);
+    ctx.stroke();
+}
+function drawNebula(){
+    if(camera.zoom<.55)return;
+
+    visibleNodes().forEach((n,i)=>{
+        if(i%4)return;
+
+        const p=screenPosition(n);
+        const rgb=hexToRgb(n.photo.color);
+        const r=28*camera.zoom*Math.max(.65,Math.min(1.35,p.scale));
+        const alpha=.012+.025*p.depth;
+        const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);
+
+        g.addColorStop(0,`rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`);
+        g.addColorStop(1,`rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
+
+        ctx.fillStyle=g;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,r,0,Math.PI*2);
+        ctx.fill();
+    });
+}
+
 function drawEdges(){
     const visibleSet=new Set(visibleNodes().map(n=>n.id));
 
@@ -434,13 +520,16 @@ function drawEdges(){
         const b=screenPosition(e.b);
 
         const touchesSelected=selectedNode&&(e.a===selectedNode||e.b===selectedNode);
-        let alpha=Math.min(.105,.022+e.weight*.009);
+        const depth=(a.depth+b.depth)/2;
 
-        if(selectedNode&&!touchesSelected)alpha*=.22;
-        if(touchesSelected)alpha=.20;
+        let alpha=(.012+e.weight*.0055)*(.25+.75*depth);
+        alpha=Math.min(.09,alpha);
+
+        if(selectedNode&&!touchesSelected)alpha*=.18;
+        if(touchesSelected)alpha=.12+.10*depth;
 
         ctx.strokeStyle=`rgba(177,190,196,${alpha})`;
-        ctx.lineWidth=.6;
+        ctx.lineWidth=.5+.25*depth;
         ctx.beginPath();
         ctx.moveTo(a.x,a.y);
         ctx.lineTo(b.x,b.y);
@@ -449,14 +538,14 @@ function drawEdges(){
 
     if(!selectedNode)return;
 
-    // 선택된 사진의 핵심 관계만 별도로 선명하게 표시.
     strongestConnections(selectedNode).slice(0,6).forEach((item,index)=>{
         const a=screenPosition(selectedNode);
         const b=screenPosition(item.node);
-        const alpha=.56-index*.045;
+        const depth=(a.depth+b.depth)/2;
+        const alpha=(.52-index*.04)*(.70+.30*depth);
 
-        ctx.strokeStyle=`rgba(105,231,145,${Math.max(.30,alpha)})`;
-        ctx.lineWidth=1.05;
+        ctx.strokeStyle=`rgba(105,231,145,${Math.max(.26,alpha)})`;
+        ctx.lineWidth=.9+.35*depth;
         ctx.beginPath();
         ctx.moveTo(a.x,a.y);
         ctx.lineTo(b.x,b.y);
@@ -467,46 +556,58 @@ function drawEdges(){
 function drawNodes(){
     const now=performance.now();
 
-    visibleNodes().forEach((n,i)=>{
-        const p=screenPosition(n,now);
-        if(p.x<-40||p.x>width+40||p.y<50||p.y>height+40)return;
+    const prepared=visibleNodes()
+        .map(n=>({n,p:screenPosition(n,now)}))
+        .sort((a,b)=>a.p.z-b.p.z);
+
+    prepared.forEach(({n,p},i)=>{
+        if(p.x<-60||p.x>width+60||p.y<30||p.y>height+60)return;
 
         const match=searchMatch(n);
         const sel=selectedNode===n;
         const hover=hoveredNode===n;
         const orbiting=orbitMap.has(n.id);
 
-        let alpha=match?.92:.12;
+        let alpha=(.20+.80*p.depth);
+        alpha*=match?1:.12;
 
         if(selectedNode&&!sel){
-            alpha*=orbiting?.95:.26;
+            alpha*=orbiting?.98:.22;
         }
 
         const rgb=hexToRgb(n.photo.color);
-        const r=(sel?7.6:hover?5.7:orbiting?4.3:3.15)*Math.max(.78,Math.min(1.5,camera.zoom));
+        const depthScale=.60+p.depth*.72;
+        const perspectiveScale=Math.max(.72,Math.min(1.35,p.scale));
+        const r=(sel?7.6:hover?5.8:orbiting?4.5:3.15)
+            *depthScale
+            *perspectiveScale
+            *Math.max(.78,Math.min(1.45,camera.zoom));
 
         if(sel||hover||orbiting){
+            const haloAlpha=sel?.17:(orbiting?.10:.07)*(.45+.55*p.depth);
+
             ctx.fillStyle=sel
-                ?"rgba(97,227,142,.15)"
-                :`rgba(${rgb.r},${rgb.g},${rgb.b},${orbiting?.10:.07})`;
+                ?"rgba(97,227,142,.17)"
+                :`rgba(${rgb.r},${rgb.g},${rgb.b},${haloAlpha})`;
 
             ctx.beginPath();
-            ctx.arc(p.x,p.y,r*(sel?3.4:2.6),0,Math.PI*2);
+            ctx.arc(p.x,p.y,r*(sel?3.2:2.5),0,Math.PI*2);
             ctx.fill();
         }
 
         ctx.fillStyle=sel
             ?"rgba(97,227,142,1)"
             :orbiting
-                ?`rgba(${rgb.r},${rgb.g},${rgb.b},.98)`
+                ?`rgba(${rgb.r},${rgb.g},${rgb.b},${Math.max(.62,alpha)})`
                 :`rgba(${rgb.r},${rgb.g},${rgb.b},${alpha})`;
 
         ctx.beginPath();
         ctx.arc(p.x,p.y,r,0,Math.PI*2);
         ctx.fill();
 
-        if(i%6===0&&camera.zoom>1.55&&match&&!selectedNode){
-            ctx.fillStyle="rgba(255,255,255,.28)";
+        // 앞쪽 노드만 확대 상태에서 날짜 라벨 표시.
+        if(i%7===0&&camera.zoom>1.65&&match&&!selectedNode&&p.depth>.62){
+            ctx.fillStyle=`rgba(255,255,255,${.12+.20*p.depth})`;
             ctx.font="7px Arial";
             ctx.fillText(formatDate(n.photo.date),p.x+7,p.y+3);
         }
@@ -515,17 +616,26 @@ function drawNodes(){
 
 function loop(){simulate();drawBackground();drawNebula();drawEdges();drawPointerField();drawNodes();requestAnimationFrame(loop)}
 function hitTest(x,y){
-    let best=null,bd=Infinity;
+    let best=null;
+    let bestScore=Infinity;
 
     for(const n of visibleNodes()){
         const p=screenPosition(n);
-        const d=Math.hypot(x-p.x,y-p.y);
         const orbiting=orbitMap.has(n.id);
-        const limit=Math.max(orbiting?13:10,(orbiting?9:7)*camera.zoom);
+        const depthScale=.65+p.depth*.65;
+        const limit=Math.max(
+            orbiting?14:10,
+            (orbiting?10:7)*camera.zoom*depthScale
+        );
 
-        if(d<limit&&d<bd){
+        const d=Math.hypot(x-p.x,y-p.y);
+        if(d>limit)continue;
+
+        // 겹치면 앞쪽 노드를 우선 선택.
+        const score=d-p.depth*4;
+        if(score<bestScore){
             best=n;
-            bd=d;
+            bestScore=score;
         }
     }
 
@@ -570,7 +680,7 @@ function setSelected(n,center=true){
 function escapeHtml(v){return safe(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
 function clearLongPress(){if(pointer.longPressTimer){clearTimeout(pointer.longPressTimer);pointer.longPressTimer=null}}
 function startNodeDrag(n){if(!n)return;pointer.draggingNode=n;n.vx=0;n.vy=0;n.ox=0;n.oy=0;n.ovx=0;n.ovy=0;n.orbitMix=0;simulationTicks=0;canvas.classList.add("dragging")}
-function stopNodeDrag(){if(pointer.draggingNode){pointer.draggingNode.vx=0;pointer.draggingNode.vy=0;pointer.draggingNode.homeX=pointer.draggingNode.x;pointer.draggingNode.homeY=pointer.draggingNode.y;pointer.draggingNode=null;simulationTicks=300}canvas.classList.remove("dragging")}
+function stopNodeDrag(){if(pointer.draggingNode){pointer.draggingNode.vx=0;pointer.draggingNode.vy=0;pointer.draggingNode=null;simulationTicks=300}canvas.classList.remove("dragging")}
 function beginPinch(){if(activePointers.size<2)return;const pts=[...activePointers.values()].slice(0,2),dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y,cx=(pts[0].x+pts[1].x)/2,cy=(pts[0].y+pts[1].y)/2,w=screenToWorld(cx,cy);pinch={active:true,startDistance:Math.max(1,Math.hypot(dx,dy)),startZoom:camera.zoom,worldX:w.x,worldY:w.y};clearLongPress();stopNodeDrag();pointer.moved=true}
 function updatePinch(){if(!pinch.active||activePointers.size<2)return;const pts=[...activePointers.values()].slice(0,2),dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y,cx=(pts[0].x+pts[1].x)/2,cy=(pts[0].y+pts[1].y)/2,dist=Math.max(1,Math.hypot(dx,dy)),z=Math.max(.28,Math.min(4.2,pinch.startZoom*(dist/pinch.startDistance)));camera.zoom=z;camera.x=cx-pinch.worldX*z;camera.y=cy-pinch.worldY*z}
 canvas.addEventListener("pointerdown",e=>{
@@ -599,7 +709,26 @@ canvas.addEventListener("pointermove",e=>{
         applyCursorSweepImpulse(e.clientX,e.clientY,mdx,mdy,dt);
     }
     if(activePointers.size>=2){if(!pinch.active)beginPinch();updatePinch();tooltipFor(null);return}
-    if(pointer.draggingNode&&pointer.id===e.pointerId){const dx=e.clientX-pointer.lastX,dy=e.clientY-pointer.lastY;if(Math.abs(dx)+Math.abs(dy)>2)pointer.moved=true;const w=screenToWorld(e.clientX,e.clientY);pointer.draggingNode.x=w.x;pointer.draggingNode.y=w.y;pointer.draggingNode.vx=0;pointer.draggingNode.vy=0;pointer.lastX=e.clientX;pointer.lastY=e.clientY;tooltipFor(null);return}
+    if(pointer.draggingNode&&pointer.id===e.pointerId){
+        const dx=e.clientX-pointer.lastX,dy=e.clientY-pointer.lastY;
+        if(Math.abs(dx)+Math.abs(dy)>2)pointer.moved=true;
+
+        const s=screenToSphereLocal(e.clientX,e.clientY);
+        pointer.draggingNode.sx=s.x;
+        pointer.draggingNode.sy=s.y;
+        pointer.draggingNode.sz=s.z;
+        pointer.draggingNode.x=s.x;
+        pointer.draggingNode.y=s.y;
+        pointer.draggingNode.homeX=s.x;
+        pointer.draggingNode.homeY=s.y;
+        pointer.draggingNode.vx=0;
+        pointer.draggingNode.vy=0;
+
+        pointer.lastX=e.clientX;
+        pointer.lastY=e.clientY;
+        tooltipFor(null);
+        return
+    }
     if(pointer.down&&pointer.id===e.pointerId){const dx=e.clientX-pointer.lastX,dy=e.clientY-pointer.lastY;if(Math.abs(dx)+Math.abs(dy)>2){pointer.moved=true;clearLongPress()}camera.x+=dx;camera.y+=dy;pointer.lastX=e.clientX;pointer.lastY=e.clientY;tooltipFor(null);return}
     hoveredNode=hitTest(e.clientX,e.clientY);tooltipFor(hoveredNode,e.clientX,e.clientY)
 });
