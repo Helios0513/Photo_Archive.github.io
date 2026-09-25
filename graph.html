@@ -176,6 +176,7 @@ let cloudRotationX=-0.18;
 let cloudRotationZ=0;
 let cloudFocusAnimating=false;
 let centeredNode=null;
+let focusAnimationToken=0;
 
 const cloudExtentX=430;
 const cloudExtentY=330;
@@ -267,7 +268,8 @@ function buildNodes(){
             x:sx,y:sy,homeX:sx,homeY:sy,
             vx:0,vy:0,
             ox:0,oy:0,ovx:0,ovy:0,
-            orbitMix:0
+            orbitMix:0,
+            orbitTarget:0
         };
     });
 }
@@ -414,10 +416,13 @@ function centerOnNode(n,z=Math.max(camera.zoom,1.35)){
     };
 
     cloudFocusAnimating=true;
+    const token=++focusAnimationToken;
     const begin=performance.now();
     const duration=620;
 
     function tick(now){
+        if(token!==focusAnimationToken)return;
+
         const t=Math.min(1,(now-begin)/duration);
         const e=1-Math.pow(1-t,3);
 
@@ -485,22 +490,40 @@ function strongestConnections(n){
 
 function refreshOrbitTargets(){
     orbitMap.clear();
+
+    // 선택이 바뀔 때 이전 ORBIT 상태를 완전히 초기화한다.
+    // 이전 선택의 orbitMix가 새 선택으로 넘어가면 안 된다.
+    nodes.forEach(n=>{
+        n.orbitTarget=0;
+        n.orbitMix=0;
+    });
+
     if(!selectedNode)return;
 
     strongestConnections(selectedNode)
+        .filter(item=>item.node!==selectedNode)
         .filter(item=>visibleNodes().includes(item.node))
         .slice(0,6)
-        .forEach((item,index)=>orbitMap.set(item.node.id,index));
+        .forEach((item,index)=>{
+            orbitMap.set(item.node.id,index);
+            item.node.orbitTarget=1;
+        });
+}
+
+function updateOrbitMotion(){
+    nodes.forEach(n=>{
+        const target=(selectedNode&&orbitMap.has(n.id)&&n!==selectedNode)?1:0;
+        n.orbitTarget=target;
+        n.orbitMix+=(target-n.orbitMix)*.10;
+
+        if(Math.abs(target-n.orbitMix)<.0005){
+            n.orbitMix=target;
+        }
+    });
 }
 
 function screenPosition(n,now=performance.now()){
     const base=rawCloudScreen(n);
-
-    const idx=orbitMap.get(n.id);
-    const shouldOrbit=selectedNode&&idx!==undefined&&n!==selectedNode;
-    const target=shouldOrbit?1:0;
-
-    n.orbitMix+=(target-n.orbitMix)*.10;
 
     let x=base.x;
     let y=base.y;
@@ -508,8 +531,17 @@ function screenPosition(n,now=performance.now()){
     let depth=base.depth;
     let scale=base.scale;
 
-    if(n.orbitMix>.001&&selectedNode&&n!==selectedNode){
+    const idx=orbitMap.get(n.id);
+    const canOrbit=
+        selectedNode &&
+        n!==selectedNode &&
+        idx!==undefined &&
+        Number.isFinite(idx) &&
+        n.orbitMix>.001;
+
+    if(canOrbit){
         const center=rawCloudScreen(selectedNode);
+
         const ring=idx<4?92:137;
         const localIndex=idx<4?idx:idx-4;
         const groupCount=idx<4
@@ -527,6 +559,17 @@ function screenPosition(n,now=performance.now()){
         z+=(center.z-z)*n.orbitMix*.55;
         depth+=(center.depth-depth)*n.orbitMix*.55;
         scale+=(center.scale-scale)*n.orbitMix*.55;
+    }
+
+    // 방어 코드: Canvas에 NaN/Infinity 좌표가 절대 전달되지 않게 한다.
+    if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(z)){
+        return{
+            x:Number.isFinite(base.x)?base.x:camera.x,
+            y:Number.isFinite(base.y)?base.y:camera.y,
+            z:Number.isFinite(base.z)?base.z:0,
+            depth:Number.isFinite(base.depth)?base.depth:.5,
+            scale:Number.isFinite(base.scale)?base.scale:1
+        };
     }
 
     return{x,y,z,depth,scale};
@@ -606,6 +649,7 @@ function simulate(){
     if(!visibleNodes().length)return;
 
     applyAmbientRotation();
+    updateOrbitMotion();
     updateCursorOffsets();
 }
 
@@ -801,6 +845,10 @@ function tooltipFor(n,x,y){const t=document.getElementById("tooltip");if(!n){t.c
 function setSelected(n,center=false){
     if(centeredNode!==n)centeredNode=null;
 
+    // 이전 Center 애니메이션의 마지막 프레임이 새 선택을 덮어쓰는 것을 막는다.
+    focusAnimationToken++;
+    cloudFocusAnimating=false;
+
     selectedNode=n;
     refreshOrbitTargets();
 
@@ -846,7 +894,7 @@ function setSelected(n,center=false){
 
 function escapeHtml(v){return safe(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
 function clearLongPress(){if(pointer.longPressTimer){clearTimeout(pointer.longPressTimer);pointer.longPressTimer=null}}
-function startNodeDrag(n){if(!n)return;centeredNode=null;pointer.draggingNode=n;n.vx=0;n.vy=0;n.ox=0;n.oy=0;n.ovx=0;n.ovy=0;n.orbitMix=0;simulationTicks=0;canvas.classList.add("dragging")}
+function startNodeDrag(n){if(!n)return;centeredNode=null;pointer.draggingNode=n;n.vx=0;n.vy=0;n.ox=0;n.oy=0;n.ovx=0;n.ovy=0;n.orbitMix=0;n.orbitTarget=0;simulationTicks=0;canvas.classList.add("dragging")}
 function stopNodeDrag(){if(pointer.draggingNode){pointer.draggingNode.vx=0;pointer.draggingNode.vy=0;pointer.draggingNode=null;simulationTicks=300}canvas.classList.remove("dragging")}
 function beginPinch(){if(activePointers.size<2)return;const pts=[...activePointers.values()].slice(0,2),dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y,cx=(pts[0].x+pts[1].x)/2,cy=(pts[0].y+pts[1].y)/2,w=screenToWorld(cx,cy);pinch={active:true,startDistance:Math.max(1,Math.hypot(dx,dy)),startZoom:camera.zoom,worldX:w.x,worldY:w.y};clearLongPress();stopNodeDrag();pointer.moved=true}
 function updatePinch(){if(!pinch.active||activePointers.size<2)return;const pts=[...activePointers.values()].slice(0,2),dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y,cx=(pts[0].x+pts[1].x)/2,cy=(pts[0].y+pts[1].y)/2,dist=Math.max(1,Math.hypot(dx,dy)),z=Math.max(.28,Math.min(4.2,pinch.startZoom*(dist/pinch.startDistance)));camera.zoom=z;camera.x=cx-pinch.worldX*z;camera.y=cy-pinch.worldY*z}
