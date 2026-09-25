@@ -175,6 +175,7 @@ let cloudRotationY=0;
 let cloudRotationX=-0.18;
 let cloudRotationZ=0;
 let cloudFocusAnimating=false;
+let centeredNode=null;
 
 const cloudExtentX=430;
 const cloudExtentY=330;
@@ -391,6 +392,8 @@ function rawCloudScreen(n){
 function centerOnNode(n,z=Math.max(camera.zoom,1.35)){
     if(!n)return;
 
+    centeredNode=n;
+
     const targetYRaw=Math.atan2(-n.sx,n.sz);
     const targetX=Math.atan2(n.sy,Math.hypot(n.sx,n.sz));
 
@@ -403,9 +406,10 @@ function centerOnNode(n,z=Math.max(camera.zoom,1.35)){
     const startZ=cloudRotationZ;
 
     const startCamera={...camera};
+    const mobile=window.matchMedia("(max-width:700px)").matches;
     const targetCamera={
         x:width/2,
-        y:height/2,
+        y:mobile ? Math.max(170,(height-125)/2) : height/2,
         zoom:Math.max(1,Math.min(2.15,z))
     };
 
@@ -588,7 +592,7 @@ function updateCursorOffsets(){
 
 
 function applyAmbientRotation(){
-    if(!ambientRotationEnabled||cloudFocusAnimating)return;
+    if(!ambientRotationEnabled||cloudFocusAnimating||centeredNode)return;
 
     const now=performance.now();
 
@@ -677,7 +681,7 @@ function drawEdges(){
         let alpha=(.012+e.weight*.0055)*(.25+.75*depth);
         alpha=Math.min(.09,alpha);
 
-        if(selectedNode&&!touchesSelected)alpha*=.18;
+        if(selectedNode&&!touchesSelected)alpha*=.58;
         if(touchesSelected)alpha=.12+.10*depth;
 
         ctx.strokeStyle=`rgba(177,190,196,${alpha})`;
@@ -723,9 +727,8 @@ function drawNodes(){
         let alpha=(.20+.80*p.depth);
         alpha*=match?1:.12;
 
-        if(selectedNode&&!sel){
-            alpha*=orbiting?.98:.22;
-        }
+        // 선택한 노드/ORBIT은 더 밝고 크게 강조하되,
+        // 나머지 노드는 그대로 남겨 전체 3D field가 검게 사라지지 않게 한다.
 
         const rgb=hexToRgb(n.photo.color);
         const depthScale=.60+p.depth*.72;
@@ -796,10 +799,13 @@ function hitTest(x,y){
 
 function tooltipFor(n,x,y){const t=document.getElementById("tooltip");if(!n){t.classList.remove("show");return}document.getElementById("tooltipImage").src=photoUrl(n.photo.filename);document.getElementById("tooltipDate").textContent=formatDate(n.photo.date)||"Undated";document.getElementById("tooltipCopy").textContent=[getLocation(n.photo),getCamera(n.photo)].filter(Boolean).join(" · ");t.style.left=Math.min(width-184,x+14)+"px";t.style.top=Math.min(height-160,y+14)+"px";t.classList.add("show")}
 function setSelected(n,center=false){
+    if(centeredNode!==n)centeredNode=null;
+
     selectedNode=n;
     refreshOrbitTargets();
 
     if(!n){
+        centeredNode=null;
         document.getElementById("infoPanel").classList.remove("open","expanded");
         document.body.classList.remove("mobile-panel-open","mobile-panel-expanded");
         if(typeof panelToggle!=="undefined")panelToggle.textContent="DETAIL";
@@ -840,7 +846,7 @@ function setSelected(n,center=false){
 
 function escapeHtml(v){return safe(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
 function clearLongPress(){if(pointer.longPressTimer){clearTimeout(pointer.longPressTimer);pointer.longPressTimer=null}}
-function startNodeDrag(n){if(!n)return;pointer.draggingNode=n;n.vx=0;n.vy=0;n.ox=0;n.oy=0;n.ovx=0;n.ovy=0;n.orbitMix=0;simulationTicks=0;canvas.classList.add("dragging")}
+function startNodeDrag(n){if(!n)return;centeredNode=null;pointer.draggingNode=n;n.vx=0;n.vy=0;n.ox=0;n.oy=0;n.ovx=0;n.ovy=0;n.orbitMix=0;simulationTicks=0;canvas.classList.add("dragging")}
 function stopNodeDrag(){if(pointer.draggingNode){pointer.draggingNode.vx=0;pointer.draggingNode.vy=0;pointer.draggingNode=null;simulationTicks=300}canvas.classList.remove("dragging")}
 function beginPinch(){if(activePointers.size<2)return;const pts=[...activePointers.values()].slice(0,2),dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y,cx=(pts[0].x+pts[1].x)/2,cy=(pts[0].y+pts[1].y)/2,w=screenToWorld(cx,cy);pinch={active:true,startDistance:Math.max(1,Math.hypot(dx,dy)),startZoom:camera.zoom,worldX:w.x,worldY:w.y};clearLongPress();stopNodeDrag();pointer.moved=true}
 function updatePinch(){if(!pinch.active||activePointers.size<2)return;const pts=[...activePointers.values()].slice(0,2),dx=pts[1].x-pts[0].x,dy=pts[1].y-pts[0].y,cx=(pts[0].x+pts[1].x)/2,cy=(pts[0].y+pts[1].y)/2,dist=Math.max(1,Math.hypot(dx,dy)),z=Math.max(.28,Math.min(4.2,pinch.startZoom*(dist/pinch.startDistance)));camera.zoom=z;camera.x=cx-pinch.worldX*z;camera.y=cy-pinch.worldY*z}
@@ -849,6 +855,10 @@ canvas.addEventListener("pointerdown",e=>{
     pointer.x=e.clientX;pointer.y=e.clientY;pointer.active=true;pointer.type=e.pointerType||"mouse";
     if(activePointers.size===2){beginPinch();return}
     pointer.down=true;pointer.id=e.pointerId;pointer.moved=false;pointer.lastX=e.clientX;pointer.lastY=e.clientY;pointer.downNode=hitTest(e.clientX,e.clientY);
+
+    if(!pointer.downNode){
+        centeredNode=null;
+    }
     if(pointer.type==="mouse"&&pointer.downNode)startNodeDrag(pointer.downNode);
     else if(pointer.type==="touch"&&pointer.downNode){clearLongPress();pointer.longPressTimer=setTimeout(()=>{if(pointer.down&&!pointer.moved&&activePointers.size===1){startNodeDrag(pointer.downNode);if(navigator.vibrate)navigator.vibrate(12)}},280)}
 });
@@ -917,7 +927,9 @@ panelToggle.onclick=()=>{
     document.body.classList.toggle("mobile-panel-expanded",expanded);
     document.body.classList.add("mobile-panel-open");
 };
-focusSelectedBtn.onclick=()=>selectedNode&&centerOnNode(selectedNode,1.65);
+focusSelectedBtn.onclick=()=>{
+    if(selectedNode)centerOnNode(selectedNode,1.65);
+};
 openSelectedBtn.onclick=()=>selectedNode&&openLightbox(selectedNode);
 relatedList.onclick=e=>{
     const x=e.target.closest("[data-node]");
@@ -927,7 +939,7 @@ relatedList.onclick=e=>{
 };
 function updateStats(){statCount.textContent=visibleNodes().length;statCopy.textContent=`photographs · ${edges.length} visible connections`}
 function buildYears(){const years=[...new Set(photos.map(getYear).filter(Boolean))].sort();yearList.innerHTML=`<button class="year-btn active" data-year="all">ALL</button>`+years.map(y=>`<button class="year-btn" data-year="${y}">${y}</button>`).join("");yearList.onclick=e=>{const b=e.target.closest(".year-btn");if(!b)return;activeYear=b.dataset.year;document.querySelectorAll(".year-btn").forEach(x=>x.classList.toggle("active",x===b));activeYearLabel.textContent=activeYear==="all"?"ALL YEARS":activeYear;setSelected(null,false);buildEdges()}}
-function toggleJourney(){journeyRunning=!journeyRunning;journeyBtn.textContent=journeyRunning?"■ STOP":"▶ JOURNEY";clearInterval(journeyTimer);journeyTimer=null;if(!journeyRunning)return;if(!selectedNode){const v=visibleNodes();if(v.length)setSelected(v[Math.floor(Math.random()*v.length)],false)}journeyTimer=setInterval(()=>{if(!selectedNode)return;const r=strongestConnections(selectedNode),v=visibleNodes(),next=r.length?r[Math.floor(Math.random()*Math.min(3,r.length))].node:v[Math.floor(Math.random()*v.length)];if(next)setSelected(next,false)},2300)}journeyBtn.onclick=toggleJourney;
+function toggleJourney(){centeredNode=null;journeyRunning=!journeyRunning;journeyBtn.textContent=journeyRunning?"■ STOP":"▶ JOURNEY";clearInterval(journeyTimer);journeyTimer=null;if(!journeyRunning)return;if(!selectedNode){const v=visibleNodes();if(v.length)setSelected(v[Math.floor(Math.random()*v.length)],false)}journeyTimer=setInterval(()=>{if(!selectedNode)return;const r=strongestConnections(selectedNode),v=visibleNodes(),next=r.length?r[Math.floor(Math.random()*Math.min(3,r.length))].node:v[Math.floor(Math.random()*v.length)];if(next)setSelected(next,false)},2300)}journeyBtn.onclick=toggleJourney;
 const currentVisibleOrdered=()=>visibleNodes();function openLightbox(n){const l=currentVisibleOrdered();lightboxIndex=l.indexOf(n);if(lightboxIndex<0)return;lightbox.classList.add("open");renderLightbox()}function renderLightbox(){const l=currentVisibleOrdered(),n=l[lightboxIndex];if(!n)return;const p=n.photo;lightboxImage.src=photoUrl(p.filename);lbNumber.textContent=`${String(lightboxIndex+1).padStart(2,"0")} / ${String(l.length).padStart(2,"0")}`;lbDate.textContent=formatDate(p.date)||"Undated";lbMeta.innerHTML=[getLocation(p),getCamera(p),normalizeColor(p.color)].filter(Boolean).map(escapeHtml).join("<br>")}function moveLightbox(d){const l=currentVisibleOrdered();if(!l.length)return;lightboxIndex=(lightboxIndex+d+l.length)%l.length;renderLightbox()}lightboxClose.onclick=()=>lightbox.classList.remove("open");lbPrev.onclick=()=>moveLightbox(-1);lbNext.onclick=()=>moveLightbox(1);document.addEventListener("keydown",e=>{if(lightbox.classList.contains("open")){if(e.key==="Escape")lightbox.classList.remove("open");if(e.key==="ArrowLeft")moveLightbox(-1);if(e.key==="ArrowRight")moveLightbox(1);return}if(e.key==="Escape")setSelected(null,false)});
 
 async function loadJson(file,fallback){try{const r=await fetch(`${file}?v=${Date.now()}`,{cache:"no-store"});return r.ok?await r.json():fallback}catch{return fallback}}
