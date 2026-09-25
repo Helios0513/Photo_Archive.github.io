@@ -161,10 +161,10 @@ function applyCursorSweepImpulse(x,y,dx,dy,dt){
     pointer.speed=speed;
 
     // 가만히 있거나 천천히 움직일 때는 아무 반응도 하지 않음.
-    if(speed<0.42)return;
+    if(speed<0.30)return;
 
-    const radius=165;
-    const speedPower=Math.min(1.15,(speed-.42)/1.45);
+    const radius=205;
+    const speedPower=Math.min(1.25,(speed-.30)/1.20);
     if(speedPower<=0)return;
 
     pointer.energy=Math.max(pointer.energy,Math.min(1,speedPower));
@@ -182,16 +182,16 @@ function applyCursorSweepImpulse(x,y,dx,dy,dt){
         ty/=dist;
 
         // 커서가 빠르게 스쳐갈 때만 아주 작은 일시적 힘을 준다.
-        const impulse=(0.95*speedPower*falloff)/Math.max(.55,camera.zoom);
+        const impulse=(2.15*speedPower*falloff)/Math.max(.55,camera.zoom);
         n.ovx=(n.ovx||0)+tx*impulse;
         n.ovy=(n.ovy||0)+ty*impulse;
     });
 }
 
 function updateCursorOffsets(){
-    const spring=.18;
-    const damping=.72;
-    const maxScreenOffset=18;
+    const spring=.21;
+    const damping=.70;
+    const maxScreenOffset=32;
 
     nodes.forEach(n=>{
         if(n===pointer.draggingNode){
@@ -288,8 +288,8 @@ function simulate(){
 function drawPointerField(){
     if(pointer.energy<=0||pointer.type!=="mouse"||pointer.down||pinch.active)return;
 
-    const r=62+pointer.energy*34;
-    const a=.012+.025*pointer.energy;
+    const r=72+pointer.energy*46;
+    const a=.014+.038*pointer.energy;
     const g=ctx.createRadialGradient(pointer.x,pointer.y,0,pointer.x,pointer.y,r);
     g.addColorStop(0,`rgba(97,227,142,${a})`);
     g.addColorStop(.55,`rgba(97,227,142,${a*.32})`);
