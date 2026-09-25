@@ -1274,6 +1274,14 @@ Map
 </a>
 
 <a
+href="graph.html"
+class="nav-link"
+id="graphNav"
+>
+Graph
+</a>
+
+<a
 href="guestbook.html"
 class="nav-link"
 id="guestbookNav"
@@ -1779,6 +1787,9 @@ projectsLabel:
 mapLabel:
 "Map",
 
+graphLabel:
+"Graph",
+
 guestbookLabel:
 "Guestbook",
 
@@ -2119,6 +2130,12 @@ document.getElementById(
 ).textContent =
 siteSettings.mapLabel ||
 "Map";
+
+document.getElementById(
+"graphNav"
+).textContent =
+siteSettings.graphLabel ||
+"Graph";
 
 document.getElementById(
 "guestbookNav"
