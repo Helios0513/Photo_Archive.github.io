@@ -49,7 +49,7 @@
     </div>
 </div>
 
-<div class="legend"><b>IDLE</b> 3D SPHERE ROTATION<br><b>SWEEP CURSOR</b> DISTURB<br><b>SCROLL</b> ZOOM<br><b>DRAG NODE</b> MOVE<br><b>DRAG SPACE</b> PAN<br><b>CLICK</b> FOCUS</div>
+<div class="legend"><b>IDLE</b> 3D FIELD ROTATION<br><b>SWEEP CURSOR</b> DISTURB<br><b>SCROLL</b> ZOOM<br><b>DRAG NODE</b> MOVE<br><b>DRAG SPACE</b> PAN<br><b>CLICK</b> FOCUS</div>
 <div class="stats"><strong id="statCount">0</strong><span id="statCopy">photographs · 0 connections</span></div>
 
 <div class="timeline">
@@ -76,7 +76,7 @@
         <div class="related" id="relatedList"></div>
         <div class="panel-actions">
             <button id="openSelectedBtn">Open</button>
-            <button id="focusSelectedBtn">Center</button>
+            <button id="focusSelectedBtn" title="선택한 노드가 정면을 향하도록 구체를 회전">Center</button>
         </div>
     </div>
 </aside>
@@ -107,10 +107,16 @@ let photos=[],projects=[],nodes=[],edges=[],allRelations=[],projectMap=new Map()
 let activeYear="all",selectedNode=null,hoveredNode=null,currentSearch="";
 let orbitMap=new Map();
 let ambientRotationEnabled=true;
-let sphereRotationY=0;
-let sphereRotationX=-0.22;
-const sphereRadius=365;
-const spherePerspective=1050;
+let cloudRotationY=0;
+let cloudRotationX=-0.18;
+let cloudRotationZ=0;
+let cloudFocusAnimating=false;
+
+const cloudExtentX=430;
+const cloudExtentY=330;
+const cloudExtentZ=390;
+const cloudDepthRange=520;
+const cloudPerspective=1150;
 let width=innerWidth,height=innerHeight,dpr=Math.max(1,Math.min(2,devicePixelRatio||1)),simulationTicks=0;
 let camera={x:width/2,y:height/2,zoom:1};
 let pointer={down:false,moved:false,lastX:0,lastY:0,x:0,y:0,active:false,id:null,type:"mouse",downNode:null,draggingNode:null,longPressTimer:null,moveX:0,moveY:0,lastMoveTime:0,speed:0,energy:0};
@@ -137,18 +143,58 @@ const visibleNodes=()=>nodes.filter(n=>activeYear==="all"||getYear(n.photo)===ac
 function searchMatch(n){if(!currentSearch)return true;const p=n.photo,pt=projectIdsFor(p.filename).map(id=>projectMap.get(id)?.title||"").join(" ");return[p.filename,p.date,p.info,p.color,getLocation(p),pt].filter(Boolean).join(" ").toLowerCase().includes(currentSearch)}
 
 function buildProjectMaps(){projectMap.clear();photoProjectMap.clear();projects.forEach(p=>{projectMap.set(p.id,p);(p.photos||[]).forEach(f=>{if(!photoProjectMap.has(f))photoProjectMap.set(f,[]);photoProjectMap.get(f).push(p.id)})})}
+function hashStringSeed(text){
+    let h=2166136261;
+    const s=String(text||"");
+    for(let i=0;i<s.length;i++){
+        h^=s.charCodeAt(i);
+        h=Math.imul(h,16777619);
+    }
+    return h>>>0;
+}
+
+function mulberry32(seed){
+    return function(){
+        let t=seed+=0x6D2B79F5;
+        t=Math.imul(t^t>>>15,t|1);
+        t^=t+Math.imul(t^t>>>7,t|61);
+        return((t^t>>>14)>>>0)/4294967296;
+    };
+}
+
 function buildNodes(){
-    const total=Math.max(1,photos.length);
-    const golden=Math.PI*(3-Math.sqrt(5));
-
     nodes=photos.map((photo,id)=>{
-        const y=total===1?0:1-(id/(total-1))*2;
-        const ring=Math.sqrt(Math.max(0,1-y*y));
-        const theta=id*golden;
+        // 파일명을 seed로 사용해서 새로고침해도 같은 3D 배치를 유지.
+        const rand=mulberry32(hashStringSeed(`${photo.filename}-${id}`));
 
-        const sx=Math.cos(theta)*ring*sphereRadius;
-        const sy=y*sphereRadius;
-        const sz=Math.sin(theta)*ring*sphereRadius;
+        // 완벽한 구 표면이 아니라 3D 공간 내부에 불규칙하게 분포.
+        const zDir=rand()*2-1;
+        const angle=rand()*Math.PI*2;
+        const ring=Math.sqrt(Math.max(0,1-zDir*zDir));
+
+        // 중심에도 일부 노드가 있고 바깥에도 일부 노드가 생기는 볼륨 분포.
+        const radius=.22+.78*Math.pow(rand(),.52);
+
+        const jitterX=.72+rand()*.56;
+        const jitterY=.72+rand()*.56;
+        const jitterZ=.72+rand()*.56;
+
+        let sx=Math.cos(angle)*ring*cloudExtentX*radius*jitterX;
+        let sy=zDir*cloudExtentY*radius*jitterY;
+        let sz=Math.sin(angle)*ring*cloudExtentZ*radius*jitterZ;
+
+        // 구형 윤곽을 깨기 위한 비대칭 오프셋.
+        sx+=(rand()-.5)*105;
+        sy+=(rand()-.5)*80;
+        sz+=(rand()-.5)*115;
+
+        // 소수의 노드는 조금 더 바깥으로 빠져나가게 해서 자연스러운 3D field 느낌.
+        if(rand()<.16){
+            const burst=1.08+rand()*.26;
+            sx*=burst;
+            sy*=burst;
+            sz*=burst;
+        }
 
         return{
             id,photo,
@@ -190,7 +236,7 @@ function buildEdges(){
 
         // 매우 긴 선은 정말 강한 관계일 때만 남긴다.
         const dist=Math.hypot(edge.b.sx-edge.a.sx,edge.b.sy-edge.a.sy,edge.b.sz-edge.a.sz);
-        if(dist>360&&edge.weight<6)return false;
+        if(dist>520&&edge.weight<6)return false;
 
         edges.push(edge);
         degree.set(edge.a.id,da+1);
@@ -225,52 +271,97 @@ const screenToWorld=(x,y)=>({x:(x-camera.x)/camera.zoom,y:(y-camera.y)/camera.zo
 function animateCamera(target,d=500){const s={...camera},t0=performance.now();function f(now){const t=Math.min(1,(now-t0)/d),e=1-Math.pow(1-t,3);camera.x=s.x+(target.x-s.x)*e;camera.y=s.y+(target.y-s.y)*e;camera.zoom=s.zoom+(target.zoom-s.zoom)*e;if(t<1)requestAnimationFrame(f)}requestAnimationFrame(f)}
 function resetCamera(){animateCamera({x:width/2,y:height/2,zoom:1})}
 
-function rotateSpherePoint(n){
+function rotateCloudPoint(n){
     let x=n.sx,y=n.sy,z=n.sz;
 
-    const cy=Math.cos(sphereRotationY),sy=Math.sin(sphereRotationY);
-    const x1=x*cy+z*sy;
-    const z1=-x*sy+z*cy;
+    // Y rotation
+    const cy=Math.cos(cloudRotationY),sy=Math.sin(cloudRotationY);
+    let x1=x*cy+z*sy;
+    let z1=-x*sy+z*cy;
 
-    const cx=Math.cos(sphereRotationX),sx=Math.sin(sphereRotationX);
-    const y2=y*cx-z1*sx;
-    const z2=y*sx+z1*cx;
+    // X rotation
+    const cx=Math.cos(cloudRotationX),sx=Math.sin(cloudRotationX);
+    let y2=y*cx-z1*sx;
+    let z2=y*sx+z1*cx;
 
-    return{x:x1,y:y2,z:z2};
+    // 아주 약한 Z rotation까지 더해 "원판 회전" 느낌을 제거.
+    const cz=Math.cos(cloudRotationZ),sz=Math.sin(cloudRotationZ);
+    const x3=x1*cz-y2*sz;
+    const y3=x1*sz+y2*cz;
+
+    return{x:x3,y:y3,z:z2};
 }
 
-function projectedSphereWorld(n){
-    const r=rotateSpherePoint(n);
-    const perspective=spherePerspective/(spherePerspective-r.z);
+function projectedCloudWorld(n){
+    const r=rotateCloudPoint(n);
+    const perspective=cloudPerspective/(cloudPerspective-r.z);
 
     return{
         x:r.x*perspective,
         y:r.y*perspective,
         z:r.z,
         perspective,
-        depth:(r.z+sphereRadius)/(sphereRadius*2)
+        depth:Math.max(0,Math.min(1,(r.z+cloudDepthRange)/(cloudDepthRange*2)))
     };
 }
 
-function rawSphereScreen(n){
-    const p=projectedSphereWorld(n);
+function rawCloudScreen(n){
+    const p=projectedCloudWorld(n);
 
     return{
         x:p.x*camera.zoom+camera.x+(n.ox||0)*camera.zoom,
         y:p.y*camera.zoom+camera.y+(n.oy||0)*camera.zoom,
         z:p.z,
-        depth:Math.max(0,Math.min(1,p.depth)),
+        depth:p.depth,
         scale:p.perspective
     };
 }
 
 function centerOnNode(n,z=Math.max(camera.zoom,1.35)){
-    const p=projectedSphereWorld(n);
-    animateCamera({
-        x:width/2-p.x*z,
-        y:height/2-p.y*z,
-        zoom:z
-    },600);
+    if(!n)return;
+
+    const targetYRaw=Math.atan2(-n.sx,n.sz);
+    const targetX=Math.atan2(n.sy,Math.hypot(n.sx,n.sz));
+
+    const twoPi=Math.PI*2;
+    const turns=Math.round((cloudRotationY-targetYRaw)/twoPi);
+    const targetY=targetYRaw+turns*twoPi;
+
+    const startY=cloudRotationY;
+    const startX=cloudRotationX;
+    const startZ=cloudRotationZ;
+
+    const startCamera={...camera};
+    const targetCamera={
+        x:width/2,
+        y:height/2,
+        zoom:Math.max(1,Math.min(2.15,z))
+    };
+
+    cloudFocusAnimating=true;
+    const begin=performance.now();
+    const duration=620;
+
+    function tick(now){
+        const t=Math.min(1,(now-begin)/duration);
+        const e=1-Math.pow(1-t,3);
+
+        cloudRotationY=startY+(targetY-startY)*e;
+        cloudRotationX=startX+(targetX-startX)*e;
+        cloudRotationZ=startZ+(0-startZ)*e;
+
+        camera.x=startCamera.x+(targetCamera.x-startCamera.x)*e;
+        camera.y=startCamera.y+(targetCamera.y-startCamera.y)*e;
+        camera.zoom=startCamera.zoom+(targetCamera.zoom-startCamera.zoom)*e;
+
+        if(t<1){
+            requestAnimationFrame(tick);
+        }else{
+            cloudFocusAnimating=false;
+        }
+    }
+
+    requestAnimationFrame(tick);
 }
 
 
@@ -328,7 +419,7 @@ function refreshOrbitTargets(){
 }
 
 function screenPosition(n,now=performance.now()){
-    const base=rawSphereScreen(n);
+    const base=rawCloudScreen(n);
 
     const idx=orbitMap.get(n.id);
     const shouldOrbit=selectedNode&&idx!==undefined&&n!==selectedNode;
@@ -343,7 +434,7 @@ function screenPosition(n,now=performance.now()){
     let scale=base.scale;
 
     if(n.orbitMix>.001&&selectedNode&&n!==selectedNode){
-        const center=rawSphereScreen(selectedNode);
+        const center=rawCloudScreen(selectedNode);
         const ring=idx<4?92:137;
         const localIndex=idx<4?idx:idx-4;
         const groupCount=idx<4
@@ -358,47 +449,36 @@ function screenPosition(n,now=performance.now()){
 
         x+=(tx-x)*n.orbitMix;
         y+=(ty-y)*n.orbitMix;
-        z+=(sphereRadius-z)*n.orbitMix*.35;
-        depth+=(1-depth)*n.orbitMix*.35;
-        scale+=(1.12-scale)*n.orbitMix*.35;
+        z+=(center.z-z)*n.orbitMix*.55;
+        depth+=(center.depth-depth)*n.orbitMix*.55;
+        scale+=(center.scale-scale)*n.orbitMix*.55;
     }
 
     return{x,y,z,depth,scale};
 }
 
-function screenToSphereLocal(screenX,screenY){
-    const u=(screenX-camera.x)/Math.max(.01,camera.zoom);
-    const v=(screenY-camera.y)/Math.max(.01,camera.zoom);
+function screenDeltaToCloudLocal(dx,dy){
+    // 화면에서 움직인 벡터를 현재 3D cloud 회전의 반대 방향으로 되돌린다.
+    let x=dx/Math.max(.01,camera.zoom);
+    let y=dy/Math.max(.01,camera.zoom);
+    let z=0;
 
-    // Perspective ray from virtual camera (0,0,P) to projected point (u,v,0).
-    const P=spherePerspective;
-    const a=u*u+v*v+P*P;
-    const b=-2*P*P;
-    const c=P*P-sphereRadius*sphereRadius;
-    const disc=Math.max(0,b*b-4*a*c);
-    const t=(-b-Math.sqrt(disc))/(2*a);
+    // inverse Z
+    const cz=Math.cos(-cloudRotationZ),sz=Math.sin(-cloudRotationZ);
+    const x1=x*cz-y*sz;
+    const y1=x*sz+y*cz;
 
-    let x=t*u;
-    let y=t*v;
-    let z=P*(1-t);
+    // inverse X
+    const cx=Math.cos(-cloudRotationX),sx=Math.sin(-cloudRotationX);
+    const y2=y1*cx-z*sx;
+    const z2=y1*sx+z*cx;
 
-    // Inverse X rotation.
-    const cx=Math.cos(-sphereRotationX),sx=Math.sin(-sphereRotationX);
-    const y1=y*cx-z*sx;
-    const z1=y*sx+z*cx;
+    // inverse Y
+    const cy=Math.cos(-cloudRotationY),sy=Math.sin(-cloudRotationY);
+    const x3=x1*cy+z2*sy;
+    const z3=-x1*sy+z2*cy;
 
-    // Inverse Y rotation.
-    const cy=Math.cos(-sphereRotationY),sy=Math.sin(-sphereRotationY);
-    const x2=x*cy+z1*sy;
-    const z2=-x*sy+z1*cy;
-
-    const len=Math.hypot(x2,y1,z2)||1;
-
-    return{
-        x:x2/len*sphereRadius,
-        y:y1/len*sphereRadius,
-        z:z2/len*sphereRadius
-    };
+    return{x:x3,y:y2,z:z3};
 }
 
 function updateCursorOffsets(){
@@ -437,12 +517,14 @@ function updateCursorOffsets(){
 
 
 function applyAmbientRotation(){
-    if(!ambientRotationEnabled)return;
+    if(!ambientRotationEnabled||cloudFocusAnimating)return;
 
-    // 실제 3D 구체가 천천히 도는 느낌:
-    // Y축을 중심으로 계속 회전하고, X축은 아주 조금 호흡하듯 기울어진다.
-    sphereRotationY+=.00028;
-    sphereRotationX=-.22+Math.sin(performance.now()*.00010)*.055;
+    const now=performance.now();
+
+    // 한 축만 도는 원판 느낌이 아니라 3D 공간 덩어리 자체가 천천히 떠다니며 회전.
+    cloudRotationY+=.00025;
+    cloudRotationX=-.18+Math.sin(now*.000095)*.075;
+    cloudRotationZ=Math.sin(now*.000061)*.045;
 }
 
 function simulate(){
@@ -469,24 +551,23 @@ function drawPointerField(){
 function drawBackground(){
     ctx.clearRect(0,0,width,height);
 
-    const radius=sphereRadius*camera.zoom*1.02;
-    const glow=ctx.createRadialGradient(
-        camera.x,camera.y,radius*.12,
-        camera.x,camera.y,radius
-    );
-    glow.addColorStop(0,"rgba(255,255,255,.012)");
-    glow.addColorStop(.70,"rgba(255,255,255,.005)");
-    glow.addColorStop(1,"rgba(255,255,255,0)");
-    ctx.fillStyle=glow;
-    ctx.beginPath();
-    ctx.arc(camera.x,camera.y,radius,0,Math.PI*2);
-    ctx.fill();
+    // 완벽한 구 윤곽은 그리지 않는다.
+    // 대신 서로 다른 위치/크기의 매우 약한 공간 glow만 겹쳐서 깊이만 암시.
+    const glows=[
+        {x:camera.x-110*camera.zoom,y:camera.y-55*camera.zoom,r:420*camera.zoom,a:.010},
+        {x:camera.x+135*camera.zoom,y:camera.y+80*camera.zoom,r:350*camera.zoom,a:.008},
+        {x:camera.x+10*camera.zoom,y:camera.y-140*camera.zoom,r:285*camera.zoom,a:.006}
+    ];
 
-    ctx.strokeStyle="rgba(255,255,255,.025)";
-    ctx.lineWidth=1;
-    ctx.beginPath();
-    ctx.arc(camera.x,camera.y,radius,0,Math.PI*2);
-    ctx.stroke();
+    glows.forEach(g=>{
+        const grad=ctx.createRadialGradient(g.x,g.y,0,g.x,g.y,g.r);
+        grad.addColorStop(0,`rgba(255,255,255,${g.a})`);
+        grad.addColorStop(1,"rgba(255,255,255,0)");
+        ctx.fillStyle=grad;
+        ctx.beginPath();
+        ctx.arc(g.x,g.y,g.r,0,Math.PI*2);
+        ctx.fill();
+    });
 }
 function drawNebula(){
     if(camera.zoom<.55)return;
@@ -643,7 +724,7 @@ function hitTest(x,y){
 }
 
 function tooltipFor(n,x,y){const t=document.getElementById("tooltip");if(!n){t.classList.remove("show");return}document.getElementById("tooltipImage").src=photoUrl(n.photo.filename);document.getElementById("tooltipDate").textContent=formatDate(n.photo.date)||"Undated";document.getElementById("tooltipCopy").textContent=[getLocation(n.photo),getCamera(n.photo)].filter(Boolean).join(" · ");t.style.left=Math.min(width-184,x+14)+"px";t.style.top=Math.min(height-160,y+14)+"px";t.classList.add("show")}
-function setSelected(n,center=true){
+function setSelected(n,center=false){
     selectedNode=n;
     refreshOrbitTargets();
 
@@ -713,14 +794,21 @@ canvas.addEventListener("pointermove",e=>{
         const dx=e.clientX-pointer.lastX,dy=e.clientY-pointer.lastY;
         if(Math.abs(dx)+Math.abs(dy)>2)pointer.moved=true;
 
-        const s=screenToSphereLocal(e.clientX,e.clientY);
-        pointer.draggingNode.sx=s.x;
-        pointer.draggingNode.sy=s.y;
-        pointer.draggingNode.sz=s.z;
-        pointer.draggingNode.x=s.x;
-        pointer.draggingNode.y=s.y;
-        pointer.draggingNode.homeX=s.x;
-        pointer.draggingNode.homeY=s.y;
+        const delta=screenDeltaToCloudLocal(dx,dy);
+
+        pointer.draggingNode.sx+=delta.x;
+        pointer.draggingNode.sy+=delta.y;
+        pointer.draggingNode.sz+=delta.z;
+
+        // 너무 멀리 튀어나가는 것만 제한하되, 완벽한 경계 형태는 만들지 않는다.
+        pointer.draggingNode.sx=Math.max(-cloudExtentX*1.45,Math.min(cloudExtentX*1.45,pointer.draggingNode.sx));
+        pointer.draggingNode.sy=Math.max(-cloudExtentY*1.45,Math.min(cloudExtentY*1.45,pointer.draggingNode.sy));
+        pointer.draggingNode.sz=Math.max(-cloudExtentZ*1.45,Math.min(cloudExtentZ*1.45,pointer.draggingNode.sz));
+
+        pointer.draggingNode.x=pointer.draggingNode.sx;
+        pointer.draggingNode.y=pointer.draggingNode.sy;
+        pointer.draggingNode.homeX=pointer.draggingNode.sx;
+        pointer.draggingNode.homeY=pointer.draggingNode.sy;
         pointer.draggingNode.vx=0;
         pointer.draggingNode.vy=0;
 
@@ -732,7 +820,7 @@ canvas.addEventListener("pointermove",e=>{
     if(pointer.down&&pointer.id===e.pointerId){const dx=e.clientX-pointer.lastX,dy=e.clientY-pointer.lastY;if(Math.abs(dx)+Math.abs(dy)>2){pointer.moved=true;clearLongPress()}camera.x+=dx;camera.y+=dy;pointer.lastX=e.clientX;pointer.lastY=e.clientY;tooltipFor(null);return}
     hoveredNode=hitTest(e.clientX,e.clientY);tooltipFor(hoveredNode,e.clientX,e.clientY)
 });
-function finishPointer(e,cancelled=false){clearLongPress();const pinching=pinch.active;activePointers.delete(e.pointerId);if(pinching){if(activePointers.size<2)pinch.active=false;pointer.down=false;pointer.id=null;pointer.downNode=null;stopNodeDrag();return}const dragged=pointer.draggingNode,moved=pointer.moved;if(dragged){stopNodeDrag();if(!moved&&!cancelled)setSelected(dragged,true)}else if(pointer.down&&pointer.id===e.pointerId&&!moved&&!cancelled){const n=hitTest(e.clientX,e.clientY);n?setSelected(n,true):setSelected(null,false)}pointer.down=false;pointer.id=null;pointer.downNode=null;if(e.pointerType==="touch"){pointer.active=false;hoveredNode=null;tooltipFor(null)}}
+function finishPointer(e,cancelled=false){clearLongPress();const pinching=pinch.active;activePointers.delete(e.pointerId);if(pinching){if(activePointers.size<2)pinch.active=false;pointer.down=false;pointer.id=null;pointer.downNode=null;stopNodeDrag();return}const dragged=pointer.draggingNode,moved=pointer.moved;if(dragged){stopNodeDrag();if(!moved&&!cancelled)setSelected(dragged,false)}else if(pointer.down&&pointer.id===e.pointerId&&!moved&&!cancelled){const n=hitTest(e.clientX,e.clientY);n?setSelected(n,false):setSelected(null,false)}pointer.down=false;pointer.id=null;pointer.downNode=null;if(e.pointerType==="touch"){pointer.active=false;hoveredNode=null;tooltipFor(null)}}
 canvas.addEventListener("pointerup",e=>finishPointer(e,false));
 canvas.addEventListener("pointercancel",e=>finishPointer(e,true));
 canvas.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"&&!pointer.down){pointer.active=false;pointer.energy=0;pointer.speed=0;hoveredNode=null;tooltipFor(null)}});
@@ -740,10 +828,10 @@ canvas.addEventListener("dblclick",e=>{const n=hitTest(e.clientX,e.clientY);if(n
 canvas.addEventListener("wheel",e=>{e.preventDefault();const before=screenToWorld(e.clientX,e.clientY),f=e.deltaY>0?.9:1.1;camera.zoom=Math.max(.28,Math.min(4.2,camera.zoom*f));const after=worldToScreen(before.x,before.y);camera.x+=e.clientX-after.x;camera.y+=e.clientY-after.y},{passive:false});
 
 searchInput.oninput=e=>currentSearch=e.target.value.trim().toLowerCase();searchClear.onclick=()=>{currentSearch="";searchInput.value=""};fullscreenBtn.onclick=async()=>{try{document.fullscreenElement?await document.exitFullscreen():await document.documentElement.requestFullscreen()}catch{}};
-panelClose.onclick=()=>setSelected(null,false);focusSelectedBtn.onclick=()=>selectedNode&&centerOnNode(selectedNode,1.65);openSelectedBtn.onclick=()=>selectedNode&&openLightbox(selectedNode);relatedList.onclick=e=>{const x=e.target.closest("[data-node]");if(!x)return;const n=nodes.find(n=>n.id===Number(x.dataset.node));if(n)setSelected(n,true)};
+panelClose.onclick=()=>setSelected(null,false);focusSelectedBtn.onclick=()=>selectedNode&&centerOnNode(selectedNode,1.65);openSelectedBtn.onclick=()=>selectedNode&&openLightbox(selectedNode);relatedList.onclick=e=>{const x=e.target.closest("[data-node]");if(!x)return;const n=nodes.find(n=>n.id===Number(x.dataset.node));if(n)setSelected(n,false)};
 function updateStats(){statCount.textContent=visibleNodes().length;statCopy.textContent=`photographs · ${edges.length} visible connections`}
 function buildYears(){const years=[...new Set(photos.map(getYear).filter(Boolean))].sort();yearList.innerHTML=`<button class="year-btn active" data-year="all">ALL</button>`+years.map(y=>`<button class="year-btn" data-year="${y}">${y}</button>`).join("");yearList.onclick=e=>{const b=e.target.closest(".year-btn");if(!b)return;activeYear=b.dataset.year;document.querySelectorAll(".year-btn").forEach(x=>x.classList.toggle("active",x===b));activeYearLabel.textContent=activeYear==="all"?"ALL YEARS":activeYear;setSelected(null,false);buildEdges()}}
-function toggleJourney(){journeyRunning=!journeyRunning;journeyBtn.textContent=journeyRunning?"■ STOP":"▶ JOURNEY";clearInterval(journeyTimer);journeyTimer=null;if(!journeyRunning)return;if(!selectedNode){const v=visibleNodes();if(v.length)setSelected(v[Math.floor(Math.random()*v.length)],true)}journeyTimer=setInterval(()=>{if(!selectedNode)return;const r=strongestConnections(selectedNode),v=visibleNodes(),next=r.length?r[Math.floor(Math.random()*Math.min(3,r.length))].node:v[Math.floor(Math.random()*v.length)];if(next)setSelected(next,true)},2300)}journeyBtn.onclick=toggleJourney;
+function toggleJourney(){journeyRunning=!journeyRunning;journeyBtn.textContent=journeyRunning?"■ STOP":"▶ JOURNEY";clearInterval(journeyTimer);journeyTimer=null;if(!journeyRunning)return;if(!selectedNode){const v=visibleNodes();if(v.length)setSelected(v[Math.floor(Math.random()*v.length)],false)}journeyTimer=setInterval(()=>{if(!selectedNode)return;const r=strongestConnections(selectedNode),v=visibleNodes(),next=r.length?r[Math.floor(Math.random()*Math.min(3,r.length))].node:v[Math.floor(Math.random()*v.length)];if(next)setSelected(next,false)},2300)}journeyBtn.onclick=toggleJourney;
 const currentVisibleOrdered=()=>visibleNodes();function openLightbox(n){const l=currentVisibleOrdered();lightboxIndex=l.indexOf(n);if(lightboxIndex<0)return;lightbox.classList.add("open");renderLightbox()}function renderLightbox(){const l=currentVisibleOrdered(),n=l[lightboxIndex];if(!n)return;const p=n.photo;lightboxImage.src=photoUrl(p.filename);lbNumber.textContent=`${String(lightboxIndex+1).padStart(2,"0")} / ${String(l.length).padStart(2,"0")}`;lbDate.textContent=formatDate(p.date)||"Undated";lbMeta.innerHTML=[getLocation(p),getCamera(p),normalizeColor(p.color)].filter(Boolean).map(escapeHtml).join("<br>")}function moveLightbox(d){const l=currentVisibleOrdered();if(!l.length)return;lightboxIndex=(lightboxIndex+d+l.length)%l.length;renderLightbox()}lightboxClose.onclick=()=>lightbox.classList.remove("open");lbPrev.onclick=()=>moveLightbox(-1);lbNext.onclick=()=>moveLightbox(1);document.addEventListener("keydown",e=>{if(lightbox.classList.contains("open")){if(e.key==="Escape")lightbox.classList.remove("open");if(e.key==="ArrowLeft")moveLightbox(-1);if(e.key==="ArrowRight")moveLightbox(1);return}if(e.key==="Escape")setSelected(null,false)});
 
 async function loadJson(file,fallback){try{const r=await fetch(`${file}?v=${Date.now()}`,{cache:"no-store"});return r.ok?await r.json():fallback}catch{return fallback}}
