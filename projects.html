@@ -1891,6 +1891,14 @@ img {
         </a>
 
         <a
+            href="graph.html"
+            class="nav-link"
+            id="graphNav"
+        >
+            Graph
+        </a>
+
+        <a
             href="guestbook.html"
             class="nav-link"
             id="guestbookNav"
@@ -2450,6 +2458,7 @@ const DEFAULT_SITE_SETTINGS = {
     colorsLabel: "Colors",
     projectsLabel: "Projects",
     mapLabel: "Map",
+    graphLabel: "Graph",
     guestbookLabel: "Guestbook",
     aboutLabel: "작가 소개",
     manageLabel: "사진 관리",
@@ -3101,6 +3110,13 @@ function applySiteSettings() {
     ).textContent =
         siteSettings.mapLabel ||
         "Map";
+
+
+    document.getElementById(
+        "graphNav"
+    ).textContent =
+        siteSettings.graphLabel ||
+        "Graph";
 
 
     document.getElementById(
