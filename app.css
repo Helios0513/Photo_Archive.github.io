@@ -533,6 +533,7 @@ html.theme-vt::view-transition-old(root), html.theme-vt::view-transition-new(roo
 .st-tabs button.on { color: var(--ink); border-color: var(--accent); }
 .st-tabs button i { font-style: normal; font-size: 11px; margin-left: 6px; padding: 1px 7px; border-radius: 99px; background: var(--accent); color: var(--accent-ink); }
 .drop {
+  display: block;
   border: 1.5px dashed var(--line-2); border-radius: 18px; padding: 54px 20px; text-align: center; transition: all .3s var(--ease); cursor: pointer; position: relative; background: var(--bg-2);
 }
 .drop.over { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg-2)); transform: scale(1.01); }
@@ -670,5 +671,7 @@ html.theme-vt::view-transition-old(root), html.theme-vt::view-transition-new(roo
 @media (prefers-reduced-motion: reduce) {
   html:not(.force-motion) *, html:not(.force-motion) *::before, html:not(.force-motion) *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   html:not(.force-motion) .rv { opacity: 1; transform: none; filter: none; }
+  /* 다음 사진까지 남은 시간을 알려주는 막대는 정보라서 항상 차오르게 둬요 */
+  .hero-bar.on i { animation-duration: var(--dur, 6s) !important; }
 }
 

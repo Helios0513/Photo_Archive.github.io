@@ -261,10 +261,8 @@ function renderHome(view) {
   const site = S.site, all = S.photos;
   let heroList = featured();
   for (const p of all) { if (heroList.length >= 5) break; if (!heroList.includes(p)) heroList.push(p); }
-  let selected = featured();
-  S.projects.forEach(pr => { const c = projectCover(pr); if (c && !selected.includes(c)) selected.push(c); });
-  for (const p of all) { if (selected.length >= 8) break; if (!selected.includes(p)) selected.push(p); }
-  selected = selected.slice(0, 8);
+  // Selected Works에는 관리에서 직접 고른 대표작만 보여줘요 (없으면 칸을 숨겨요)
+  const selected = featured();
   const yrs = years(all);
   const statement = `${(site.heroNote || '').replace(/\n/g, ' ')} ${site.featuredDescription || ''} 카메라를 들고 걸으며 마주친 빛과 색, 오래 바라보고 싶었던 순간들을 이곳에 모아 둡니다.`.trim();
 
@@ -296,7 +294,7 @@ function renderHome(view) {
     </div>
   </section>
 
-  <section class="hs" id="hs">
+  <section class="hs" id="hs" ${selected.length ? '' : 'hidden'}>
     <div class="hs-sticky">
       <div class="hs-head">
         <h2>${esc(site.featuredTitle || 'Selected Works').replace(/(\S+)$/, '<em>$1</em>')}</h2>
@@ -386,12 +384,13 @@ function renderHome(view) {
   /* 대표작: 세로 스크롤을 가로로 */
   const hs = $('#hs', view), track = $('#hsTrack', view);
   const sizeHs = () => {
+    if (!selected.length) return;
     if (innerWidth <= 720) { hs.style.height = ''; track.style.transform = ''; return; }
     const extra = Math.max(0, track.scrollWidth - innerWidth);
     hs.style.height = (innerHeight + extra) + 'px';
   };
   const hsScroll = () => {
-    if (innerWidth <= 720) return;
+    if (!selected.length || innerWidth <= 720) return;
     const top = hs.offsetTop, extra = Math.max(0, track.scrollWidth - innerWidth);
     const p = Math.min(1, Math.max(0, (scrollY - top) / Math.max(1, extra)));
     track.style.transform = `translate3d(${-p * extra}px,0,0)`;
