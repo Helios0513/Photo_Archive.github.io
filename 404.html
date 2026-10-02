@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hamihamoo Photography</title>
+<meta name="robots" content="noindex">
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0e0e0d;color:#b3b0a6;font-family:system-ui,sans-serif;font-size:14px}a{color:#ff5a36}</style>
+<script>
+  // 예전 페이지 주소로 들어오면 새 홈페이지의 같은 화면으로 옮겨줘요.
+  (function () {
+    var page = location.pathname.split('/').pop().toLowerCase();
+    var q = new URLSearchParams(location.search);
+    var hash = location.hash.replace(/^#/, '');
+    var to = '/';
+    if (page === 'p.html' && hash) to = '/#/p/' + encodeURIComponent(hash);
+    else if (page === 'p.html' || page === 'projects.html') to = q.get('project') ? '/#/projects/' + encodeURIComponent(q.get('project')) : '/#/projects';
+    else if (page === 'graph.html') to = '/#/constellation';
+    else if (page === 'guestbook.html') to = '/#/guestbook';
+    else if (page === 'upload.html') to = '/#/studio';
+    if (q.get('photo')) to = '/?photo=' + encodeURIComponent(q.get('photo')) + (to.indexOf('#') >= 0 ? to.slice(to.indexOf('#')) : '');
+    location.replace(to);
+  })();
+</script>
+</head>
+<body><p>새 홈페이지로 이동하는 중… <a href="/">바로 가기</a></p></body>
+</html>
