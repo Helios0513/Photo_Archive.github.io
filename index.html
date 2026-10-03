@@ -12,8 +12,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=UnifrakturMaguntia&family=Jost:wght@100&family=Noto+Sans+KR:wght@100&family=Sonsie+One&family=Lily+Script+One&family=Pacifico&family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..900&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@100..900&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@200..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@100..800&family=Noto+Serif+KR:wght@200..900&display=swap">
-<link rel="stylesheet" href="app.css?v=13">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=UnifrakturMaguntia&family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..900&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@100..900&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@200..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@100..800&family=Noto+Serif+KR:wght@200..900&display=swap">
+<link rel="stylesheet" href="app.css?v=14">
 <script>
   // 저장된 밝기 모드를 화면이 그려지기 전에 적용해 깜빡임을 막아요.
   try { var t = localStorage.getItem('hm-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -99,10 +99,6 @@
         <label class="field"><span>보내는 사람 (선택)</span><input id="pcFrom" maxlength="20" placeholder="예: 하미하무가"></label>
         <div class="mono faint pc-l">글꼴</div>
         <div class="pc-chips" id="pcFont"><button class="pill on" data-v="serif" style="font-family:'Instrument Serif',serif;font-style:italic;font-size:16px">Serif</button><button class="pill" data-v="myeongjo" style="font-family:'Noto Serif KR',serif">명조</button><button class="pill" data-v="gothic" style="font-weight:900">고딕</button><button class="pill" data-v="condensed" style="font-family:Anton,sans-serif;letter-spacing:.02em">CONDENSED</button><button class="pill" data-v="mono" style="font-family:'JetBrains Mono',monospace">Mono</button><button class="pill" data-v="batang" style="font-family:'Gowun Batang',serif;font-weight:700">바탕</button><button class="pill" data-v="hahmlet" style="font-family:Hahmlet,serif;font-weight:600">함렛</button><button class="pill" data-v="black" style="font-family:'Black Han Sans',sans-serif">검은고딕</button><button class="pill" data-v="bodoni" style="font-family:'Bodoni Moda',serif;font-style:italic;font-weight:800">Bodoni</button><button class="pill" data-v="grotesk" style="font-family:'Space Grotesk',sans-serif;font-weight:700">Grotesk</button><button class="pill" data-v="wide" style="font-family:Unbounded,sans-serif;font-weight:800">WIDE</button></div>
-        <div class="mono faint pc-l">글씨 스타일 <span class="faint">(큰 글씨에만 적용, 엔터로 줄바꿈)</span></div>
-        <div class="pc-chips" id="pcTStyle"><button class="pill on" data-v="plain">기본</button><button class="pill" data-v="retro">레트로 줄무늬</button><button class="pill" data-v="liquid">리퀴드 (영문)</button></div>
-        <div class="pc-chips" id="pcRetro" hidden style="margin-top:6px"><button class="pill on" data-v="1974">1974</button><button class="pill" data-v="민트">민트</button><button class="pill" data-v="팝">팝</button><button class="pill" data-v="흑백">흑백</button><button class="pill" data-v="ink">글씨 색으로</button></div>
-        <div class="pc-chips" id="pcLFont" hidden style="margin-top:6px"><button class="pill on" data-v="Sonsie One" style="font-family:'Sonsie One'">Sonsie</button><button class="pill" data-v="Lily Script One" style="font-family:'Lily Script One'">Lily</button><button class="pill" data-v="Pacifico" style="font-family:Pacifico">Pacifico</button></div>
         <div class="mono faint pc-l">글씨 색</div>
         <div class="pc-row" style="align-items:center"><div class="pc-swatches" id="pcTColor" style="flex:1"></div><input type="color" id="pcTPick" value="#d8401e" class="pc-pick" aria-label="글씨 색 직접 고르기"></div>
         <div class="mono faint pc-l">글씨 자리 <span class="faint">(이 디자인이 추천하는 자리)</span></div>
@@ -138,6 +134,6 @@
 <div class="toast" id="toast"></div>
 <div class="curtain" id="curtain"></div>
 
-<script src="app.js?v=13" defer></script>
+<script src="app.js?v=14" defer></script>
 </body>
 </html>
