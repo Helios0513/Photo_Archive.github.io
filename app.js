@@ -1543,7 +1543,7 @@ const Postcard = (() => {
     editorial: { font: 'bodoni', size: 100, color: 'white', weight: 500 },
   };
   const PAPER = { white: '#fbfaf6', cream: '#f1e9d8', black: '#141413', orange: '#e2672b' };
-  const st = { p: null, fmt: 'land', layout: 'card', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
+  const st = { p: null, fmt: 'land', layout: 'card', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
   const el = $('#pcModal'), cv = $('#pcCanvas'), out = $('#pcImg'), sheet = $('#pcSheet');
   const api = { get isOpen() { return !el.hidden; } };
   let im = null, cols = [], cache = {};
@@ -1582,41 +1582,53 @@ const Postcard = (() => {
 
   // ---------- 사진 효과 ----------
   const rnd = i => { const v = Math.sin(i * 91.7 + st.seed * 13.1) * 43758.5; return v - Math.floor(v); };
+  // 사진을 w×h 틀에 놓아요. st.zoom 1은 틀을 꽉 채우는 크기, 그보다 작으면 사진 전체가 보이고 남는 곳은 비워 둬요.
+  // st.cx, st.cy(0~1)는 사진의 어느 쪽을 보여 줄지예요 (0.5면 가운데)
+  function placed(w, h) {
+    const nw = im.naturalWidth, nh = im.naturalHeight, k = Math.max(w / nw, h / nh) * st.zoom, dw = nw * k, dh = nh * k;
+    const b = document.createElement('canvas'); b.width = w; b.height = h;
+    const bx = b.getContext('2d', { willReadFrequently: true }); bx.imageSmoothingQuality = 'high';
+    bx.drawImage(im, (w - dw) * st.cx, (h - dh) * st.cy, dw, dh);
+    return b;
+  }
   function fxCanvas(w, h, c) {
     w = Math.round(w); h = Math.round(h);
-    const key = [st.fx, w, h, st.seed, c.dark, c.light, c.vivid].join('|');
+    // 가장 큰 사진 틀을 기억해 두면, 사진을 끌 때 얼마나 움직일지 계산할 수 있어요
+    if (!st.frame || w * h > st.frame.w * st.frame.h) st.frame = { w, h, s: Math.max(w / w, h / h) * st.zoom };
+    const key = [st.fx, w, h, st.seed, c.dark, c.light, c.vivid, st.zoom, st.cx, st.cy].join('|');
     if (cache.key === key) return cache.c;
     const can = document.createElement('canvas'); can.width = w; can.height = h;
     const x = can.getContext('2d', { willReadFrequently: true });
-    const s = Math.max(w / im.naturalWidth, h / im.naturalHeight), sw = w / s, sh = h / s, sx = (im.naturalWidth - sw) / 2, sy = (im.naturalHeight - sh) / 2;
+    // 먼저 사진을 고른 크기·위치로 틀에 놓고(placed), 효과는 그 결과에 입혀요
+    const src = placed(w, h), s = 1, sw = w, sh = h, sx = 0, sy = 0;
     if (st.fx === 'slice') {
       // 사진을 조금 크게 잘라 두고, 폭이 제각각인 세로 조각마다 다른 높이에서 가져와 빈틈 없이 어긋나게
-      const zs = s * 1.3, zw = w / zs, zh = h / zs, zx = (im.naturalWidth - zw) / 2, slack = im.naturalHeight - zh;
+      const zs = s * 1.3, zw = w / zs, zh = h / zs, zx = (w - zw) / 2, slack = h - zh;
       const n = 6 + Math.floor(rnd(99) * 6), ws = Array.from({ length: n }, (_, i) => .45 + rnd(i + 200)), tot = ws.reduce((a, b) => a + b, 0);
       let px = 0;
       ws.forEach((wi, i) => {
         const dw = w * wi / tot, srcY = Math.max(0, Math.min(slack, slack / 2 + (rnd(i) - .5) * slack * 1.7));
-        x.drawImage(im, zx + px / zs, srcY, dw / zs, zh, Math.floor(px), 0, Math.ceil(dw) + 1, h);
+        x.drawImage(src, zx + px / zs, srcY, dw / zs, zh, Math.floor(px), 0, Math.ceil(dw) + 1, h);
         px += dw;
       });
     } else if (st.fx === 'motion') {
       // 옆으로 빠르게 움직인 것처럼: 조금씩 밀린 사진을 고르게 겹쳐요
       const N = 16;
-      for (let i = 0; i < N; i++) { x.globalAlpha = 1 / (i + 1); x.drawImage(im, sx, sy, sw, sh, (i / (N - 1) - .5) * w * .07, 0, w, h); }
+      for (let i = 0; i < N; i++) { x.globalAlpha = 1 / (i + 1); x.drawImage(src, sx, sy, sw, sh, (i / (N - 1) - .5) * w * .07 - w * .035, 0, w * 1.07, h); }
       x.globalAlpha = 1;
     } else if (st.fx === 'kaleido') {
       // 만화경: 사진 가운데 한 조각을 위아래·좌우로 뒤집어 네 번 붙여요
       const q = document.createElement('canvas'); q.width = Math.ceil(w / 2); q.height = Math.ceil(h / 2);
-      q.getContext('2d').drawImage(im, sx + sw * .2, sy + sh * .2, sw * .4, sh * .4, 0, 0, q.width, q.height);
+      q.getContext('2d').drawImage(src, sx + sw * .2, sy + sh * .2, sw * .4, sh * .4, 0, 0, q.width, q.height);
       [[1, 1, 0, 0], [-1, 1, w, 0], [1, -1, 0, h], [-1, -1, w, h]].forEach(([a, b, tx0, ty0]) => { x.save(); x.translate(tx0, ty0); x.scale(a, b); x.drawImage(q, 0, 0); x.restore(); });
     } else if (st.fx === 'mirror') {
-      x.drawImage(im, sx, sy, sw / 2, sh, 0, 0, w / 2, h);
-      x.save(); x.translate(w, 0); x.scale(-1, 1); x.drawImage(im, sx, sy, sw / 2, sh, 0, 0, w / 2, h); x.restore();
+      x.drawImage(src, sx, sy, sw / 2, sh, 0, 0, w / 2, h);
+      x.save(); x.translate(w, 0); x.scale(-1, 1); x.drawImage(src, sx, sy, sw / 2, sh, 0, 0, w / 2, h); x.restore();
     } else if (st.fx === 'halftone') {
       // 신문 인쇄처럼 점으로
       const cell = Math.max(w, h) / 105, cw = Math.ceil(w / cell), ch = Math.ceil(h / cell);
       const t = document.createElement('canvas'); t.width = cw; t.height = ch;
-      const tx = t.getContext('2d', { willReadFrequently: true }); tx.drawImage(im, sx, sy, sw, sh, 0, 0, cw, ch);
+      const tx = t.getContext('2d', { willReadFrequently: true }); tx.drawImage(src, sx, sy, sw, sh, 0, 0, cw, ch);
       const d = tx.getImageData(0, 0, cw, ch).data;
       x.fillStyle = c.light; x.fillRect(0, 0, w, h); x.fillStyle = c.dark;
       for (let j = 0; j < ch; j++) for (let i = 0; i < cw; i++) {
@@ -1627,7 +1639,7 @@ const Postcard = (() => {
       // 작게 줄였다가 각지게 다시 키워요 (1비트는 줄인 상태에서 흑백 점으로 바꿔요)
       const k = st.fx === 'pixel' ? Math.max(w, h) / 64 : 3, cw = Math.ceil(w / k), ch = Math.ceil(h / k);
       const t = document.createElement('canvas'); t.width = cw; t.height = ch;
-      const tx = t.getContext('2d', { willReadFrequently: true }); tx.drawImage(im, sx, sy, sw, sh, 0, 0, cw, ch);
+      const tx = t.getContext('2d', { willReadFrequently: true }); tx.drawImage(src, sx, sy, sw, sh, 0, 0, cw, ch);
       if (st.fx === 'dither') {
         const id = tx.getImageData(0, 0, cw, ch), d = id.data, L = new Float32Array(cw * ch);
         for (let i = 0, p = 0; i < d.length; i += 4, p++) L[p] = ((.299 * d[i] + .587 * d[i + 1] + .114 * d[i + 2]) / 255 - .5) * 1.15 + .5;
@@ -1642,12 +1654,12 @@ const Postcard = (() => {
       x.imageSmoothingEnabled = false; x.drawImage(t, 0, 0, w, h); x.imageSmoothingEnabled = true;
     } else if (st.fx === 'dreamy') {
       // 아주 작게 줄인 사진을 밝게 겹쳐 뿌옇게 빛나게
-      x.drawImage(im, sx, sy, sw, sh, 0, 0, w, h);
+      x.drawImage(src, sx, sy, sw, sh, 0, 0, w, h);
       const t = document.createElement('canvas'); t.width = Math.ceil(w / 22); t.height = Math.ceil(h / 22);
-      t.getContext('2d').drawImage(im, sx, sy, sw, sh, 0, 0, t.width, t.height);
+      t.getContext('2d').drawImage(src, sx, sy, sw, sh, 0, 0, t.width, t.height);
       x.globalCompositeOperation = 'screen'; x.globalAlpha = .8; x.drawImage(t, 0, 0, w, h);
       x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
-    } else x.drawImage(im, sx, sy, sw, sh, 0, 0, w, h);
+    } else x.drawImage(src, sx, sy, sw, sh, 0, 0, w, h);
     if (['gradmap', 'thermal', 'lines', 'xerox'].includes(st.fx)) {
       const img = x.getImageData(0, 0, w, h), d = img.data;
       // 그라디언트 맵: 어두운 곳→밝은 곳을 세 가지 색으로 이어 칠해요 (무작위 조합마다 색 묶음이 바뀌어요)
@@ -1821,7 +1833,7 @@ const Postcard = (() => {
     const flat = (ctx, R) => { const M = ctx.getTransform(), xs = [R.x, R.x + R.w].flatMap(a => [R.y, R.y + R.h].map(b => [M.a * a + M.c * b + M.e, M.b * a + M.d * b + M.f])); const X = xs.map(q => q[0]), Y = xs.map(q => q[1]); return { x: Math.min(...X), y: Math.min(...Y), w: Math.max(...X) - Math.min(...X), h: Math.max(...Y) - Math.min(...Y) }; };
     const put = (list, o = {}, ctx = x) => { list.forEach(s => spots.push({ R: flat(ctx, s[0]), pos: s[1] })); const s = pick(list); block(ctx, s[0], { ...T, ...o, ...(s[2] || {}), pos: s[1] }); return s; };
     const inset = (k = 1) => ({ x: m * k, y: m * k, w: W - m * k * 2, h: H - m * k * 2 });
-    st.box = null;
+    st.box = null; st.frame = null;
     x.fillStyle = c.bg; x.fillRect(0, 0, W, H);
 
     if (st.layout === 'card') {
@@ -2082,11 +2094,11 @@ const Postcard = (() => {
   let pop = {};
   function popCell(w, h, [mid, hi]) {
     w = Math.round(w); h = Math.round(h);
-    const key = [w, h, mid, hi].join('|'); if (pop[key]) return pop[key];
+    const key = [w, h, mid, hi, st.zoom, st.cx, st.cy].join('|'); if (pop[key]) return pop[key];
+    if (Object.keys(pop).length > 8) pop = {};
     const can = document.createElement('canvas'); can.width = w; can.height = h;
     const x = can.getContext('2d', { willReadFrequently: true });
-    const s = Math.max(w / im.naturalWidth, h / im.naturalHeight), sw = w / s, sh = h / s;
-    x.drawImage(im, (im.naturalWidth - sw) / 2, (im.naturalHeight - sh) / 2, sw, sh, 0, 0, w, h);
+    x.drawImage(placed(w, h), 0, 0);
     const img = x.getImageData(0, 0, w, h), d = img.data, M = hx(mid), Hh = hx(hi), K = [24, 20, 22];
     for (let i = 0; i < d.length; i += 4) {
       const L = ((.299 * d[i] + .587 * d[i + 1] + .114 * d[i + 2]) / 255 - .5) * 1.5 + .5, col = L < .38 ? K : L < .66 ? M : Hh;
@@ -2137,6 +2149,7 @@ const Postcard = (() => {
     $('#pcUpper').classList.toggle('on', st.upper);
     $('#pcSize').value = Math.round(st.size * 100); $('#pcSizeN').textContent = Math.round(st.size * 100) + '%';
     $('#pcWeight').value = st.weight; paintWeight();
+    $('#pcZoom').value = Math.round(st.zoom * 100); $('#pcZoomN').textContent = Math.round(st.zoom * 100) + '%';
     $('#pcColor').innerHTML = [...Object.entries(PAPER).map(([k, v]) => [k, v]), ...cols.map((v, i) => ['c' + i, v])]
       .map(([k, v]) => `<button data-v="${k}" class="${st.color === k ? 'on' : ''}" style="--c:${v}" aria-label="색 ${k}"></button>`).join('');
   }
@@ -2151,7 +2164,7 @@ const Postcard = (() => {
     if (st.color[0] === 'c' && !cols.length) st.color = 'cream';
   }
   api.open = p => {
-    st.p = p; el.hidden = false; im = null; cache = {}; pop = {};
+    st.p = p; el.hidden = false; im = null; cache = {}; pop = {}; Object.assign(st, { zoom: 1, cx: .5, cy: .5 });
     $('#pcText').value = $('#pcText').value || (S.site.heroNote || '').replace(/\n/g, ' ');
     const i = new Image();
     i.onload = () => {
@@ -2213,22 +2226,55 @@ const Postcard = (() => {
     xs.forEach(X => line(X, 0, X, cv.height, sn && sn.x && sn.x.L === X));
     ys.forEach(Y => line(0, Y, cv.width, Y, sn && sn.y && sn.y.L === Y));
   }
-  let drag = null, raf = 0;
+  // 끌기: 글씨 상자 위를 잡으면 글씨가, 그 밖을 잡으면 사진이 움직여요. 두 손가락으로 벌리면 확대·축소
+  let drag = null, raf = 0, pinch = null;
+  const touches = new Map();
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+  const redraw = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); if (drag && drag.mode === 'text' && st.box) paintGrid(snapOf(st.box)); }); };
+  const setZoom = z => { st.zoom = Math.max(.3, Math.min(4, z)); $('#pcZoom').value = Math.round(st.zoom * 100); $('#pcZoomN').textContent = Math.round(st.zoom * 100) + '%'; };
+  function onText(e) {
+    if (!st.box) return st.layout === 'repeat';
+    const r = cv.getBoundingClientRect(), k = cv.width / r.width, px = (e.clientX - r.left) * k, py = (e.clientY - r.top) * k, pad = Math.min(cv.width, cv.height) * .03, [bx, by, bw, bh] = st.box;
+    return px > bx - pad && px < bx + bw + pad && py > by - pad && py < by + bh + pad;
+  }
   sheet.addEventListener('pointerdown', e => {
-    if (!im || !e.isPrimary) return;
-    drag = { x: e.clientX, y: e.clientY, ox: st.ox, oy: st.oy, k: cv.width / cv.getBoundingClientRect().width };
+    if (!im) return;
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
     try { sheet.setPointerCapture(e.pointerId); } catch (err) {}
-    sheet.classList.add('dragging');
-    if (st.box) paintGrid(snapOf(st.box));
+    if (touches.size === 2) {
+      const [a, b] = [...touches.values()];
+      pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, z: st.zoom }; drag = null; sheet.classList.remove('dragging', 'panning');
+      return;
+    }
+    if (!e.isPrimary) return;
+    const mode = onText(e) ? 'text' : 'photo';
+    drag = { mode, x: e.clientX, y: e.clientY, ox: st.ox, oy: st.oy, cx: st.cx, cy: st.cy, k: cv.width / cv.getBoundingClientRect().width };
+    sheet.classList.add(mode === 'text' ? 'dragging' : 'panning');
+    if (mode === 'text' && st.box) paintGrid(snapOf(st.box));
   });
   sheet.addEventListener('pointermove', e => {
+    if (touches.has(e.pointerId)) touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinch && touches.size === 2) { const [a, b] = [...touches.values()]; setZoom(pinch.z * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d); return redraw(); }
     if (!drag) return;
-    st.ox = drag.ox + (e.clientX - drag.x) * drag.k; st.oy = drag.oy + (e.clientY - drag.y) * drag.k;
-    if (!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); if (drag && st.box) paintGrid(snapOf(st.box)); });
+    const dx = (e.clientX - drag.x) * drag.k, dy = (e.clientY - drag.y) * drag.k;
+    if (drag.mode === 'text') { st.ox = drag.ox + dx; st.oy = drag.oy + dy; }
+    else {
+      // 사진이 틀보다 크면 남는 만큼, 작으면 빈 만큼 안에서만 움직여요
+      const fr = st.frame; if (!fr) return;
+      const ex = fr.w - im.naturalWidth * fr.s, ey = fr.h - im.naturalHeight * fr.s;
+      if (Math.abs(ex) > 1) st.cx = clamp01(drag.cx + dx / ex);
+      if (Math.abs(ey) > 1) st.cy = clamp01(drag.cy + dy / ey);
+    }
+    redraw();
   });
-  const end = () => {
+  sheet.addEventListener('wheel', e => { if (!im) return; e.preventDefault(); setZoom(st.zoom * Math.exp(-e.deltaY * .0015)); redraw(); }, { passive: false });
+  const end = e => {
+    touches.delete(e.pointerId);
+    if (pinch) { if (touches.size < 2) pinch = null; return; }
     if (!drag) return;
+    const mode = drag.mode;
     drag = null; cancelAnimationFrame(raf); raf = 0; draw();
+    if (mode === 'photo') return sheet.classList.remove('panning');
     // 그리드 선 가까이에서 놓으면 그 선에 맞춰 짧게 미끄러져 붙어요
     const sn = snapOf(st.box), dx = sn && sn.x ? sn.x.d : 0, dy = sn && sn.y ? sn.y.d : 0;
     const done = () => sheet.classList.remove('dragging');
@@ -2236,6 +2282,14 @@ const Postcard = (() => {
     const sx = st.ox, sy = st.oy, t0 = performance.now(), dur = reduced ? 0 : 140;
     const step = now => { const t = dur ? Math.min(1, (now - t0) / dur) : 1, e2 = 1 - Math.pow(1 - t, 3); st.ox = sx + dx * e2; st.oy = sy + dy * e2; draw(); paintGrid(sn); t < 1 ? requestAnimationFrame(step) : setTimeout(done, 120); };
     requestAnimationFrame(step);
+  };
+  // 사진 맞추기 버튼: 꽉 채우기 / 사진 전체 보기 / 크기 슬라이더
+  $('#pcZoom').addEventListener('input', e => { setZoom(e.target.value / 100); draw(); });
+  $('#pcFill').onclick = () => { st.cx = st.cy = .5; setZoom(1); draw(); };
+  $('#pcFit').onclick = () => {
+    const fr = st.frame; if (!fr || !im) return;
+    const nw = im.naturalWidth, nh = im.naturalHeight;
+    st.cx = st.cy = .5; setZoom(Math.min(fr.w / nw, fr.h / nh) / Math.max(fr.w / nw, fr.h / nh)); draw();
   };
   sheet.addEventListener('pointerup', end); sheet.addEventListener('pointercancel', end);
   $('#pcClose').onclick = api.close;

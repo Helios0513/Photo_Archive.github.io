@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=UnifrakturMaguntia&family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..900&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@100..900&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@200..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@100..800&family=Noto+Serif+KR:wght@200..900&display=swap">
-<link rel="stylesheet" href="app.css?v=11">
+<link rel="stylesheet" href="app.css?v=12">
 <script>
   // 저장된 밝기 모드를 화면이 그려지기 전에 적용해 깜빡임을 막아요.
   try { var t = localStorage.getItem('hm-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -86,6 +86,10 @@
         <h3>Poster <em>&amp; Postcard</em></h3>
         <div class="mono faint pc-l">형태</div>
         <div class="pc-chips" id="pcFmt"><button class="pill on" data-v="land">엽서 가로</button><button class="pill" data-v="port">엽서 세로</button><button class="pill" data-v="square">정사각</button><button class="pill" data-v="poster">포스터</button><button class="pill" data-v="feed">인스타 4:5</button><button class="pill" data-v="story">스토리 9:16</button><button class="pill" data-v="posterL">가로 포스터</button><button class="pill" data-v="wide">와이드 16:9</button><button class="pill" data-v="phone">휴대폰 배경</button><button class="pill" data-v="bookmark">책갈피</button><button class="pill" data-v="ticket">티켓</button></div>
+        <div class="mono faint pc-l">사진 크기 <span id="pcZoomN">100%</span></div>
+        <input type="range" id="pcZoom" min="30" max="400" value="100" class="pc-range">
+        <div class="pc-chips" style="margin-top:8px"><button class="pill" id="pcFill">꽉 채우기</button><button class="pill" id="pcFit">사진 전체 보기</button></div>
+        <p class="pc-tip">미리보기에서 글씨가 아닌 곳을 끌면 사진의 보이는 부분이 바뀌어요. 마우스 휠이나 두 손가락으로 확대·축소할 수 있어요.</p>
         <div class="mono faint pc-l">디자인</div>
         <div class="pc-chips" id="pcLayout"><button class="pill on" data-v="card">엽서</button><button class="pill" data-v="gallery">전시 포스터</button><button class="pill" data-v="full">꽉 찬 사진</button><button class="pill" data-v="type">글자 속 사진</button><button class="pill" data-v="swiss">스위스</button><button class="pill" data-v="cover">잡지 표지</button><button class="pill" data-v="split">반반</button><button class="pill" data-v="frame">액자</button><button class="pill" data-v="polaroid">폴라로이드</button><button class="pill" data-v="circle">원형</button><button class="pill" data-v="warhol">팝아트 4분할</button><button class="pill" data-v="bluenote">재즈 앨범</button><button class="pill" data-v="repeat">반복 글자</button><button class="pill" data-v="ticket">입장권</button><button class="pill" data-v="newspaper">신문 1면</button><button class="pill" data-v="movie">영화 포스터</button><button class="pill" data-v="editorial">잡지 지면</button></div>
         <div class="mono faint pc-l">사진 효과</div>
@@ -128,6 +132,6 @@
 <div class="toast" id="toast"></div>
 <div class="curtain" id="curtain"></div>
 
-<script src="app.js?v=11" defer></script>
+<script src="app.js?v=12" defer></script>
 </body>
 </html>
