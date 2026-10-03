@@ -13,6 +13,73 @@ const COLOR_HEX = { Black: '#202020', White: '#f4f2ec', Gray: '#a7a7a1', Brown: 
 const COLOR_KO = { Black: '검정', White: '흰색', Gray: '회색', Brown: '갈색', Red: '빨강', Orange: '주황', Yellow: '노랑', Green: '초록', Blue: '파랑', Purple: '보라', Pink: '분홍' };
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+/* ---------- 색 탐색기 ----------
+   사진마다 이름표 하나 대신 실제로 들어 있는 색과 비율(palette)을 기록해요.
+   예: 벚꽃 = [['white', 0.6], ['sky', 0.25], ['forest', 0.1]]
+   큰 색 6가지(families) 안에 세밀한 색(shades)이 들어 있어요. */
+const FAMILIES = [['white', '흰색', '#f2f0ea'], ['gray', '회색', '#9a9a94'], ['black', '검정', '#1f1f1e'], ['warm', '따뜻한 색', '#d8843c'], ['green', '초록', '#5f8a4f'], ['blue', '파랑', '#4a73a8']];
+const SHADES = {
+  white: ['white', '흰색', '#f2f0ea'], gray: ['gray', '회색', '#9a9a94'], black: ['black', '검정', '#1f1f1e'],
+  red: ['warm', '빨강', '#c4483c'], orange: ['warm', '주황', '#db8a3e'], yellow: ['warm', '노랑', '#dcb840'], brown: ['warm', '갈색', '#8a6a4f'], pink: ['warm', '분홍', '#e0a2b4'],
+  lime: ['green', '연두', '#a8c46a'], green: ['green', '초록', '#5f8a4f'], forest: ['green', '짙은 숲색', '#2f4a33'],
+  sky: ['blue', '하늘색', '#8cb8e0'], sea: ['blue', '바다색', '#3f8a94'], navy: ['blue', '남색', '#2c3e6b'], purple: ['blue', '보라', '#7c5ca3'],
+};
+const LIGHTS = [['bright', '밝음'], ['mid', '중간'], ['dark', '어두움']];
+// 사진에서 이 비율 이상 보이는 색이어야 그 색 사진으로 쳐요.
+// 흰색·회색·검정은 거의 모든 사진에 조금씩 있어서 기준을 높이고, 진짜 색은 작은 주인공(빨간 장식 등)도 잡히게 낮춰요.
+// 갈색은 나무·흙·그늘처럼 배경에 흔해서 15% 이상일 때만 색으로 쳐요
+const minShare = k => ['white', 'gray', 'black'].includes(k) ? 0.2 : k === 'brown' ? 0.15 : k === 'warm' ? 0.1 : 0.06;
+const LEGACY = { Black: 'black', White: 'white', Gray: 'gray', Brown: 'brown', Red: 'red', Orange: 'orange', Yellow: 'yellow', Green: 'green', Blue: 'sky', Purple: 'purple', Pink: 'pink' };
+const familyOf = s => (SHADES[s] || SHADES.gray)[0];
+const shadeKo = s => (SHADES[s] || SHADES.gray)[1];
+const shadeHex = s => (SHADES[s] || SHADES.gray)[2];
+const familyKo = f => (FAMILIES.find(x => x[0] === f) || [, f])[1];
+const paletteOf = p => (p.palette && p.palette.length) ? p.palette : [[LEGACY[p.color] || 'gray', 1]];
+const mainShade = p => paletteOf(p)[0][0];
+const familyShare = (p, f) => paletteOf(p).reduce((s, [k, v]) => s + (familyOf(k) === f && !(k === 'brown' && v < 0.15) ? v : 0), 0);
+const shadeShare = (p, s) => paletteOf(p).reduce((t, [k, v]) => t + (k === s ? v : 0), 0);
+const lightOf = p => p.light || 'mid';
+
+// 사람 눈에 가까운 색 공간(OKLab)으로 바꿔서 밝기(L)·색 진하기(C)·색상(h)을 따로 봐요
+function oklab(r, g, b) {
+  const lin = c => { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  r = lin(r); g = lin(g); b = lin(b);
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const L = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s;
+  const A = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
+  const B = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
+  return [L, Math.hypot(A, B), (Math.atan2(B, A) * 180 / Math.PI + 360) % 360];
+}
+function shadeOfPixel(L, C, h) {
+  if (L < 0.12) return 'black';
+  // 옅은 색: 밝으면 흰색(벚꽃·흐린 하늘), 어두운 곳은 아주 옅은 색도 색으로 봐요(그늘진 숲)
+  const minC = L > 0.7 ? 0.045 : L < 0.45 ? 0.012 : 0.022;
+  if (C < minC) return L > 0.6 ? 'white' : L < 0.3 ? 'black' : 'gray';
+  if (h >= 345 || h < 40) return L > 0.72 ? 'pink' : (L < 0.42 && C < 0.1 ? 'brown' : 'red');
+  if (h < 80) return L < 0.48 && C < 0.12 ? 'brown' : 'orange';
+  if (h < 105) return L < 0.5 ? 'forest' : 'yellow';
+  if (h < 180) return L < 0.42 ? 'forest' : L > 0.68 ? 'lime' : 'green';
+  if (h < 275) return h < 230 && L >= 0.4 && L <= 0.68 ? 'sea' : L > 0.5 ? 'sky' : 'navy';
+  if (h < 325) return 'purple';
+  return 'pink';
+}
+function analyzeColors(img) {
+  const N = 72, c = document.createElement('canvas'); c.width = c.height = N;
+  const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0, N, N);
+  const d = x.getImageData(0, 0, N, N).data, cnt = {};
+  let Ls = 0, n = 0;
+  for (let i = 0; i < d.length; i += 4) { const [L, C, h] = oklab(d[i], d[i + 1], d[i + 2]); Ls += L; n++; const k = shadeOfPixel(L, C, h); cnt[k] = (cnt[k] || 0) + 1; }
+  const palette = Object.entries(cnt).map(([k, v]) => [k, +(v / n).toFixed(3)]).filter(([, v]) => v >= 0.03).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const mL = Ls / n;
+  return { palette, light: mL < 0.42 ? 'dark' : mL > 0.53 ? 'bright' : 'mid', color: familyOf(palette[0] ? palette[0][0] : 'gray') };
+}
+function analyzeUrl(url) {
+  return new Promise(res => { const im = new Image(); im.onload = () => res(analyzeColors(im)); im.onerror = () => res({ palette: [['gray', 1]], light: 'mid', color: 'gray' }); im.src = url; });
+}
+const paletteStrip = (p, cls = 'pal') => `<span class="${cls}">${paletteOf(p).map(([k, v]) => `<i style="--c:${shadeHex(k)};flex:${v}" title="${shadeKo(k)} ${Math.round(v * 100)}%"></i>`).join('')}</span>`;
+
 const S = {
   photos: [], byName: new Map(), projects: [], site: {}, profile: {},
   photoProjects: new Map(), ratios: {}, archive: { view: 'mosaic', month: 'all', color: 'all' },
@@ -30,7 +97,7 @@ const imgUrl = p => p ? (p._local || IMG_BASE + encodeURIComponent(p.filename)) 
 // 목록·작은 칸에는 작은 사진(긴 쪽 900px)을 써요. 없으면 큰 사진으로 대신 보여줘요.
 const THUMB_BASE = 'images/thumbs/';
 const thumbUrl = p => p ? (p._local || THUMB_BASE + encodeURIComponent(p.filename)) : '';
-const tint = p => `color-mix(in srgb, ${COLOR_HEX[p.color] || '#555'} 26%, var(--bg-3))`;
+const tint = p => `color-mix(in srgb, ${shadeHex(mainShade(p))} 26%, var(--bg-3))`;
 const ratio = p => S.ratios[p.filename] || 1.5;
 /* 컴퓨터 설정에서 '애니메이션 효과'를 꺼두면 움직임을 줄여요. 주소 끝에 ?motion=on 을 붙이면 그 브라우저에서는 강제로 켜져요 (?motion=off 로 원래대로). */
 const forceMotion = (() => { const q = new URLSearchParams(location.search).get('motion'); try { if (q === 'on') localStorage.setItem('hm-motion', '1'); if (q === 'off') localStorage.removeItem('hm-motion'); return localStorage.getItem('hm-motion') === '1'; } catch (e) { return q === 'on'; } })();
@@ -334,11 +401,13 @@ function renderHome(view) {
         <button data-v="timeline">By date</button>
       </div>
       <span class="select"><select id="monthSel" aria-label="기간"></select></span>
+      <div class="seg" id="lightSeg" aria-label="밝기"><span class="seg-ind"></span><button data-v="all">모든 밝기</button>${LIGHTS.map(([k, l]) => `<button data-v="${k}">${l}</button>`).join('')}</div>
       <span class="spacer"></span>
       <button class="pill" id="randomBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h3.5c3 0 4.5 10 8 10H20M4 17h3.5c1.4 0 2.4-2 3.3-4.4M14.3 9.4C15 8 15.6 7 16.5 7H20M17.5 4.5 20 7l-2.5 2.5M17.5 14.5 20 17l-2.5 2.5"/></svg>Random</button>
       <button class="pill" id="playAllBtn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>Slideshow</button>
       </div>
       <div class="palette" id="palette" aria-label="색으로 거르기"></div>
+      <div class="shades" id="shades" aria-label="세밀한 색"></div>
     </div>
     <div class="count-line mono" id="countLine"></div>
     <div id="gallery"></div>
@@ -438,14 +507,17 @@ function renderHome(view) {
   const months = [...new Set(all.map(p => monthKey(p.date)).filter(Boolean))];
   $('#monthSel', view).innerHTML = `<option value="all">전체 기간</option>` + years(all).reverse().map(y =>
     `<optgroup label="${y}"><option value="${y}">${y} 전체</option>${months.filter(m => m.startsWith(y)).map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('')}</optgroup>`).join('');
-  const counts = Object.fromEntries(COLOR_ORDER.map(c => [c, all.filter(p => p.color === c).length]));
-  $('#palette', view).innerHTML = COLOR_ORDER.filter(c => counts[c]).map(c => `<button class="spec" data-c="${c}" style="--n:${counts[c]};--c:${COLOR_HEX[c]}" title="${COLOR_KO[c]} ${counts[c]}장" aria-label="${COLOR_KO[c]} ${counts[c]}장"><span class="spec-tip mono">${COLOR_KO[c]} ${counts[c]}</span></button>`).join('');
+  // 큰 색 막대: 너비는 그 색이 들어간 사진 수
+  const counts = Object.fromEntries(FAMILIES.map(([f]) => [f, all.filter(p => familyShare(p, f) >= minShare(f)).length]));
+  $('#palette', view).innerHTML = FAMILIES.filter(([f]) => counts[f]).map(([f, ko, hex]) => `<button class="spec" data-c="${f}" style="--n:${counts[f]};--c:${hex}" title="${ko} ${counts[f]}장" aria-label="${ko} ${counts[f]}장"><span class="spec-tip mono">${ko} ${counts[f]}</span></button>`).join('');
   $('#monthSel', view).value = S.archive.month;
   if ($('#monthSel', view).value !== S.archive.month) S.archive.month = 'all';
 
   $('#viewSeg', view).addEventListener('click', e => { const b = e.target.closest('button'); if (b) setArchive({ view: b.dataset.v }); });
   $('#monthSel', view).addEventListener('change', e => setArchive({ month: e.target.value }));
-  $('#palette', view).addEventListener('click', e => { const b = e.target.closest('.spec'); if (b) setArchive({ color: S.archive.color === b.dataset.c ? 'all' : b.dataset.c }); });
+  $('#palette', view).addEventListener('click', e => { const b = e.target.closest('.spec'); if (b) setArchive({ color: S.archive.color === b.dataset.c ? 'all' : b.dataset.c, shade: 'all' }); });
+  $('#shades', view).addEventListener('click', e => { const b = e.target.closest('[data-s]'); if (b) setArchive({ shade: S.archive.shade === b.dataset.s ? 'all' : b.dataset.s }); });
+  $('#lightSeg', view).addEventListener('click', e => { const b = e.target.closest('button'); if (b) setArchive({ light: b.dataset.v }); });
   $('#randomBtn', view).addEventListener('click', () => { const l = archiveList(); if (l.length) Lightbox.open(l, Math.floor(Math.random() * l.length)); });
   $('#playAllBtn', view).addEventListener('click', () => { const l = archiveList(); if (l.length) { Lightbox.open(l, 0); Lightbox.play(true); } });
   $('#toTop', view).addEventListener('click', e => { e.preventDefault(); rewindToTop(); });
@@ -453,12 +525,27 @@ function renderHome(view) {
   const tb = $('#toolbar', view);
   pageScroll.push(() => tb.classList.toggle('stuck', tb.getBoundingClientRect().top < 80 && $('#archive').getBoundingClientRect().bottom > 200));
   renderArchive(false);
-  requestAnimationFrame(() => { sizeHs(); syncSeg($('#viewSeg', view)); });
+  requestAnimationFrame(() => { sizeHs(); syncSeg($('#viewSeg', view)); syncSeg($('#lightSeg', view)); });
 }
 
 function archiveList() {
-  const { month, color } = S.archive;
-  return S.photos.filter(p => (month === 'all' || (p.date || '').startsWith(month)) && (color === 'all' || p.color === color));
+  const { month, color, shade, light } = S.archive;
+  const list = S.photos.filter(p => (month === 'all' || (p.date || '').startsWith(month))
+    && (light === 'all' || lightOf(p) === light)
+    && (color === 'all' || familyShare(p, color) >= minShare(color))
+    && (shade === 'all' || shadeShare(p, shade) >= minShare(shade)));
+  // 색을 고르면 그 색이 많이 들어간 사진부터 보여줘요
+  if (color !== 'all') {
+    const score = p => shade !== 'all' ? shadeShare(p, shade) : familyShare(p, color);
+    list.sort((a, b) => score(b) - score(a) || (b.date || '').localeCompare(a.date || ''));
+  }
+  return list;
+}
+function validArchive() {
+  const a = S.archive;
+  if (!FAMILIES.some(([f]) => f === a.color)) a.color = 'all';
+  if (!SHADES[a.shade] || familyOf(a.shade) !== a.color) a.shade = 'all';
+  if (!LIGHTS.some(([k]) => k === a.light)) a.light = 'all';
 }
 function setArchive(patch) {
   Object.assign(S.archive, patch); store.set('hm-archive', S.archive);
@@ -472,15 +559,23 @@ function syncSeg(seg) {
 function renderArchive(animate) {
   const g = $('#gallery'); if (!g) return;
   if (!['mosaic', 'timeline'].includes(S.archive.view)) S.archive.view = 'mosaic';
-  const list = archiveList();
-  $$('#viewSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === S.archive.view));
+  validArchive();
+  const list = archiveList(), A = S.archive;
+  $$('#viewSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === A.view));
   syncSeg($('#viewSeg'));
-  $$('#palette .spec').forEach(d => d.classList.toggle('on', d.dataset.c === S.archive.color));
-  $('#palette').classList.toggle('has-on', S.archive.color !== 'all');
-  const filt = [S.archive.month !== 'all' ? (S.archive.month.length === 4 ? S.archive.month + '년' : monthLabel(S.archive.month)) : '', S.archive.color !== 'all' ? COLOR_KO[S.archive.color] : ''].filter(Boolean).join(' · ');
+  $$('#lightSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === A.light));
+  syncSeg($('#lightSeg'));
+  $$('#palette .spec').forEach(d => d.classList.toggle('on', d.dataset.c === A.color));
+  $('#palette').classList.toggle('has-on', A.color !== 'all');
+  // 큰 색을 고르면 그 안의 세밀한 색이 펼쳐져요
+  const shadesEl = $('#shades');
+  const inFamily = A.color === 'all' ? [] : Object.keys(SHADES).filter(s => familyOf(s) === A.color).map(s => [s, S.photos.filter(p => shadeShare(p, s) >= minShare(s)).length]).filter(([, n]) => n);
+  shadesEl.classList.toggle('on', inFamily.length > 1);
+  shadesEl.innerHTML = inFamily.length > 1 ? inFamily.map(([s, n]) => `<button class="shade ${A.shade === s ? 'on' : ''}" data-s="${s}"><i style="--c:${shadeHex(s)}"></i>${shadeKo(s)}<span class="mono">${n}</span></button>`).join('') : '';
+  const filt = [A.month !== 'all' ? (A.month.length === 4 ? A.month + '년' : monthLabel(A.month)) : '', A.color !== 'all' ? (A.shade !== 'all' ? shadeKo(A.shade) : familyKo(A.color)) : '', A.light !== 'all' ? LIGHTS.find(([k]) => k === A.light)[1] : ''].filter(Boolean).join(' · ');
   $('#countLine').innerHTML = `${list.length} frames${filt ? ` — ${esc(filt)} <button class="accent mono" id="clearFilt" style="margin-left:8px">✕ 필터 해제</button>` : ''}`;
   $('#archCount').textContent = list.length;
-  const clr = $('#clearFilt'); if (clr) clr.onclick = () => { $('#monthSel').value = 'all'; setArchive({ month: 'all', color: 'all' }); };
+  const clr = $('#clearFilt'); if (clr) clr.onclick = () => { $('#monthSel').value = 'all'; setArchive({ month: 'all', color: 'all', shade: 'all', light: 'all' }); };
 
   const motion = animate && !reduced;
   // 바뀌기 전: 화면에 보이던 사진들의 자리를 기억해요
@@ -640,7 +735,7 @@ function renderProject(view, id) {
 
 /* 예전 Colors 페이지 주소(#/colors/Blue 등)로 들어오면 Work의 색 필터로 연결해요 */
 function renderColorsRedirect(view, c) {
-  if (c && COLOR_HEX[c]) { S.archive.color = c; store.set('hm-archive', S.archive); }
+  if (c && LEGACY[c]) { S.archive.color = familyOf(LEGACY[c]); S.archive.shade = LEGACY[c]; store.set('hm-archive', S.archive); }
   history.replaceState(null, '', location.pathname + location.search + '#/');
   renderHome(view);
   setTimeout(() => { const a = $('#archive'); if (a) scrollTo({ top: a.offsetTop - 10 }); }, 60);
@@ -695,7 +790,7 @@ function renderConstellation(view) {
       p, i, sx, sy, sz, cam: parseInfo(p.info).camera.toUpperCase(),
       prj: new Set((S.photoProjects.get(p.filename) || []).map(x => x.id)),
       img: null, orbit: -1, mix: 0, scr: null,
-      search: [p.filename, p.date, p.info, p.color, COLOR_KO[p.color], ...(S.photoProjects.get(p.filename) || []).map(x => x.title)].join(' ').toLowerCase(),
+      search: [p.filename, p.date, p.info, ...paletteOf(p).map(([k]) => shadeKo(k) + ' ' + familyKo(familyOf(k))), ...(S.photoProjects.get(p.filename) || []).map(x => x.title)].join(' ').toLowerCase(),
     };
   });
 
@@ -705,7 +800,7 @@ function renderConstellation(view) {
     const da = a.p.date || '', db = b.p.date || '';
     const date = da && da === db ? 5 : da && da.slice(0, 7) === db.slice(0, 7) ? 2.2 : da && da.slice(0, 4) === db.slice(0, 4) ? 0.6 : 0;
     let project = 0; for (const id of a.prj) if (b.prj.has(id)) { project = 6; break; }
-    const color = a.p.color && a.p.color === b.p.color ? 3.2 : 0;
+    const color = familyOf(mainShade(a.p)) === familyOf(mainShade(b.p)) ? 3.2 : 0;
     const camera = a.cam !== '—' && a.cam === b.cam ? 1.5 : 0;
     const parts = { date, project, color, camera };
     const w = rel === 'all' ? date + project + color + camera : parts[rel];
@@ -778,7 +873,7 @@ function renderConstellation(view) {
     top.forEach((x, k) => { x.node.orbit = k; });
     focusOn(n);
     const info = parseInfo(n.p.info);
-    panel.innerHTML = `<img src="${esc(thumbUrl(n.p))}" alt="" id="cpImg"><div><div class="mono accent" style="margin-top:12px">Photo ${n.p._n}</div><h4>${fmtDate(n.p.date)}</h4><div class="mono faint">${esc(info.camera)} · ${COLOR_KO[n.p.color] || ''}</div></div>
+    panel.innerHTML = `<img src="${esc(thumbUrl(n.p))}" alt="" id="cpImg"><div><div class="mono accent" style="margin-top:12px">Photo ${n.p._n}</div><h4>${fmtDate(n.p.date)}</h4><div class="mono faint">${esc(info.camera)} · ${shadeKo(mainShade(n.p))}</div></div>
       <div class="mono faint" style="margin-top:14px;grid-column:1/-1">${top.length} orbit connections</div>
       <div class="cons-links">${top.map(x => `<img src="${esc(thumbUrl(x.node.p))}" data-i="${x.node.i}" title="${fmtDate(x.node.p.date)}" alt="">`).join('')}</div>`;
     panel.classList.add('on');
@@ -868,10 +963,10 @@ function renderConstellation(view) {
         }
       }
       // 작은 별: 사진의 대표 색으로 빛나는 점
-      const c = COLOR_HEX[n.p.color] || colors.ink3;
+      const c = shadeHex(mainShade(n.p));
       if (s.d > 0.55 && vis) { ctx.globalAlpha = a * 0.25; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(s.x, s.y, r * 2.4, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = a; }
       ctx.fillStyle = c; ctx.beginPath(); ctx.arc(s.x, s.y, Math.max(1.2, r), 0, Math.PI * 2); ctx.fill();
-      if (n.p.color === 'Black') { ctx.strokeStyle = colors.ink3; ctx.lineWidth = 0.8; ctx.stroke(); }
+      if (mainShade(n.p) === 'black') { ctx.strokeStyle = colors.ink3; ctx.lineWidth = 0.8; ctx.stroke(); }
     });
     ctx.globalAlpha = 1;
     if (hover && hover.scr) { tip.style.left = hover.scr.x + 'px'; tip.style.top = (hover.scr.y - 12) + 'px'; }
@@ -1249,7 +1344,8 @@ const Lightbox = (() => {
         <div><span>Aperture</span><b>${esc(i.aperture)}</b></div>
         <div><span>Shutter</span><b>${esc(i.shutter)}</b></div>
         <div><span>ISO</span><b>${esc(i.iso.replace('ISO ', ''))}</b></div>
-        <div><span>Color</span><b class="lb-color"><i style="--c:${COLOR_HEX[p.color] || '#555'}"></i>${esc(COLOR_KO[p.color] || '—')}</b></div>
+        <div><span>Light</span><b>${(LIGHTS.find(([k]) => k === lightOf(p)) || [, '—'])[1]}</b></div>
+        <div class="wide"><span>Colors</span>${paletteStrip(p, 'lb-pal')}<small class="lb-pal-names">${paletteOf(p).slice(0, 3).map(([k, v]) => `${shadeKo(k)} ${Math.round(v * 100)}%`).join(' · ')}</small></div>
       </div>
       ${prs.length ? `<div class="lb-projects"><div class="mono" style="color:#75736b;margin-bottom:6px">In projects</div>${prs.map(pr => `<a href="#/projects/${encodeURIComponent(pr.id)}">${esc(pr.title)}<span>→</span></a>`).join('')}</div>` : ''}
       <div class="lb-notes needs-social" id="lbNotes"><div class="mono lbl">Notes · <span id="lbNoteCount">…</span></div><div class="notes-list" id="lbNotesList"></div></div>
@@ -1514,7 +1610,7 @@ function renderSeasons(view) {
     const list = S.photos.filter(p => p.date && (year === 'all' || p.date.startsWith(year)));
     const months = MONTHS.map((m, k) => {
       const ps = list.filter(p => +p.date.slice(5, 7) === k + 1), cnt = {};
-      ps.forEach(p => { if (p.color) cnt[p.color] = (cnt[p.color] || 0) + 1; });
+      ps.forEach(p => { const k = mainShade(p); cnt[k] = (cnt[k] || 0) + 1; });
       const ranked = Object.entries(cnt).sort((a, b) => b[1] - a[1]);
       return { m, k, ps, ranked, color: ranked[0] ? ranked[0][0] : null };
     });
@@ -1527,7 +1623,7 @@ function renderSeasons(view) {
     ['겨울', '봄', '여름', '가을'].forEach((s, i) => { const a = (i * 3 + 0.5) * step; svg += `<text x="${(Math.sin(a) * 296).toFixed(1)}" y="${(-Math.cos(a) * 296 + 4).toFixed(1)}" text-anchor="middle" fill="var(--ink-3)" font-size="12" font-family="Pretendard">${s}</text>`; });
     months.forEach(d => {
       const a0 = d.k * step + gap, a1 = (d.k + 1) * step - gap, r1 = R0 + (R1 - R0) * Math.max(d.ps.length / max, 0.015), am = (d.k + 0.5) * step;
-      svg += `<g class="sea-seg ${d.k === sel ? 'sel' : ''}" data-k="${d.k}" tabindex="0" role="button" aria-label="${d.m} ${d.ps.length}장"><path d="${arc(a0, a1, R0, R1)}" fill="transparent"/><path class="bar" d="${arc(a0, a1, R0, r1)}" fill="${d.color ? COLOR_HEX[d.color] : 'var(--bg-3)'}" stroke="var(--line-2)" stroke-width="1" style="--dl:${d.k * 50}ms"/>
+      svg += `<g class="sea-seg ${d.k === sel ? 'sel' : ''}" data-k="${d.k}" tabindex="0" role="button" aria-label="${d.m} ${d.ps.length}장"><path d="${arc(a0, a1, R0, R1)}" fill="transparent"/><path class="bar" d="${arc(a0, a1, R0, r1)}" fill="${d.color ? shadeHex(d.color) : 'var(--bg-3)'}" stroke="var(--line-2)" stroke-width="1" style="--dl:${d.k * 50}ms"/>
         <text x="${(Math.sin(am) * (R0 - 22)).toFixed(1)}" y="${(-Math.cos(am) * (R0 - 22) + 4).toFixed(1)}" text-anchor="middle" fill="${d.k === sel ? 'var(--accent)' : 'var(--ink-2)'}" font-size="11" font-family="JetBrains Mono">${d.m.toUpperCase()}</text></g>`;
     });
     const cur = months[sel];
@@ -1535,20 +1631,20 @@ function renderSeasons(view) {
     $('#seaSvg').innerHTML = svg;
     $$('#seaSvg .sea-seg').forEach(g => {
       const d = months[+g.dataset.k];
-      g.addEventListener('mousemove', e => { tip.textContent = `${d.m} · ${d.ps.length}장${d.color ? ' · 대표 색 ' + COLOR_KO[d.color] : ''}`; tip.style.left = e.clientX + 'px'; tip.style.top = e.clientY + 'px'; tip.classList.add('on'); });
+      g.addEventListener('mousemove', e => { tip.textContent = `${d.m} · ${d.ps.length}장${d.color ? ' · 대표 색 ' + shadeKo(d.color) : ''}`; tip.style.left = e.clientX + 'px'; tip.style.top = e.clientY + 'px'; tip.classList.add('on'); });
       g.addEventListener('mouseleave', () => tip.classList.remove('on'));
       const pick = () => { if (!d.ps.length) return; sel = d.k; tip.classList.remove('on'); paint(); };
       g.addEventListener('click', pick); g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
     });
     lists.season = cur.ps;
     $('#seaSide').innerHTML = `<div class="mono accent">${seasonOf(cur.k)} · ${year === 'all' ? '모든 해' : year}</div><h2>${MONTH_FULL[cur.k]}</h2>
-      <div class="sub">${cur.ps.length}장을 찍었어요${cur.color ? ` · 가장 많이 나온 색은 ${COLOR_KO[cur.color]}` : ''}</div>
-      <div class="chips">${cur.ranked.slice(0, 5).map(([c, n]) => `<span class="chip-c"><i style="--c:${COLOR_HEX[c]}"></i>${COLOR_KO[c]} ${n}</span>`).join('')}</div>
+      <div class="sub">${cur.ps.length}장을 찍었어요${cur.color ? ` · 가장 많이 나온 색은 ${shadeKo(cur.color)}` : ''}</div>
+      <div class="chips">${cur.ranked.slice(0, 5).map(([c, n]) => `<span class="chip-c"><i style="--c:${shadeHex(c)}"></i>${shadeKo(c)} ${n}</span>`).join('')}</div>
       <div class="sea-thumbs" id="seaThumbs">${cur.ps.slice(0, 12).map((p, n) => card(p, { cap: false, d: n * 35 })).join('')}</div>
       ${cur.ps.length > 12 ? `<button class="pill" id="seaMore" style="margin-top:12px">${cur.ps.length}장 모두 크게 보기 →</button>` : ''}`;
     wireImages($('#seaSide')); observeReveal($('#seaSide'));
     const more = $('#seaMore'); if (more) more.onclick = () => Lightbox.open(cur.ps, 0);
-    $('#seaTable').innerHTML = '<tr><th>달</th><th>사진 수</th><th>대표 색</th></tr>' + months.map(d => `<tr><td>${d.m}</td><td>${d.ps.length}</td><td>${d.color ? COLOR_KO[d.color] : '—'}</td></tr>`).join('');
+    $('#seaTable').innerHTML = '<tr><th>달</th><th>사진 수</th><th>대표 색</th></tr>' + months.map(d => `<tr><td>${d.m}</td><td>${d.ps.length}</td><td>${d.color ? shadeKo(d.color) : '—'}</td></tr>`).join('');
   }
   bindPhotoClicks($('#seaSide', view), 'season');
   paint();
@@ -1662,7 +1758,7 @@ function renderStudio(view) {
   const body = $('#stBody', view);
   ({ upload: stUpload, photos: stPhotos, featured: stFeatured, projects: stProjects, settings: stSettings })[Studio.tab](body, view);
 }
-const colorOptions = sel => COLOR_ORDER.map(c => `<option value="${c}" ${c === sel ? 'selected' : ''}>${COLOR_KO[c]} (${c})</option>`).join('');
+
 
 /* 1) 사진 올리기 */
 function stUpload(body, view) {
@@ -1689,7 +1785,7 @@ function stUpload(body, view) {
       <div><div class="qfields">
         <label class="field"><span>촬영 날짜</span><input type="date" data-k="date" value="${esc(it.date)}"></label>
         <label class="field"><span>카메라 · 설정</span><input data-k="info" value="${esc(it.info)}" placeholder="예: Nikon Z fc f2.8 1/250s iso 100"></label>
-        <label class="field"><span>대표 색</span><select data-k="color">${colorOptions(it.color)}</select></label>
+        <div class="field"><span>색 구성 (자동)</span>${it.palette ? paletteStrip(it, 'q-pal') : '<span class="mono faint">계산 중…</span>'}</div>
       </div><div class="qmeta mono">${esc(it.name)} · ${(it.size / 1048576).toFixed(1)}MB → 약 ${(Math.min(it.size, 900000) / 1048576).toFixed(1)}MB로 줄여서 올려요${it.reading ? ' · 정보 읽는 중…' : ''}</div></div>
       <div class="qside">${it.done ? '<span class="mono accent">올림 ✓</span>' : `<button class="link-danger" data-rm="${i}">빼기</button>`}</div>
       <div class="qbar" style="width:${it.progress || 0}%"></div>
@@ -1715,7 +1811,7 @@ function stUpload(body, view) {
         const name = it.name.replace(/\.[^.]+$/, '').replace(/[^\w.-]+/g, '_') + '_' + stamp + '_' + k + '.jpg';
         await putImage(name, await blobToBase64(blob)); setBar(it, 75);
         await putImage(name, await blobToBase64(await optimizeImage(it.file, 900, 0.8)), true); setBar(it, 90);
-        it.filename = name; added.push({ filename: name, info: it.info, date: it.date, color: it.color || 'Gray' });
+        it.filename = name; added.push({ filename: name, info: it.info, date: it.date, color: it.color || 'gray', palette: it.palette, light: it.light });
       }
     } catch (e) { console.error(e); toast('올리는 중 문제가 생겼어요: ' + e.message, 6000); }
     if (added.length) {
@@ -1735,7 +1831,7 @@ function stUpload(body, view) {
   };
   async function addFiles(files) {
     for (const file of [...files].filter(f => f.type.startsWith('image/'))) {
-      const it = { file, name: file.name, size: file.size, url: URL.createObjectURL(file), date: '', info: '', color: 'Gray', reading: true };
+      const it = { file, name: file.name, size: file.size, url: URL.createObjectURL(file), date: '', info: '', reading: true };
       Studio.queue.push(it); paint();
       try {
         if (!window.exifr) await loadScript(EXIFR_URL).catch(() => {});
@@ -1752,55 +1848,27 @@ function stUpload(body, view) {
         }
       } catch (e) {}
       if (!it.date) { const d = new Date(file.lastModified); it.date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
-      it.color = await detectColor(it.url);
+      Object.assign(it, await analyzeUrl(it.url));
       it.reading = false; paint();
     }
   }
   paint();
 }
-function detectColor(url) {
-  return new Promise(res => {
-    const im = new Image();
-    im.onload = () => {
-      const c = document.createElement('canvas'), N = 48; c.width = c.height = N;
-      const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(im, 0, 0, N, N);
-      const d = x.getImageData(0, 0, N, N).data, score = {};
-      for (let i = 0; i < d.length; i += 4) {
-        const r = d[i] / 255, g = d[i + 1] / 255, b = d[i + 2] / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), v = mx, s = mx ? (mx - mn) / mx : 0;
-        let h = 0; if (mx !== mn) { h = mx === r ? (g - b) / (mx - mn) : mx === g ? 2 + (b - r) / (mx - mn) : 4 + (r - g) / (mx - mn); h = (h * 60 + 360) % 360; }
-        let k, w = 1;
-        if (v < 0.17) k = 'Black'; else if (s < 0.12 && v > 0.85) k = 'White'; else if (s < 0.16) k = 'Gray';
-        else {
-          w = 1 + s * 2.2;
-          if (h < 15 || h >= 345) k = 'Red'; else if (h < 40) k = (v < 0.55 && s > 0.3) ? 'Brown' : 'Orange'; else if (h < 66) k = 'Yellow';
-          else if (h < 170) k = 'Green'; else if (h < 255) k = 'Blue'; else if (h < 290) k = 'Purple'; else k = 'Pink';
-        }
-        score[k] = (score[k] || 0) + w;
-      }
-      const total = Object.values(score).reduce((a, b) => a + b, 0);
-      const chroma = Object.entries(score).filter(([k]) => !['Black', 'White', 'Gray'].includes(k)).sort((a, b) => b[1] - a[1])[0];
-      const all = Object.entries(score).sort((a, b) => b[1] - a[1])[0];
-      res(chroma && chroma[1] / total > 0.22 ? chroma[0] : all[0]);
-    };
-    im.onerror = () => res('Gray'); im.src = url;
-  });
-}
-
 /* 2) 사진 관리 */
 function stPhotos(body, view) {
   const f = Studio.filter, PER = 48;
   const months = [...new Set(S.photos.map(p => monthKey(p.date)).filter(Boolean))];
   const list = S.photos.filter(p => {
     const e = Studio.dirty.get(p.filename) || {};
-    const blob = [p.filename, e.date ?? p.date, e.info ?? p.info, COLOR_KO[e.color ?? p.color], e.story ?? p.story ?? ''].join(' ').toLowerCase();
-    return (!f.q || blob.includes(f.q.toLowerCase())) && (f.month === 'all' || (p.date || '').startsWith(f.month)) && (f.color === 'all' || p.color === f.color);
+    const blob = [p.filename, e.date ?? p.date, e.info ?? p.info, ...paletteOf(p).map(([k]) => shadeKo(k)), e.story ?? p.story ?? ''].join(' ').toLowerCase();
+    return (!f.q || blob.includes(f.q.toLowerCase())) && (f.month === 'all' || (p.date || '').startsWith(f.month)) && (f.color === 'all' || familyShare(p, f.color) >= minShare(f.color));
   });
   const shown = list.slice(0, Studio.page * PER);
   body.innerHTML = `
     <div class="toolbar" style="position:static;margin:0 0 18px;padding:0">
       <input class="cons-search" id="mq" style="max-width:280px" placeholder="파일 이름, 날짜, 카메라로 찾기" value="${esc(f.q)}">
       <span class="select"><select id="mm"><option value="all">전체 기간</option>${months.map(m => `<option value="${m}" ${m === f.month ? 'selected' : ''}>${monthLabel(m)}</option>`).join('')}</select></span>
-      <span class="select"><select id="mc"><option value="all">모든 색</option>${COLOR_ORDER.map(c => `<option value="${c}" ${c === f.color ? 'selected' : ''}>${COLOR_KO[c]}</option>`).join('')}</select></span>
+      <span class="select"><select id="mc"><option value="all">모든 색</option>${FAMILIES.map(([c, ko]) => `<option value="${c}" ${c === f.color ? 'selected' : ''}>${ko}</option>`).join('')}</select></span>
       <span class="spacer"></span>
       <span class="mono faint">${list.length}장${Studio.selected.size ? ` · ${Studio.selected.size}장 선택` : ''}</span>
       ${Studio.selected.size ? `<button class="pill" id="mSelClear">선택 해제</button><button class="pill" id="mDel" style="color:#ff6b5a">선택 삭제</button>` : ''}
@@ -1812,7 +1880,7 @@ function stPhotos(body, view) {
         <button class="mcheck" data-act="sel">${Studio.selected.has(p.filename) ? '✓' : ''}</button>
         <img src="${esc(thumbUrl(p))}" loading="lazy" alt="" data-act="view">
         <div class="mbody">
-          <div class="mrow"><input type="date" data-k="date" value="${esc(e.date ?? p.date ?? '')}"><select data-k="color">${colorOptions(e.color ?? p.color)}</select></div>
+          <div class="mrow"><input type="date" data-k="date" value="${esc(e.date ?? p.date ?? '')}">${paletteStrip(p, 'm-pal')}</div>
           <input data-k="info" value="${esc(e.info ?? p.info ?? '')}" placeholder="카메라 · 설정">
           <textarea data-k="story" rows="2" placeholder="이 사진의 이야기 (선택)">${esc(e.story ?? p.story ?? '')}</textarea>
           <div class="mfoot"><span class="mono faint">${p._n}</span><button class="link-danger" data-act="del">삭제</button></div>

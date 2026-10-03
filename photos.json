@@ -2,1196 +2,5237 @@
   {
     "filename": "DSC_0675.jpeg",
     "info": "Nikon Z fc f9 1/40s iso 400",
-    "color": "Black",
-    "date": "2025-01-22"
+    "color": "black",
+    "date": "2025-01-22",
+    "palette": [
+      [
+        "black",
+        0.688
+      ],
+      [
+        "gray",
+        0.261
+      ],
+      [
+        "white",
+        0.052
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0706.jpeg",
     "info": "Nikon Z fc f9 1/400s iso 200",
-    "color": "Black",
-    "date": "2025-01-24"
+    "color": "black",
+    "date": "2025-01-24",
+    "palette": [
+      [
+        "black",
+        0.561
+      ],
+      [
+        "gray",
+        0.363
+      ],
+      [
+        "white",
+        0.076
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0888.jpeg",
     "info": "Nikon Z fc f5 1/200s iso 1600",
-    "color": "Orange",
-    "date": "2025-01-30"
+    "color": "warm",
+    "date": "2025-01-30",
+    "palette": [
+      [
+        "brown",
+        0.601
+      ],
+      [
+        "black",
+        0.145
+      ],
+      [
+        "forest",
+        0.113
+      ],
+      [
+        "white",
+        0.043
+      ],
+      [
+        "orange",
+        0.037
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0885.jpeg",
     "info": "Nikon Z fc f6.3 1/2000s iso 1600",
-    "color": "Gray",
-    "date": "2025-01-30"
+    "color": "warm",
+    "date": "2025-01-30",
+    "palette": [
+      [
+        "brown",
+        0.427
+      ],
+      [
+        "white",
+        0.255
+      ],
+      [
+        "black",
+        0.127
+      ],
+      [
+        "gray",
+        0.109
+      ],
+      [
+        "forest",
+        0.079
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1234.jpeg",
     "info": "Nikon Z fc f6.3 1/640s iso 800",
-    "color": "Blue",
-    "date": "2025-02-18"
+    "color": "blue",
+    "date": "2025-02-18",
+    "palette": [
+      [
+        "navy",
+        0.309
+      ],
+      [
+        "sky",
+        0.211
+      ],
+      [
+        "gray",
+        0.191
+      ],
+      [
+        "white",
+        0.112
+      ],
+      [
+        "black",
+        0.061
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1254.jpeg",
     "info": "Nikon Z fc f14 1/800s iso 800",
-    "color": "Blue",
-    "date": "2025-02-18"
+    "color": "blue",
+    "date": "2025-02-18",
+    "palette": [
+      [
+        "sky",
+        0.578
+      ],
+      [
+        "forest",
+        0.125
+      ],
+      [
+        "gray",
+        0.115
+      ],
+      [
+        "navy",
+        0.087
+      ],
+      [
+        "white",
+        0.03
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1293.jpeg",
     "info": "Nikon Z fc f11 1/500s iso 800",
-    "color": "Black",
-    "date": "2025-02-19"
+    "color": "black",
+    "date": "2025-02-19",
+    "palette": [
+      [
+        "black",
+        0.476
+      ],
+      [
+        "white",
+        0.366
+      ],
+      [
+        "navy",
+        0.058
+      ],
+      [
+        "orange",
+        0.051
+      ],
+      [
+        "yellow",
+        0.032
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1374.jpeg",
     "info": "Nikon Z fc f6 1/6s iso 800",
-    "color": "Orange",
-    "date": "2025-02-19"
+    "color": "warm",
+    "date": "2025-02-19",
+    "palette": [
+      [
+        "brown",
+        0.36
+      ],
+      [
+        "white",
+        0.281
+      ],
+      [
+        "sky",
+        0.116
+      ],
+      [
+        "black",
+        0.101
+      ],
+      [
+        "orange",
+        0.084
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1381.jpeg",
     "info": "Nikon Z fc f5 1/20s iso 800",
-    "color": "Blue",
-    "date": "2025-02-19"
+    "color": "blue",
+    "date": "2025-02-19",
+    "palette": [
+      [
+        "navy",
+        0.495
+      ],
+      [
+        "orange",
+        0.154
+      ],
+      [
+        "white",
+        0.131
+      ],
+      [
+        "green",
+        0.077
+      ],
+      [
+        "yellow",
+        0.035
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1500.jpeg",
     "info": "Nikon Z fc f6.3 1/160s iso 800",
-    "color": "Gray",
-    "date": "2025-02-21"
+    "color": "gray",
+    "date": "2025-02-21",
+    "palette": [
+      [
+        "gray",
+        0.438
+      ],
+      [
+        "black",
+        0.344
+      ],
+      [
+        "white",
+        0.137
+      ],
+      [
+        "sky",
+        0.037
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1132.jpeg",
     "info": "Nikon Z fc f9 1/640s iso 100",
-    "color": "Blue",
-    "date": "2025-02-18"
+    "color": "gray",
+    "date": "2025-02-18",
+    "palette": [
+      [
+        "gray",
+        0.573
+      ],
+      [
+        "white",
+        0.148
+      ],
+      [
+        "sky",
+        0.082
+      ],
+      [
+        "sea",
+        0.076
+      ],
+      [
+        "yellow",
+        0.075
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_0903.jpeg",
     "info": "Nikon Z fc f5 1/500s iso 800",
-    "color": "Gray",
-    "date": "2025-01-30"
+    "color": "white",
+    "date": "2025-01-30",
+    "palette": [
+      [
+        "white",
+        0.613
+      ],
+      [
+        "black",
+        0.263
+      ],
+      [
+        "gray",
+        0.112
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_0945.jpeg",
     "info": "Nikon Z fc f6 1/20s iso 400",
-    "color": "Black",
-    "date": "2025-01-30"
+    "color": "black",
+    "date": "2025-01-30",
+    "palette": [
+      [
+        "black",
+        0.598
+      ],
+      [
+        "gray",
+        0.4
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0731.jpeg",
     "info": "Nikon Z fc f9 1/100s iso 200",
-    "color": "Gray",
-    "date": "2025-01-24"
+    "color": "black",
+    "date": "2025-01-24",
+    "palette": [
+      [
+        "black",
+        0.522
+      ],
+      [
+        "gray",
+        0.383
+      ],
+      [
+        "white",
+        0.094
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0637.jpeg",
     "info": "Nikon Z fc f6.3 1/400s iso 400",
-    "color": "Gray",
-    "date": "2025-01-22"
+    "color": "white",
+    "date": "2025-01-22",
+    "palette": [
+      [
+        "white",
+        0.368
+      ],
+      [
+        "gray",
+        0.23
+      ],
+      [
+        "brown",
+        0.222
+      ],
+      [
+        "black",
+        0.112
+      ],
+      [
+        "red",
+        0.034
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "IMG_4122.jpeg",
     "info": "Nikon Z fc f4.8 1/125s iso 1100",
-    "color": "Black",
-    "date": "2025-04-17"
+    "color": "black",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "black",
+        0.719
+      ],
+      [
+        "brown",
+        0.132
+      ],
+      [
+        "gray",
+        0.082
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "IMG_4123.jpeg",
     "info": "Nikon Z fc f6.3 1/60s iso 4500",
-    "color": "Gray",
-    "date": "2025-04-17"
+    "color": "black",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "black",
+        0.497
+      ],
+      [
+        "gray",
+        0.435
+      ],
+      [
+        "brown",
+        0.067
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "IMG_4124.jpeg",
     "info": "Nikon Z fc f2.8 1/125s iso 900",
-    "color": "Red",
-    "date": "2025-04-17"
+    "color": "warm",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "red",
+        0.528
+      ],
+      [
+        "brown",
+        0.454
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "IMG_4125.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
-    "color": "Yellow",
-    "date": "2025-04-17"
+    "color": "black",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "black",
+        0.649
+      ],
+      [
+        "brown",
+        0.304
+      ],
+      [
+        "gray",
+        0.04
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "IMG_4126.jpeg",
     "info": "Nikon Z fc f6.3 1/320s iso 100",
-    "color": "Black",
-    "date": "2025-04-17"
+    "color": "green",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "forest",
+        0.492
+      ],
+      [
+        "brown",
+        0.246
+      ],
+      [
+        "black",
+        0.207
+      ],
+      [
+        "gray",
+        0.033
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "IMG_4127.jpeg",
     "info": "Nikon Z fc f7.1 1/400s iso 100",
-    "color": "Black",
-    "date": "2025-04-17"
+    "color": "black",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "black",
+        0.439
+      ],
+      [
+        "brown",
+        0.193
+      ],
+      [
+        "gray",
+        0.169
+      ],
+      [
+        "orange",
+        0.115
+      ],
+      [
+        "navy",
+        0.059
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "IMG_4128.jpeg",
     "info": "Nikon Z fc f2.8 1/125s iso 3200",
-    "color": "Black",
-    "date": "2025-04-17"
+    "color": "black",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "black",
+        0.581
+      ],
+      [
+        "brown",
+        0.344
+      ],
+      [
+        "forest",
+        0.038
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "IMG_4204.jpeg",
     "info": "Nikon Z fc f4.2 1/250s iso 320",
-    "color": "Black",
-    "date": "2025-04-17"
+    "color": "black",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "black",
+        0.809
+      ],
+      [
+        "gray",
+        0.068
+      ],
+      [
+        "brown",
+        0.043
+      ],
+      [
+        "white",
+        0.038
+      ],
+      [
+        "navy",
+        0.036
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "IMG_4205.jpeg",
     "info": "Nikon Z fc f6.3 1/40s iso 2000",
-    "color": "Brown",
-    "date": "2025-04-17"
+    "color": "warm",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "brown",
+        0.38
+      ],
+      [
+        "orange",
+        0.346
+      ],
+      [
+        "white",
+        0.172
+      ],
+      [
+        "black",
+        0.055
+      ],
+      [
+        "gray",
+        0.033
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "IMG_4206.jpeg",
     "info": "Nikon Z fc f6.3 1/640s iso 2000",
-    "color": "Black",
-    "date": "2025-04-17"
+    "color": "black",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "black",
+        0.53
+      ],
+      [
+        "white",
+        0.291
+      ],
+      [
+        "brown",
+        0.138
+      ],
+      [
+        "gray",
+        0.04
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "IMG_4208.jpeg",
     "info": "Nikon Z fc f5.6 1/250s iso 160",
-    "color": "Gray",
-    "date": "2025-04-17"
+    "color": "warm",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "brown",
+        0.308
+      ],
+      [
+        "gray",
+        0.221
+      ],
+      [
+        "white",
+        0.198
+      ],
+      [
+        "forest",
+        0.153
+      ],
+      [
+        "black",
+        0.066
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "IMG_4209.jpeg",
     "info": "Nikon Z fc f5.6 1/250s iso 140",
-    "color": "Gray",
-    "date": "2025-04-17"
+    "color": "warm",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "brown",
+        0.291
+      ],
+      [
+        "white",
+        0.218
+      ],
+      [
+        "gray",
+        0.198
+      ],
+      [
+        "black",
+        0.099
+      ],
+      [
+        "navy",
+        0.089
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "IMG_4401.jpeg",
     "info": "Nikon Z fc f9 1/640s iso 100",
-    "color": "Blue",
-    "date": "2025-03-30"
+    "color": "blue",
+    "date": "2025-03-30",
+    "palette": [
+      [
+        "navy",
+        0.63
+      ],
+      [
+        "sky",
+        0.195
+      ],
+      [
+        "white",
+        0.089
+      ],
+      [
+        "gray",
+        0.081
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "IMG_4402.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
-    "color": "Blue",
-    "date": "2025-03-30"
+    "color": "blue",
+    "date": "2025-03-30",
+    "palette": [
+      [
+        "navy",
+        0.723
+      ],
+      [
+        "sky",
+        0.161
+      ],
+      [
+        "white",
+        0.069
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "IMG_4404.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
-    "color": "Blue",
-    "date": "2025-03-30"
+    "color": "blue",
+    "date": "2025-03-30",
+    "palette": [
+      [
+        "navy",
+        0.273
+      ],
+      [
+        "gray",
+        0.261
+      ],
+      [
+        "white",
+        0.259
+      ],
+      [
+        "sky",
+        0.108
+      ],
+      [
+        "black",
+        0.087
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "IMG_4406.jpeg",
     "info": "Nikon Z fc f7.1 1/400s iso 100",
-    "color": "Blue",
-    "date": "2025-03-30"
+    "color": "blue",
+    "date": "2025-03-30",
+    "palette": [
+      [
+        "navy",
+        0.258
+      ],
+      [
+        "sky",
+        0.22
+      ],
+      [
+        "gray",
+        0.203
+      ],
+      [
+        "white",
+        0.139
+      ],
+      [
+        "black",
+        0.124
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "IMG_4407.jpeg",
     "info": "Nikon Z fc f9 1/500s iso 100",
-    "color": "Blue",
-    "date": "2025-03-30"
+    "color": "blue",
+    "date": "2025-03-30",
+    "palette": [
+      [
+        "sky",
+        0.554
+      ],
+      [
+        "navy",
+        0.182
+      ],
+      [
+        "white",
+        0.088
+      ],
+      [
+        "gray",
+        0.067
+      ],
+      [
+        "black",
+        0.047
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "IMG_4408.jpeg",
     "info": "Nikon Z fc f6.3 1/320s iso 100",
-    "color": "Blue",
-    "date": "2025-03-30"
+    "color": "gray",
+    "date": "2025-03-30",
+    "palette": [
+      [
+        "gray",
+        0.445
+      ],
+      [
+        "white",
+        0.298
+      ],
+      [
+        "navy",
+        0.22
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "IMG_4409.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
-    "color": "Blue",
-    "date": "2025-03-30"
+    "color": "blue",
+    "date": "2025-03-30",
+    "palette": [
+      [
+        "sky",
+        0.433
+      ],
+      [
+        "black",
+        0.227
+      ],
+      [
+        "navy",
+        0.174
+      ],
+      [
+        "white",
+        0.087
+      ],
+      [
+        "gray",
+        0.035
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "IMG_4410.jpeg",
     "info": "Nikon Z fc f8 1/400s iso 100",
-    "color": "Blue",
-    "date": "2025-03-30"
+    "color": "white",
+    "date": "2025-03-30",
+    "palette": [
+      [
+        "white",
+        0.296
+      ],
+      [
+        "gray",
+        0.258
+      ],
+      [
+        "black",
+        0.256
+      ],
+      [
+        "sky",
+        0.114
+      ],
+      [
+        "navy",
+        0.044
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "IMG_4412.jpeg",
     "info": "Nikon Z fc f8 1/500s iso 100",
-    "color": "Blue",
-    "date": "2025-03-30"
+    "color": "gray",
+    "date": "2025-03-30",
+    "palette": [
+      [
+        "gray",
+        0.443
+      ],
+      [
+        "orange",
+        0.429
+      ],
+      [
+        "white",
+        0.039
+      ],
+      [
+        "brown",
+        0.035
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1766.jpeg",
     "info": "Nikon Z fc f13 1/30s iso 2000",
-    "color": "Gray",
-    "date": "2025-04-17"
+    "color": "gray",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "gray",
+        0.893
+      ],
+      [
+        "black",
+        0.06
+      ],
+      [
+        "white",
+        0.047
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1767.jpeg",
     "info": "Nikon Z fc f9 1/30s iso 2000",
-    "color": "White",
-    "date": "2025-04-17"
+    "color": "white",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "white",
+        0.826
+      ],
+      [
+        "brown",
+        0.064
+      ],
+      [
+        "orange",
+        0.049
+      ],
+      [
+        "gray",
+        0.043
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1770.jpeg",
     "info": "Nikon Z fc f9 1/30s iso 2000",
-    "color": "White",
-    "date": "2025-04-17"
+    "color": "white",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "white",
+        0.954
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1776.jpeg",
     "info": "Nikon Z fc f6.3 1/30s iso 2000",
-    "color": "White",
-    "date": "2025-04-17"
+    "color": "white",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "white",
+        0.848
+      ],
+      [
+        "brown",
+        0.109
+      ],
+      [
+        "orange",
+        0.038
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1791.jpeg",
     "info": "Nikon Z fc f6.3 1/30s iso 2000",
-    "color": "Black",
-    "date": "2025-04-17"
+    "color": "black",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "black",
+        0.943
+      ],
+      [
+        "brown",
+        0.041
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1780.jpeg",
     "info": "Nikon Z fc f14 1/30s iso 2000",
-    "color": "White",
-    "date": "2025-04-17"
+    "color": "white",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "white",
+        0.581
+      ],
+      [
+        "gray",
+        0.339
+      ],
+      [
+        "black",
+        0.078
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1797.jpeg",
     "info": "Nikon Z fc f5.3 1/3200s iso 2000",
-    "color": "Gray",
-    "date": "2025-04-17"
+    "color": "white",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "white",
+        0.481
+      ],
+      [
+        "forest",
+        0.229
+      ],
+      [
+        "brown",
+        0.123
+      ],
+      [
+        "black",
+        0.12
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1819.jpeg",
     "info": "Nikon Z fc f6.3 1/1600s iso 2000",
-    "color": "Green",
-    "date": "2025-04-17"
+    "color": "green",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "forest",
+        0.4
+      ],
+      [
+        "brown",
+        0.185
+      ],
+      [
+        "gray",
+        0.152
+      ],
+      [
+        "white",
+        0.125
+      ],
+      [
+        "black",
+        0.088
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1832.jpeg",
     "info": "Nikon Z fc f6.3 1/4000s iso 2000",
-    "color": "Gray",
-    "date": "2025-04-17"
+    "color": "white",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "white",
+        0.336
+      ],
+      [
+        "gray",
+        0.272
+      ],
+      [
+        "black",
+        0.155
+      ],
+      [
+        "brown",
+        0.142
+      ],
+      [
+        "forest",
+        0.052
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1836.jpeg",
     "info": "Nikon Z fc f6.3 1/1600s iso 2000",
-    "color": "Black",
-    "date": "2025-04-17"
+    "color": "black",
+    "date": "2025-04-17",
+    "palette": [
+      [
+        "black",
+        0.472
+      ],
+      [
+        "white",
+        0.414
+      ],
+      [
+        "gray",
+        0.064
+      ],
+      [
+        "brown",
+        0.03
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_test.jpg",
     "info": "Nikon Z 5 f2 1/1000s iso 320",
-    "color": "Yellow",
-    "date": "2025-11-22"
+    "color": "blue",
+    "date": "2025-11-22",
+    "palette": [
+      [
+        "navy",
+        0.517
+      ],
+      [
+        "gray",
+        0.106
+      ],
+      [
+        "yellow",
+        0.082
+      ],
+      [
+        "forest",
+        0.071
+      ],
+      [
+        "black",
+        0.067
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0825.jpg",
     "info": "Nikon Z 5 f4 1/200s iso 2500",
-    "color": "Black",
-    "date": "2025-11-22"
+    "color": "black",
+    "date": "2025-11-22",
+    "palette": [
+      [
+        "black",
+        0.579
+      ],
+      [
+        "brown",
+        0.326
+      ],
+      [
+        "orange",
+        0.068
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0637.jpg",
     "info": "Nikon Z 5 f6.3 1/320s iso 320",
-    "color": "Red",
-    "date": "2025-11-22"
+    "color": "warm",
+    "date": "2025-11-22",
+    "palette": [
+      [
+        "red",
+        0.526
+      ],
+      [
+        "brown",
+        0.44
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0687.jpg",
     "info": "NIKON Z 5 86mm f5.6 1/400s iso 125",
-    "color": "Orange",
-    "date": "2025-11-22"
+    "color": "warm",
+    "date": "2025-11-22",
+    "palette": [
+      [
+        "brown",
+        0.361
+      ],
+      [
+        "orange",
+        0.233
+      ],
+      [
+        "black",
+        0.193
+      ],
+      [
+        "forest",
+        0.081
+      ],
+      [
+        "white",
+        0.051
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0770.jpg",
     "info": "NIKON Z 5 120mm f4 1/640s iso 125",
-    "color": "Orange",
-    "date": "2025-11-22"
+    "color": "warm",
+    "date": "2025-11-22",
+    "palette": [
+      [
+        "brown",
+        0.61
+      ],
+      [
+        "orange",
+        0.268
+      ],
+      [
+        "forest",
+        0.048
+      ],
+      [
+        "black",
+        0.041
+      ],
+      [
+        "red",
+        0.031
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0693.jpg",
     "info": "NIKON Z 5 93mm f4 1/15s iso 125",
     "date": "2025-11-22",
-    "color": "Orange"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.591
+      ],
+      [
+        "black",
+        0.209
+      ],
+      [
+        "forest",
+        0.176
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0768.jpg",
     "info": "NIKON Z 5 120mm f4 1/640s iso 125",
     "date": "2025-11-22",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.545
+      ],
+      [
+        "black",
+        0.208
+      ],
+      [
+        "navy",
+        0.136
+      ],
+      [
+        "brown",
+        0.042
+      ],
+      [
+        "orange",
+        0.04
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_0629_1769879274483.jpg",
     "info": "NIKON Z 5 f5 iso 320",
     "date": "2025-11-22",
-    "color": "Gray"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.307
+      ],
+      [
+        "black",
+        0.201
+      ],
+      [
+        "orange",
+        0.161
+      ],
+      [
+        "gray",
+        0.142
+      ],
+      [
+        "sky",
+        0.066
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_0643_1769879277148.jpg",
     "info": "NIKON Z 5 f6.3 iso 320",
     "date": "2025-11-22",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "navy",
+        0.252
+      ],
+      [
+        "red",
+        0.189
+      ],
+      [
+        "sky",
+        0.178
+      ],
+      [
+        "gray",
+        0.1
+      ],
+      [
+        "white",
+        0.098
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_0675_1769879279259.jpg",
     "info": "NIKON Z 5 f6.3 iso 125",
     "date": "2025-11-22",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "green",
+        0.28
+      ],
+      [
+        "forest",
+        0.254
+      ],
+      [
+        "brown",
+        0.193
+      ],
+      [
+        "lime",
+        0.092
+      ],
+      [
+        "orange",
+        0.074
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_0682_1769879281593.jpg",
     "info": "NIKON Z 5 f6.3 iso 125",
     "date": "2025-11-22",
-    "color": "Red"
+    "color": "warm",
+    "palette": [
+      [
+        "orange",
+        0.288
+      ],
+      [
+        "white",
+        0.238
+      ],
+      [
+        "black",
+        0.151
+      ],
+      [
+        "brown",
+        0.131
+      ],
+      [
+        "red",
+        0.096
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_0776_1769879284033.jpg",
     "info": "NIKON Z 5 f4 iso 1800",
     "date": "2025-11-22",
-    "color": "Black"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.605
+      ],
+      [
+        "forest",
+        0.177
+      ],
+      [
+        "yellow",
+        0.101
+      ],
+      [
+        "white",
+        0.077
+      ],
+      [
+        "brown",
+        0.035
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0780_1769879285847.jpg",
     "info": "NIKON Z 5 f4 iso 3200",
     "date": "2025-11-22",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.872
+      ],
+      [
+        "green",
+        0.077
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0095_1769882280475.jpg",
     "info": "NIKON Z 5 f4 iso 1000",
     "date": "2025-10-05",
-    "color": "Orange"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.469
+      ],
+      [
+        "orange",
+        0.206
+      ],
+      [
+        "red",
+        0.126
+      ],
+      [
+        "gray",
+        0.116
+      ],
+      [
+        "forest",
+        0.051
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_0167_1769882282577.jpg",
     "info": "NIKON Z 5 f4 iso 400",
     "date": "2025-10-11",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "navy",
+        0.359
+      ],
+      [
+        "gray",
+        0.336
+      ],
+      [
+        "black",
+        0.276
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0178_1769882284344.jpg",
     "info": "NIKON Z 5 f4.5 iso 400",
     "date": "2025-10-11",
-    "color": "Black"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.346
+      ],
+      [
+        "gray",
+        0.223
+      ],
+      [
+        "brown",
+        0.146
+      ],
+      [
+        "forest",
+        0.134
+      ],
+      [
+        "white",
+        0.099
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0237_1769882285710.jpg",
     "info": "NIKON Z 5 f2.8 iso 160",
     "date": "2025-10-19",
-    "color": "Blue"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.277
+      ],
+      [
+        "forest",
+        0.267
+      ],
+      [
+        "brown",
+        0.185
+      ],
+      [
+        "sky",
+        0.176
+      ],
+      [
+        "gray",
+        0.068
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0360_1769882287773.jpg",
     "info": "NIKON Z 5 f4 iso 160",
     "date": "2025-10-25",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "navy",
+        0.279
+      ],
+      [
+        "sky",
+        0.204
+      ],
+      [
+        "white",
+        0.114
+      ],
+      [
+        "forest",
+        0.088
+      ],
+      [
+        "gray",
+        0.064
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_0443_1769882289647.jpg",
     "info": "NIKON Z 5 f4 iso 160",
     "date": "2025-10-25",
-    "color": "Orange"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.321
+      ],
+      [
+        "white",
+        0.238
+      ],
+      [
+        "orange",
+        0.188
+      ],
+      [
+        "brown",
+        0.132
+      ],
+      [
+        "gray",
+        0.055
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_0445_1769882291122.jpg",
     "info": "NIKON Z 5 f6.3 iso 160",
     "date": "2025-10-25",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.821
+      ],
+      [
+        "brown",
+        0.082
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_0456_1769882293039.jpg",
     "info": "NIKON Z 5 f6.3 iso 160",
     "date": "2025-10-25",
-    "color": "Orange"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.429
+      ],
+      [
+        "orange",
+        0.305
+      ],
+      [
+        "forest",
+        0.255
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_0510_1769882294741.jpg",
     "info": "NIKON Z 5 f10 iso 320",
     "date": "2025-10-25",
-    "color": "Orange"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.372
+      ],
+      [
+        "orange",
+        0.291
+      ],
+      [
+        "forest",
+        0.182
+      ],
+      [
+        "black",
+        0.111
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_0524_1769882296049.jpg",
     "info": "NIKON Z 5 f8 iso 320",
     "date": "2025-10-25",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.983
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_0546_1769882297198.jpg",
     "info": "NIKON Z 5 f10 iso 320",
     "date": "2025-10-25",
-    "color": "Orange"
+    "color": "warm",
+    "palette": [
+      [
+        "orange",
+        0.447
+      ],
+      [
+        "brown",
+        0.372
+      ],
+      [
+        "black",
+        0.098
+      ],
+      [
+        "yellow",
+        0.043
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_0859_1769883338751.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
     "date": "2025-11-29",
-    "color": "Orange"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.455
+      ],
+      [
+        "orange",
+        0.397
+      ],
+      [
+        "red",
+        0.063
+      ],
+      [
+        "yellow",
+        0.042
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_0905_1769883340516.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
     "date": "2025-11-29",
-    "color": "Orange"
+    "color": "warm",
+    "palette": [
+      [
+        "orange",
+        0.72
+      ],
+      [
+        "brown",
+        0.192
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_0924_1769883341899.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
     "date": "2025-11-29",
-    "color": "Orange"
+    "color": "warm",
+    "palette": [
+      [
+        "orange",
+        0.518
+      ],
+      [
+        "brown",
+        0.299
+      ],
+      [
+        "forest",
+        0.157
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_0925_1769883344001.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
     "date": "2025-11-29",
-    "color": "Orange"
+    "color": "warm",
+    "palette": [
+      [
+        "orange",
+        0.825
+      ],
+      [
+        "brown",
+        0.166
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_0955_1769883345947.jpg",
     "info": "NIKON Z 5 f6.3 iso 800",
     "date": "2025-11-29",
-    "color": "Brown"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.365
+      ],
+      [
+        "orange",
+        0.278
+      ],
+      [
+        "red",
+        0.193
+      ],
+      [
+        "forest",
+        0.069
+      ],
+      [
+        "gray",
+        0.044
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1061_1769930816328.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.329
+      ],
+      [
+        "brown",
+        0.245
+      ],
+      [
+        "forest",
+        0.148
+      ],
+      [
+        "black",
+        0.075
+      ],
+      [
+        "gray",
+        0.058
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1062_1769930818302.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Black"
+    "color": "blue",
+    "palette": [
+      [
+        "navy",
+        0.317
+      ],
+      [
+        "brown",
+        0.194
+      ],
+      [
+        "gray",
+        0.17
+      ],
+      [
+        "white",
+        0.148
+      ],
+      [
+        "black",
+        0.057
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1065_1769930820276.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.453
+      ],
+      [
+        "brown",
+        0.327
+      ],
+      [
+        "white",
+        0.087
+      ],
+      [
+        "gray",
+        0.071
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1067_1769930822122.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "green",
+        0.342
+      ],
+      [
+        "forest",
+        0.273
+      ],
+      [
+        "brown",
+        0.105
+      ],
+      [
+        "red",
+        0.089
+      ],
+      [
+        "lime",
+        0.053
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1074_1769930824140.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Brown"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.287
+      ],
+      [
+        "brown",
+        0.222
+      ],
+      [
+        "orange",
+        0.186
+      ],
+      [
+        "gray",
+        0.177
+      ],
+      [
+        "navy",
+        0.053
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1094_1769930826161.jpg",
     "info": "NIKON Z 5 f8 iso 500",
     "date": "2026-01-17",
-    "color": "Brown"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.587
+      ],
+      [
+        "brown",
+        0.269
+      ],
+      [
+        "orange",
+        0.045
+      ],
+      [
+        "navy",
+        0.034
+      ],
+      [
+        "gray",
+        0.033
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1111_1769930828074.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-01-17",
-    "color": "Black"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.317
+      ],
+      [
+        "navy",
+        0.189
+      ],
+      [
+        "brown",
+        0.156
+      ],
+      [
+        "gray",
+        0.119
+      ],
+      [
+        "white",
+        0.111
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1124_1769930829641.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-01-17",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.363
+      ],
+      [
+        "orange",
+        0.206
+      ],
+      [
+        "brown",
+        0.122
+      ],
+      [
+        "gray",
+        0.112
+      ],
+      [
+        "white",
+        0.084
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_0640_1770190316873.jpg",
     "info": "NIKON Z 5 f6.3 iso 320",
     "date": "2025-11-22",
-    "color": "Orange"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.508
+      ],
+      [
+        "orange",
+        0.274
+      ],
+      [
+        "red",
+        0.172
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1169_1772453697035.jpg",
     "info": "NIKON Z 5 f9 iso 500",
     "date": "2026-02-15",
-    "color": "Red"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.427
+      ],
+      [
+        "brown",
+        0.152
+      ],
+      [
+        "gray",
+        0.106
+      ],
+      [
+        "red",
+        0.101
+      ],
+      [
+        "white",
+        0.058
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1172_1772453699509.jpg",
     "info": "NIKON Z 5 f5.6 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.423
+      ],
+      [
+        "white",
+        0.137
+      ],
+      [
+        "gray",
+        0.117
+      ],
+      [
+        "brown",
+        0.096
+      ],
+      [
+        "black",
+        0.076
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1185_1772453702147.jpg",
     "info": "NIKON Z 5 f5 iso 500",
     "date": "2026-02-15",
-    "color": "Brown"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.692
+      ],
+      [
+        "white",
+        0.199
+      ],
+      [
+        "orange",
+        0.05
+      ],
+      [
+        "black",
+        0.041
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1186_1772453704472.jpg",
     "info": "NIKON Z 5 f5 iso 500",
     "date": "2026-02-15",
-    "color": "Gray"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.288
+      ],
+      [
+        "brown",
+        0.174
+      ],
+      [
+        "forest",
+        0.17
+      ],
+      [
+        "gray",
+        0.144
+      ],
+      [
+        "black",
+        0.084
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1190_1772453706085.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Black"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.334
+      ],
+      [
+        "brown",
+        0.264
+      ],
+      [
+        "gray",
+        0.146
+      ],
+      [
+        "black",
+        0.101
+      ],
+      [
+        "green",
+        0.057
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1203_1772453708233.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Yellow"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.347
+      ],
+      [
+        "white",
+        0.276
+      ],
+      [
+        "brown",
+        0.235
+      ],
+      [
+        "gray",
+        0.049
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1211_1772453710215.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.704
+      ],
+      [
+        "brown",
+        0.112
+      ],
+      [
+        "white",
+        0.069
+      ],
+      [
+        "green",
+        0.037
+      ],
+      [
+        "orange",
+        0.031
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1215_1772453712930.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.617
+      ],
+      [
+        "green",
+        0.145
+      ],
+      [
+        "brown",
+        0.079
+      ],
+      [
+        "white",
+        0.076
+      ],
+      [
+        "yellow",
+        0.034
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1217_1772453715453.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.613
+      ],
+      [
+        "green",
+        0.161
+      ],
+      [
+        "white",
+        0.097
+      ],
+      [
+        "brown",
+        0.064
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1228_1772453717725.jpg",
     "info": "NIKON Z 5 f4 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.444
+      ],
+      [
+        "white",
+        0.153
+      ],
+      [
+        "brown",
+        0.131
+      ],
+      [
+        "green",
+        0.108
+      ],
+      [
+        "gray",
+        0.059
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1238_1772453719980.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Gray"
+    "color": "gray",
+    "palette": [
+      [
+        "gray",
+        0.272
+      ],
+      [
+        "white",
+        0.218
+      ],
+      [
+        "brown",
+        0.165
+      ],
+      [
+        "navy",
+        0.138
+      ],
+      [
+        "black",
+        0.085
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1250_1772453723336.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.314
+      ],
+      [
+        "forest",
+        0.231
+      ],
+      [
+        "brown",
+        0.146
+      ],
+      [
+        "gray",
+        0.091
+      ],
+      [
+        "orange",
+        0.078
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1252_1772453725783.jpg",
     "info": "NIKON Z 5 f11 iso 500",
     "date": "2026-02-15",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.297
+      ],
+      [
+        "white",
+        0.165
+      ],
+      [
+        "brown",
+        0.125
+      ],
+      [
+        "orange",
+        0.107
+      ],
+      [
+        "gray",
+        0.09
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1325_1772453729477.jpg",
     "info": "NIKON Z 5 f8 iso 200",
     "date": "2026-02-15",
-    "color": "White"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.727
+      ],
+      [
+        "black",
+        0.071
+      ],
+      [
+        "gray",
+        0.069
+      ],
+      [
+        "forest",
+        0.068
+      ],
+      [
+        "brown",
+        0.061
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1330_1772453732422.jpg",
     "info": "NIKON Z 5 f8 iso 200",
     "date": "2026-02-15",
-    "color": "Gray"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.477
+      ],
+      [
+        "gray",
+        0.261
+      ],
+      [
+        "orange",
+        0.097
+      ],
+      [
+        "brown",
+        0.063
+      ],
+      [
+        "black",
+        0.054
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1337_1772453735702.jpg",
     "info": "NIKON Z 5 f8 iso 200",
     "date": "2026-02-15",
-    "color": "Brown"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.496
+      ],
+      [
+        "black",
+        0.177
+      ],
+      [
+        "white",
+        0.166
+      ],
+      [
+        "orange",
+        0.093
+      ],
+      [
+        "gray",
+        0.031
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1340_1772453738937.jpg",
     "info": "NIKON Z 5 f4 iso 400",
     "date": "2026-02-15",
-    "color": "White"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.543
+      ],
+      [
+        "gray",
+        0.297
+      ],
+      [
+        "black",
+        0.08
+      ],
+      [
+        "brown",
+        0.04
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1351_1772453741709.jpg",
     "info": "NIKON Z 5 f6.3 iso 400",
     "date": "2026-02-15",
-    "color": "Brown"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.34
+      ],
+      [
+        "gray",
+        0.225
+      ],
+      [
+        "brown",
+        0.194
+      ],
+      [
+        "white",
+        0.102
+      ],
+      [
+        "sky",
+        0.046
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1378_1772453745055.jpg",
     "info": "NIKON Z 5 f8 iso 400",
     "date": "2026-02-15",
-    "color": "Blue"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.709
+      ],
+      [
+        "forest",
+        0.094
+      ],
+      [
+        "sky",
+        0.064
+      ],
+      [
+        "black",
+        0.046
+      ],
+      [
+        "gray",
+        0.037
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1404_1772453747963.jpg",
     "info": "NIKON Z 5 f8 iso 100",
     "date": "2026-02-15",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.633
+      ],
+      [
+        "white",
+        0.121
+      ],
+      [
+        "navy",
+        0.117
+      ],
+      [
+        "black",
+        0.075
+      ],
+      [
+        "brown",
+        0.036
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1426_1772453751215.jpg",
     "info": "NIKON Z 5 f4 iso 4000",
     "date": "2026-02-15",
-    "color": "Red"
+    "color": "warm",
+    "palette": [
+      [
+        "red",
+        0.898
+      ],
+      [
+        "brown",
+        0.095
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1439_1772453753492.jpg",
     "info": "NIKON Z 5 f4 iso 250",
     "date": "2026-02-15",
-    "color": "Blue"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.693
+      ],
+      [
+        "sky",
+        0.214
+      ],
+      [
+        "gray",
+        0.05
+      ],
+      [
+        "brown",
+        0.035
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1482_1772453756259.jpg",
     "info": "NIKON Z 5 f4 iso 1000",
     "date": "2026-02-15",
-    "color": "Brown"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.432
+      ],
+      [
+        "black",
+        0.291
+      ],
+      [
+        "gray",
+        0.112
+      ],
+      [
+        "white",
+        0.065
+      ],
+      [
+        "orange",
+        0.045
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1549_1772453759554.jpg",
     "info": "NIKON Z 5 f4 iso 640",
     "date": "2026-02-15",
-    "color": "Black"
+    "color": "blue",
+    "palette": [
+      [
+        "navy",
+        0.346
+      ],
+      [
+        "brown",
+        0.228
+      ],
+      [
+        "black",
+        0.119
+      ],
+      [
+        "purple",
+        0.109
+      ],
+      [
+        "gray",
+        0.081
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1568_1772453762704.jpg",
     "info": "NIKON Z 5 f4 iso 1000",
     "date": "2026-02-16",
-    "color": "Black"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.375
+      ],
+      [
+        "navy",
+        0.243
+      ],
+      [
+        "brown",
+        0.15
+      ],
+      [
+        "purple",
+        0.147
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1569_1772453766146.jpg",
     "info": "NIKON Z 5 f4 iso 3200",
     "date": "2026-02-16",
-    "color": "Black"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.39
+      ],
+      [
+        "navy",
+        0.171
+      ],
+      [
+        "brown",
+        0.137
+      ],
+      [
+        "gray",
+        0.109
+      ],
+      [
+        "forest",
+        0.072
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1629_1772453769458.jpg",
     "info": "NIKON Z 5 f11 iso 250",
     "date": "2026-02-17",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.303
+      ],
+      [
+        "navy",
+        0.197
+      ],
+      [
+        "black",
+        0.167
+      ],
+      [
+        "white",
+        0.16
+      ],
+      [
+        "forest",
+        0.086
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1641_1772453775724.jpg",
     "info": "NIKON Z 5 f11 iso 250",
     "date": "2026-02-17",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.502
+      ],
+      [
+        "brown",
+        0.109
+      ],
+      [
+        "navy",
+        0.076
+      ],
+      [
+        "gray",
+        0.071
+      ],
+      [
+        "forest",
+        0.057
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1699_1772453778924.jpg",
     "info": "NIKON Z 5 f4 iso 250",
     "date": "2026-02-17",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "navy",
+        0.564
+      ],
+      [
+        "gray",
+        0.121
+      ],
+      [
+        "white",
+        0.111
+      ],
+      [
+        "sky",
+        0.099
+      ],
+      [
+        "brown",
+        0.066
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1755_1775318453922.jpg",
     "info": "NIKON Z 5 f4.5 iso 200",
     "date": "2026-03-21",
-    "color": "Black"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.364
+      ],
+      [
+        "brown",
+        0.287
+      ],
+      [
+        "gray",
+        0.13
+      ],
+      [
+        "orange",
+        0.072
+      ],
+      [
+        "white",
+        0.07
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1776_1775318457082.jpg",
     "info": "NIKON Z 5 f4.5 iso 250",
     "date": "2026-03-21",
-    "color": "Red"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.313
+      ],
+      [
+        "orange",
+        0.224
+      ],
+      [
+        "red",
+        0.198
+      ],
+      [
+        "yellow",
+        0.065
+      ],
+      [
+        "white",
+        0.064
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1873_1775381912004.jpg",
     "info": "NIKON Z 5 f5.6 iso 500",
     "date": "2026-04-04",
-    "color": "Yellow"
+    "color": "warm",
+    "palette": [
+      [
+        "yellow",
+        0.5
+      ],
+      [
+        "white",
+        0.206
+      ],
+      [
+        "orange",
+        0.192
+      ],
+      [
+        "brown",
+        0.066
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1870_1775383182426.jpg",
     "info": "NIKON Z 5 f5.6 1/2000s iso 500",
     "date": "2026-04-04",
-    "color": "Yellow"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.468
+      ],
+      [
+        "orange",
+        0.278
+      ],
+      [
+        "yellow",
+        0.184
+      ],
+      [
+        "brown",
+        0.057
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1846_1775384557014.jpg",
     "info": "NIKON Z 5 f9 1/320s iso 250",
     "date": "2026-04-04",
-    "color": "White"
+    "color": "gray",
+    "palette": [
+      [
+        "gray",
+        0.348
+      ],
+      [
+        "white",
+        0.255
+      ],
+      [
+        "sky",
+        0.11
+      ],
+      [
+        "forest",
+        0.086
+      ],
+      [
+        "black",
+        0.081
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1847_1775384559624.jpg",
     "info": "NIKON Z 5 f9 1/640s iso 250",
     "date": "2026-04-04",
-    "color": "White"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.705
+      ],
+      [
+        "gray",
+        0.126
+      ],
+      [
+        "sky",
+        0.072
+      ],
+      [
+        "brown",
+        0.032
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1848_1775384561971.jpg",
     "info": "NIKON Z 5 f9 1/500s iso 250",
     "date": "2026-04-04",
-    "color": "White"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.511
+      ],
+      [
+        "gray",
+        0.284
+      ],
+      [
+        "sky",
+        0.065
+      ],
+      [
+        "brown",
+        0.057
+      ],
+      [
+        "black",
+        0.033
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1856_1775384564610.jpg",
     "info": "NIKON Z 5 f4 1/800s iso 250",
     "date": "2026-04-04",
-    "color": "White"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.352
+      ],
+      [
+        "gray",
+        0.154
+      ],
+      [
+        "black",
+        0.124
+      ],
+      [
+        "forest",
+        0.122
+      ],
+      [
+        "brown",
+        0.094
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1861_1775384566966.jpg",
     "info": "NIKON Z 5 f4 1/2000s iso 250",
     "date": "2026-04-04",
-    "color": "White"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.476
+      ],
+      [
+        "gray",
+        0.218
+      ],
+      [
+        "sky",
+        0.196
+      ],
+      [
+        "brown",
+        0.033
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1862_1775384568892.jpg",
     "info": "NIKON Z 5 f5.6 1/1600s iso 500",
     "date": "2026-04-04",
-    "color": "White"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.553
+      ],
+      [
+        "gray",
+        0.217
+      ],
+      [
+        "sky",
+        0.084
+      ],
+      [
+        "brown",
+        0.047
+      ],
+      [
+        "black",
+        0.035
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_2018_1779447828265.jpg",
     "info": "NIKON Z 5 f4 1/100s iso 500",
     "date": "2026-05-22",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "navy",
+        0.55
+      ],
+      [
+        "black",
+        0.116
+      ],
+      [
+        "gray",
+        0.103
+      ],
+      [
+        "yellow",
+        0.072
+      ],
+      [
+        "white",
+        0.059
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_2026_1779447831767.jpg",
     "info": "NIKON Z 5 f4 1/100s iso 500",
     "date": "2026-05-22",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "navy",
+        0.355
+      ],
+      [
+        "black",
+        0.174
+      ],
+      [
+        "brown",
+        0.122
+      ],
+      [
+        "gray",
+        0.122
+      ],
+      [
+        "white",
+        0.08
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1915_1779448957781.jpg",
     "info": "NIKON Z 5 f7.1 1/1000s iso 500",
     "date": "2026-04-23",
-    "color": "Red"
+    "color": "warm",
+    "palette": [
+      [
+        "red",
+        0.597
+      ],
+      [
+        "navy",
+        0.131
+      ],
+      [
+        "orange",
+        0.112
+      ],
+      [
+        "sky",
+        0.043
+      ],
+      [
+        "yellow",
+        0.037
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1930_1779448961133.jpg",
     "info": "NIKON Z 5 f7.1 1/400s iso 200",
     "date": "2026-04-23",
-    "color": "Pink"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.204
+      ],
+      [
+        "red",
+        0.161
+      ],
+      [
+        "green",
+        0.138
+      ],
+      [
+        "white",
+        0.103
+      ],
+      [
+        "orange",
+        0.078
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1931_1779448964020.jpg",
     "info": "NIKON Z 5 f7.1 1/400s iso 200",
     "date": "2026-04-23",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.3
+      ],
+      [
+        "green",
+        0.211
+      ],
+      [
+        "red",
+        0.159
+      ],
+      [
+        "brown",
+        0.078
+      ],
+      [
+        "lime",
+        0.077
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1932_1779448967488.jpg",
     "info": "NIKON Z 5 f7.1 1/200s iso 200",
     "date": "2026-04-23",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.312
+      ],
+      [
+        "green",
+        0.259
+      ],
+      [
+        "red",
+        0.208
+      ],
+      [
+        "lime",
+        0.136
+      ],
+      [
+        "white",
+        0.03
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1944_1779448972255.jpg",
     "info": "NIKON Z 5 f4 1/20s iso 500",
     "date": "2026-04-23",
-    "color": "Brown"
+    "color": "warm",
+    "palette": [
+      [
+        "orange",
+        0.385
+      ],
+      [
+        "brown",
+        0.37
+      ],
+      [
+        "white",
+        0.131
+      ],
+      [
+        "red",
+        0.035
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1945_1779448976416.jpg",
     "info": "NIKON Z 5 f4 1/15s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "gray",
+    "palette": [
+      [
+        "gray",
+        0.483
+      ],
+      [
+        "white",
+        0.31
+      ],
+      [
+        "navy",
+        0.049
+      ],
+      [
+        "sea",
+        0.046
+      ],
+      [
+        "black",
+        0.037
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1946_1779448980404.jpg",
     "info": "NIKON Z 5 f4 1/20s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "gray",
+    "palette": [
+      [
+        "gray",
+        0.441
+      ],
+      [
+        "white",
+        0.434
+      ],
+      [
+        "navy",
+        0.063
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1947_1779448983936.jpg",
     "info": "NIKON Z 5 f4 1/25s iso 500",
     "date": "2026-04-23",
-    "color": "Orange"
+    "color": "gray",
+    "palette": [
+      [
+        "gray",
+        0.255
+      ],
+      [
+        "orange",
+        0.22
+      ],
+      [
+        "brown",
+        0.217
+      ],
+      [
+        "white",
+        0.126
+      ],
+      [
+        "black",
+        0.09
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1950_1779448987125.jpg",
     "info": "NIKON Z 5 f4 1/13s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "gray",
+    "palette": [
+      [
+        "gray",
+        0.302
+      ],
+      [
+        "navy",
+        0.242
+      ],
+      [
+        "white",
+        0.239
+      ],
+      [
+        "black",
+        0.137
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1953_1779448990105.jpg",
     "info": "NIKON Z 5 f4 1/4s iso 500",
     "date": "2026-04-23",
-    "color": "Yellow"
+    "color": "warm",
+    "palette": [
+      [
+        "yellow",
+        0.446
+      ],
+      [
+        "forest",
+        0.235
+      ],
+      [
+        "black",
+        0.16
+      ],
+      [
+        "white",
+        0.103
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1961_1779448992706.jpg",
     "info": "NIKON Z 5 f4 1/10s iso 500",
     "date": "2026-04-23",
-    "color": "Black"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.614
+      ],
+      [
+        "navy",
+        0.163
+      ],
+      [
+        "brown",
+        0.071
+      ],
+      [
+        "white",
+        0.068
+      ],
+      [
+        "gray",
+        0.05
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1964_1779448995395.jpg",
     "info": "NIKON Z 5 f4 1/125s iso 500",
     "date": "2026-04-23",
-    "color": "Brown"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.421
+      ],
+      [
+        "orange",
+        0.289
+      ],
+      [
+        "yellow",
+        0.114
+      ],
+      [
+        "gray",
+        0.105
+      ],
+      [
+        "brown",
+        0.031
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1965_1779448998422.jpg",
     "info": "NIKON Z 5 f4 1/125s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.445
+      ],
+      [
+        "gray",
+        0.25
+      ],
+      [
+        "orange",
+        0.157
+      ],
+      [
+        "yellow",
+        0.078
+      ],
+      [
+        "brown",
+        0.06
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1968_1779449001036.jpg",
     "info": "NIKON Z 5 f4 1/400s iso 500",
     "date": "2026-04-23",
-    "color": "Green"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.346
+      ],
+      [
+        "gray",
+        0.239
+      ],
+      [
+        "forest",
+        0.122
+      ],
+      [
+        "brown",
+        0.111
+      ],
+      [
+        "green",
+        0.071
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1971_1779449004781.jpg",
     "info": "NIKON Z 5 f4 1/2s iso 500",
     "date": "2026-04-23",
-    "color": "Black"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.457
+      ],
+      [
+        "black",
+        0.29
+      ],
+      [
+        "white",
+        0.119
+      ],
+      [
+        "navy",
+        0.042
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_1979_1779449008754.jpg",
     "info": "NIKON Z 5 f4 1/640s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.3
+      ],
+      [
+        "gray",
+        0.278
+      ],
+      [
+        "white",
+        0.213
+      ],
+      [
+        "navy",
+        0.076
+      ],
+      [
+        "black",
+        0.075
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_1982_1779449012527.jpg",
     "info": "NIKON Z 5 f4 1/800s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.312
+      ],
+      [
+        "green",
+        0.235
+      ],
+      [
+        "forest",
+        0.121
+      ],
+      [
+        "yellow",
+        0.083
+      ],
+      [
+        "brown",
+        0.075
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1985_1779449017064.jpg",
     "info": "NIKON Z 5 f4 1/125s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.539
+      ],
+      [
+        "brown",
+        0.227
+      ],
+      [
+        "orange",
+        0.151
+      ],
+      [
+        "gray",
+        0.07
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_1987_1779449021447.jpg",
     "info": "NIKON Z 5 f4 1/1250s iso 500",
     "date": "2026-04-23",
-    "color": "Gray"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.827
+      ],
+      [
+        "gray",
+        0.097
+      ],
+      [
+        "black",
+        0.055
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_2001_1779449025331.jpg",
     "info": "NIKON Z 5 f4 1/640s iso 500",
     "date": "2026-04-23",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "green",
+        0.411
+      ],
+      [
+        "forest",
+        0.367
+      ],
+      [
+        "white",
+        0.143
+      ],
+      [
+        "brown",
+        0.045
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0058_1787541107212.jpg",
     "info": "X-M5 f3.2 10/1500s iso 160",
     "date": "2026-08-24",
-    "color": "Yellow"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.324
+      ],
+      [
+        "forest",
+        0.268
+      ],
+      [
+        "green",
+        0.208
+      ],
+      [
+        "yellow",
+        0.093
+      ],
+      [
+        "gray",
+        0.054
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSCF0059_1787541455750.jpg",
     "info": "X-M5 f4.5 1/240s iso 320",
     "date": "2026-08-24",
-    "color": "Black"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.373
+      ],
+      [
+        "orange",
+        0.256
+      ],
+      [
+        "black",
+        0.126
+      ],
+      [
+        "white",
+        0.073
+      ],
+      [
+        "brown",
+        0.068
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSCF0063_1787952758613.jpg",
     "info": "X-M5 f5.6 1/320s iso 160",
     "date": "2026-08-29",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.956
+      ],
+      [
+        "white",
+        0.044
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSCF0065_1787952761601.jpg",
     "info": "X-M5 f4.5 10/1250s iso 6400",
     "date": "2026-08-29",
-    "color": "Orange"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.381
+      ],
+      [
+        "green",
+        0.253
+      ],
+      [
+        "black",
+        0.243
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSCF0066_1787952764365.jpg",
     "info": "X-M5 f4.5 1/125s iso 6400",
     "date": "2026-08-29",
-    "color": "Yellow"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.399
+      ],
+      [
+        "black",
+        0.355
+      ],
+      [
+        "brown",
+        0.064
+      ],
+      [
+        "yellow",
+        0.054
+      ],
+      [
+        "green",
+        0.042
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_2058_1790286745016_0.jpg",
     "info": "NIKON Z 5 f9 1/1600s iso 160",
     "date": "2026-09-19",
-    "color": "Blue",
-    "story": "비행기에서 바라본 하늘"
+    "color": "white",
+    "story": "비행기에서 바라본 하늘",
+    "palette": [
+      [
+        "white",
+        0.455
+      ],
+      [
+        "sky",
+        0.412
+      ],
+      [
+        "navy",
+        0.121
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_2069_1790286748173_1.jpg",
     "info": "NIKON Z 5 f4 1/6400s iso 1600",
     "date": "2026-09-19",
-    "color": "Blue"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.276
+      ],
+      [
+        "navy",
+        0.198
+      ],
+      [
+        "gray",
+        0.145
+      ],
+      [
+        "sky",
+        0.144
+      ],
+      [
+        "forest",
+        0.094
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_2093_1790286750903_2.jpg",
     "info": "NIKON Z 5 f4 1/2500s iso 250",
     "date": "2026-09-19",
-    "color": "Orange"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.412
+      ],
+      [
+        "brown",
+        0.274
+      ],
+      [
+        "white",
+        0.249
+      ],
+      [
+        "gray",
+        0.036
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_2119_1790286753516_3.jpg",
     "info": "NIKON Z 5 f4 1/400s iso 250",
     "date": "2026-09-19",
-    "color": "Orange"
+    "color": "warm",
+    "palette": [
+      [
+        "orange",
+        0.286
+      ],
+      [
+        "brown",
+        0.262
+      ],
+      [
+        "black",
+        0.19
+      ],
+      [
+        "red",
+        0.106
+      ],
+      [
+        "navy",
+        0.062
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_2135_1790286756538_4.jpg",
     "info": "NIKON Z 5 f4 1/1000s iso 250",
     "date": "2026-09-19",
-    "color": "Orange"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.428
+      ],
+      [
+        "orange",
+        0.16
+      ],
+      [
+        "navy",
+        0.132
+      ],
+      [
+        "brown",
+        0.094
+      ],
+      [
+        "black",
+        0.06
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_2150_1790286758008_5.jpg",
     "info": "NIKON Z 5 f4 1/200s iso 2000",
     "date": "2026-09-19",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.324
+      ],
+      [
+        "brown",
+        0.24
+      ],
+      [
+        "forest",
+        0.098
+      ],
+      [
+        "navy",
+        0.082
+      ],
+      [
+        "black",
+        0.078
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_2151_1790286760104_6.jpg",
     "info": "NIKON Z 5 f4 1/8000s iso 2000",
     "date": "2026-09-20",
-    "color": "Gray"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.303
+      ],
+      [
+        "sky",
+        0.185
+      ],
+      [
+        "brown",
+        0.094
+      ],
+      [
+        "red",
+        0.073
+      ],
+      [
+        "gray",
+        0.062
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_2170_1790286762961_7.jpg",
     "info": "NIKON Z 5 f10 1/320s iso 125",
     "date": "2026-09-21",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.512
+      ],
+      [
+        "orange",
+        0.252
+      ],
+      [
+        "brown",
+        0.1
+      ],
+      [
+        "white",
+        0.082
+      ],
+      [
+        "gray",
+        0.037
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_2180_1790286764840_8.jpg",
     "info": "NIKON Z 5 f10 1/640s iso 125",
     "date": "2026-09-21",
-    "color": "Blue"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.406
+      ],
+      [
+        "sky",
+        0.286
+      ],
+      [
+        "sea",
+        0.104
+      ],
+      [
+        "brown",
+        0.08
+      ],
+      [
+        "black",
+        0.037
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_2219_1790286766883_9.jpg",
     "info": "NIKON Z 5 f8 1/1000s iso 125",
     "date": "2026-09-21",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.59
+      ],
+      [
+        "white",
+        0.326
+      ],
+      [
+        "orange",
+        0.06
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_2243_1790286768944_10.jpg",
     "info": "NIKON Z 5 f8 1/2000s iso 125",
     "date": "2026-09-21",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.859
+      ],
+      [
+        "white",
+        0.118
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_2279_1790286770516_11.jpg",
     "info": "NIKON Z 5 f8 1/640s iso 125",
     "date": "2026-09-21",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.766
+      ],
+      [
+        "navy",
+        0.166
+      ],
+      [
+        "white",
+        0.056
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_2340_1790286772645_12.jpg",
     "info": "NIKON Z 5 f4 1/200s iso 125",
     "date": "2026-09-21",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "navy",
+        0.393
+      ],
+      [
+        "sky",
+        0.23
+      ],
+      [
+        "white",
+        0.17
+      ],
+      [
+        "black",
+        0.087
+      ],
+      [
+        "gray",
+        0.083
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_2392_1790286775341_13.jpg",
     "info": "NIKON Z 5 f4 1/80s iso 125",
     "date": "2026-09-21",
-    "color": "Black"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.28
+      ],
+      [
+        "gray",
+        0.201
+      ],
+      [
+        "white",
+        0.142
+      ],
+      [
+        "forest",
+        0.109
+      ],
+      [
+        "navy",
+        0.109
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_2402_1790286777733_14.jpg",
     "info": "NIKON Z 5 f4 1/160s iso 125",
     "date": "2026-09-21",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.457
+      ],
+      [
+        "green",
+        0.33
+      ],
+      [
+        "white",
+        0.145
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_2419_1790286779494_15.jpg",
     "info": "NIKON Z 5 f4 1/5s iso 125",
     "date": "2026-09-21",
-    "color": "Gray"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.371
+      ],
+      [
+        "gray",
+        0.214
+      ],
+      [
+        "brown",
+        0.074
+      ],
+      [
+        "orange",
+        0.072
+      ],
+      [
+        "sky",
+        0.059
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_2431_1790286782213_16.jpg",
     "info": "NIKON Z 5 f4 1/160s iso 6400",
     "date": "2026-09-23",
-    "color": "Orange"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.402
+      ],
+      [
+        "white",
+        0.193
+      ],
+      [
+        "orange",
+        0.148
+      ],
+      [
+        "gray",
+        0.087
+      ],
+      [
+        "black",
+        0.074
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_2438_1790286784546_17.jpg",
     "info": "NIKON Z 5 f4 1/200s iso 6400",
     "date": "2026-09-23",
-    "color": "Red"
+    "color": "warm",
+    "palette": [
+      [
+        "red",
+        0.486
+      ],
+      [
+        "white",
+        0.331
+      ],
+      [
+        "brown",
+        0.113
+      ],
+      [
+        "orange",
+        0.046
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_2457_1790286786588_18.jpg",
     "info": "NIKON Z 5 f4 1/125s iso 6400",
     "date": "2026-09-23",
-    "color": "Black"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.372
+      ],
+      [
+        "forest",
+        0.227
+      ],
+      [
+        "black",
+        0.112
+      ],
+      [
+        "navy",
+        0.11
+      ],
+      [
+        "red",
+        0.063
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSC_2465_1790286788458_19.jpg",
     "info": "NIKON Z 5 f4 1/100s iso 6400",
     "date": "2026-09-23",
-    "color": "Pink"
+    "color": "green",
+    "palette": [
+      [
+        "lime",
+        0.198
+      ],
+      [
+        "brown",
+        0.18
+      ],
+      [
+        "yellow",
+        0.141
+      ],
+      [
+        "red",
+        0.102
+      ],
+      [
+        "green",
+        0.091
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSC_2468_1790286791531_20.jpg",
     "info": "NIKON Z 5 f4 1/125s iso 6400",
     "date": "2026-09-23",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "navy",
+        0.195
+      ],
+      [
+        "gray",
+        0.189
+      ],
+      [
+        "white",
+        0.189
+      ],
+      [
+        "sea",
+        0.132
+      ],
+      [
+        "orange",
+        0.092
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSC_2482_1790286794413_21.jpg",
     "info": "NIKON Z 5 f4 1/250s iso 6400",
     "date": "2026-09-23",
-    "color": "Black"
+    "color": "warm",
+    "palette": [
+      [
+        "brown",
+        0.293
+      ],
+      [
+        "white",
+        0.195
+      ],
+      [
+        "gray",
+        0.18
+      ],
+      [
+        "black",
+        0.155
+      ],
+      [
+        "forest",
+        0.076
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSCF0085_1790286796671_22.jpg",
     "info": "X-M5 f2.8 1/250s iso 200",
     "date": "2026-09-19",
-    "color": "Gray"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.275
+      ],
+      [
+        "white",
+        0.274
+      ],
+      [
+        "gray",
+        0.215
+      ],
+      [
+        "brown",
+        0.112
+      ],
+      [
+        "orange",
+        0.052
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0086_1790286799133_23.jpg",
     "info": "X-M5 f3.6 1/250s iso 200",
     "date": "2026-09-19",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.243
+      ],
+      [
+        "white",
+        0.173
+      ],
+      [
+        "gray",
+        0.123
+      ],
+      [
+        "green",
+        0.103
+      ],
+      [
+        "black",
+        0.097
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0087_1790286802143_24.jpg",
     "info": "X-M5 f5.6 1/250s iso 200",
     "date": "2026-09-19",
-    "color": "Black"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.273
+      ],
+      [
+        "white",
+        0.207
+      ],
+      [
+        "gray",
+        0.202
+      ],
+      [
+        "brown",
+        0.135
+      ],
+      [
+        "red",
+        0.048
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0089_1790286804774_25.jpg",
     "info": "X-M5 f10 1/250s iso 200",
     "date": "2026-09-19",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.341
+      ],
+      [
+        "gray",
+        0.166
+      ],
+      [
+        "white",
+        0.116
+      ],
+      [
+        "black",
+        0.104
+      ],
+      [
+        "forest",
+        0.102
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0090_1790286807551_26.jpg",
     "info": "X-M5 f8 1/250s iso 200",
     "date": "2026-09-19",
-    "color": "Blue"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.239
+      ],
+      [
+        "gray",
+        0.168
+      ],
+      [
+        "navy",
+        0.149
+      ],
+      [
+        "sky",
+        0.114
+      ],
+      [
+        "black",
+        0.109
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0109_1790286810068_27.jpg",
     "info": "X-M5 f7.1 1/2500s iso 640",
     "date": "2026-09-19",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "navy",
+        0.544
+      ],
+      [
+        "white",
+        0.28
+      ],
+      [
+        "sky",
+        0.07
+      ],
+      [
+        "gray",
+        0.055
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSCF0126_1790286811527_28.jpg",
     "info": "X-M5 f5.6 1/900s iso 160",
     "date": "2026-09-19",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "navy",
+        0.374
+      ],
+      [
+        "white",
+        0.316
+      ],
+      [
+        "brown",
+        0.11
+      ],
+      [
+        "gray",
+        0.078
+      ],
+      [
+        "orange",
+        0.069
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0130_1790286813873_29.jpg",
     "info": "X-M5 f2.8 1/100s iso 320",
     "date": "2026-09-19",
-    "color": "Orange"
+    "color": "warm",
+    "palette": [
+      [
+        "orange",
+        0.621
+      ],
+      [
+        "brown",
+        0.341
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0140_1790286815496_30.jpg",
     "info": "X-M5 f4.5 1/2000s iso 320",
     "date": "2026-09-19",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.373
+      ],
+      [
+        "gray",
+        0.129
+      ],
+      [
+        "navy",
+        0.127
+      ],
+      [
+        "sea",
+        0.119
+      ],
+      [
+        "black",
+        0.069
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0223_1790286817479_31.jpg",
     "info": "X-M5 f2.8 1/450s iso 160",
     "date": "2026-09-20",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "green",
+        0.267
+      ],
+      [
+        "black",
+        0.249
+      ],
+      [
+        "forest",
+        0.166
+      ],
+      [
+        "red",
+        0.083
+      ],
+      [
+        "orange",
+        0.06
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0224_1790286819005_32.jpg",
     "info": "X-M5 f2.8 1/1250s iso 160",
     "date": "2026-09-20",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.57
+      ],
+      [
+        "green",
+        0.235
+      ],
+      [
+        "orange",
+        0.05
+      ],
+      [
+        "gray",
+        0.048
+      ],
+      [
+        "brown",
+        0.034
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSCF0244_1790286821035_33.jpg",
     "info": "X-M5 f3.2 1/680s iso 160",
     "date": "2026-09-20",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "green",
+        0.546
+      ],
+      [
+        "forest",
+        0.416
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSCF0260_1790286822446_34.jpg",
     "info": "X-M5 f4.5 1/950s iso 160",
     "date": "2026-09-20",
-    "color": "Gray"
+    "color": "gray",
+    "palette": [
+      [
+        "gray",
+        0.566
+      ],
+      [
+        "white",
+        0.197
+      ],
+      [
+        "sky",
+        0.142
+      ],
+      [
+        "navy",
+        0.038
+      ],
+      [
+        "black",
+        0.033
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSCF0262_1790286825003_35.jpg",
     "info": "X-M5 f4.5 1/480s iso 160",
     "date": "2026-09-20",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "navy",
+        0.319
+      ],
+      [
+        "white",
+        0.215
+      ],
+      [
+        "black",
+        0.103
+      ],
+      [
+        "gray",
+        0.087
+      ],
+      [
+        "sky",
+        0.083
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0264_1790286826792_36.jpg",
     "info": "X-M5 f4.5 1/1700s iso 160",
     "date": "2026-09-20",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.533
+      ],
+      [
+        "gray",
+        0.206
+      ],
+      [
+        "white",
+        0.138
+      ],
+      [
+        "navy",
+        0.031
+      ],
+      [
+        "green",
+        0.031
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSCF0265_1790286828246_37.jpg",
     "info": "X-M5 f4.5 1/1700s iso 160",
     "date": "2026-09-20",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.443
+      ],
+      [
+        "gray",
+        0.178
+      ],
+      [
+        "navy",
+        0.122
+      ],
+      [
+        "white",
+        0.101
+      ],
+      [
+        "black",
+        0.084
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0299_1790286830175_38.jpg",
     "info": "X-M5 f6.4 1/400s iso 320",
     "date": "2026-09-21",
-    "color": "Gray"
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.39
+      ],
+      [
+        "forest",
+        0.346
+      ],
+      [
+        "sky",
+        0.074
+      ],
+      [
+        "black",
+        0.071
+      ],
+      [
+        "orange",
+        0.039
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0305_1790286831775_39.jpg",
     "info": "X-M5 f5 1/400s iso 320",
     "date": "2026-09-22",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.551
+      ],
+      [
+        "green",
+        0.194
+      ],
+      [
+        "black",
+        0.057
+      ],
+      [
+        "lime",
+        0.039
+      ],
+      [
+        "red",
+        0.038
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSCF0313_1790286834171_40.jpg",
     "info": "X-M5 f5 1/1250s iso 320",
     "date": "2026-09-22",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.503
+      ],
+      [
+        "sky",
+        0.231
+      ],
+      [
+        "green",
+        0.113
+      ],
+      [
+        "white",
+        0.04
+      ],
+      [
+        "black",
+        0.03
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0316_1790286837238_41.jpg",
     "info": "X-M5 f2.8 1/1250s iso 320",
     "date": "2026-09-22",
-    "color": "Black"
+    "color": "black",
+    "palette": [
+      [
+        "black",
+        0.602
+      ],
+      [
+        "navy",
+        0.382
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSCF0334_1790514108576_0.jpg",
     "info": "X-M5 f2.8 1/4000s iso 320",
     "date": "2026-09-27",
-    "color": "Blue"
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.462
+      ],
+      [
+        "white",
+        0.149
+      ],
+      [
+        "forest",
+        0.142
+      ],
+      [
+        "navy",
+        0.095
+      ],
+      [
+        "green",
+        0.087
+      ]
+    ],
+    "light": "bright"
   },
   {
     "filename": "DSCF0336_1790514111732_1.jpg",
     "info": "X-M5 f2.8 1/3200s iso 320",
     "date": "2026-09-27",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.504
+      ],
+      [
+        "black",
+        0.146
+      ],
+      [
+        "white",
+        0.141
+      ],
+      [
+        "green",
+        0.068
+      ],
+      [
+        "sky",
+        0.066
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSCF0340_1790514114450_2.jpg",
     "info": "X-M5 f14 1/180s iso 400",
     "date": "2026-09-27",
-    "color": "Black"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.323
+      ],
+      [
+        "black",
+        0.261
+      ],
+      [
+        "white",
+        0.258
+      ],
+      [
+        "gray",
+        0.097
+      ],
+      [
+        "green",
+        0.039
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSCF0345_1790514116693_3.jpg",
     "info": "X-M5 f13 1/220s iso 640",
     "date": "2026-09-27",
-    "color": "Green"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.332
+      ],
+      [
+        "green",
+        0.271
+      ],
+      [
+        "sky",
+        0.09
+      ],
+      [
+        "white",
+        0.084
+      ],
+      [
+        "yellow",
+        0.043
+      ]
+    ],
+    "light": "mid"
   },
   {
     "filename": "DSCF0393_1790514118822_4.jpg",
     "info": "X-M5 f11 1/40s iso 250",
     "date": "2026-09-27",
-    "color": "Brown"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.322
+      ],
+      [
+        "brown",
+        0.22
+      ],
+      [
+        "orange",
+        0.16
+      ],
+      [
+        "black",
+        0.133
+      ],
+      [
+        "green",
+        0.056
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSCF0421_1790514120600_5.jpg",
     "info": "X-M5 f2.8 1/750s iso 250",
     "date": "2026-09-27",
-    "color": "Black"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.572
+      ],
+      [
+        "black",
+        0.178
+      ],
+      [
+        "green",
+        0.124
+      ],
+      [
+        "yellow",
+        0.045
+      ]
+    ],
+    "light": "dark"
   },
   {
     "filename": "DSCF0428_1790514123090_6.jpg",
     "info": "X-M5 f8 1/70s iso 250",
     "date": "2026-09-27",
-    "color": "Black"
+    "color": "green",
+    "palette": [
+      [
+        "forest",
+        0.355
+      ],
+      [
+        "black",
+        0.26
+      ],
+      [
+        "white",
+        0.118
+      ],
+      [
+        "brown",
+        0.08
+      ],
+      [
+        "orange",
+        0.067
+      ]
+    ],
+    "light": "dark"
   }
 ]
