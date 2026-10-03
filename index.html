@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=UnifrakturMaguntia&family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..900&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@100..900&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@200..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@100..800&family=Noto+Serif+KR:wght@200..900&display=swap">
-<link rel="stylesheet" href="app.css?v=14">
+<link rel="stylesheet" href="app.css?v=15">
 <script>
   // 저장된 밝기 모드를 화면이 그려지기 전에 적용해 깜빡임을 막아요.
   try { var t = localStorage.getItem('hm-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -117,6 +117,9 @@
         <div class="mono faint pc-l">색 <span class="faint">(뒤 두 줄은 이 사진에서 뽑은 색)</span></div>
         <div class="pc-swatches" id="pcColor"></div>
         <div class="pc-actions"><button class="btn ghost" id="pcDice">무작위 조합</button><button class="btn" id="pcSave">이미지로 저장 <span class="arrow">↓</span></button></div>
+        <button class="btn block" id="pcPublish" hidden style="margin-top:8px">전시에 올리기 <span class="arrow">↗</span></button>
+        <div class="pc-admin" id="pcAdmin"><button type="button" class="pc-link" id="pcAdminBtn">관리자 로그인</button>하면 여기서 바로 전시(Prints)에 올릴 수 있어요.
+          <form id="pcAdminForm" hidden autocomplete="off"><input type="password" id="pcAdminToken" placeholder="GitHub 열쇠 (토큰)" required><button class="btn small">확인</button><span id="pcAdminMsg"></span></form></div>
         <p class="pc-hint">휴대폰에서는 공유 창의 <b>이미지 저장</b>을 누르면 사진 앱에 저장돼요. 안 되면 미리보기를 길게 눌러 저장하세요.</p>
       </div>
     </div>
@@ -134,6 +137,6 @@
 <div class="toast" id="toast"></div>
 <div class="curtain" id="curtain"></div>
 
-<script src="app.js?v=14" defer></script>
+<script src="app.js?v=15" defer></script>
 </body>
 </html>

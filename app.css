@@ -321,6 +321,45 @@ body.top-visible .toolbar { top: var(--top-h); }
 .pfloat img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .4s ease; }
 .pcards { display: none; }
 
+/* ---------- Projects / Prints 탭 ---------- */
+.ptabs { display: flex; gap: clamp(22px, 4vw, 52px); border-bottom: 1px solid var(--line); margin: -10px 0 clamp(26px, 4vw, 44px); }
+.ptabs a { position: relative; padding-bottom: 14px; font-family: var(--f-display); font-size: clamp(28px, 3vw, 40px); line-height: 1; color: var(--ink-3); transition: color .2s ease; }
+.ptabs a sup { font-size: 11px; margin-left: 4px; vertical-align: top; }
+.ptabs a small { display: block; margin-top: 7px; font-family: Pretendard, sans-serif; font-size: 12px; color: var(--ink-3); }
+.ptabs a.on { color: var(--ink); }
+.ptabs a.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent); }
+@media (hover: hover) and (pointer: fine) { .ptabs a:hover { color: var(--ink); } }
+
+/* ---------- Prints: 엽서·포스터 전시 벽 (크기가 제각각인 작품을 벽에 걸듯이) ---------- */
+.prints-bar { margin-bottom: 28px; }
+.prints-wall { columns: 3 260px; column-gap: clamp(18px, 3vw, 44px); }
+.print { break-inside: avoid; margin: 0 0 clamp(28px, 4vw, 52px); }
+.print-frame { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.print-frame img { display: block; width: 100%; height: auto; background: var(--bg-3); box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 18px 40px -18px rgba(0,0,0,.45); transition: transform .3s var(--ease); }
+@media (hover: hover) and (pointer: fine) { .print-frame:hover img { transform: translateY(-4px); } }
+.print-frame:active img { transform: scale(.98); }
+.print figcaption { display: grid; gap: 4px; margin-top: 12px; font-size: 13px; }
+.print figcaption b { font-family: var(--f-display); font-weight: 400; font-size: 22px; line-height: 1.1; }
+.print-src { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; font-size: 12px; }
+.print-src > a:first-child { color: var(--accent); margin-right: 4px; }
+
+/* 포스터 크게 보기 */
+.pview { position: fixed; inset: 0; z-index: 120; display: grid; grid-template-columns: 64px minmax(0, 1fr) 64px; align-items: center; padding: 24px; background: rgba(8,8,7,.94); color: #f1eee6; animation: pvIn .2s ease-out; }
+@keyframes pvIn { from { opacity: 0; } }
+.pview figure { margin: 0; display: grid; justify-items: center; gap: 14px; }
+.pview img { max-width: 100%; max-height: calc(100vh - 170px); box-shadow: 0 30px 60px -20px rgba(0,0,0,.8); }
+.pview figcaption { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; font-size: 13px; }
+.pview figcaption b { font-family: var(--f-display); font-weight: 400; font-size: 24px; }
+.pview .btn.ghost { color: #f1eee6; border-color: rgba(255,255,255,.3); }
+.pview-x { position: absolute; top: 14px; right: 14px; color: #f1eee6; }
+.pview-nav { width: 48px; height: 48px; border-radius: 50%; color: #f1eee6; font-size: 20px; opacity: .6; transition: opacity .15s ease; }
+@media (hover: hover) and (pointer: fine) { .pview-nav:hover { opacity: 1; } }
+@media (max-width: 720px) {
+  .prints-wall { columns: 2 140px; }
+  .print figcaption b { font-size: 18px; }
+  .pview { grid-template-columns: 36px minmax(0, 1fr) 36px; padding: 12px; }
+}
+
 /* ---------- 프로젝트 상세 ---------- */
 .pd-hero { position: relative; height: 92vh; height: 92svh; min-height: 520px; overflow: hidden; color: #f6f3ec; }
 .pd-hero img { width: 100%; height: 100%; object-fit: cover; }
@@ -770,6 +809,11 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
 .pc-actions { display: flex; gap: 8px; margin-top: 20px; }
 .pc-actions .btn { flex: 1; padding: 0 12px; }
 .pc-ctrl .btn.ghost { color: #f1eee6; border-color: rgba(255,255,255,.25); }
+.pc-admin { margin-top: 14px; font-size: 12px; line-height: 1.6; color: #8d897d; }
+.pc-link { padding: 0; margin-right: 4px; border: 0; background: none; color: #f1eee6; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+#pcAdminForm:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+#pcAdminForm input { flex: 1; min-width: 140px; padding: 8px 10px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: #0b0b0a; color: #f1eee6; font: inherit; }
+#pcAdminMsg { width: 100%; }
 
 /* 계절 지도 */
 .season { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 34px; align-items: center; }

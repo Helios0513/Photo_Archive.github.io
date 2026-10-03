@@ -142,10 +142,10 @@ async function loadJson(name, fallback) {
   catch (e) { return fallback; }
 }
 async function loadData() {
-  const [photos, projects, site, profile] = await Promise.all([
-    loadJson('photos.json', []), loadJson('projects.json', []), loadJson('site.json', {}), loadJson('profile.json', {}),
+  const [photos, projects, site, profile, posters] = await Promise.all([
+    loadJson('photos.json', []), loadJson('projects.json', []), loadJson('site.json', {}), loadJson('profile.json', {}), loadJson('posters.json', []),
   ]);
-  S.site = site; S.profile = profile; S.projects = projects;
+  S.site = site; S.profile = profile; S.projects = projects; S.posters = posters; S.posterBase = DATA_BASE;
   S.photos = photos
     .filter(p => p && p.filename)
     .map(({ location, ...p }) => p) // 위치 정보는 쓰지 않아요
@@ -281,6 +281,7 @@ $('#topBtn').addEventListener('click', rewindToTop);
 const ROUTES = [
   [/^\/?$/, 'home', renderHome],
   [/^\/projects\/?$/, 'projects', renderProjects],
+  [/^\/prints\/?$/, 'projects', renderPrints],
   [/^\/projects\/(.+)$/, 'projects', renderProject],
   [/^\/p\/(\w+)$/, 'projects', renderShortProject],
   [/^\/colors(?:\/(\w+))?\/?$/, 'home', renderColorsRedirect],
@@ -548,6 +549,7 @@ function setArchive(patch) {
   renderArchive(true);
 }
 function syncSeg(seg) {
+  if (!seg) return; // 페이지를 빨리 옮기면 버튼 묶음이 이미 사라졌을 수 있어요
   const on = $('button.on', seg), ind = $('.seg-ind', seg);
   if (!on || !ind) return;
   ind.style.width = on.offsetWidth + 'px'; ind.style.transform = `translateX(${on.offsetLeft}px)`;
@@ -638,10 +640,7 @@ function renderArchive(animate) {
 function renderProjects(view) {
   const prs = S.projects.filter(pr => projectPhotos(pr).length);
   view.innerHTML = `<section class="page">
-    <div class="page-head">
-      <div><div class="page-kicker mono">( ${pad(prs.length)} series )</div><h1 class="page-title split">${splitChars('Projects')}</h1></div>
-      <p class="page-sub">장소와 계절, 하나의 주제로 엮은 사진 묶음이에요. 제목 위에 마우스를 올려 표지를 미리 보세요.</p>
-    </div>
+    ${worksHead('series', prs.length)}
     <div class="plist" id="plist">
       ${prs.map((pr, i) => {
         const ps = projectPhotos(pr), ds = ps.map(p => p.date).filter(Boolean).sort();
@@ -675,6 +674,90 @@ function renderProjects(view) {
   });
   plist.addEventListener('mouseleave', () => pf.classList.remove('on'));
   pageCleanup.push(() => cancelAnimationFrame(raf));
+}
+
+/* ============================================================
+   Projects / Prints 공용 머리말: 사진 묶음(Series)과 엽서·포스터(Prints)를 탭으로 나눠요
+   ============================================================ */
+function worksHead(tab, n) {
+  const series = S.projects.filter(pr => projectPhotos(pr).length).length, prints = (S.posters || []).length;
+  const t = tab === 'series'
+    ? ['Projects', `( ${pad(n)} series )`, '장소와 계절, 하나의 주제로 엮은 사진 묶음이에요. 제목 위에 마우스를 올려 표지를 미리 보세요.']
+    : ['Prints', `( ${pad(n)} prints )`, '아카이브의 사진으로 만든 엽서와 포스터예요. 누르면 크게 보고, 원본 사진으로도 갈 수 있어요.'];
+  return `<div class="page-head">
+      <div><div class="page-kicker mono">${t[1]}</div><h1 class="page-title split">${splitChars(t[0])}</h1></div>
+      <p class="page-sub">${t[2]}</p>
+    </div>
+    <nav class="ptabs" aria-label="작업물 종류">
+      <a href="#/projects" class="${tab === 'series' ? 'on' : ''}">Series <sup class="mono">${pad(series)}</sup><small>사진 묶음</small></a>
+      <a href="#/prints" class="${tab === 'prints' ? 'on' : ''}">Prints <sup class="mono">${pad(prints)}</sup><small>엽서 · 포스터</small></a>
+    </nav>`;
+}
+// 엽서·포스터 분류: 만든 형태로 나눠요
+const PRINT_KIND = { land: 'card', port: 'card', square: 'etc', poster: 'poster', posterL: 'poster', feed: 'social', story: 'social', phone: 'social', wide: 'social', bookmark: 'etc', ticket: 'etc' };
+const PRINT_KIND_KO = { all: '전체', card: '엽서', poster: '포스터', social: 'SNS · 배경화면', etc: '기타' };
+const LAYOUT_KO = { card: '엽서', gallery: '전시 포스터', full: '꽉 찬 사진', type: '글자 속 사진', swiss: '스위스', cover: '잡지 표지', split: '반반', frame: '액자', polaroid: '폴라로이드', circle: '원형', warhol: '팝아트 4분할', bluenote: '재즈 앨범', repeat: '반복 글자', ticket: '입장권', newspaper: '신문 1면', movie: '영화 포스터', editorial: '잡지 지면' };
+function renderPrints(view) {
+  const all = [...(S.posters || [])].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const kinds = ['all', ...['card', 'poster', 'social', 'etc'].filter(k => all.some(p => PRINT_KIND[p.fmt] === k))];
+  const count = k => k === 'all' ? all.length : all.filter(p => PRINT_KIND[p.fmt] === k).length;
+  let kind = 'all';
+  view.innerHTML = `<section class="page">
+    ${worksHead('prints', all.length)}
+    ${all.length ? `<div class="toolbar-row prints-bar"><div class="seg" id="prKind"><span class="seg-ind"></span>${kinds.map(k => `<button data-v="${k}" class="${k === 'all' ? 'on' : ''}">${PRINT_KIND_KO[k]} <span class="mono">${count(k)}</span></button>`).join('')}</div></div>` : ''}
+    <div class="prints-wall" id="prWall"></div>
+    ${all.length ? '' : '<div class="empty">아직 전시된 엽서·포스터가 없어요. 사진을 열고 엽서 버튼으로 만들어 보세요.</div>'}
+  </section>`;
+  const wall = $('#prWall', view);
+  const list = () => kind === 'all' ? all : all.filter(p => PRINT_KIND[p.fmt] === kind);
+  function paint() {
+    wall.innerHTML = list().map((p, i) => {
+      const src = S.byName.get(p.photo), prs = src ? (S.photoProjects.get(src.filename) || []) : [];
+      return `<figure class="print rv" data-i="${i}" style="--d:${(i % 6) * 60}ms">
+        <button class="print-frame" aria-label="${esc(p.title || '포스터')} 크게 보기"><img src="${esc(p._local || S.posterBase + p.file)}" alt="" loading="lazy" style="aspect-ratio:${p.w} / ${p.h}"></button>
+        <figcaption>
+          <b>${esc(p.title || 'Untitled')}</b>
+          <span class="mono faint">${[...new Set([PRINT_KIND_KO[PRINT_KIND[p.fmt]], LAYOUT_KO[p.layout]])].filter(Boolean).concat(p.date ? [fmtDate(p.date)] : []).join(' · ')}</span>
+          ${src ? `<span class="print-src"><a href="#" data-photo="${esc(src.filename)}">원본 사진 →</a>${prs.map(pr => `<a href="#/projects/${encodeURIComponent(pr.id)}" class="chip-c">${esc(pr.title)}</a>`).join('')}</span>` : ''}
+        </figcaption>
+      </figure>`;
+    }).join('');
+    observeReveal(wall);
+  }
+  paint();
+  const seg = $('#prKind', view);
+  if (seg) {
+    requestAnimationFrame(() => syncSeg(seg));
+    seg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; $$('button', seg).forEach(x => x.classList.toggle('on', x === b)); syncSeg(seg); kind = b.dataset.v; paint(); });
+  }
+  wall.addEventListener('click', e => {
+    const ph = e.target.closest('[data-photo]');
+    if (ph) { e.preventDefault(); const i = S.photos.findIndex(p => p.filename === ph.dataset.photo); if (i >= 0) Lightbox.open(S.photos, i); return; }
+    const fr = e.target.closest('.print-frame'); if (fr) openPrint(list(), +fr.closest('.print').dataset.i);
+  });
+}
+// 포스터 크게 보기: 좌우로 넘기고, 원본 사진으로 갈 수 있어요
+function openPrint(list, i) {
+  const el = document.createElement('div'); el.className = 'pview';
+  el.innerHTML = `<button class="icon-btn pview-x" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="pview-nav prev" aria-label="이전">←</button><figure><img alt=""><figcaption></figcaption></figure><button class="pview-nav next" aria-label="다음">→</button>`;
+  document.body.appendChild(el); document.body.classList.add('locked');
+  const img = $('img', el), cap = $('figcaption', el);
+  const show = () => {
+    const p = list[i]; img.src = p._local || S.posterBase + p.file;
+    cap.innerHTML = `<b>${esc(p.title || 'Untitled')}</b><span class="mono">${pad(i + 1)} / ${pad(list.length)} · ${LAYOUT_KO[p.layout] || ''}</span>${S.byName.get(p.photo) ? '<button class="btn small ghost" data-src>원본 사진 보기</button>' : ''}`;
+  };
+  const close = () => { el.remove(); document.body.classList.remove('locked'); removeEventListener('keydown', key); };
+  const step = d => { i = (i + d + list.length) % list.length; show(); };
+  const key = e => { if (e.key === 'Escape') close(); else if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1); };
+  addEventListener('keydown', key);
+  el.addEventListener('click', e => {
+    if (e.target === el || e.target.closest('.pview-x')) return close();
+    if (e.target.closest('.prev')) return step(-1);
+    if (e.target.closest('.next')) return step(1);
+    if (e.target.closest('[data-src]')) { const f = list[i].photo, k = S.photos.findIndex(p => p.filename === f); close(); if (k >= 0) Lightbox.open(S.photos, k); }
+  });
+  show();
 }
 
 /* 예전 공유 링크(p.html#abc123)에서 쓰던 짧은 코드 */
@@ -1506,6 +1589,23 @@ const Lightbox = (() => {
 /* ============================================================
    엽서 만들기
    ============================================================ */
+/* ---------- 전시에 올리기: 저장 방법 ---------- */
+// 엽서 창에서 관리자 로그인: Studio와 같은 GitHub 열쇠를 확인해요 (창을 닫으면 잊어요)
+async function adminLogin(token) {
+  const r = await fetch(`https://api.github.com/repos/${REPO}`, { headers: { Authorization: `token ${token}` }, cache: 'no-store' });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !(j.permissions && j.permissions.push)) return false;
+  setToken(token); Studio.authed = true; return true;
+}
+// 포스터 이미지를 images/posters/에 올리고, posters.json 맨 앞에 추가해요
+async function publishPoster(blob, meta) {
+  const name = `${meta.date}-${Date.now().toString(36)}.jpg`, file = 'images/posters/' + name;
+  await gh(file, { method: 'PUT', body: JSON.stringify({ message: `Poster: ${name}`, content: await blobToBase64(blob) }) });
+  const item = { ...meta, file };
+  await updateJson('posters.json', d => [item, ...(Array.isArray(d) ? d : [])], `Add poster: ${meta.title || name}`);
+  S.posters = [{ ...item, _local: URL.createObjectURL(blob) }, ...(S.posters || [])];
+}
+/* ---------- 전시에 올리기: 저장 방법 끝 ---------- */
 const Postcard = (() => {
   const FMT = { land: [1800, 1200], port: [1200, 1800], square: [1500, 1500], poster: [1240, 1754], posterL: [1754, 1240], feed: [1440, 1800], story: [1080, 1920], phone: [1179, 2556], wide: [1920, 1080], bookmark: [600, 1800], ticket: [2000, 800] };
   // [기울기, 글꼴, 크기 배율, 줄 간격, 가장 가는 두께, 가장 굵은 두께, 기본 두께]
@@ -2234,6 +2334,7 @@ const Postcard = (() => {
     if (st.color[0] === 'c' && !cols.length) st.color = 'cream';
   }
   api.open = p => {
+    paintAdmin();
     st.p = p; el.hidden = false; im = null; cache = {}; pop = {}; Object.assign(st, { zoom: 1, cx: .5, cy: .5 });
     $('#pcText').value = $('#pcText').value || (S.site.heroNote || '').replace(/\n/g, ' ');
     const i = new Image();
@@ -2364,6 +2465,31 @@ const Postcard = (() => {
     st.cx = st.cy = .5; setZoom(Math.min(fr.w / nw, fr.h / nh) / Math.max(fr.w / nw, fr.h / nh)); draw();
   };
   sheet.addEventListener('pointerup', end); sheet.addEventListener('pointercancel', end);
+  // 관리자(로그인한 사람)에게만 "전시에 올리기"를 보여 주고, 아니면 작은 로그인 안내를 보여 줘요
+  function paintAdmin() { $('#pcPublish').hidden = !Studio.authed; $('#pcAdmin').hidden = Studio.authed; }
+  $('#pcAdminBtn').onclick = () => { $('#pcAdminForm').hidden = false; $('#pcAdminToken').focus(); };
+  $('#pcAdminForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const msg = $('#pcAdminMsg'); msg.textContent = '확인하는 중…';
+    const ok = await adminLogin($('#pcAdminToken').value.trim()).catch(() => false);
+    if (!ok) { msg.textContent = '열쇠가 맞지 않거나, 저장할 권한이 없어요.'; return; }
+    $('#pcAdminToken').value = ''; msg.textContent = ''; $('#pcAdminForm').hidden = true; paintAdmin(); toast('관리자로 들어왔어요. 이제 전시에 올릴 수 있어요');
+  });
+  $('#pcPublish').onclick = async () => {
+    if (!im) return;
+    const b = $('#pcPublish'), label = b.innerHTML; b.disabled = true; b.textContent = '올리는 중…';
+    try {
+      // 전시용은 가볍게: 긴 쪽 1600px JPEG (투명한 곳은 종이색으로 채워요)
+      const k = Math.min(1, 1600 / Math.max(cv.width, cv.height)), o = document.createElement('canvas');
+      o.width = Math.round(cv.width * k); o.height = Math.round(cv.height * k);
+      const ox = o.getContext('2d'); ox.fillStyle = '#f1e9d8'; ox.fillRect(0, 0, o.width, o.height); ox.drawImage(cv, 0, 0, o.width, o.height);
+      const blob = await new Promise(r => o.toBlob(r, 'image/jpeg', .88));
+      const d = new Date(), date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      await publishPoster(blob, { photo: st.p.filename, title: $('#pcText').value.trim().split('\n')[0], layout: st.layout, fmt: st.fmt, date, w: o.width, h: o.height });
+      toast('전시(Projects › Prints)에 올렸어요 · 1~2분 뒤 홈페이지에도 반영돼요', 4200);
+    } catch (err) { console.error(err); toast('올리지 못했어요: ' + err.message, 6000); paintAdmin(); }
+    finally { b.disabled = false; b.innerHTML = label; }
+  };
   $('#pcClose').onclick = api.close;
   el.addEventListener('click', e => { if (e.target === el) api.close(); });
   $('#pcSave').onclick = async () => {
