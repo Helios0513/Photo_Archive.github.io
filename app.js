@@ -413,11 +413,6 @@ function renderHome(view) {
     <div id="gallery"></div>
   </section>
 
-  <section class="invite">
-    <a href="#/projects"><span class="mono">01 — Series</span><b>Projects</b><span>${S.projects.length}개의 이야기로 묶은 사진들 →</span></a>
-    <a href="#/constellation"><span class="mono">02 — Relations</span><b>Constellation</b><span>사진끼리 이어진 별자리 →</span></a>
-    <a href="#/guestbook"><span class="mono">03 — Notes</span><b>Guestbook</b><span>짧은 감상을 남겨주세요 →</span></a>
-  </section>
   <footer class="footer mono"><span>${esc(site.footerCopyright || '© Hamihamoo')}</span><span>${esc(site.archiveKicker || '')}</span><a href="#/" id="toTop">Back to top ↑</a></footer>`;
 
   /* 히어로 슬라이드 */
