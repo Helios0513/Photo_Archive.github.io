@@ -1408,7 +1408,7 @@ const Lightbox = (() => {
 const Postcard = (() => {
   const st = { p: null, shape: 'land', paper: 'white' };
   const PAPER = { white: ['#fbfaf6', '#1c1b18', '#8a877d'], cream: ['#f1e9d8', '#2a241a', '#8f826a'], black: ['#141413', '#efece4', '#8a877d'] };
-  const el = $('#pcModal'), cv = $('#pcCanvas');
+  const el = $('#pcModal'), cv = $('#pcCanvas'), out = $('#pcImg');
   const api = { get isOpen() { return !el.hidden; } };
   let im = null;
   function draw(flip) {
@@ -1434,7 +1434,21 @@ const Postcard = (() => {
     x.fillText(S.site.brandMark || 'h.', sx + sw2 / 2, sy + sh2 * 0.6);
     x.fillStyle = muted; x.font = `${Math.round(13 * u)}px "JetBrains Mono", monospace`;
     x.fillText(location.hostname.toUpperCase() || 'HAMIHAMOO.COM', sx + sw2 / 2, sy + sh2 + 24 * u); x.textAlign = 'left';
-    if (flip && !reduced) { cv.classList.remove('flip'); void cv.offsetWidth; cv.classList.add('flip'); }
+    if (flip && !reduced) { out.classList.remove('flip'); void out.offsetWidth; out.classList.add('flip'); }
+    prepareFile();
+  }
+  let fileTimer = null, file = null, fileUrl = '';
+  function prepareFile() {
+    file = null; $('#pcSave').disabled = true;
+    clearTimeout(fileTimer);
+    fileTimer = setTimeout(() => cv.toBlob(blob => {
+      if (!blob) return;
+      if (fileUrl) URL.revokeObjectURL(fileUrl);
+      fileUrl = URL.createObjectURL(blob);
+      out.src = fileUrl;
+      file = new File([blob], `hamihamoo-postcard-${st.p.date || 'photo'}.png`, { type: 'image/png' });
+      $('#pcSave').disabled = false;
+    }, 'image/png'), 120);
   }
   api.open = p => {
     st.p = p; el.hidden = false; im = null;
@@ -1452,10 +1466,16 @@ const Postcard = (() => {
   $('#pcFrom').addEventListener('input', () => draw(false));
   $('#pcClose').onclick = api.close;
   el.addEventListener('click', e => { if (e.target === el) api.close(); });
-  $('#pcSave').onclick = () => {
-    const a = document.createElement('a'); a.download = `hamihamoo-postcard-${st.p.date || 'photo'}.png`;
-    a.href = cv.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove();
-    toast('엽서를 저장했어요');
+  $('#pcSave').onclick = async () => {
+    if (!file) return;
+    // 휴대폰: 공유 창을 띄워요 (아이폰은 여기서 "이미지 저장"을 누르면 사진 앱에 저장돼요)
+    if (isTouch && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: 'Hamihamoo postcard' }); return; }
+      catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    const a = document.createElement('a'); a.download = file.name; a.href = fileUrl;
+    document.body.appendChild(a); a.click(); a.remove();
+    toast(isTouch ? '저장 창이 뜨지 않으면 엽서 이미지를 길게 눌러 저장하세요' : '엽서를 저장했어요', 4200);
   };
   return api;
 })();

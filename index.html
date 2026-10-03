@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+KR:wght@400&display=swap">
-<link rel="stylesheet" href="app.css?v=4">
+<link rel="stylesheet" href="app.css?v=5">
 <script>
   // 저장된 밝기 모드를 화면이 그려지기 전에 적용해 깜빡임을 막아요.
   try { var t = localStorage.getItem('hm-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -81,7 +81,7 @@
   <div class="pc-modal" id="pcModal" hidden>
     <div class="pc-panel">
       <button class="icon-btn pc-close" id="pcClose" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-      <div class="pc-stage"><canvas id="pcCanvas"></canvas></div>
+      <div class="pc-stage"><canvas id="pcCanvas" hidden></canvas><img id="pcImg" alt="엽서 미리보기 — 길게 눌러 저장할 수 있어요"></div>
       <div class="pc-ctrl">
         <h3>Postcard</h3>
         <div class="mono faint pc-l">모양</div>
@@ -91,6 +91,7 @@
         <label class="field" style="margin-top:16px"><span>엽서 문구 (선택)</span><input id="pcText" maxlength="40"></label>
         <label class="field"><span>보내는 사람 (선택)</span><input id="pcFrom" maxlength="20" placeholder="예: 하미하무가"></label>
         <button class="btn block" id="pcSave">이미지로 저장 <span class="arrow">↓</span></button>
+        <p class="pc-hint">휴대폰에서는 공유 창의 <b>이미지 저장</b>을 누르면 사진 앱에 저장돼요. 안 되면 엽서를 길게 눌러 저장하세요.</p>
       </div>
     </div>
   </div>
@@ -108,6 +109,6 @@
 <div class="curtain" id="curtain"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js" defer></script>
-<script src="app.js?v=4" defer></script>
+<script src="app.js?v=5" defer></script>
 </body>
 </html>
