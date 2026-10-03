@@ -7,7 +7,6 @@
 
 const DATA_BASE = './';
 const IMG_BASE = 'images/digital/';
-const DEMO = false;
 
 const COLOR_ORDER = ['Black', 'White', 'Gray', 'Brown', 'Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Purple', 'Pink'];
 const COLOR_HEX = { Black: '#202020', White: '#f4f2ec', Gray: '#a7a7a1', Brown: '#8b684f', Red: '#bf463e', Orange: '#d8843c', Yellow: '#d9b440', Green: '#5f8a4f', Blue: '#4a73a8', Purple: '#7c5ca3', Pink: '#d98aa6' };
@@ -129,7 +128,6 @@ function wireImages(root = document) {
         const f = fig.dataset.f;
         if (S.ratios[f] !== r) { S.ratios[f] = r; saveRatios(); }
         fig.style.setProperty('--r', r);
-        fig.style.setProperty('--ar', `${img.naturalWidth}/${img.naturalHeight}`);
       }
     };
     if (img.complete && img.naturalWidth) done();
@@ -951,6 +949,7 @@ const FIREBASE_CONFIG = {
   appId: '1:719108728610:web:6e289f800ca5e19815677b',
 };
 const BLOCKED = ['시발', '씨발', 'ㅅㅂ', '병신', 'ㅂㅅ', '개새', '좆', 'fuck', 'shit'];
+const EXIFR_URL = 'https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js';
 function loadScript(src) { return new Promise((res, rej) => { if ($(`script[src="${src}"]`)) return res(); const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
 let fbDb = null;
 async function getDb() {
@@ -1727,6 +1726,7 @@ function stUpload(body, view) {
       const it = { file, name: file.name, size: file.size, url: URL.createObjectURL(file), date: '', info: '', color: 'Gray', reading: true };
       Studio.queue.push(it); paint();
       try {
+        if (!window.exifr) await loadScript(EXIFR_URL).catch(() => {});
         if (window.exifr) {
           const x = await exifr.parse(file); // GPS(위치)는 읽어도 쓰지 않아요
           if (x) {

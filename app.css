@@ -66,7 +66,6 @@ body.locked { overflow: hidden; }
 
 .mono { font-family: var(--f-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
 .serif { font-family: var(--f-display); font-weight: 400; }
-.muted { color: var(--ink-2); }
 .faint { color: var(--ink-3); }
 .accent { color: var(--accent); }
 
@@ -169,8 +168,7 @@ body.lb-on #view { transform: scale(.955); filter: blur(6px) brightness(.6); }
 
 /* ---------- 사진 카드 ---------- */
 .ph { position: relative; margin: 0; cursor: zoom-in; }
-.ph-frame { position: relative; overflow: hidden; background: var(--tint, var(--bg-3)); }
-.ph-frame { transition: transform .35s var(--ease); }
+.ph-frame { position: relative; overflow: hidden; background: var(--tint, var(--bg-3)); transition: transform .35s var(--ease); }
 .ph img {
   width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.06);
   transition: opacity .9s ease, transform 1.4s var(--ease), filter .6s ease;
@@ -270,10 +268,6 @@ body.top-visible .toolbar { top: var(--top-h); }
 .pill:hover { border-color: var(--line-2); color: var(--ink); }
 .pill.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .pill svg { width: 15px; height: 15px; }
-.dots { display: inline-flex; gap: 5px; align-items: center; padding: 0 6px; }
-.dot { width: 18px; height: 18px; border-radius: 50%; background: var(--c); border: 1px solid rgba(127,127,127,.35); transition: transform .3s var(--ease), box-shadow .3s; position: relative; }
-.dot:hover { transform: scale(1.18); }
-.dot.on { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--ink); }
 .spacer { flex: 1; }
 .select { position: relative; }
 .select select { appearance: none; -webkit-appearance: none; height: 34px; padding: 0 30px 0 14px; border-radius: 999px; border: 1px solid var(--line); background: transparent; font-size: 12.5px; color: var(--ink-2); cursor: pointer; }
@@ -422,8 +416,7 @@ body.top-visible .toolbar { top: var(--top-h); }
 .btn:hover .arrow { transform: translateX(4px); }
 .gb-status { font-size: 12.5px; color: var(--ink-2); margin-top: 10px; min-height: 18px; }
 .gb-wall { columns: 2; column-gap: 16px; }
-.note { break-inside: avoid; margin-bottom: 16px; padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-2); }
-.note { position: relative; }
+.note { position: relative; break-inside: avoid; margin-bottom: 16px; padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-2); }
 .note.new { border-color: var(--accent); }
 /* 막 붙인 글에는 테이프 한 조각 */
 .note.new::before { content: ""; position: absolute; top: -9px; left: 50%; width: 70px; height: 18px; background: color-mix(in srgb, var(--accent) 38%, transparent); transform: translateX(-50%) rotate(-3deg); border-radius: 2px; }
@@ -458,7 +451,7 @@ body.top-visible .toolbar { top: var(--top-h); }
 .lb.on { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-rows: minmax(0, 1fr) auto; }
 .lb.no-info { grid-template-columns: minmax(0, 1fr) 0; }
 .lb-stage { position: relative; overflow: hidden; grid-row: 1; grid-column: 1; display: flex; align-items: center; justify-content: center; touch-action: pan-y; }
-.lb-img { position: absolute; max-width: calc(100% - 140px); max-height: calc(100% - 80px); object-fit: contain; user-select: none; -webkit-user-drag: none; transition: transform .45s var(--ease); cursor: zoom-in; }
+.lb-img { position: absolute; max-width: calc(100% - 140px); max-height: calc(100% - 150px); object-fit: contain; user-select: none; -webkit-user-drag: none; transition: transform .45s var(--ease); cursor: zoom-in; }
 .lb-img.zoomed { cursor: zoom-out; }
 .lb-fly { position: fixed; z-index: 101; object-fit: cover; pointer-events: none; }
 .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; color: #f1eee6; opacity: .55; transition: opacity .2s, background-color .2s; }
@@ -598,7 +591,7 @@ html.theme-vt::view-transition-old(root), html.theme-vt::view-transition-new(roo
   .lb-info { grid-row: 3; grid-column: 1; border-left: 0; border-top: 1px solid rgba(255,255,255,.08); padding: 18px 20px 24px; max-height: 34vh; }
   .lb-info h3 { font-size: 34px; }
   .exif { margin: 14px 0; }
-  .lb-img { max-width: calc(100% - 24px); max-height: calc(100% - 70px); }
+  .lb-img { max-width: calc(100% - 24px); max-height: calc(100% - 130px); }
   .lb-nav { display: none; }
   .tl-group { grid-template-columns: 1fr; gap: 14px; }
   .tl-date { position: static; display: flex; align-items: baseline; gap: 14px; }
@@ -664,7 +657,6 @@ html.theme-vt::view-transition-old(root), html.theme-vt::view-transition-new(roo
   .drawer { padding: 24px 22px 60px; }
   .mgr-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .settings-form { grid-template-columns: 1fr; }
-  .demo-badge { display: none; }
   .to-top { right: 14px; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 62px); width: 44px; height: 44px; }
 }
 
@@ -726,7 +718,6 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
 .lb-note-bar #lbNoteText { flex: 1; }
 .lb-note-bar button { height: 40px; padding: 0 18px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: 13px; flex: 0 0 auto; }
 .lb-note-bar button:disabled { opacity: .5; }
-.lb-img { max-height: calc(100% - 150px); }
 .lb-notes { margin-top: 22px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.08); }
 .notes-list { display: grid; gap: 8px; }
 .notes-list .n { padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.045); font-size: 13.5px; line-height: 1.55; word-break: break-word; }
@@ -781,7 +772,6 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
   .lb-note-bar #lbNoteName { width: 88px; }
   .lb-subs { bottom: 64px; padding: 0 14px; }
   .lb-subs span { font-size: 12.5px; }
-  .lb-img { max-height: calc(100% - 130px); }
   .pc-panel { grid-template-columns: 1fr; }
   .pc-stage { min-height: 300px; }
   .season { grid-template-columns: 1fr; }
