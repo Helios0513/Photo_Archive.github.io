@@ -309,13 +309,14 @@ function render() {
     setDock(r.name);
     onScroll();
   };
-  if (firstRender || reduced || document.hidden) { firstRender = false; go(); return; }
+  // 페이지 전환은 짧은 페이드라서 움직임 줄이기 설정에서도 그대로 써요
+  if (firstRender || document.hidden || (reduced && !document.startViewTransition)) { firstRender = false; go(); return; }
   if (document.startViewTransition && !document.hidden) { const vt = document.startViewTransition(go); vt.ready.catch(() => {}); vt.finished.catch(() => {}); }
   else {
     const c = $('#curtain');
-    c.animate([{ transform: 'scaleY(0)', transformOrigin: 'bottom' }, { transform: 'scaleY(1)', transformOrigin: 'bottom' }], { duration: 380, easing: 'cubic-bezier(.77,0,.18,1)', fill: 'forwards' }).onfinish = () => {
+    c.animate([{ transform: 'scaleY(0)', transformOrigin: 'bottom' }, { transform: 'scaleY(1)', transformOrigin: 'bottom' }], { duration: 200, easing: 'cubic-bezier(.77,0,.18,1)', fill: 'forwards' }).onfinish = () => {
       go();
-      c.animate([{ transform: 'scaleY(1)', transformOrigin: 'top' }, { transform: 'scaleY(0)', transformOrigin: 'top' }], { duration: 480, easing: 'cubic-bezier(.77,0,.18,1)', fill: 'forwards' });
+      c.animate([{ transform: 'scaleY(1)', transformOrigin: 'top' }, { transform: 'scaleY(0)', transformOrigin: 'top' }], { duration: 250, easing: 'cubic-bezier(.77,0,.18,1)', fill: 'forwards' });
     };
   }
 }
@@ -605,7 +606,7 @@ function renderArchive(animate) {
     const gh = old.get(k).cloneNode(true); gh.classList.add('in'); gh.querySelector('.ph-frame').style.height = '100%';
     Object.assign(gh.style, { position: 'fixed', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', margin: 0, zIndex: 5, pointerEvents: 'none' });
     document.body.appendChild(gh); ghosts.push(gh);
-    gh.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.85)' }], { duration: 380, easing: 'ease', fill: 'forwards' }).onfinish = () => gh.remove();
+    gh.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.85)' }], { duration: 200, easing: 'ease-out', fill: 'forwards' }).onfinish = () => gh.remove();
   });
   g.replaceChildren(root);
   wireImages(g);
@@ -620,14 +621,14 @@ function renderArchive(animate) {
         el.classList.add('in');
         const dx = was.left - now.left, dy = was.top - now.top, sx = was.width / now.width, sy = was.height / now.height;
         if (Math.abs(dx) + Math.abs(dy) > 1 || Math.abs(sx - 1) > 0.01 || Math.abs(sy - 1) > 0.01)
-          el.animate([{ transformOrigin: '0 0', transform: `translate(${dx}px,${dy}px) scale(${sx},${sy})` }, { transformOrigin: '0 0', transform: 'none' }], { duration: 760, easing: EASE });
+          el.animate([{ transformOrigin: '0 0', transform: `translate(${dx}px,${dy}px) scale(${sx},${sy})` }, { transformOrigin: '0 0', transform: 'none' }], { duration: 300, easing: EASE });
       } else if (onScreen(now)) {
         // 새로 들어오는 사진: 살짝 커지며 나타나기
         el.classList.add('in');
-        el.animate([{ opacity: 0, transform: 'scale(.9)' }, { opacity: 1, transform: 'none' }], { duration: 620, delay: 180 + Math.min(k++, 20) * 25, easing: EASE, fill: 'backwards' });
+        el.animate([{ opacity: 0, transform: 'scale(.9)' }, { opacity: 1, transform: 'none' }], { duration: 250, delay: 60 + Math.min(k++, 20) * 25, easing: EASE, fill: 'backwards' });
       }
     });
-    $$('.tl-date', g).forEach((d, i) => { if (onScreen(d.getBoundingClientRect())) d.animate([{ opacity: 0, transform: 'translateX(-16px)' }, { opacity: 1, transform: 'none' }], { duration: 600, delay: 200 + i * 60, easing: EASE, fill: 'backwards' }); });
+    $$('.tl-date', g).forEach((d, i) => { if (onScreen(d.getBoundingClientRect())) d.animate([{ opacity: 0, transform: 'translateX(-16px)' }, { opacity: 1, transform: 'none' }], { duration: 250, delay: 60 + i * 60, easing: EASE, fill: 'backwards' }); });
   }
   observeReveal(g);
 }
@@ -1261,7 +1262,7 @@ function closeDrawer() {
    ============================================================ */
 const Lightbox = (() => {
   const lb = $('#lb'), stage = $('#lbStage'), strip = $('#lbStrip'), info = $('#lbInfo');
-  let list = [], idx = 0, img = null, origin = null, playing = false, playTimer = null, zoomed = false;
+  let list = [], idx = 0, img = null, origin = null, playing = false, playTimer = null, zoomed = false, quiet = false;
   const SLIDE = 4500;
   const api = { get isOpen() { return lb.classList.contains('on'); } };
   lb.classList.toggle('no-info', !store.get('hm-lb-info', true));
@@ -1353,10 +1354,10 @@ const Lightbox = (() => {
     const on = strip.children[idx]; if (on) strip.scrollTo({ left: on.offsetLeft - strip.clientWidth / 2 + 28, behavior: 'smooth' });
     const u = new URL(location.href); u.searchParams.set('photo', p.filename); history.replaceState(null, '', u);
     [idx - 1, idx + 1].forEach(j => { const q = list[(j + list.length) % list.length]; if (q) { const pre = new Image(); pre.src = imgUrl(q); } });
-    if (!reduced) {
+    if (!reduced && !quiet) {
       // 정보 글자들이 차례로 떠오르기
-      [...info.children].forEach((el, k) => el.animate([{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 600, delay: 120 + k * 55, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
-      $('#lbCounter').animate([{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 400, easing: 'ease' });
+      [...info.children].forEach((el, k) => el.animate([{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 300, delay: k * 40, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
+      $('#lbCounter').animate([{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: 'ease-out' });
     }
   }
   api.open = (l, i, fromImg) => {
@@ -1367,22 +1368,23 @@ const Lightbox = (() => {
     $('#view').style.transformOrigin = `50% ${scrollY + innerHeight / 2}px`;
     lb.classList.add('on'); document.body.classList.add('locked', 'lb-on'); $('#dock').classList.add('away'); $('#cursor').classList.remove('on');
     paintInfo();
-    if (reduced) return;
-    $$('img', strip).slice(Math.max(0, idx - 12), idx + 14).forEach((t, k) => t.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: t.classList.contains('on') ? 1 : .35, transform: t.classList.contains('on') ? 'translateY(-4px)' : 'none' }], { duration: 650, delay: 260 + k * 22, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
+    // 움직임 줄이기 설정이면 짧게 나타나기만 해요
+    if (reduced) { lb.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'ease-out' }); return; }
+    $$('img', strip).slice(Math.max(0, idx - 12), idx + 14).forEach((t, k) => t.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: t.classList.contains('on') ? 1 : .35, transform: t.classList.contains('on') ? 'translateY(-4px)' : 'none' }], { duration: 300, delay: k * 22, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }));
     const vis = origin && origin.getBoundingClientRect();
     if (vis && vis.width && vis.bottom > 0 && vis.top < innerHeight && origin.complete) {
       const go = () => {
         const to = img.getBoundingClientRect();
         img.style.visibility = 'hidden';
         const fly = document.createElement('img'); fly.className = 'lb-fly'; fly.src = img.src; document.body.appendChild(fly);
-        lb.animate([{ backgroundColor: 'rgba(8,8,7,0)' }, { backgroundColor: 'rgba(8,8,7,.985)' }], { duration: 500, easing: 'ease' });
-        $$('.lb-info, .lb-strip, .lb-top, .lb-nav', lb).forEach(el => el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, delay: 200, fill: 'backwards' }));
-        fly.animate([rectFrames(vis), rectFrames(to)], { duration: 620, easing: 'cubic-bezier(.22,1,.36,1)' }).onfinish = () => { img.style.visibility = ''; fly.remove(); };
+        lb.animate([{ backgroundColor: 'rgba(8,8,7,0)' }, { backgroundColor: 'rgba(8,8,7,.985)' }], { duration: 300, easing: 'ease-out' });
+        $$('.lb-info, .lb-strip, .lb-top, .lb-nav', lb).forEach(el => el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: 'backwards' }));
+        fly.animate([rectFrames(vis), rectFrames(to)], { duration: 400, easing: 'cubic-bezier(.22,1,.36,1)' }).onfinish = () => { img.style.visibility = ''; fly.remove(); };
       };
       img.complete && img.naturalWidth ? requestAnimationFrame(go) : img.addEventListener('load', go, { once: true });
     } else {
-      lb.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 350 });
-      img.animate([{ opacity: 0, transform: 'scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 600, easing: 'cubic-bezier(.22,1,.36,1)' });
+      lb.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, easing: 'ease-out' });
+      img.animate([{ opacity: 0, transform: 'scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: 'cubic-bezier(.22,1,.36,1)' });
     }
   };
   const rectFrames = r => ({ left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
@@ -1407,25 +1409,26 @@ const Lightbox = (() => {
       const from = img.getBoundingClientRect();
       const fly = document.createElement('img'); fly.className = 'lb-fly'; fly.src = img.src; document.body.appendChild(fly);
       img.style.visibility = 'hidden'; target.style.opacity = 0;
-      lb.animate([{ backgroundColor: 'rgba(8,8,7,.985)' }, { backgroundColor: 'rgba(8,8,7,0)' }], { duration: 450, fill: 'forwards' });
+      lb.animate([{ backgroundColor: 'rgba(8,8,7,.985)' }, { backgroundColor: 'rgba(8,8,7,0)' }], { duration: 300, fill: 'forwards' });
       $$('.lb-info, .lb-strip, .lb-top, .lb-nav', lb).forEach(el => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }));
-      fly.animate([rectFrames(from), rectFrames(tr)], { duration: 520, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' }).onfinish = () => {
+      fly.animate([rectFrames(from), rectFrames(tr)], { duration: 300, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' }).onfinish = () => {
         target.style.opacity = ''; fly.remove(); $$('.lb-info, .lb-strip, .lb-top, .lb-nav', lb).forEach(el => el.getAnimations().forEach(a => a.cancel())); finish();
       };
     } else {
       lb.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 280, fill: 'forwards' }).onfinish = finish;
     }
   };
-  api.step = dir => {
+  // instant: 키보드로 넘길 때는 애니메이션 없이 바로 바꿔요
+  api.step = (dir, instant) => {
     if (!list.length) return;
     setZoom(false);
     const old = img;
     idx = (idx + dir + list.length) % list.length;
-    img = makeImg(list[idx]); paintInfo();
-    if (reduced) { old.remove(); return; }
+    quiet = !!instant; img = makeImg(list[idx]); paintInfo(); quiet = false;
+    if (reduced || instant) { old.remove(); if (playing) schedule(); return; }
     const EASE = 'cubic-bezier(.77,0,.18,1)';
-    img.animate([{ clipPath: dir > 0 ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)', transform: `translateX(${dir * 70}px) scale(1.05)` }, { clipPath: 'inset(0 0 0 0)', transform: 'none' }], { duration: 760, easing: EASE });
-    old.animate([{ transform: 'none', filter: 'brightness(1)', opacity: 1 }, { transform: `translateX(${-dir * 140}px) scale(.94)`, filter: 'brightness(.3)', opacity: .2 }], { duration: 760, easing: EASE, fill: 'forwards' }).onfinish = () => old.remove();
+    img.animate([{ clipPath: dir > 0 ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)', transform: `translateX(${dir * 70}px) scale(1.05)` }, { clipPath: 'inset(0 0 0 0)', transform: 'none' }], { duration: 300, easing: EASE });
+    old.animate([{ transform: 'none', filter: 'brightness(1)', opacity: 1 }, { transform: `translateX(${-dir * 140}px) scale(.94)`, filter: 'brightness(.3)', opacity: .2 }], { duration: 300, easing: EASE, fill: 'forwards' }).onfinish = () => old.remove();
     if (playing) schedule();
   };
   api.jump = i => {
@@ -1491,8 +1494,8 @@ const Lightbox = (() => {
     if (Postcard.isOpen) { if (e.key === 'Escape') Postcard.close(); return; }
     if (e.target.closest && e.target.closest('input, textarea')) { if (e.key === 'Escape') e.target.blur(); return; }
     if (e.key === 'Escape') api.close();
-    else if (e.key === 'ArrowRight') api.step(1);
-    else if (e.key === 'ArrowLeft') api.step(-1);
+    else if (e.key === 'ArrowRight') api.step(1, true);
+    else if (e.key === 'ArrowLeft') api.step(-1, true);
     else if (e.key === ' ') { e.preventDefault(); api.play(); }
     else if (e.key.toLowerCase() === 'f') $('#lbFull').click();
     else if (e.key.toLowerCase() === 'i') $('#lbInfoBtn').click();
