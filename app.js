@@ -27,6 +27,9 @@ const fmtDate = d => (d || '').replace(/-/g, '.');
 const monthKey = d => (d || '').slice(0, 7);
 const monthLabel = k => k ? `${k.slice(0, 4)} ${MONTHS[+k.slice(5, 7) - 1] || ''}` : '';
 const imgUrl = p => p ? (p._local || IMG_BASE + encodeURIComponent(p.filename)) : '';
+// 목록·작은 칸에는 작은 사진(긴 쪽 900px)을 써요. 없으면 큰 사진으로 대신 보여줘요.
+const THUMB_BASE = 'images/thumbs/';
+const thumbUrl = p => p ? (p._local || THUMB_BASE + encodeURIComponent(p.filename)) : '';
 const tint = p => `color-mix(in srgb, ${COLOR_HEX[p.color] || '#555'} 26%, var(--bg-3))`;
 const ratio = p => S.ratios[p.filename] || 1.5;
 /* 컴퓨터 설정에서 '애니메이션 효과'를 꺼두면 움직임을 줄여요. 주소 끝에 ?motion=on 을 붙이면 그 브라우저에서는 강제로 켜져요 (?motion=off 로 원래대로). */
@@ -104,12 +107,12 @@ const HEART_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 
 /* ---------- 사진 카드 ---------- */
 function card(p, opt = {}) {
-  const { cls = '', cap = true, d = 0, extra = '' } = opt;
+  const { cls = '', cap = true, d = 0, extra = '', full = false } = opt;
   const info = parseInfo(p.info);
   const dt = p.date ? new Date(p.date + 'T00:00:00') : null;
   const exif = [info.camera !== '—' ? info.camera : '', info.aperture !== '—' ? info.aperture : '', info.shutter !== '—' ? info.shutter : '', info.iso !== '—' ? info.iso : ''].filter(Boolean).join(' · ');
   return `<figure class="ph rv ${cls}" data-f="${esc(p.filename)}" style="--r:${ratio(p)};--tint:${tint(p)};--d:${d}ms">
-    <div class="ph-frame"><img alt="${esc(fmtDate(p.date))} 사진" loading="lazy" decoding="async" src="${esc(imgUrl(p))}">${p.story ? '<span class="story-tag mono">✎ Story</span>' : ''}
+    <div class="ph-frame"><img alt="${esc(fmtDate(p.date))} 사진" loading="lazy" decoding="async" src="${esc(full ? imgUrl(p) : thumbUrl(p))}" data-full="${esc(imgUrl(p))}">${p.story ? '<span class="story-tag mono">✎ Story</span>' : ''}
       <div class="ph-info"><div class="ph-info-top"><b>${dt ? `${MONTHS[dt.getMonth()]} ${dt.getDate()}, ${dt.getFullYear()}` : 'Undated'}</b><span class="mono">No. ${p._n}</span></div><div class="ph-exif mono">${esc(exif)}</div>${p.story ? `<div class="ph-story">“${esc(String(p.story).split('\n')[0])}”</div>` : ''}
         <button class="card-heart needs-social" data-heart="${esc(p.filename)}" aria-label="하트">${HEART_SVG}<span class="n">0</span></button></div>
     </div>
@@ -133,7 +136,12 @@ function wireImages(root = document) {
     if (img.complete && img.naturalWidth) done();
     else {
       img.addEventListener('load', done, { once: true });
-      img.addEventListener('error', () => { const fig = img.closest('.ph'); if (fig) fig.style.display = 'none'; }, { once: true });
+      const hide = () => { const fig = img.closest('.ph'); if (fig) fig.style.display = 'none'; };
+      img.addEventListener('error', () => {
+        // 작은 사진이 아직 없으면 큰 사진으로 대신해요
+        if (img.dataset.full && img.getAttribute('src') !== img.dataset.full) { img.addEventListener('load', done, { once: true }); img.addEventListener('error', hide, { once: true }); img.src = img.dataset.full; }
+        else hide();
+      }, { once: true });
     }
   });
   paintHearts(root);
@@ -304,7 +312,7 @@ function renderHome(view) {
         <div class="hs-count"><b id="hsNow">01</b> / ${pad(selected.length)}</div>
       </div>
       <div class="hs-track" id="hsTrack">
-        ${selected.map((p, i) => card(p, { cls: 'hs-card', d: i * 60 })).join('')}
+        ${selected.map((p, i) => card(p, { cls: 'hs-card', d: i * 60, full: true })).join('')}
       </div>
     </div>
   </section>
@@ -546,7 +554,7 @@ function renderProjects(view) {
     <div class="plist" id="plist">
       ${prs.map((pr, i) => {
         const ps = projectPhotos(pr), ds = ps.map(p => p.date).filter(Boolean).sort();
-        return `<a class="prow rv" href="#/projects/${encodeURIComponent(pr.id)}" data-cover="${esc(imgUrl(projectCover(pr)))}" style="--d:${i * 70}ms">
+        return `<a class="prow rv" href="#/projects/${encodeURIComponent(pr.id)}" data-cover="${esc(thumbUrl(projectCover(pr)))}" style="--d:${i * 70}ms">
           <span class="mono faint">${pad(i + 1)}</span>
           <h3>${esc(pr.title)}</h3>
           <span class="prow-desc">${esc(pr.description || pr.subtitle || '')}</span>
@@ -556,7 +564,7 @@ function renderProjects(view) {
       }).join('')}
     </div>
     <div class="pcards">
-      ${prs.map(pr => { const c = projectCover(pr); return `<a class="pcard rv" href="#/projects/${encodeURIComponent(pr.id)}"><figure class="ph" data-f="${esc(c.filename)}" style="--tint:${tint(c)}"><div class="ph-frame"><img src="${esc(imgUrl(c))}" alt="" loading="lazy"></div></figure><h3>${esc(pr.title)}</h3><span class="mono faint">${projectPhotos(pr).length} frames · ${esc(pr.subtitle || '')}</span></a>`; }).join('')}
+      ${prs.map(pr => { const c = projectCover(pr); return `<a class="pcard rv" href="#/projects/${encodeURIComponent(pr.id)}"><figure class="ph" data-f="${esc(c.filename)}" style="--tint:${tint(c)}"><div class="ph-frame"><img src="${esc(thumbUrl(c))}" data-full="${esc(imgUrl(c))}" alt="" loading="lazy"></div></figure><h3>${esc(pr.title)}</h3><span class="mono faint">${projectPhotos(pr).length} frames · ${esc(pr.subtitle || '')}</span></a>`; }).join('')}
     </div>
     ${prs.length ? '' : '<div class="empty">아직 프로젝트가 없어요.</div>'}
   </section>
@@ -621,7 +629,7 @@ function renderProject(view, id) {
     </div>
     <p class="rv">${esc(pr.description || '')}</p>
   </section>
-  <section class="pd-photos" id="pdPhotos">${ps.map(p => card(p)).join('')}</section>
+  <section class="pd-photos" id="pdPhotos">${ps.map(p => card(p, { full: true })).join('')}</section>
   ${next && next !== pr ? `<a class="pd-next" href="#/projects/${encodeURIComponent(next.id)}"><span class="mono">Next project →</span><b>${esc(next.title)}</b></a>` : ''}`;
   lists.project = ps; bindPhotoClicks($('#pdPhotos', view), 'project');
   $('#pdCover', view).addEventListener('click', () => Lightbox.open(ps, Math.max(0, ps.indexOf(cover))));
@@ -770,9 +778,9 @@ function renderConstellation(view) {
     top.forEach((x, k) => { x.node.orbit = k; });
     focusOn(n);
     const info = parseInfo(n.p.info);
-    panel.innerHTML = `<img src="${esc(imgUrl(n.p))}" alt="" id="cpImg"><div><div class="mono accent" style="margin-top:12px">Photo ${n.p._n}</div><h4>${fmtDate(n.p.date)}</h4><div class="mono faint">${esc(info.camera)} · ${COLOR_KO[n.p.color] || ''}</div></div>
+    panel.innerHTML = `<img src="${esc(thumbUrl(n.p))}" alt="" id="cpImg"><div><div class="mono accent" style="margin-top:12px">Photo ${n.p._n}</div><h4>${fmtDate(n.p.date)}</h4><div class="mono faint">${esc(info.camera)} · ${COLOR_KO[n.p.color] || ''}</div></div>
       <div class="mono faint" style="margin-top:14px;grid-column:1/-1">${top.length} orbit connections</div>
-      <div class="cons-links">${top.map(x => `<img src="${esc(imgUrl(x.node.p))}" data-i="${x.node.i}" title="${fmtDate(x.node.p.date)}" alt="">`).join('')}</div>`;
+      <div class="cons-links">${top.map(x => `<img src="${esc(thumbUrl(x.node.p))}" data-i="${x.node.i}" title="${fmtDate(x.node.p.date)}" alt="">`).join('')}</div>`;
     panel.classList.add('on');
     $('#cpImg', panel).onclick = () => Lightbox.open(S.photos, n.i);
     $$('.cons-links img', panel).forEach(im => im.onclick = () => select(nodes[+im.dataset.i]));
@@ -849,7 +857,7 @@ function renderConstellation(view) {
       ctx.globalAlpha = a;
       const photo = r > 7.5;
       if (photo) {
-        if (!n.img) { n.img = new Image(); n.img.decoding = 'async'; n.img.src = imgUrl(n.p); }
+        if (!n.img) { n.img = new Image(); n.img.decoding = 'async'; n.img.src = thumbUrl(n.p); }
         if (n.img.complete && n.img.naturalWidth) {
           ctx.save(); ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, Math.PI * 2); ctx.clip();
           const iw = n.img.naturalWidth, ih = n.img.naturalHeight, k = (r * 2) / Math.min(iw, ih);
@@ -1263,7 +1271,7 @@ const Lightbox = (() => {
   api.open = (l, i, fromImg) => {
     list = l; idx = i; origin = fromImg || null; zoomed = false;
     $$('.lb-img', stage).forEach(n => n.remove());
-    strip.innerHTML = list.map(p => `<img src="${esc(imgUrl(p))}" loading="lazy" alt="">`).join('');
+    strip.innerHTML = list.map(p => `<img src="${esc(thumbUrl(p))}" loading="lazy" alt="">`).join('');
     img = makeImg(list[idx]);
     $('#view').style.transformOrigin = `50% ${scrollY + innerHeight / 2}px`;
     lb.classList.add('on'); document.body.classList.add('locked', 'lb-on'); $('#dock').classList.add('away'); $('#cursor').classList.remove('on');
@@ -1584,20 +1592,23 @@ async function updateJson(file, mutate, message) {
   }
 }
 const imagePath = name => 'images/digital/' + encodeURIComponent(name);
-async function putImage(name, base64) { return gh(imagePath(name), { method: 'PUT', body: JSON.stringify({ message: `Upload: ${name}`, content: base64 }) }); }
+const thumbPath = name => 'images/thumbs/' + encodeURIComponent(name);
+async function putImage(name, base64, thumb) { return gh((thumb ? thumbPath : imagePath)(name), { method: 'PUT', body: JSON.stringify({ message: `${thumb ? 'Thumbnail' : 'Upload'}: ${name}`, content: base64 }) }); }
 async function deleteImage(name) {
-  const f = await gh(imagePath(name)); if (!f) return;
-  await gh(imagePath(name), { method: 'DELETE', body: JSON.stringify({ message: `Delete ${name}`, sha: f.sha }) });
+  for (const path of [imagePath(name), thumbPath(name)]) {
+    const f = await gh(path); if (!f) continue;
+    await gh(path, { method: 'DELETE', body: JSON.stringify({ message: `Delete ${path}`, sha: f.sha }) });
+  }
 }
-function optimizeImage(file) {
+function optimizeImage(file, max = 1920, quality = 0.85) {
   return new Promise((res, rej) => {
     const url = URL.createObjectURL(file), im = new Image();
     im.onload = () => {
       let w = im.naturalWidth, h = im.naturalHeight;
-      if (w > 1920) { h = Math.round(1920 * h / w); w = 1920; }
+      const s = Math.min(1, max / Math.max(w, h)); w = Math.round(w * s); h = Math.round(h * s);
       const c = document.createElement('canvas'); c.width = w; c.height = h;
       c.getContext('2d').drawImage(im, 0, 0, w, h); URL.revokeObjectURL(url);
-      c.toBlob(b => b ? res(b) : rej(new Error('사진 변환 실패')), 'image/jpeg', 0.85);
+      c.toBlob(b => b ? res(b) : rej(new Error('사진 변환 실패')), 'image/jpeg', quality);
     };
     im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('사진을 읽지 못했어요')); };
     im.src = url;
@@ -1702,7 +1713,8 @@ function stUpload(body, view) {
         setBar(it, 12);
         const blob = await optimizeImage(it.file); setBar(it, 45);
         const name = it.name.replace(/\.[^.]+$/, '').replace(/[^\w.-]+/g, '_') + '_' + stamp + '_' + k + '.jpg';
-        await putImage(name, await blobToBase64(blob)); setBar(it, 90);
+        await putImage(name, await blobToBase64(blob)); setBar(it, 75);
+        await putImage(name, await blobToBase64(await optimizeImage(it.file, 900, 0.8)), true); setBar(it, 90);
         it.filename = name; added.push({ filename: name, info: it.info, date: it.date, color: it.color || 'Gray' });
       }
     } catch (e) { console.error(e); toast('올리는 중 문제가 생겼어요: ' + e.message, 6000); }
@@ -1798,7 +1810,7 @@ function stPhotos(body, view) {
       const e = Studio.dirty.get(p.filename) || {};
       return `<div class="mcard ${Studio.dirty.has(p.filename) ? 'dirty' : ''} ${Studio.selected.has(p.filename) ? 'sel' : ''}" data-f="${esc(p.filename)}">
         <button class="mcheck" data-act="sel">${Studio.selected.has(p.filename) ? '✓' : ''}</button>
-        <img src="${esc(imgUrl(p))}" loading="lazy" alt="" data-act="view">
+        <img src="${esc(thumbUrl(p))}" loading="lazy" alt="" data-act="view">
         <div class="mbody">
           <div class="mrow"><input type="date" data-k="date" value="${esc(e.date ?? p.date ?? '')}"><select data-k="color">${colorOptions(e.color ?? p.color)}</select></div>
           <input data-k="info" value="${esc(e.info ?? p.info ?? '')}" placeholder="카메라 · 설정">
@@ -1878,12 +1890,12 @@ function photoPicker(container, state, opt = {}) {
   const listEl = $('#fxList', container), pick = $('#fxPick', container);
   const paintList = () => {
     listEl.innerHTML = state.list.map((f, i) => { const p = S.byName.get(f); if (!p) return ''; return `<div class="fx-item" draggable="true" data-i="${i}">
-      <span class="n mono">${pad(i + 1)}</span><img src="${esc(imgUrl(p))}" alt=""><span><span class="mono">${fmtDate(p.date)}</span>${opt.cover ? `<br><button class="mono ${state.cover === f ? 'accent' : 'faint'}" data-cover="${esc(f)}">${state.cover === f ? '★ 표지' : '☆ 표지로'}</button>` : ''}</span>
+      <span class="n mono">${pad(i + 1)}</span><img src="${esc(thumbUrl(p))}" alt=""><span><span class="mono">${fmtDate(p.date)}</span>${opt.cover ? `<br><button class="mono ${state.cover === f ? 'accent' : 'faint'}" data-cover="${esc(f)}">${state.cover === f ? '★ 표지' : '☆ 표지로'}</button>` : ''}</span>
       <span class="ctl"><button data-mv="-1" title="위로">↑</button><button data-mv="1" title="아래로">↓</button><button data-rm title="빼기">✕</button></span></div>`; }).join('') || `<div class="empty" style="padding:30px 0">오른쪽에서 사진을 눌러 추가하세요.</div>`;
   };
   const paintPick = () => {
     const ps = S.photos.filter(p => month === 'all' || (p.date || '').startsWith(month));
-    pick.innerHTML = ps.map(p => { const n = state.list.indexOf(p.filename); return `<div class="pick ${n >= 0 ? 'on' : ''}" data-f="${esc(p.filename)}" data-n="${n + 1}">${opt.cover && state.cover === p.filename ? '<span class="cover-tag">표지</span>' : ''}<img src="${esc(imgUrl(p))}" loading="lazy" alt=""></div>`; }).join('');
+    pick.innerHTML = ps.map(p => { const n = state.list.indexOf(p.filename); return `<div class="pick ${n >= 0 ? 'on' : ''}" data-f="${esc(p.filename)}" data-n="${n + 1}">${opt.cover && state.cover === p.filename ? '<span class="cover-tag">표지</span>' : ''}<img src="${esc(thumbUrl(p))}" loading="lazy" alt=""></div>`; }).join('');
   };
   const changed = () => { paintList(); paintPick(); opt.onChange && opt.onChange(); };
   $('#fxMonth', container).onchange = e => { month = e.target.value; paintPick(); };
@@ -1937,7 +1949,7 @@ function stProjects(body) {
     const cur = Studio.pj;
     body.innerHTML = `<div class="fx-cols" style="grid-template-columns:minmax(0,.7fr) minmax(0,2fr)">
       <div class="fx-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="margin:0">Projects</h3><button class="btn small" id="pjNew">+ 새 프로젝트</button></div>
-        <div class="pj-list">${S.projects.map((pr, i) => { const c = projectCover(pr); return `<button class="pj-item ${cur && cur.origId === pr.id ? 'on' : ''}" data-i="${i}">${c ? `<img src="${esc(imgUrl(c))}" alt="">` : '<span></span>'}<span><b>${esc(pr.title || '(제목 없음)')}</b><span class="mono faint">${(pr.photos || []).length} frames</span></span><span>→</span></button>`; }).join('') || '<div class="empty">아직 없어요</div>'}</div></div>
+        <div class="pj-list">${S.projects.map((pr, i) => { const c = projectCover(pr); return `<button class="pj-item ${cur && cur.origId === pr.id ? 'on' : ''}" data-i="${i}">${c ? `<img src="${esc(thumbUrl(c))}" alt="">` : '<span></span>'}<span><b>${esc(pr.title || '(제목 없음)')}</b><span class="mono faint">${(pr.photos || []).length} frames</span></span><span>→</span></button>`; }).join('') || '<div class="empty">아직 없어요</div>'}</div></div>
       <div>${cur ? `
         <div class="fx-box" style="margin-bottom:16px"><div class="settings-form" style="max-width:none">
           <label class="field"><span>제목</span><input id="pjTitle" value="${esc(cur.title)}"></label>
