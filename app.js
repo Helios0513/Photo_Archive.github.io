@@ -101,6 +101,8 @@ const cameras = list => [...new Set(list.map(p => parseInfo(p.info).camera.toUpp
 
 const years = list => [...new Set(list.map(p => (p.date || '').slice(0, 4)).filter(Boolean))].sort();
 
+const HEART_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 20s-7.5-4.6-9.2-9.3C1.6 7.4 3.8 4.5 7 4.5c2 0 3.4 1.1 5 3 1.6-1.9 3-3 5-3 3.2 0 5.4 2.9 4.2 6.2C19.5 15.4 12 20 12 20z"/></svg>';
+
 /* ---------- 사진 카드 ---------- */
 function card(p, opt = {}) {
   const { cls = '', cap = true, d = 0, extra = '' } = opt;
@@ -108,8 +110,9 @@ function card(p, opt = {}) {
   const dt = p.date ? new Date(p.date + 'T00:00:00') : null;
   const exif = [info.camera !== '—' ? info.camera : '', info.aperture !== '—' ? info.aperture : '', info.shutter !== '—' ? info.shutter : '', info.iso !== '—' ? info.iso : ''].filter(Boolean).join(' · ');
   return `<figure class="ph rv ${cls}" data-f="${esc(p.filename)}" style="--r:${ratio(p)};--tint:${tint(p)};--d:${d}ms">
-    <div class="ph-frame"><img alt="${esc(fmtDate(p.date))} 사진" loading="lazy" decoding="async" src="${esc(imgUrl(p))}">
-      <div class="ph-info"><div class="ph-info-top"><b>${dt ? `${MONTHS[dt.getMonth()]} ${dt.getDate()}, ${dt.getFullYear()}` : 'Undated'}</b><span class="mono">No. ${p._n}</span></div><div class="ph-exif mono">${esc(exif)}</div></div>
+    <div class="ph-frame"><img alt="${esc(fmtDate(p.date))} 사진" loading="lazy" decoding="async" src="${esc(imgUrl(p))}">${p.story ? '<span class="story-tag mono">✎ Story</span>' : ''}
+      <div class="ph-info"><div class="ph-info-top"><b>${dt ? `${MONTHS[dt.getMonth()]} ${dt.getDate()}, ${dt.getFullYear()}` : 'Undated'}</b><span class="mono">No. ${p._n}</span></div><div class="ph-exif mono">${esc(exif)}</div>${p.story ? `<div class="ph-story">“${esc(String(p.story).split('\n')[0])}”</div>` : ''}
+        <button class="card-heart needs-social" data-heart="${esc(p.filename)}" aria-label="하트">${HEART_SVG}<span class="n">0</span></button></div>
     </div>
     ${cap ? `<figcaption class="ph-cap mono"><b>${p._n}</b><span>${fmtDate(p.date)}</span></figcaption>` : ''}${extra}
   </figure>`;
@@ -135,6 +138,7 @@ function wireImages(root = document) {
       img.addEventListener('error', () => { const fig = img.closest('.ph'); if (fig) fig.style.display = 'none'; }, { once: true });
     }
   });
+  paintHearts(root);
 }
 let ratioTimer;
 function saveRatios() { clearTimeout(ratioTimer); ratioTimer = setTimeout(() => store.set('hm-ratios', S.ratios), 800); }
@@ -152,7 +156,7 @@ const lists = {};
 function bindPhotoClicks(container, key) {
   container.addEventListener('click', e => {
     const fig = e.target.closest('.ph[data-f]');
-    if (!fig || !container.contains(fig)) return;
+    if (!fig || !container.contains(fig) || e.target.closest('[data-heart]')) return;
     const list = typeof lists[key] === 'function' ? lists[key]() : lists[key];
     const idx = list.findIndex(p => p.filename === fig.dataset.f);
     if (idx >= 0) Lightbox.open(list, idx, fig.querySelector('img'));
@@ -208,6 +212,7 @@ const ROUTES = [
   [/^\/p\/(\w+)$/, 'projects', renderShortProject],
   [/^\/colors(?:\/(\w+))?\/?$/, 'home', renderColorsRedirect],
   [/^\/constellation\/?$/, 'constellation', renderConstellation],
+  [/^\/seasons\/?$/, 'seasons', renderSeasons],
   [/^\/guestbook\/?$/, 'guestbook', renderGuestbook],
   [/^\/studio\/?$/, 'studio', renderStudio],
 ];
@@ -231,8 +236,8 @@ function render() {
     setDock(r.name);
     onScroll();
   };
-  if (firstRender || reduced) { firstRender = false; go(); return; }
-  if (document.startViewTransition) document.startViewTransition(go);
+  if (firstRender || reduced || document.hidden) { firstRender = false; go(); return; }
+  if (document.startViewTransition && !document.hidden) { const vt = document.startViewTransition(go); vt.ready.catch(() => {}); vt.finished.catch(() => {}); }
   else {
     const c = $('#curtain');
     c.animate([{ transform: 'scaleY(0)', transformOrigin: 'bottom' }, { transform: 'scaleY(1)', transformOrigin: 'bottom' }], { duration: 380, easing: 'cubic-bezier(.77,0,.18,1)', fill: 'forwards' }).onfinish = () => {
@@ -304,6 +309,11 @@ function renderHome(view) {
         ${selected.map((p, i) => card(p, { cls: 'hs-card', d: i * 60 })).join('')}
       </div>
     </div>
+  </section>
+
+  <section class="loved-sec needs-social" id="lovedSec" hidden>
+    <div class="hs-head" style="padding:0;margin-bottom:28px"><h2>Most <em>loved</em></h2><div class="hs-count">방문자의 하트를 가장 많이 받은 사진</div></div>
+    <div class="loved" id="loved"></div>
   </section>
 
   <section class="archive" id="archive">
@@ -400,6 +410,21 @@ function renderHome(view) {
   const ro = new ResizeObserver(() => { sizeHs(); hsScroll(); });
   ro.observe(track); pageCleanup.push(() => ro.disconnect());
   lists.selected = selected; bindPhotoClicks(track, 'selected');
+
+  /* 방문자가 고른 인기 사진 (하트 수 순서) */
+  const lovedSec = $('#lovedSec', view), lovedEl = $('#loved', view);
+  let lovedKey = '';
+  const renderLoved = () => {
+    const top = S.photos.filter(p => heartsOf(p) > 0).sort((a, b) => heartsOf(b) - heartsOf(a) || (b.date || '').localeCompare(a.date || '')).slice(0, 5);
+    lovedSec.hidden = !Social.ok || !top.length;
+    const key = top.map(p => p.filename + heartsOf(p)).join('|'); if (key === lovedKey) return; lovedKey = key;
+    lists.loved = top;
+    lovedEl.innerHTML = top.map((p, r) => `<div>${card(p, { cap: false, d: r * 70 })}<div class="loved-rank"><b>${pad(r + 1)}</b><span class="mono">${HEART_SVG}<i data-count="${esc(p.filename)}">${heartsOf(p)}</i></span></div></div>`).join('');
+    wireImages(lovedEl); observeReveal(lovedEl);
+  };
+  bindPhotoClicks(lovedEl, 'loved');
+  Social.listeners.add(renderLoved); pageCleanup.push(() => Social.listeners.delete(renderLoved));
+  renderLoved();
 
   /* 아카이브 */
   lists.archive = () => archiveList();
@@ -935,6 +960,74 @@ async function getDb() {
   if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
   fbDb = firebase.firestore(); return fbDb;
 }
+/* ---------- 하트 · 한 줄 감상 (Firebase) ---------- */
+const Social = { ok: false, hearts: new Map(), mine: new Set(store.get('hm-hearts', [])), notes: new Map(), listeners: new Set() };
+const heartId = f => String(f).replace(/\//g, '_');
+const heartsOf = p => Social.hearts.get(heartId(p.filename)) || 0;
+async function initSocial() {
+  try {
+    const db = await getDb();
+    const snap = await db.collection('hearts').get();
+    snap.forEach(d => Social.hearts.set(d.id, Math.max(0, +d.data().count || 0)));
+    Social.ok = true;
+  } catch (e) { Social.ok = false; }
+  document.body.classList.toggle('social-on', Social.ok);
+  emitSocial();
+}
+function emitSocial() { Social.listeners.forEach(f => f()); paintHearts(document); }
+function paintHearts(root = document) {
+  $$('[data-heart]', root).forEach(b => {
+    const id = heartId(b.dataset.heart); if (!b.dataset.heart) return;
+    b.classList.toggle('on', Social.mine.has(id));
+    const n = $('.n', b); if (n) n.textContent = Social.hearts.get(id) || 0;
+  });
+  $$('[data-count]', root).forEach(el => { el.textContent = Social.hearts.get(heartId(el.dataset.count)) || 0; });
+}
+async function toggleHeart(filename, force) {
+  if (!Social.ok) return false;
+  const id = heartId(filename), was = Social.mine.has(id), on = force === undefined ? !was : force;
+  if (on === was) return on;
+  const apply = v => {
+    v ? Social.mine.add(id) : Social.mine.delete(id); store.set('hm-hearts', [...Social.mine]);
+    Social.hearts.set(id, Math.max(0, (Social.hearts.get(id) || 0) + (v ? 1 : -1))); emitSocial();
+  };
+  apply(on);
+  try { const db = await getDb(); await db.collection('hearts').doc(id).set({ count: firebase.firestore.FieldValue.increment(on ? 1 : -1) }, { merge: true }); }
+  catch (e) { apply(!on); toast('하트를 저장하지 못했어요'); }
+  return on;
+}
+function heartPop(btn) {
+  btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
+  if (reduced) return;
+  const b = document.createElement('span'); b.className = 'burst';
+  b.innerHTML = Array.from({ length: 8 }, (_, k) => `<i style="--a:${k * 45}deg"></i>`).join('');
+  btn.appendChild(b); setTimeout(() => b.remove(), 700);
+}
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-heart]'); if (!b || !b.dataset.heart) return;
+  e.preventDefault(); e.stopPropagation();
+  if (await toggleHeart(b.dataset.heart)) heartPop(b);
+}, true);
+async function loadNotes(filename, fresh) {
+  if (!Social.ok) return [];
+  if (Social.notes.has(filename) && !fresh) return Social.notes.get(filename);
+  try {
+    const db = await getDb();
+    const snap = await db.collection('notes').where('photo', '==', filename).get();
+    const list = snap.docs.map(d => { const x = d.data(); return { nickname: x.nickname || '익명', message: x.message || '', date: x.timestamp && x.timestamp.toDate ? x.timestamp.toDate() : new Date() }; })
+      .sort((a, b) => b.date - a.date);
+    Social.notes.set(filename, list); return list;
+  } catch (e) { return []; }
+}
+async function addNote(filename, nickname, message) {
+  const db = await getDb();
+  await db.collection('notes').add({ photo: filename, nickname, message, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+  const list = Social.notes.get(filename) || [];
+  list.unshift({ nickname: nickname || '익명', message, date: new Date(), fresh: true });
+  Social.notes.set(filename, list);
+  return list;
+}
+
 function fmtStamp(d) {
   if (!d) return '';
   const diff = (Date.now() - d.getTime()) / 1000;
@@ -1076,6 +1169,64 @@ const Lightbox = (() => {
   const api = { get isOpen() { return lb.classList.contains('on'); } };
   lb.classList.toggle('no-info', !store.get('hm-lb-info', true));
 
+  /* 한 줄 감상: 오른쪽 목록 + 사진 위 자막 */
+  let subTimer = null, subIdx = 0, subsOn = store.get('hm-subs', true);
+  const subsEl = $('#lbSubs');
+  $('#lbNotesBtn').classList.toggle('on', subsOn);
+  function paintNotes(f, list) {
+    if (!list) return;
+    const el = $('#lbNotesList'); if (!el || list_cur() !== f) return;
+    $('#lbNoteCount').textContent = list.length;
+    el.innerHTML = list.length ? list.map(n => `<div class="n ${n.fresh ? 'new' : ''}">${esc(n.message)}<small>${esc(n.nickname)} · ${fmtStamp(n.date)}</small></div>`).join('') : '<div class="faint" style="font-size:13px">아직 감상이 없어요. 아래 칸에 첫 한 줄을 남겨주세요.</div>';
+    list.forEach(n => { n.fresh = false; });
+  }
+  function runSubs(f) {
+    clearInterval(subTimer); subsEl.innerHTML = ''; subIdx = 0;
+    const list = Social.notes.get(f) || [];
+    if (!subsOn || !list.length || !Social.ok) return;
+    const show = () => { const n = list[subIdx % list.length]; if (!n) return; subsEl.innerHTML = `<span><em>${esc(n.nickname)}</em>${esc(n.message)}</span>`; subIdx++; };
+    show(); subTimer = setInterval(show, 4000);
+  }
+  async function showNotes(f) {
+    clearInterval(subTimer); subsEl.innerHTML = '';
+    if (!Social.ok) return;
+    const list = await loadNotes(f);
+    if (!api.isOpen || list_cur() !== f) return;
+    paintNotes(f, list); runSubs(f);
+  }
+  const list_cur = () => list[idx] && list[idx].filename;
+  $('#lbNotesBtn').onclick = () => {
+    if (matchMedia('(max-width: 1000px)').matches) { const n = $('#lbNotes'); if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+    subsOn = !subsOn; store.set('hm-subs', subsOn); $('#lbNotesBtn').classList.toggle('on', subsOn); runSubs(list_cur());
+  };
+  $('#lbNoteForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const f = list_cur(), name = $('#lbNoteName').value.trim().slice(0, 12), text = $('#lbNoteText').value.trim().slice(0, 60);
+    if (!text) return;
+    if (BLOCKED.some(w => (name + text).toLowerCase().includes(w))) return toast('사용할 수 없는 단어가 들어 있어요');
+    if (Date.now() - store.get('hm-note-last', 0) < 20000) return toast('잠시 후 다시 남겨주세요 (20초에 한 번)');
+    store.set('hm-note-last', Date.now());
+    const btn = $('#lbNoteForm button'); btn.disabled = true;
+    try {
+      const l = await addNote(f, name, text);
+      $('#lbNoteText').value = '';
+      if (list_cur() === f) { paintNotes(f, l); subsOn = true; $('#lbNotesBtn').classList.add('on'); runSubs(f); }
+      toast('감상을 남겼어요. 고마워요!');
+    } catch (err) { store.set('hm-note-last', 0); toast('남기지 못했어요. 잠시 후 다시 시도해 주세요.'); }
+    btn.disabled = false;
+  });
+  /* 사진을 두 번 연속 누르면 큰 하트 */
+  async function bigHeart() {
+    const f = list_cur(); if (!Social.ok || !f) return;
+    await toggleHeart(f, true);
+    if (reduced) return;
+    const h = document.createElement('div'); h.className = 'big-heart'; h.innerHTML = HEART_SVG.replace('fill="none"', 'fill="currentColor"');
+    stage.appendChild(h); setTimeout(() => h.remove(), 950);
+    heartPop($('#lbHeart'));
+  }
+  /* 엽서 */
+  $('#lbCard').onclick = () => Postcard.open(list[idx]);
+
   function makeImg(p) { const im = document.createElement('img'); im.className = 'lb-img'; im.src = imgUrl(p); im.alt = fmtDate(p.date); im.draggable = false; stage.appendChild(im); return im; }
   function paintInfo() {
     const p = list[idx], i = parseInfo(p.info), prs = S.photoProjects.get(p.filename) || [];
@@ -1085,6 +1236,7 @@ const Lightbox = (() => {
       <div class="num mono">Frame ${p._n}</div>
       <h3>${d ? `${MONTHS[d.getMonth()]} ${d.getDate()}` : '—'}</h3>
       <div class="year mono">${d ? `${d.getFullYear()} · ${['일', '월', '화', '수', '목', '금', '토'][d.getDay()]}요일` : ''}</div>
+      ${p.story ? `<div class="lb-story" id="lbStory"><div class="mono lbl">Story</div><blockquote>${esc(p.story)}</blockquote><button class="mono more" id="lbStoryMore" hidden>더 읽기 ↓</button></div>` : ''}
       <div class="exif mono">
         <div class="wide"><span>Camera</span><b>${esc(i.camera)}</b></div>
         <div><span>Aperture</span><b>${esc(i.aperture)}</b></div>
@@ -1093,7 +1245,12 @@ const Lightbox = (() => {
         <div><span>Color</span><b class="lb-color"><i style="--c:${COLOR_HEX[p.color] || '#555'}"></i>${esc(COLOR_KO[p.color] || '—')}</b></div>
       </div>
       ${prs.length ? `<div class="lb-projects"><div class="mono" style="color:#75736b;margin-bottom:6px">In projects</div>${prs.map(pr => `<a href="#/projects/${encodeURIComponent(pr.id)}">${esc(pr.title)}<span>→</span></a>`).join('')}</div>` : ''}
-      <div class="mono" style="color:#55534d;margin-top:26px;line-height:2">← → 넘기기 · Space 슬라이드쇼<br>F 전체 화면 · I 정보 · 사진 클릭 확대</div>`;
+      <div class="lb-notes needs-social" id="lbNotes"><div class="mono lbl">Notes · <span id="lbNoteCount">…</span></div><div class="notes-list" id="lbNotesList"></div></div>
+      <div class="mono" style="color:#55534d;margin-top:26px;line-height:2">← → 넘기기 · Space 슬라이드쇼<br>F 전체 화면 · I 정보 · 사진 클릭 확대 · 두 번 누르면 하트</div>`;
+    $('#lbHeart').dataset.heart = p.filename; paintHearts(lb);
+    const story = $('#lbStory', info);
+    if (story) requestAnimationFrame(() => { const q = $('blockquote', story), more = $('#lbStoryMore', info); if (q.scrollHeight > q.clientHeight + 4) { more.hidden = false; more.onclick = () => { story.classList.add('open'); more.hidden = true; }; } });
+    showNotes(p.filename);
     $$('img', strip).forEach((t, j) => t.classList.toggle('on', j === idx));
     const on = strip.children[idx]; if (on) strip.scrollTo({ left: on.offsetLeft - strip.clientWidth / 2 + 28, behavior: 'smooth' });
     const u = new URL(location.href); u.searchParams.set('photo', p.filename); history.replaceState(null, '', u);
@@ -1135,6 +1292,7 @@ const Lightbox = (() => {
     if (!api.isOpen) return;
     api.play(false);
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    clearInterval(subTimer); subsEl.innerHTML = ''; Postcard.close();
     const finish = () => {
       lb.classList.remove('on'); lb.getAnimations().forEach(a => a.cancel());
       if (!$('#drawer').classList.contains('on')) document.body.classList.remove('locked');
@@ -1211,21 +1369,29 @@ const Lightbox = (() => {
     const r = stage.getBoundingClientRect();
     img.style.transformOrigin = `${(e.clientX - r.left) / r.width * 100}% ${(e.clientY - r.top) / r.height * 100}%`;
   });
-  let sx = 0, sy = 0, swiping = false;
-  stage.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; sx = e.clientX; sy = e.clientY; swiping = true; });
+  let sx = 0, sy = 0, swiping = false, lastTap = 0, tapTimer = null;
+  stage.addEventListener('pointerdown', e => { if (e.target.closest('button, form')) return; sx = e.clientX; sy = e.clientY; swiping = true; });
   stage.addEventListener('pointerup', e => {
     if (!swiping) return; swiping = false;
-    if (e.target.closest('button')) return;
+    if (e.target.closest('button, form')) return;
     const dx = e.clientX - sx, dy = e.clientY - sy;
     if (!zoomed && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) return api.step(dx < 0 ? 1 : -1);
     if (!zoomed && dy > 110 && Math.abs(dy) > Math.abs(dx)) return api.close();
     if (Math.abs(dx) < 6 && Math.abs(dy) < 6) {
-      if (e.target === img) setZoom(!zoomed, e);
+      if (e.target === img) {
+        // 한 번 누르면 확대, 빠르게 두 번 누르면 하트
+        const now = Date.now();
+        if (now - lastTap < 300) { clearTimeout(tapTimer); lastTap = 0; if (zoomed) setZoom(false); bigHeart(); return; }
+        lastTap = now; const ev = { clientX: e.clientX, clientY: e.clientY };
+        tapTimer = setTimeout(() => setZoom(!zoomed, ev), 260);
+      }
       else if (e.target === stage) api.close();
     }
   });
   addEventListener('keydown', e => {
     if (!api.isOpen) { if (e.key === 'Escape') closeDrawer(); return; }
+    if (Postcard.isOpen) { if (e.key === 'Escape') Postcard.close(); return; }
+    if (e.target.closest && e.target.closest('input, textarea')) { if (e.key === 'Escape') e.target.blur(); return; }
     if (e.key === 'Escape') api.close();
     else if (e.key === 'ArrowRight') api.step(1);
     else if (e.key === 'ArrowLeft') api.step(-1);
@@ -1235,6 +1401,132 @@ const Lightbox = (() => {
   });
   return api;
 })();
+
+/* ============================================================
+   엽서 만들기
+   ============================================================ */
+const Postcard = (() => {
+  const st = { p: null, shape: 'land', paper: 'white' };
+  const PAPER = { white: ['#fbfaf6', '#1c1b18', '#8a877d'], cream: ['#f1e9d8', '#2a241a', '#8f826a'], black: ['#141413', '#efece4', '#8a877d'] };
+  const el = $('#pcModal'), cv = $('#pcCanvas');
+  const api = { get isOpen() { return !el.hidden; } };
+  let im = null;
+  function draw(flip) {
+    if (!im) return;
+    const x = cv.getContext('2d');
+    const [W, H] = st.shape === 'land' ? [1800, 1200] : st.shape === 'port' ? [1200, 1800] : [1500, 1500];
+    cv.width = W; cv.height = H;
+    const [bg, ink, muted] = PAPER[st.paper];
+    x.fillStyle = bg; x.fillRect(0, 0, W, H);
+    const m = Math.round(Math.min(W, H) * 0.06), bottom = Math.round(Math.min(W, H) * 0.2), iw = W - m * 2, ih = H - m - bottom;
+    const s = Math.max(iw / im.naturalWidth, ih / im.naturalHeight), sw = iw / s, sh = ih / s;
+    x.drawImage(im, (im.naturalWidth - sw) / 2, (im.naturalHeight - sh) / 2, sw, sh, m, m, iw, ih);
+    const u = Math.min(W, H) / 1200, base = H - bottom + bottom * 0.42;
+    x.fillStyle = ink; x.textBaseline = 'alphabetic'; x.textAlign = 'left';
+    x.font = `italic ${Math.round(46 * u)}px "Instrument Serif", "Noto Serif KR", Georgia, serif`;
+    const text = $('#pcText').value.trim(); if (text) x.fillText(text, m, base);
+    x.fillStyle = muted; x.font = `${Math.round(19 * u)}px "JetBrains Mono", monospace`;
+    const from = $('#pcFrom').value.trim();
+    x.fillText([fmtDate(st.p.date), from ? 'FROM ' + from.toUpperCase() : ''].filter(Boolean).join('   ·   '), m, base + 52 * u);
+    const sw2 = 112 * u, sh2 = 132 * u, sx = W - m - sw2, sy = H - bottom + bottom * 0.18;
+    x.strokeStyle = muted; x.setLineDash([5 * u, 5 * u]); x.lineWidth = 2 * u; x.strokeRect(sx, sy, sw2, sh2); x.setLineDash([]);
+    x.fillStyle = ink; x.textAlign = 'center'; x.font = `italic ${Math.round(56 * u)}px "Instrument Serif", Georgia, serif`;
+    x.fillText(S.site.brandMark || 'h.', sx + sw2 / 2, sy + sh2 * 0.6);
+    x.fillStyle = muted; x.font = `${Math.round(13 * u)}px "JetBrains Mono", monospace`;
+    x.fillText(location.hostname.toUpperCase() || 'HAMIHAMOO.COM', sx + sw2 / 2, sy + sh2 + 24 * u); x.textAlign = 'left';
+    if (flip && !reduced) { cv.classList.remove('flip'); void cv.offsetWidth; cv.classList.add('flip'); }
+  }
+  api.open = p => {
+    st.p = p; el.hidden = false; im = null;
+    $('#pcText').value = $('#pcText').value || (S.site.heroNote || '').replace(/\n/g, ' ');
+    const i = new Image(); i.onload = () => { im = i; document.fonts.ready.then(() => draw(true)); }; i.src = imgUrl(p);
+    if (!reduced) $('.pc-panel', el).animate([{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }], { duration: 500, easing: 'cubic-bezier(.22,1,.36,1)' });
+    requestAnimationFrame(() => $$('.seg', el).forEach(syncSeg));
+  };
+  api.close = () => { el.hidden = true; };
+  [['#pcShape', 'shape'], ['#pcPaper', 'paper']].forEach(([id, k]) => $(id).addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    $$('button', $(id)).forEach(x => x.classList.toggle('on', x === b)); syncSeg($(id)); st[k] = b.dataset.v; draw(k === 'shape');
+  }));
+  $('#pcText').addEventListener('input', () => draw(false));
+  $('#pcFrom').addEventListener('input', () => draw(false));
+  $('#pcClose').onclick = api.close;
+  el.addEventListener('click', e => { if (e.target === el) api.close(); });
+  $('#pcSave').onclick = () => {
+    const a = document.createElement('a'); a.download = `hamihamoo-postcard-${st.p.date || 'photo'}.png`;
+    a.href = cv.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove();
+    toast('엽서를 저장했어요');
+  };
+  return api;
+})();
+
+/* ============================================================
+   계절 지도 (월별 사진 수와 대표 색)
+   ============================================================ */
+const MONTH_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function renderSeasons(view) {
+  const yrs = years(S.photos);
+  let year = 'all', sel = null;
+  view.innerHTML = `<section class="page">
+    <div class="page-head">
+      <div><div class="page-kicker mono">( A year in color )</div><h1 class="page-title split">${splitChars('Seasons')}</h1></div>
+      <p class="page-sub">1년 12달을 원으로 펼쳤어요. 막대가 길수록 그 달에 사진을 많이 찍었고, 막대 색은 그 달 사진에서 가장 많이 나온 색이에요.</p>
+    </div>
+    <div class="toolbar-row" style="margin-bottom:22px"><div class="seg" id="seaYear"><span class="seg-ind"></span>${[['all', '모든 해'], ...yrs.map(y => [y, y])].map(([v, l]) => `<button data-v="${v}" class="${v === 'all' ? 'on' : ''}">${l}</button>`).join('')}</div></div>
+    <div class="season">
+      <div class="season-chart"><svg id="seaSvg" viewBox="-315 -315 630 630" role="img" aria-label="월별 사진 수와 대표 색"></svg></div>
+      <div class="season-side" id="seaSide"></div>
+    </div>
+    <details class="season-table mono"><summary>표로 보기</summary><table id="seaTable"></table></details>
+  </section>`;
+  const tip = document.createElement('div'); tip.className = 'cons-tip'; tip.style.position = 'fixed'; document.body.appendChild(tip);
+  pageCleanup.push(() => tip.remove());
+  $('#seaYear', view).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; $$('#seaYear button').forEach(x => x.classList.toggle('on', x === b)); syncSeg($('#seaYear')); year = b.dataset.v; sel = null; paint(); });
+  const seasonOf = k => [11, 0, 1].includes(k) ? '겨울' : k < 5 ? '봄' : k < 8 ? '여름' : '가을';
+  function paint() {
+    const list = S.photos.filter(p => p.date && (year === 'all' || p.date.startsWith(year)));
+    const months = MONTHS.map((m, k) => {
+      const ps = list.filter(p => +p.date.slice(5, 7) === k + 1), cnt = {};
+      ps.forEach(p => { if (p.color) cnt[p.color] = (cnt[p.color] || 0) + 1; });
+      const ranked = Object.entries(cnt).sort((a, b) => b[1] - a[1]);
+      return { m, k, ps, ranked, color: ranked[0] ? ranked[0][0] : null };
+    });
+    const max = Math.max(1, ...months.map(d => d.ps.length));
+    if (sel == null || !months[sel].ps.length) sel = months.reduce((a, b) => b.ps.length > a.ps.length ? b : a).k;
+    const R0 = 92, R1 = 262, step = Math.PI * 2 / 12, gap = 0.05;
+    const pt = (a, r) => `${(Math.sin(a) * r).toFixed(2)} ${(-Math.cos(a) * r).toFixed(2)}`;
+    const arc = (a0, a1, r0, r1) => `M${pt(a0, r0)} L${pt(a0, r1)} A${r1} ${r1} 0 0 1 ${pt(a1, r1)} L${pt(a1, r0)} A${r0} ${r0} 0 0 0 ${pt(a0, r0)}Z`;
+    let svg = `<circle r="${R1}" fill="none" stroke="var(--line)" stroke-dasharray="2 6"/><circle r="${(R0 + R1) / 2}" fill="none" stroke="var(--line)" stroke-dasharray="2 6"/><circle r="${R0 - 6}" fill="none" stroke="var(--line)"/>`;
+    ['겨울', '봄', '여름', '가을'].forEach((s, i) => { const a = (i * 3 + 0.5) * step; svg += `<text x="${(Math.sin(a) * 296).toFixed(1)}" y="${(-Math.cos(a) * 296 + 4).toFixed(1)}" text-anchor="middle" fill="var(--ink-3)" font-size="12" font-family="Pretendard">${s}</text>`; });
+    months.forEach(d => {
+      const a0 = d.k * step + gap, a1 = (d.k + 1) * step - gap, r1 = R0 + (R1 - R0) * Math.max(d.ps.length / max, 0.015), am = (d.k + 0.5) * step;
+      svg += `<g class="sea-seg ${d.k === sel ? 'sel' : ''}" data-k="${d.k}" tabindex="0" role="button" aria-label="${d.m} ${d.ps.length}장"><path d="${arc(a0, a1, R0, R1)}" fill="transparent"/><path class="bar" d="${arc(a0, a1, R0, r1)}" fill="${d.color ? COLOR_HEX[d.color] : 'var(--bg-3)'}" stroke="var(--line-2)" stroke-width="1" style="--dl:${d.k * 50}ms"/>
+        <text x="${(Math.sin(am) * (R0 - 22)).toFixed(1)}" y="${(-Math.cos(am) * (R0 - 22) + 4).toFixed(1)}" text-anchor="middle" fill="${d.k === sel ? 'var(--accent)' : 'var(--ink-2)'}" font-size="11" font-family="JetBrains Mono">${d.m.toUpperCase()}</text></g>`;
+    });
+    const cur = months[sel];
+    svg += `<text y="-2" text-anchor="middle" fill="var(--ink)" font-size="32" font-family="Instrument Serif">${cur.ps.length}</text><text y="18" text-anchor="middle" fill="var(--ink-3)" font-size="10" font-family="JetBrains Mono">FRAMES</text>`;
+    $('#seaSvg').innerHTML = svg;
+    $$('#seaSvg .sea-seg').forEach(g => {
+      const d = months[+g.dataset.k];
+      g.addEventListener('mousemove', e => { tip.textContent = `${d.m} · ${d.ps.length}장${d.color ? ' · 대표 색 ' + COLOR_KO[d.color] : ''}`; tip.style.left = e.clientX + 'px'; tip.style.top = e.clientY + 'px'; tip.classList.add('on'); });
+      g.addEventListener('mouseleave', () => tip.classList.remove('on'));
+      const pick = () => { if (!d.ps.length) return; sel = d.k; tip.classList.remove('on'); paint(); };
+      g.addEventListener('click', pick); g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+    });
+    lists.season = cur.ps;
+    $('#seaSide').innerHTML = `<div class="mono accent">${seasonOf(cur.k)} · ${year === 'all' ? '모든 해' : year}</div><h2>${MONTH_FULL[cur.k]}</h2>
+      <div class="sub">${cur.ps.length}장을 찍었어요${cur.color ? ` · 가장 많이 나온 색은 ${COLOR_KO[cur.color]}` : ''}</div>
+      <div class="chips">${cur.ranked.slice(0, 5).map(([c, n]) => `<span class="chip-c"><i style="--c:${COLOR_HEX[c]}"></i>${COLOR_KO[c]} ${n}</span>`).join('')}</div>
+      <div class="sea-thumbs" id="seaThumbs">${cur.ps.slice(0, 12).map((p, n) => card(p, { cap: false, d: n * 35 })).join('')}</div>
+      ${cur.ps.length > 12 ? `<button class="pill" id="seaMore" style="margin-top:12px">${cur.ps.length}장 모두 크게 보기 →</button>` : ''}`;
+    wireImages($('#seaSide')); observeReveal($('#seaSide'));
+    const more = $('#seaMore'); if (more) more.onclick = () => Lightbox.open(cur.ps, 0);
+    $('#seaTable').innerHTML = '<tr><th>달</th><th>사진 수</th><th>대표 색</th></tr>' + months.map(d => `<tr><td>${d.m}</td><td>${d.ps.length}</td><td>${d.color ? COLOR_KO[d.color] : '—'}</td></tr>`).join('');
+  }
+  bindPhotoClicks($('#seaSide', view), 'season');
+  paint();
+  requestAnimationFrame(() => syncSeg($('#seaYear')));
+}
 
 /* ============================================================
    관리 (스튜디오) — GitHub 저장소에 직접 저장해요
@@ -1468,7 +1760,7 @@ function stPhotos(body, view) {
   const months = [...new Set(S.photos.map(p => monthKey(p.date)).filter(Boolean))];
   const list = S.photos.filter(p => {
     const e = Studio.dirty.get(p.filename) || {};
-    const blob = [p.filename, e.date ?? p.date, e.info ?? p.info, COLOR_KO[e.color ?? p.color]].join(' ').toLowerCase();
+    const blob = [p.filename, e.date ?? p.date, e.info ?? p.info, COLOR_KO[e.color ?? p.color], e.story ?? p.story ?? ''].join(' ').toLowerCase();
     return (!f.q || blob.includes(f.q.toLowerCase())) && (f.month === 'all' || (p.date || '').startsWith(f.month)) && (f.color === 'all' || p.color === f.color);
   });
   const shown = list.slice(0, Studio.page * PER);
@@ -1490,6 +1782,7 @@ function stPhotos(body, view) {
         <div class="mbody">
           <div class="mrow"><input type="date" data-k="date" value="${esc(e.date ?? p.date ?? '')}"><select data-k="color">${colorOptions(e.color ?? p.color)}</select></div>
           <input data-k="info" value="${esc(e.info ?? p.info ?? '')}" placeholder="카메라 · 설정">
+          <textarea data-k="story" rows="2" placeholder="이 사진의 이야기 (선택)">${esc(e.story ?? p.story ?? '')}</textarea>
           <div class="mfoot"><span class="mono faint">${p._n}</span><button class="link-danger" data-act="del">삭제</button></div>
         </div></div>`;
     }).join('')}</div>
@@ -1729,7 +2022,7 @@ function setupChrome() {
       const r = $('#themeBtn').getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
       const end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
       document.documentElement.classList.add('theme-vt');
-      const vt = document.startViewTransition(flip);
+      const vt = document.startViewTransition(flip); vt.ready.catch(() => {});
       vt.ready.then(() => document.documentElement.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${end}px at ${x}px ${y}px)`] }, { duration: 750, easing: 'cubic-bezier(.77,0,.18,1)', pseudoElement: '::view-transition-new(root)' }));
       vt.finished.finally(() => document.documentElement.classList.remove('theme-vt'));
     } else flip();
@@ -1746,6 +2039,7 @@ function setupChrome() {
   await loadData();
   applyBrand();
   render();
+  setTimeout(initSocial, 600);
   const want = new URL(location.href).searchParams.get('photo');
   if (want) { const i = S.photos.findIndex(p => p.filename === want); if (i >= 0) setTimeout(() => Lightbox.open(S.photos, i), 300); }
 })();

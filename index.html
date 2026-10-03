@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+KR:wght@400&display=swap">
-<link rel="stylesheet" href="app.css?v=3">
+<link rel="stylesheet" href="app.css?v=4">
 <script>
   // 저장된 밝기 모드를 화면이 그려지기 전에 적용해 깜빡임을 막아요.
   try { var t = localStorage.getItem('hm-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -40,6 +40,7 @@
   <a href="#/" data-route="home">Work</a>
   <a href="#/projects" data-route="projects">Projects</a>
   <a href="#/constellation" data-route="constellation">Constellation</a>
+  <a href="#/seasons" data-route="seasons">Seasons</a>
   <a href="#/guestbook" data-route="guestbook">Guestbook</a>
 </nav>
 
@@ -56,6 +57,9 @@
     <div class="lb-top">
       <span class="mono" id="lbCounter"></span>
       <div class="lb-tools">
+        <button class="icon-btn heart-lb needs-social" id="lbHeart" data-heart="" title="하트"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20s-7.5-4.6-9.2-9.3C1.6 7.4 3.8 4.5 7 4.5c2 0 3.4 1.1 5 3 1.6-1.9 3-3 5-3 3.2 0 5.4 2.9 4.2 6.2C19.5 15.4 12 20 12 20z"/></svg><span class="n mono">0</span></button>
+        <button class="icon-btn needs-social" id="lbNotesBtn" title="감상 자막 켜고 끄기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5.5h16v10H9l-5 4z"/></svg></button>
+        <button class="icon-btn" id="lbCard" title="엽서 만들기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="6" width="17" height="12" rx="1.5"/><rect x="14.5" y="8.5" width="3.5" height="4"/></svg></button>
         <button class="icon-btn" id="lbPlay" title="슬라이드쇼 (Space)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg></button>
         <button class="icon-btn" id="lbShare" title="링크 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
         <button class="icon-btn" id="lbFull" title="전체 화면 (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
@@ -64,10 +68,32 @@
       </div>
     </div>
     <button class="lb-nav lb-prev" id="lbPrev" aria-label="이전 사진"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="lb-subs" id="lbSubs" aria-live="polite"></div>
+    <form class="lb-note-bar needs-social" id="lbNoteForm" autocomplete="off">
+      <input id="lbNoteName" maxlength="12" placeholder="이름" aria-label="이름 (선택)">
+      <input id="lbNoteText" maxlength="60" placeholder="이 사진에 한 줄 남기기" aria-label="한 줄 감상" required>
+      <button>남기기</button>
+    </form>
     <button class="lb-nav lb-next" id="lbNext" aria-label="다음 사진"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 5l7 7-7 7"/></svg></button>
   </div>
   <div class="lb-strip" id="lbStrip"></div>
   <aside class="lb-info" id="lbInfo"></aside>
+  <div class="pc-modal" id="pcModal" hidden>
+    <div class="pc-panel">
+      <button class="icon-btn pc-close" id="pcClose" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="pc-stage"><canvas id="pcCanvas"></canvas></div>
+      <div class="pc-ctrl">
+        <h3>Postcard</h3>
+        <div class="mono faint pc-l">모양</div>
+        <div class="seg" id="pcShape"><span class="seg-ind"></span><button data-v="land" class="on">가로</button><button data-v="port">세로</button><button data-v="square">정사각</button></div>
+        <div class="mono faint pc-l">종이</div>
+        <div class="seg" id="pcPaper"><span class="seg-ind"></span><button data-v="white" class="on">흰 종이</button><button data-v="cream">미색</button><button data-v="black">검정</button></div>
+        <label class="field" style="margin-top:16px"><span>엽서 문구 (선택)</span><input id="pcText" maxlength="40"></label>
+        <label class="field"><span>보내는 사람 (선택)</span><input id="pcFrom" maxlength="20" placeholder="예: 하미하무가"></label>
+        <button class="btn block" id="pcSave">이미지로 저장 <span class="arrow">↓</span></button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- 작가 소개 -->
@@ -82,6 +108,6 @@
 <div class="curtain" id="curtain"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js" defer></script>
-<script src="app.js?v=3" defer></script>
+<script src="app.js?v=4" defer></script>
 </body>
 </html>

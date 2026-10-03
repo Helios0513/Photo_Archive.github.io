@@ -675,3 +675,127 @@ html.theme-vt::view-transition-old(root), html.theme-vt::view-transition-new(roo
   .hero-bar.on i { animation-duration: var(--dur, 6s) !important; }
 }
 
+
+/* =============== 새 기능 =============== */
+body:not(.social-on) .needs-social { display: none !important; }
+
+/* 이야기 */
+.story-tag { position: absolute; top: 10px; left: 10px; z-index: 2; background: rgba(0,0,0,.55); color: #fff; font-size: 9.5px; padding: 3px 8px; border-radius: 99px; backdrop-filter: blur(6px); pointer-events: none; }
+.ph-story { margin-top: 6px; font-family: var(--f-display); font-size: 15px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition-delay: .2s; word-break: keep-all; }
+.lb-story { margin: 20px 0 4px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.08); }
+.lb-story .lbl, .lb-notes .lbl { color: #75736b; margin-bottom: 10px; }
+.lb-story blockquote { margin: 0; font-family: var(--f-display); font-size: 21px; line-height: 1.38; color: #f1eee6; white-space: pre-line; word-break: keep-all; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.lb-story.open blockquote { -webkit-line-clamp: unset; display: block; }
+.lb-story blockquote::before { content: "“"; color: #ff7a52; font-size: 34px; line-height: 0; vertical-align: -12px; margin-right: 3px; }
+.lb-story .more { margin-top: 8px; color: #ff7a52; font-size: 11px; }
+.mcard textarea { width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 7px 9px; font-size: 12.5px; resize: vertical; line-height: 1.5; font-family: var(--f-body); }
+
+/* 하트 */
+.card-heart { position: absolute; right: 10px; bottom: 10px; z-index: 3; pointer-events: auto; display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 99px; background: rgba(0,0,0,.5); color: #fff; font-size: 11px; font-family: var(--f-mono); backdrop-filter: blur(6px); transition: background .2s; }
+.card-heart:hover { background: rgba(0,0,0,.75); }
+.card-heart svg, .heart-lb svg { width: 15px; height: 15px; transition: transform .35s var(--ease); }
+.card-heart.on svg, .heart-lb.on svg { fill: #ff4d6d; stroke: #ff4d6d; }
+body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-right: 58px; }
+.heart-lb { gap: 5px; position: relative; }
+.heart-lb .n { font-size: 11px; }
+.pop svg { animation: heartPop .5s var(--ease); }
+@keyframes heartPop { 30% { transform: scale(1.45); } 60% { transform: scale(.9); } }
+.burst { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
+.burst i { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #ff4d6d; animation: burst .6s ease-out forwards; }
+@keyframes burst { from { transform: translate(-50%,-50%) rotate(var(--a)) translateY(0); opacity: 1; } to { transform: translate(-50%,-50%) rotate(var(--a)) translateY(-24px); opacity: 0; } }
+.big-heart { position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; margin: -60px 0 0 -60px; z-index: 4; pointer-events: none; color: #ff4d6d; filter: drop-shadow(0 8px 30px rgba(0,0,0,.5)); animation: bigHeart .9s var(--ease) forwards; }
+@keyframes bigHeart { 0% { transform: scale(0); opacity: 0; } 25% { transform: scale(1.15); opacity: 1; } 45% { transform: scale(.95); } 75% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.1) translateY(-30px); opacity: 0; } }
+.loved-sec { padding: 110px var(--gutter) 0; }
+.loved { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(10px, 1.4vw, 18px); }
+.loved .ph-frame { aspect-ratio: 3 / 4; }
+.loved-rank { display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px; }
+.loved-rank b { font-family: var(--f-display); font-weight: 400; font-size: 34px; line-height: 1; }
+.loved-rank span { color: var(--ink-3); font-size: 11px; display: inline-flex; gap: 4px; align-items: center; }
+.loved-rank svg { width: 12px; height: 12px; fill: #ff4d6d; stroke: none; }
+.loved-rank i { font-style: normal; }
+
+/* 한 줄 감상 */
+.lb-subs { position: absolute; left: 0; right: 0; bottom: 78px; z-index: 3; text-align: center; pointer-events: none; padding: 0 70px; }
+.lb-subs span { display: inline-block; max-width: 100%; background: rgba(0,0,0,.62); padding: 7px 14px; border-radius: 8px; font-size: 14px; line-height: 1.5; backdrop-filter: blur(6px); animation: subIn .6s var(--ease); }
+.lb-subs em { font-style: normal; color: #ff9a7a; margin-right: 8px; font-size: 12px; }
+@keyframes subIn { from { opacity: 0; transform: translateY(10px); } }
+.lb-note-bar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; display: flex; gap: 8px; padding: 14px 20px; background: linear-gradient(transparent, rgba(0,0,0,.75) 45%); }
+.lb-note-bar input { height: 40px; border-radius: 999px; border: 1px solid rgba(255,255,255,.18); background: rgba(20,20,18,.82); color: #f1eee6; padding: 0 15px; font-size: 13.5px; min-width: 0; }
+.lb-note-bar input:focus { outline: none; border-color: #ff7a52; }
+.lb-note-bar #lbNoteName { width: 120px; flex: 0 0 auto; }
+.lb-note-bar #lbNoteText { flex: 1; }
+.lb-note-bar button { height: 40px; padding: 0 18px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: 13px; flex: 0 0 auto; }
+.lb-note-bar button:disabled { opacity: .5; }
+.lb-img { max-height: calc(100% - 150px); }
+.lb-notes { margin-top: 22px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.08); }
+.notes-list { display: grid; gap: 8px; }
+.notes-list .n { padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.045); font-size: 13.5px; line-height: 1.55; word-break: break-word; }
+.notes-list .n.new { animation: noteSlide .7s var(--ease); box-shadow: inset 0 0 0 1px #ff7a52; }
+@keyframes noteSlide { from { opacity: 0; transform: translateX(16px); } }
+.notes-list .n small { display: block; color: #75736b; font-family: var(--f-mono); font-size: 10px; margin-top: 4px; }
+#lbNotesBtn.on { color: var(--accent); }
+
+/* 엽서 */
+.pc-modal { position: absolute; inset: 0; z-index: 10; background: rgba(5,5,4,.82); backdrop-filter: blur(10px); display: grid; place-items: center; padding: 24px; }
+.pc-modal[hidden] { display: none; }
+.pc-panel { position: relative; width: min(1200px, 100%); max-height: 100%; overflow: auto; display: grid; grid-template-columns: minmax(0, 1.6fr) 300px; gap: 22px; background: #121211; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 22px; color: #f1eee6; }
+.pc-close { position: absolute; top: 10px; right: 10px; color: #f1eee6; z-index: 2; }
+.pc-stage { display: grid; place-items: center; min-height: 460px; border-radius: 12px; background: radial-gradient(circle at 50% 40%, #262622, #0b0b0a 70%); padding: 26px; perspective: 1200px; }
+.pc-stage canvas { max-width: 100%; max-height: 66vh; border-radius: 3px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.8); transform: rotateX(4deg) rotateZ(-1.5deg); }
+.pc-stage canvas.flip { animation: pcIn .8s var(--ease); }
+@keyframes pcIn { from { transform: rotateX(4deg) rotateZ(-1.5deg) rotateY(-80deg); opacity: 0; } }
+.pc-ctrl h3 { margin: 6px 0 14px; font-family: var(--f-display); font-weight: 400; font-size: 36px; }
+.pc-l { margin: 14px 0 8px; }
+.pc-ctrl .field input { background: #0b0b0a; color: #f1eee6; border-color: rgba(255,255,255,.14); }
+.pc-ctrl .seg { border-color: rgba(255,255,255,.14); }
+.pc-ctrl .seg button { color: #b3b0a6; }
+.pc-ctrl .seg button.on { color: #0e0e0d; }
+.pc-ctrl .seg .seg-ind { background: #f1eee6; }
+
+/* 계절 지도 */
+.season { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 34px; align-items: center; }
+.season-chart svg { width: 100%; max-width: 640px; display: block; margin: 0 auto; overflow: visible; }
+.sea-seg { cursor: pointer; outline: none; }
+.sea-seg .bar { transform-origin: 0 0; transition: opacity .3s; animation: seaGrow .9s var(--ease) both; animation-delay: var(--dl); }
+@keyframes seaGrow { from { transform: scale(.35); opacity: 0; } }
+#seaSvg:hover .sea-seg:not(:hover):not(.sel) .bar { opacity: .45; }
+.sea-seg.sel .bar, .sea-seg:focus-visible .bar { stroke: var(--accent); stroke-width: 2; }
+.season-side h2 { margin: 6px 0 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(56px, 6vw, 84px); line-height: .9; letter-spacing: -.02em; }
+.season-side .sub { color: var(--ink-2); margin: 10px 0 16px; }
+.season-side .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.chip-c { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 99px; font-size: 12px; color: var(--ink-2); }
+.chip-c i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); border: 1px solid rgba(127,127,127,.4); }
+.sea-thumbs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.sea-thumbs .ph-frame { aspect-ratio: 1; }
+.sea-thumbs .ph-info { display: none; }
+.sea-thumbs .story-tag { display: none; }
+.season-table { margin-top: 26px; color: var(--ink-3); }
+.season-table table { border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+.season-table th, .season-table td { padding: 4px 18px 4px 0; text-align: left; }
+
+@media (max-width: 1000px) {
+  .lb-note-bar { padding: 10px 12px; }
+  .lb-note-bar #lbNoteName { width: 88px; }
+  .lb-subs { bottom: 64px; padding: 0 14px; }
+  .lb-subs span { font-size: 12.5px; }
+  .lb-img { max-height: calc(100% - 130px); }
+  .pc-panel { grid-template-columns: 1fr; }
+  .pc-stage { min-height: 300px; }
+  .season { grid-template-columns: 1fr; }
+  .loved { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .loved > div:nth-child(n+4) { display: none; }
+}
+@media (max-width: 720px) {
+  .loved-sec { padding-top: 70px; }
+  .loved-rank b { font-size: 26px; }
+  .dock a { padding: 9px 12px; }
+}
+@media (prefers-reduced-motion: reduce) { html:not(.force-motion) .sea-seg .bar { animation: none; } }
+@media (max-width: 720px) {
+  #lbFull, #lbInfoBtn { display: none; }
+  .lb.no-info .lb-info { display: block; }
+  .lb-top { left: 12px; right: 8px; }
+  .lb-top .mono { white-space: nowrap; }
+  .lb-tools { gap: 0; }
+  .lb-tools .icon-btn { min-width: 34px; padding: 0 7px; }
+}
