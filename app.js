@@ -1543,7 +1543,7 @@ const Postcard = (() => {
     editorial: { font: 'bodoni', size: 100, color: 'white', weight: 500 },
   };
   const PAPER = { white: '#fbfaf6', cream: '#f1e9d8', black: '#141413', orange: '#e2672b' };
-  const st = { p: null, fmt: 'land', layout: 'card', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
+  const st = { p: null, fmt: 'land', layout: 'card', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tstyle: 'plain', tcolor: null, retro: '1974', lfont: 'Sonsie One', color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
   const el = $('#pcModal'), cv = $('#pcCanvas'), out = $('#pcImg'), sheet = $('#pcSheet');
   const api = { get isOpen() { return !el.hidden; } };
   let im = null, cols = [], cache = {};
@@ -1584,6 +1584,13 @@ const Postcard = (() => {
   const rnd = i => { const v = Math.sin(i * 91.7 + st.seed * 13.1) * 43758.5; return v - Math.floor(v); };
   // 사진을 w×h 틀에 놓아요. st.zoom 1은 틀을 꽉 채우는 크기, 그보다 작으면 사진 전체가 보이고 남는 곳은 비워 둬요.
   // st.cx, st.cy(0~1)는 사진의 어느 쪽을 보여 줄지예요 (0.5면 가운데)
+  // 부드러운 흐림: 작게 줄였다가 두 단계로 다시 키워요 (f가 클수록 많이 흐려요). 모든 브라우저에서 같은 결과가 나와요
+  function blurC(srcC, f) {
+    const w = srcC.width, h = srcC.height, mk = (cw, ch) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(cw)); c.height = Math.max(1, Math.round(ch)); const cx = c.getContext('2d'); cx.imageSmoothingQuality = 'high'; return [c, cx]; };
+    const [a, ax] = mk(w / f, h / f), [b, bx] = mk(w / Math.sqrt(f), h / Math.sqrt(f)), [o, ox] = mk(w, h);
+    ax.drawImage(srcC, 0, 0, a.width, a.height); bx.drawImage(a, 0, 0, b.width, b.height); ox.drawImage(b, 0, 0, w, h);
+    return o;
+  }
   function placed(w, h) {
     const nw = im.naturalWidth, nh = im.naturalHeight, k = Math.max(w / nw, h / nh) * st.zoom, dw = nw * k, dh = nh * k;
     const b = document.createElement('canvas'); b.width = w; b.height = h;
@@ -1659,7 +1666,63 @@ const Postcard = (() => {
       t.getContext('2d').drawImage(src, sx, sy, sw, sh, 0, 0, t.width, t.height);
       x.globalCompositeOperation = 'screen'; x.globalAlpha = .8; x.drawImage(t, 0, 0, w, h);
       x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+    } else if (['ghost', 'shutter', 'zoom', 'bluemon', 'heat'].includes(st.fx)) {
+      if (st.fx === 'ghost' || st.fx === 'shutter') {
+        // 한 방향으로 끌린 잔상: 조금씩 밀린 사진을 고르게 겹쳐요 (밀려도 틀 끝까지 덮도록 살짝 크게)
+        const N = 16, ang = st.fx === 'ghost' ? -.35 : .12, len = w * (st.fx === 'ghost' ? .08 : .12);
+        for (let i = 0; i < N; i++) { const t = i / (N - 1) - .5; x.globalAlpha = 1 / (i + 1); x.drawImage(src, Math.cos(ang) * len * t - w * .07, Math.sin(ang) * len * t - h * .07, w * 1.14, h * 1.14); }
+        // 흔들린 셔터는 원래 사진을 옅게 겹쳐 형태를 남겨요
+        if (st.fx === 'shutter') { x.globalAlpha = .4; x.drawImage(src, 0, 0); }
+        x.globalAlpha = 1;
+      } else if (st.fx === 'zoom') {
+        // 줌 블러: 가운데를 기준으로 조금씩 키운 사진을 겹치고, 밝은 곳은 번지게
+        const N = 14;
+        for (let i = 0; i < N; i++) { const z = 1 + i / (N - 1) * .28; x.globalAlpha = 1 / (i + 1); x.drawImage(src, (w - w * z) / 2, (h - h * z) / 2, w * z, h * z); }
+        x.globalAlpha = .35; x.globalCompositeOperation = 'screen'; x.drawImage(blurC(can, 14), 0, 0);
+        x.globalAlpha = 1; x.globalCompositeOperation = 'source-over';
+      } else x.drawImage(blurC(src, st.fx === 'heat' ? 40 : 9), 0, 0);
     } else x.drawImage(src, sx, sy, sw, sh, 0, 0, w, h);
+    if (['ghost', 'bluemon', 'heat', 'highkey', 'slitscan', 'ripple', 'fisheye'].includes(st.fx)) {
+      const img = x.getImageData(0, 0, w, h), d = img.data, ref = new Uint8ClampedArray(d), uu = Math.min(w, h) / 1200;
+      const ramp = list => { const S = list.map(hx); return t => { const k = Math.min(S.length - 2, Math.floor(t * (S.length - 1))), f = t * (S.length - 1) - k; return [0, 1, 2].map(j => S[k][j] + (S[k + 1][j] - S[k][j]) * f); }; };
+      const BLUE = ramp(['#140b08', '#1b2f9e', '#3d6bff', '#d4e0ff']), HEAT = ramp(['#5a0904', '#d42a14', '#ff7a1c', '#ffd27a']);
+      const grain = { ghost: 22, bluemon: 14, heat: 26, highkey: 8 }[st.fx] || 0;
+      const at = (X, Y) => (Math.max(0, Math.min(h - 1, Y | 0)) * w + Math.max(0, Math.min(w - 1, X | 0))) * 4;
+      // 슬릿 스캔: 높이가 제각각인 가로 띠마다 옆으로 밀고, 몇몇 띠는 한 점의 색을 길게 늘여요
+      const rowShift = new Float32Array(h), smear = new Array(h);
+      if (st.fx === 'slitscan') for (let y = 0, b = 0; y < h; b++) {
+        const bh = Math.max(1, Math.round((2 + rnd(b + 40) * 10) * uu)), s = (rnd(b + 120) - .5) * w * .4 * Math.pow(rnd(b + 80), 1.5);
+        const sm = rnd(b + 160) < .6 ? [Math.floor(rnd(b + 200) * w), Math.floor(w * (.08 + rnd(b + 240) * .45))] : null;
+        for (let k = 0; k < bh && y < h; k++, y++) { rowShift[y] = s; smear[y] = sm; }
+      }
+      const A = Math.min(w, h) * .032, lam = Math.min(w, h) * .045, ph = st.seed, R = Math.max(w, h) / 2;
+      for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+        const px = p % w, py = (p - px) / w, L = (.299 * ref[i] + .587 * ref[i + 1] + .114 * ref[i + 2]) / 255;
+        let col = null, j = -1;
+        if (st.fx === 'ghost') { const v = Math.min(1, Math.pow(L, .75) * 1.18 + .04) * 255; col = [v, v, v]; }
+        else if (st.fx === 'highkey') { const v = (.2 + (1 - Math.pow(1 - L, 2.6)) * .8) * 255; col = [v, v, v]; }
+        else if (st.fx === 'heat') col = HEAT(Math.max(0, Math.min(1, (L - .5) * 1.2 + .5)));
+        else if (st.fx === 'bluemon') {
+          // 파란 화면을 찍은 듯: 파랑 단색 + 가는 가로줄 + 가장자리 어둡게
+          const vx = px / w - .5, vy = py / h - .5, k = (py % Math.max(3, Math.round(4 * uu)) < Math.max(1, 1.5 * uu) ? .84 : 1) * (1 - (vx * vx + vy * vy) * .9);
+          col = BLUE(Math.max(0, Math.min(1, (L - .5) * 1.15 + .5))).map(v => v * k);
+        }
+        else if (st.fx === 'slitscan') { const sm = smear[py]; let sx2 = px - rowShift[py]; if (sm && px > sm[0] && px < sm[0] + sm[1]) sx2 = sm[0] - rowShift[py]; j = at(sx2, py); }
+        else if (st.fx === 'ripple') j = at(px + A * Math.sin(py / lam + ph) + A * .5 * Math.sin((px + py) / (lam * .7)), py + A * .6 * Math.cos(px / lam * 1.3 + ph));
+        else {
+          // 어안 렌즈: 가운데는 크게, 가장자리로 갈수록 눌리고 어두워져요
+          const nx = (px - w / 2) / R, ny = (py - h / 2) / R, r = Math.hypot(nx, ny), f = .48 + .52 * r * r;
+          j = at(w / 2 + nx * f * R, h / 2 + ny * f * R);
+          const dark = Math.max(0, 1 - Math.max(0, r - .6) * 1.3);
+          col = [ref[j] * dark, ref[j + 1] * dark, ref[j + 2] * dark];
+        }
+        if (j >= 0 && !col) { d[i] = ref[j]; d[i + 1] = ref[j + 1]; d[i + 2] = ref[j + 2]; d[i + 3] = ref[j + 3]; continue; }
+        if (j >= 0) d[i + 3] = ref[j + 3];
+        const n = grain ? (rnd(p % 3571) - .5) * grain : 0;
+        d[i] = col[0] + n; d[i + 1] = col[1] + n; d[i + 2] = col[2] + n;
+      }
+      x.putImageData(img, 0, 0);
+    }
     if (['gradmap', 'thermal', 'lines', 'xerox'].includes(st.fx)) {
       const img = x.getImageData(0, 0, w, h), d = img.data;
       // 그라디언트 맵: 어두운 곳→밝은 곳을 세 가지 색으로 이어 칠해요 (무작위 조합마다 색 묶음이 바뀌어요)
@@ -1747,32 +1810,117 @@ const Postcard = (() => {
     });
     return lines;
   }
+  // ---------- 특수 글씨 (레트로 줄무늬 · 리퀴드) ----------
+  // 큰 글씨만 따로 그림으로 그린 뒤 제자리에 놓아요. 같은 글씨면 다시 그리지 않고 재사용해요 (끄는 동안 버벅이지 않게)
+  const RETRO = { '1974': ['#3b0d06', ['#d8401e', '#f08a24', '#f6c531']], '민트': ['#123a35', ['#2f8f7b', '#8fd3b6', '#f3e7b0']], '팝': ['#1d1a4a', ['#e8336d', '#ff9f1c', '#2ec4b6']], '흑백': ['#111111', ['#111111', '#f1ebdf', '#111111']] };
+  let styledCache = {};
+  function styledTitle(lines, sz, inkColor, col) {
+    const key = [st.tstyle, st.retro, st.lfont, lines.join('\n'), sz, inkColor, col].join('|');
+    if (styledCache.key === key) return styledCache.v;
+    const v = st.tstyle === 'retro' ? retroTitle(lines, sz, inkColor, col) : liquidTitle(lines, sz, inkColor, col);
+    styledCache = { key, v };
+    return v;
+  }
+  // 레트로 줄무늬: 가는 선 글자를 뼈대로 띠를 겹겹이 두르고, 안쪽 층일수록 왼쪽 위로 솟게 해요 (각 층 오른쪽 아래에 그림자 선)
+  function retroTitle(lines, sz, inkColor, col) {
+    const [dark, bands] = st.retro === 'ink' ? [mix(inkColor, '#000000', .72), [inkColor, mix(inkColor, '#ffd23f', .55), mix(inkColor, '#ffffff', .6)]] : RETRO[st.retro];
+    const n = 5, B = sz * .045, S = B * .6, E = B * 2.2, gap = B * n * 2.15 + E * .4, pad = B * n + 4, lh = sz * .74 + B * n * 2 + E;
+    const font = `100 ${sz}px Jost, "Noto Sans KR", sans-serif`;
+    const mx0 = document.createElement('canvas').getContext('2d'); mx0.font = font;
+    const rows = lines.map(l => { const chars = [...l], ws = chars.map(ch => mx0.measureText(ch).width); return { chars, ws, w: ws.reduce((a, b) => a + b, 0) + gap * Math.max(0, chars.length - 1) }; });
+    const maxW = Math.max(1, ...rows.map(r => r.w)), c = document.createElement('canvas');
+    c.width = Math.ceil(maxW + pad * 2 + E); c.height = Math.ceil(rows.length * lh + sz * .12);
+    const x = c.getContext('2d'); x.font = font; x.textBaseline = 'alphabetic'; x.lineJoin = 'miter'; x.miterLimit = 2.2;
+    const each = fn => rows.forEach((r, ri) => {
+      let cx = pad + (col === 'l' ? 0 : col === 'c' ? (maxW - r.w) / 2 : maxW - r.w); const by = pad + sz * .74 + ri * lh;
+      r.chars.forEach((ch, i) => { fn(ch, cx, by); cx += r.ws[i] + gap; });
+    });
+    const stroke = (color, lw, d) => { x.strokeStyle = color; x.lineWidth = lw; each((ch, X, Y) => x.strokeText(ch, X + d, Y + d)); };
+    x.fillStyle = dark;
+    for (let t = E; t > 0; t -= Math.max(1, B * .3)) { stroke(dark, B * 2 * n + B * .5, t); each((ch, X, Y) => x.fillText(ch, X + t, Y + t)); }
+    for (let i = 0; i < n; i++) {
+      const w = B * 2 * (n - i), d = -S * i;
+      if (i) stroke(dark, w + B * .45, -S * (i - 1));
+      stroke(dark, w + B * .45, d); stroke(bands[i % bands.length], w - B * .3, d);
+    }
+    stroke(dark, B * .45, -S * (n - 1)); each((ch, X, Y) => x.fillText(ch, X - S * (n - 1), Y - S * (n - 1)));
+    stroke(dark, B * .45, -S * n); x.fillStyle = bands[n % bands.length]; each((ch, X, Y) => x.fillText(ch, X - S * n, Y - S * n));
+    return { c, w: c.width, h: c.height };
+  }
+  // 리퀴드: 둥글게 말리는 굵은 장식 글꼴을 세로로 늘이고 겹친 뒤, 흐렸다가 경계를 잘라 녹아 붙게 해요.
+  // 겹친 자리는 투명하게 뚫어서 어떤 바탕 위에서도 틈이 보여요
+  function liquidTitle(lines, sz, inkColor, col) {
+    const stretch = 1.5, over = .3, jit = .4, font = `${sz}px "${st.lfont}", "Black Han Sans", sans-serif`;
+    const mx0 = document.createElement('canvas').getContext('2d'); mx0.font = font;
+    const rows = lines.map(l => { const chars = [...l], ws = chars.map(ch => mx0.measureText(ch).width * (1 - over)); return { chars, ws, w: ws.reduce((a, b) => a + b, 0) }; });
+    const maxW = Math.max(1, ...rows.map(r => r.w)), lh = sz * stretch * .95, pad = sz * .35;
+    const W = Math.ceil(maxW + pad * 2), H = Math.ceil(rows.length * lh + pad * 1.2);
+    const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return [c, c.getContext('2d', { willReadFrequently: true })]; };
+    const [out, ox] = mk(); let n = 0;
+    rows.forEach((r, ri) => {
+      let cx = pad + (col === 'l' ? 0 : col === 'c' ? (maxW - r.w) / 2 : maxW - r.w);
+      r.chars.forEach((ch, i) => {
+        const k = 1 + (rnd(n) - .5) * .35 * jit, rot = (rnd(n + 9) - .5) * .25 * jit, dy = (rnd(n + 19) - .5) * sz * .18 * jit; n++;
+        const [L, lx] = mk(); lx.font = font; lx.textAlign = 'center'; lx.fillStyle = '#000';
+        lx.save(); lx.translate(cx + r.ws[i] / 2, pad * .6 + ri * lh + sz * .8 * stretch + dy); lx.rotate(rot); lx.scale(k, k * stretch); lx.fillText(ch, 0, 0); lx.restore();
+        cx += r.ws[i];
+        const g = blurC(L, 1 + 40 / 9), gx = g.getContext('2d', { willReadFrequently: true }), img = gx.getImageData(0, 0, W, H), d = img.data;
+        for (let j = 3; j < d.length; j += 4) d[j] = Math.max(0, Math.min(1, (d[j] - 118) / 20)) * 255;
+        gx.putImageData(img, 0, 0);
+        // 앞 글자를 테두리만큼 지우고(틈), 이 글자를 글씨 색으로 올려요
+        const rim = sz * .028;
+        ox.globalCompositeOperation = 'destination-out';
+        for (let a = 0; a < Math.PI * 2; a += Math.PI / 8) ox.drawImage(g, Math.cos(a) * rim, Math.sin(a) * rim);
+        ox.globalCompositeOperation = 'source-over';
+        const [t2, tx2] = mk(); tx2.drawImage(g, 0, 0); tx2.globalCompositeOperation = 'source-in'; tx2.fillStyle = inkColor; tx2.fillRect(0, 0, W, H);
+        ox.drawImage(t2, 0, 0);
+      });
+    });
+    return { c: out, w: W, h: H };
+  }
+
   // R 영역 안의 o.pos 자리에 제목 + 작은 글씨 + 날짜 줄을 한 덩어리로 그려요.
   // 정렬을 따로 고르면(st.align) 그쪽으로 붙이고, 끌어 옮긴 만큼(st.ox, st.oy) 더 움직여요.
   function block(x, R, o) {
     const [, , k, lh] = FONT[st.font], u = o.u;
     let t = o.title || ''; if (st.upper) t = t.toUpperCase();
     const size = Math.round(o.size * u * k * st.size), f = face(size);
+    // 글씨 색을 직접 고르면 큰 글씨와 작은 글씨에 그 색을 써요
+    const titleInk = st.tcolor || o.ink, subInk = st.tcolor || o.subInk || o.ink;
+    const pos = o.pos || 'tl', row = pos[0], col = st.align || pos[1];
+    // 특수 글씨는 줄바꿈한 대로 그림을 만들고, 영역보다 넓으면 줄여서 맞춰요
+    let sty = null;
+    if (st.tstyle !== 'plain' && t.trim()) {
+      const base = Math.round(o.size * u * st.size * (st.tstyle === 'retro' ? 1.6 : 1.3));
+      sty = styledTitle(t.split('\n').map(l => l.trim()).filter(Boolean), base, titleInk, col);
+      const kf = Math.min(1, R.w / sty.w); sty = { ...sty, dw: sty.w * kf, dh: sty.h * kf };
+    }
     x.font = f.font;
-    const lines = wrap(x, t, R.w);
+    const lines = sty ? [] : wrap(x, t, R.w);
     const subSize = Math.max(Math.round(size * .24), Math.round(26 * u)), metaSize = Math.round(21 * u);
     x.font = `400 ${subSize}px Pretendard, sans-serif`;
     const subs = o.sub ? wrap(x, o.sub, Math.min(R.w, 900 * u)) : [];
-    const titleH = lines.length ? size * .8 + (lines.length - 1) * size * lh + size * .22 : 0;
+    const titleH = sty ? sty.dh : lines.length ? size * .8 + (lines.length - 1) * size * lh + size * .22 : 0;
     const subH = subs.length ? subSize * 1.5 * subs.length + (titleH ? size * .2 : 0) : 0;
     const metaH = o.meta ? metaSize * 1.2 + ((titleH || subH) ? metaSize * 1.6 : 0) : 0;
-    const H = titleH + subH + metaH, pos = o.pos || 'tl', row = pos[0], col = st.align || pos[1];
+    const H = titleH + subH + metaH;
     let y = (row === 't' ? R.y : row === 'm' ? R.y + (R.h - H) / 2 : R.y + R.h - H) + st.oy;
     const X = (col === 'l' ? R.x : col === 'c' ? R.x + R.w / 2 : R.x + R.w) + st.ox;
-    if (o.shadow) { x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = 28 * u; }
+    if (o.shadow && !sty) { x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = 28 * u; }
     x.textAlign = col === 'l' ? 'left' : col === 'c' ? 'center' : 'right'; x.textBaseline = 'alphabetic';
     // 실제로 잉크가 묻는 범위(글자 모양 그대로)를 모아 두었다가 점선 상자와 그리드 맞춤에 써요
     let bl = Infinity, bt = Infinity, br = -Infinity, bb = -Infinity;
     const ink = (s0, X0, Y0, pad) => { const mt = x.measureText(s0); bl = Math.min(bl, X0 - mt.actualBoundingBoxLeft - pad); br = Math.max(br, X0 + mt.actualBoundingBoxRight + pad); bt = Math.min(bt, Y0 - mt.actualBoundingBoxAscent - pad); bb = Math.max(bb, Y0 + mt.actualBoundingBoxDescent + pad); };
-    x.fillStyle = o.ink; x.font = f.font;
+    if (sty) {
+      const sx = col === 'l' ? X : col === 'c' ? X - sty.dw / 2 : X - sty.dw;
+      x.drawImage(sty.c, sx, y, sty.dw, sty.dh);
+      bl = sx; br = sx + sty.dw; bt = y; bb = y + sty.dh;
+      if (o.shadow) { x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = 28 * u; }
+    }
+    x.fillStyle = titleInk; x.font = f.font;
     lines.forEach((l, i) => { const Y0 = y + size * .8 + i * size * lh; fill(x, f, l, X, Y0); ink(l, X, Y0, f.extra / 2); });
     y += titleH + (subs.length && titleH ? size * .2 : 0);
-    x.fillStyle = o.subInk || o.ink; x.font = `400 ${subSize}px Pretendard, sans-serif`;
+    x.fillStyle = subInk; x.font = `400 ${subSize}px Pretendard, sans-serif`;
     subs.forEach((l, i) => { const Y0 = y + subSize * (1.1 + i * 1.5); x.fillText(l, X, Y0); ink(l, X, Y0, 0); });
     y += subs.length ? subSize * 1.5 * subs.length : 0;
     if (o.meta) { const Y0 = y + metaH - metaSize * .2; x.fillStyle = o.muted; x.font = `${metaSize}px "JetBrains Mono", monospace`; x.fillText(o.meta, X, Y0); ink(o.meta, X, Y0, 0); }
@@ -2146,6 +2294,12 @@ const Postcard = (() => {
   function paintControls() {
     [['#pcFmt', 'fmt'], ['#pcLayout', 'layout'], ['#pcFx', 'fx'], ['#pcFont', 'font']].forEach(([id, k]) => $$('button', $(id)).forEach(b => b.classList.toggle('on', b.dataset.v === st[k])));
     $$('#pcAlign button').forEach(b => b.classList.toggle('on', b.dataset.v === st.align));
+    [['#pcTStyle', 'tstyle'], ['#pcRetro', 'retro'], ['#pcLFont', 'lfont']].forEach(([id, k]) => $$(id + ' button').forEach(b => b.classList.toggle('on', b.dataset.v === st[k])));
+    $('#pcRetro').hidden = st.tstyle !== 'retro'; $('#pcLFont').hidden = st.tstyle !== 'liquid';
+    // 글씨 색: 자동 + 자주 쓰는 색 + 이 사진에서 뽑은 색 + 직접 고르기
+    const tcs = ['#fbfaf6', '#141413', '#f1e9d8', '#d8401e', '#f08a24', '#f6c531', '#2f6fd0', '#ff4f9a', ...cols];
+    $('#pcTColor').innerHTML = `<button data-v="auto" class="auto ${st.tcolor ? '' : 'on'}" aria-label="자동">자동</button>` + tcs.map(v => `<button data-v="${v}" class="${st.tcolor === v ? 'on' : ''}" style="--c:${v}" aria-label="글씨 색 ${v}"></button>`).join('');
+    if (st.tcolor) $('#pcTPick').value = st.tcolor;
     $('#pcUpper').classList.toggle('on', st.upper);
     $('#pcSize').value = Math.round(st.size * 100); $('#pcSizeN').textContent = Math.round(st.size * 100) + '%';
     $('#pcWeight').value = st.weight; paintWeight();
@@ -2160,7 +2314,7 @@ const Postcard = (() => {
   }
   function useLayout(l) {
     const L = LAYOUT[l];
-    Object.assign(st, { layout: l, font: L.font, spot: 0, align: null, color: L.color, upper: !!L.upper, size: 1, weight: L.weight || FONT[L.font][6], ox: 0, oy: 0 });
+    Object.assign(st, { layout: l, font: L.font, spot: 0, align: null, color: L.color, upper: !!L.upper && st.tstyle !== 'liquid', size: 1, weight: L.weight || FONT[L.font][6], ox: 0, oy: 0 });
     if (st.color[0] === 'c' && !cols.length) st.color = 'cream';
   }
   api.open = p => {
@@ -2182,6 +2336,15 @@ const Postcard = (() => {
   // 같은 효과를 한 번 더 누르면 조각 배치·색 묶음이 바뀌어요
   chips('#pcFx', v => { if (v === st.fx) st.seed++; st.fx = v; });
   chips('#pcFont', v => { st.font = v; st.weight = FONT[v][6]; });
+  // 특수 글씨: 고르면 필요한 글꼴을 내려받은 뒤 다시 그려요
+  const loadStyleFonts = () => Promise.all(['100 40px Jost', '100 40px "Noto Sans KR"', '40px "Sonsie One"', '40px "Lily Script One"', '40px Pacifico', '40px "Black Han Sans"']
+    .map(fn => document.fonts.load(fn, 'Aa가19').catch(() => {}))).then(() => { styledCache = {}; if (im) draw(); });
+  // 리퀴드는 소문자가 섞여야 둥근 곡선이 살아서 대문자를 꺼요
+  chips('#pcTStyle', v => { st.tstyle = v; if (v === 'liquid') st.upper = false; if (v !== 'plain') loadStyleFonts(); });
+  chips('#pcRetro', v => { st.retro = v; });
+  chips('#pcLFont', v => { st.lfont = v; });
+  chips('#pcTColor', v => { st.tcolor = v === 'auto' ? null : v; if (st.tcolor && st.tstyle === 'retro') st.retro = 'ink'; });
+  $('#pcTPick').addEventListener('input', e => { st.tcolor = e.target.value; if (st.tstyle === 'retro') st.retro = 'ink'; paintControls(); draw(); });
   chips('#pcPos', v => { st.spot = +v; st.ox = st.oy = 0; });
   chips('#pcAlign', v => { st.align = st.align === v ? null : v; });
   $('#pcReset').onclick = () => { st.ox = st.oy = 0; st.align = null; paintControls(); draw(); };
@@ -2193,7 +2356,7 @@ const Postcard = (() => {
   $('#pcDice').onclick = () => {
     const pick = a => a[Math.floor(Math.random() * a.length)];
     useLayout(pick(Object.keys(LAYOUT).filter(l => l !== st.layout)));
-    st.fx = pick(['none', 'none', 'mono', 'duo', 'halftone', 'riso', 'poster', 'slice', 'mirror', 'pixel', 'dither', 'dreamy', 'vintage', 'invert', 'glitch', 'stencil', 'gradmap', 'thermal', 'lines', 'xerox', 'motion', 'kaleido']);
+    st.fx = pick(['none', 'none', 'ghost', 'bluemon', 'heat', 'shutter', 'zoom', 'highkey', 'slitscan', 'ripple', 'fisheye', 'mono', 'duo', 'halftone', 'riso', 'poster', 'slice', 'mirror', 'pixel', 'dither', 'dreamy', 'vintage', 'invert', 'glitch', 'stencil', 'gradmap', 'thermal', 'lines', 'xerox', 'motion', 'kaleido']);
     if (Math.random() < .5) { st.font = pick(Object.keys(FONT)); st.weight = FONT[st.font][6]; }
     st.color = pick([...Object.keys(PAPER), ...cols.map((v, i) => 'c' + i)]);
     st.seed = Math.floor(Math.random() * 1000);

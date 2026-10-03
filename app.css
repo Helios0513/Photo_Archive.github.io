@@ -765,6 +765,8 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
 .pc-swatches { display: flex; flex-wrap: wrap; gap: 8px; }
 .pc-swatches button { width: 30px; height: 30px; border-radius: 50%; background: var(--c); border: 1px solid rgba(255,255,255,.25); }
 .pc-swatches button.on { box-shadow: 0 0 0 2px #121211, 0 0 0 4px #f1eee6; }
+.pc-swatches button.auto { width: auto; padding: 0 10px; border-radius: 99px; background: none; color: #b3b0a6; font-size: 12px; }
+.pc-pick { width: 34px; height: 34px; padding: 0; border: 1px solid rgba(255,255,255,.25); border-radius: 50%; background: none; cursor: pointer; }
 .pc-actions { display: flex; gap: 8px; margin-top: 20px; }
 .pc-actions .btn { flex: 1; padding: 0 12px; }
 .pc-ctrl .btn.ghost { color: #f1eee6; border-color: rgba(255,255,255,.25); }
