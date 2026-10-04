@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Gothic+A1:wght@100;300;500;700;800;900&family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@100;300;500;600;700&family=Orbit&family=Playfair+Display:ital,wght@1,400..900&family=Fraunces:wght@100..900&family=Cormorant+Garamond:ital,wght@1,300..700&family=DM+Serif+Display&family=Syne:wght@400..800&family=Archivo+Black&family=Bebas+Neue&family=Inter+Tight:wght@100..900&family=Space+Mono:wght@400;700&family=Major+Mono+Display&family=UnifrakturMaguntia&family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..900&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@100..900&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@200..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@100..800&family=Noto+Serif+KR:wght@200..900&display=swap">
-<link rel="stylesheet" href="app.css?v=24">
+<link rel="stylesheet" href="app.css?v=25">
 <script>
   // 저장된 밝기 모드를 화면이 그려지기 전에 적용해 깜빡임을 막아요.
   try { var t = localStorage.getItem('hm-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -102,8 +102,13 @@
           <p class="pc-tip">같은 사진 효과를 한 번 더 누르면 조각 배치나 색 묶음이 바뀌어요.</p>
         </div></details>
         <details class="pc-sec" data-sec="text"><summary><span>글씨</span><em id="pcSum-text"></em></summary><div class="pc-sec-body">
-          <label class="field"><span>큰 글씨 (줄바꿈 가능)</span><textarea id="pcText" rows="2" maxlength="300"></textarea></label>
-          <label class="field"><span>작은 글씨 (선택 · 줄바꿈 가능)</span><textarea id="pcSub" rows="3" maxlength="800"></textarea></label>
+          <div class="pc-rtbar" id="pcRtBar" role="toolbar" aria-label="고른 글자만 서식 바꾸기">
+            <button type="button" data-rt="w" data-v="300" style="font-weight:300">얇게</button><button type="button" data-rt="w" data-v="400">보통</button><button type="button" data-rt="w" data-v="600" style="font-weight:600">세미볼드</button><button type="button" data-rt="w" data-v="700" style="font-weight:700">볼드</button><button type="button" data-rt="w" data-v="900" style="font-weight:900">아주 굵게</button>
+            <button type="button" data-rt="i" style="font-style:italic">기울임</button><button type="button" data-rt="s" data-v="-1">작게</button><button type="button" data-rt="s" data-v="1">크게</button><button type="button" data-rt="clear">서식 지우기</button>
+          </div>
+          <p class="pc-tip" style="margin:0 0 10px">글자를 드래그해서 고른 뒤 버튼을 누르면 그 부분만 바뀌어요. 같은 버튼으로 기울임은 켜고 끄고, 크기는 한 단계씩 바뀌어요.</p>
+          <div class="field"><span>큰 글씨 (줄바꿈 가능)</span><div class="pc-rt" id="pcText" contenteditable="true" role="textbox" aria-multiline="true" aria-label="큰 글씨" data-max="300"></div></div>
+          <div class="field"><span>작은 글씨 (선택 · 줄바꿈 가능)</span><div class="pc-rt sub" id="pcSub" contenteditable="true" role="textbox" aria-multiline="true" aria-label="작은 글씨" data-max="800"></div></div>
           <label class="field"><span>보내는 사람 (선택)</span><input id="pcFrom" maxlength="20" placeholder="예: 하미하무가"></label>
         </div></details>
         <details class="pc-sec" data-sec="font"><summary><span>글꼴</span><em id="pcSum-font"></em></summary><div class="pc-sec-body">
@@ -155,6 +160,6 @@
 <div class="toast" id="toast"></div>
 <div class="curtain" id="curtain"></div>
 
-<script src="app.js?v=24" defer></script>
+<script src="app.js?v=25" defer></script>
 </body>
 </html>

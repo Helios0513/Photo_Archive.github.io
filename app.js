@@ -1682,6 +1682,57 @@ async function publishPoster(blob, meta) {
   S.posters = [{ ...item, _local: URL.createObjectURL(blob) }, ...(S.posters || [])];
 }
 /* ---------- 전시에 올리기: 저장 방법 끝 ---------- */
+/* ---------- 서식 있는 글씨 칸: 글자를 골라 그 부분만 굵기·기울임·크기를 바꿔요 ---------- */
+// 칸 안의 글씨를 줄마다 [{t: 글자, w: 굵기, i: 기울임, s: 크기 배율}] 묶음으로 읽어요
+function rtLines(ed) {
+  const lines = [[]];
+  const walk = (node, sty) => {
+    if (node.nodeType === 3) { node.nodeValue.split('\n').forEach((part, k) => { if (k) lines.push([]); if (part) lines[lines.length - 1].push({ t: part, ...sty }); }); return; }
+    if (node.nodeName === 'BR') { lines.push([]); return; }
+    const block = node !== ed && /^(DIV|P)$/.test(node.nodeName);
+    if (block && lines[lines.length - 1].length) lines.push([]);
+    const d = node.dataset || {}, s2 = { ...sty };
+    if (d.w) s2.w = +d.w; if (d.i) s2.i = d.i === '1'; if (d.s) s2.s = +d.s;
+    node.childNodes.forEach(ch => walk(ch, s2));
+  };
+  walk(ed, {});
+  while (lines.length && !lines[lines.length - 1].length) lines.pop();
+  while (lines.length && !lines[0].length) lines.shift();
+  return lines;
+}
+const rtPlain = ed => rtLines(ed).map(l => l.map(r => r.t).join('')).join('\n').trim();
+const rtStyled = ed => !!ed.querySelector('[data-w],[data-i],[data-s]');
+// 편집 칸에서도 고른 서식이 보이게 (크기는 칸의 기본 크기에 대한 배율이라 겹쳐도 커지지 않아요)
+function rtPaint(n) {
+  const d = n.dataset;
+  n.style.fontWeight = d.w || ''; n.style.fontStyle = d.i === '1' ? 'italic' : d.i === '0' ? 'normal' : '';
+  n.style.fontSize = d.s ? `calc(var(--rt-base) * ${d.s})` : '';
+}
+const RT_SIZES = [.5, .65, .8, 1, 1.25, 1.5, 2, 2.5, 3];
+function rtApply(kind, val) {
+  const sel = getSelection(); if (!sel.rangeCount) return toast('먼저 바꿀 글자를 드래그해서 골라 주세요');
+  const rg = sel.getRangeAt(0), ed = ['#pcText', '#pcSub'].map(id => $(id)).find(e => e && e.contains(rg.commonAncestorContainer));
+  if (!ed || rg.collapsed) return toast('먼저 바꿀 글자를 드래그해서 골라 주세요');
+  // 고른 곳의 지금 서식 (기울임 켜고 끄기, 크기 한 단계씩에 써요)
+  const near = attr => { let n = rg.startContainer.nodeType === 3 ? rg.startContainer.parentElement : rg.startContainer; while (n && n !== ed) { if (n.dataset && n.dataset[attr]) return n.dataset[attr]; n = n.parentElement; } return null; };
+  const frag = rg.extractContents();
+  if (kind === 'clear') { frag.querySelectorAll('span').forEach(n => n.replaceWith(...n.childNodes)); const last = frag.lastChild; rg.insertNode(frag); if (last) { sel.removeAllRanges(); const r2 = document.createRange(); r2.setStartAfter(last); sel.addRange(r2); } }
+  else {
+    let v = val;
+    if (kind === 'i') v = near('i') === '1' ? '0' : '1';
+    if (kind === 's') { const cur = +(near('s') || 1), k = RT_SIZES.findIndex(x => x >= cur - .001); v = String(RT_SIZES[Math.max(0, Math.min(RT_SIZES.length - 1, (k < 0 ? 3 : k) + val))]); }
+    frag.querySelectorAll('[data-' + kind + ']').forEach(n => { n.removeAttribute('data-' + kind); rtPaint(n); });
+    const sp = document.createElement('span'); sp.setAttribute('data-' + kind, v); rtPaint(sp); sp.appendChild(frag); rg.insertNode(sp);
+    sel.removeAllRanges(); const r2 = document.createRange(); r2.selectNodeContents(sp); sel.addRange(r2);
+  }
+  ed.dispatchEvent(new Event('input', { bubbles: true }));
+}
+function rtInit(ed) {
+  // 엔터는 줄바꿈 한 번, 붙여넣기는 글자만 (다른 곳의 글꼴·색은 빼고)
+  ed.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); document.execCommand('insertLineBreak'); } });
+  ed.addEventListener('paste', e => { e.preventDefault(); const t = (e.clipboardData || window.clipboardData).getData('text/plain'); const room = (+ed.dataset.max || 9999) - rtPlain(ed).length; document.execCommand('insertText', false, t.slice(0, Math.max(0, room))); });
+  ed.addEventListener('beforeinput', e => { if (/^insert(Text|LineBreak|Paragraph)/.test(e.inputType) && rtPlain(ed).length >= (+ed.dataset.max || 9999)) e.preventDefault(); });
+}
 const Postcard = (() => {
   // 휴대폰 배경: 휴대폰으로 열면 그 폰의 실제 화면 픽셀 그대로, 컴퓨터에서는 아이폰 17 Pro(1206×2622)
   const PHONE = (() => {
@@ -2119,6 +2170,27 @@ const Postcard = (() => {
     });
     return lines;
   }
+  // 서식 있는 글씨를 낱말 단위로 줄에 채워요. 줄마다 가장 큰 글자에 맞춰 높이를 정해요
+  function richLayout(x, rich, base, maxW, fontOf, ls, upper) {
+    const out = [];
+    const finish = items => { while (items.length && /^\s+$/.test(items[items.length - 1].t)) items.pop(); return { items, w: items.reduce((a, m) => a + m.w, 0), sz: Math.max(base * .5, ...items.map(m => m.sz)) }; };
+    rich.forEach(runs => {
+      if (!runs.length) { out.push({ items: [], w: 0, sz: base, gap: true }); return; }
+      const toks = []; runs.forEach(r => (upper ? r.t.toUpperCase() : r.t).split(/(\s+)/).forEach(t => t && toks.push({ t, r })));
+      let cur = [], cw = 0;
+      toks.forEach(tk => {
+        const sz = Math.round(base * (tk.r.s || 1)), f = fontOf(tk.r, sz); x.font = f.font;
+        const chs = [...tk.t], w = ls ? chs.reduce((a, ch) => a + x.measureText(ch).width, 0) + ls * (tk.r.s || 1) * chs.length : x.measureText(tk.t).width;
+        const m = { t: tk.t, sz, f, w, ls: ls * (tk.r.s || 1) }, space = /^\s+$/.test(tk.t);
+        if (cur.length && !space && cw + w > maxW) { out.push(finish(cur)); cur = []; cw = 0; }
+        if (!cur.length && space) return;
+        cur.push(m); cw += w;
+      });
+      if (cur.length) out.push(finish(cur));
+    });
+    return out;
+  }
+  const richHeight = (L, lineH, first = .8, last = .22) => L.length ? L[0].sz * first + L.slice(1).reduce((a, l) => a + l.sz * lineH, 0) + L[L.length - 1].sz * last : 0;
   // R 영역 안의 o.pos 자리에 제목 + 작은 글씨 + 날짜 줄을 한 덩어리로 그려요.
   // 정렬을 따로 고르면(st.align) 그쪽으로 붙이고, 끌어 옮긴 만큼(st.ox, st.oy) 더 움직여요.
   function block(x, R, o) {
@@ -2132,12 +2204,19 @@ const Postcard = (() => {
     // 자간(글자 사이)은 글씨 크기에 대한 비율, 행간(줄 사이)은 글꼴 기본값에 곱해요
     const ls = st.track * size, LH = lh * st.lead;
     const lineW = l => ls ? [...l].reduce((a, ch) => a + x.measureText(ch).width, 0) + ls * Math.max(0, [...l].length - 1) : x.measureText(l).width;
-    const lines = wrap(x, t, R.w, lineW);
+    // 부분 서식이 있으면(굵게·기울임·크기) 서식 있는 줄로, 없으면 지금까지처럼 그려요
+    const titleFont = (r, sz) => { const [sty, fam, , , lo, hi] = FONT[st.font], want = r.w || st.weight, w = Math.max(lo, Math.min(hi, want)); return { font: `${r.i === true ? 'italic' : r.i === false ? '' : sty} ${w} ${sz}px ${fam}`, extra: want > hi ? (want - hi) / 100 * sz * .014 : 0 }; };
+    const subFont = (r, sz) => ({ font: `${r.i ? 'italic ' : ''}${r.w || 400} ${sz}px Pretendard, sans-serif`, extra: 0 });
+    const richT = o.rt && o.title === o.rtText ? richLayout(x, o.rt, size, R.w, titleFont, ls, st.upper) : null;
+    x.font = f.font;
+    const lines = richT ? [] : wrap(x, t, R.w, lineW);
     const subSize = Math.max(Math.round(size * .24), Math.round(26 * u)), metaSize = Math.round(21 * u);
     x.font = `400 ${subSize}px Pretendard, sans-serif`;
-    const subs = o.sub ? wrap(x, o.sub, Math.min(R.w, 900 * u)) : [];
-    const titleH = lines.length ? size * .8 + (lines.length - 1) * size * LH + size * .22 : 0;
-    const subH = subs.length ? subSize * 1.5 * subs.length + (titleH ? size * .2 : 0) : 0;
+    const richS = o.rs && o.sub === o.rsText ? richLayout(x, o.rs, subSize, Math.min(R.w, 900 * u), subFont, 0, false) : null;
+    x.font = `400 ${subSize}px Pretendard, sans-serif`;
+    const subs = richS ? [] : o.sub ? wrap(x, o.sub, Math.min(R.w, 900 * u)) : [];
+    const titleH = richT ? richHeight(richT, LH) : lines.length ? size * .8 + (lines.length - 1) * size * LH + size * .22 : 0;
+    const subH = richS ? richHeight(richS, 1.5, 1.1, .4) + (titleH ? size * .2 : 0) : subs.length ? subSize * 1.5 * subs.length + (titleH ? size * .2 : 0) : 0;
     const metaH = o.meta ? metaSize * 1.2 + ((titleH || subH) ? metaSize * 1.6 : 0) : 0;
     const H = titleH + subH + metaH;
     let y = (row === 't' ? R.y : row === 'm' ? R.y + (R.h - H) / 2 : R.y + R.h - H) + st.oy;
@@ -2163,9 +2242,28 @@ const Postcard = (() => {
       const sx = col === 'l' ? X : col === 'c' ? X - w / 2 : X - w, pad = f.extra / 2 + ow;
       bl = Math.min(bl, sx - pad); br = Math.max(br, sx + w + pad); bt = Math.min(bt, Y0 - mt.actualBoundingBoxAscent - pad); bb = Math.max(bb, Y0 + mt.actualBoundingBoxDescent + pad);
     });
-    y += titleH + (subs.length && titleH ? size * .2 : 0);
+    // 서식 있는 줄 그리기: 줄 시작점을 정렬에 맞춰 잡고, 낱말마다 자기 글꼴로 이어 그려요
+    const drawRich = (L, y0, lineH, first, ow0) => {
+      let Y0 = y0;
+      L.forEach((ln, i) => {
+        Y0 += i ? ln.sz * lineH : ln.sz * first;
+        if (ln.gap || !ln.items.length) return;
+        let cx = col === 'l' ? X : col === 'c' ? X - ln.w / 2 : X - ln.w;
+        const a0 = x.textAlign; x.textAlign = 'left';
+        bl = Math.min(bl, cx - ow0); br = Math.max(br, cx + ln.w + ow0); bt = Math.min(bt, Y0 - ln.sz * .8 - ow0); bb = Math.max(bb, Y0 + ln.sz * .22 + ow0);
+        ln.items.forEach(m => {
+          x.font = m.f.font;
+          if (!m.ls) { outline(m.t, cx, Y0, ow0 * m.sz / ln.sz); fill(x, m.f, m.t, cx, Y0); cx += m.w; return; }
+          for (const ch of m.t) { outline(ch, cx, Y0, ow0 * m.sz / ln.sz); fill(x, m.f, ch, cx, Y0); cx += x.measureText(ch).width + m.ls; }
+        });
+        x.textAlign = a0;
+      });
+    };
+    if (richT) { x.fillStyle = titleInk; drawRich(richT, y, LH, .8, ow); }
+    y += titleH + ((subs.length || richS) && titleH ? size * .2 : 0);
     x.fillStyle = subInk; x.font = `400 ${subSize}px Pretendard, sans-serif`;
     const sow = st.outline * subSize * .02;
+    if (richS) { drawRich(richS, y, 1.5, 1.1, sow); y += richHeight(richS, 1.5, 1.1, .4); }
     subs.forEach((l, i) => { if (!l) return; const Y0 = y + subSize * (1.1 + i * 1.5); outline(l, X, Y0, sow); x.fillText(l, X, Y0); ink(l, X, Y0, sow); });
     y += subs.length ? subSize * 1.5 * subs.length : 0;
     if (o.meta) { const Y0 = y + metaH - metaSize * .2; x.fillStyle = o.muted; x.font = `${metaSize}px "JetBrains Mono", monospace`; x.fillText(o.meta, X, Y0); ink(o.meta, X, Y0, 0); }
@@ -2214,8 +2312,11 @@ const Postcard = (() => {
     const from = $('#pcFrom').value.trim(), date = fmtDate(p.date), host = (location.hostname || 'hamihamoo.com').toUpperCase();
     const meta = [date, from ? 'FROM ' + from.toUpperCase() : ''].filter(Boolean).join('   ·   ');
     const month = p.date ? +p.date.slice(5, 7) - 1 : new Date().getMonth(), idx = S.photos.indexOf(p) + 1;
-    const title = $('#pcText').value.trim(), sub = $('#pcSub').value.trim();
-    const T = { u, title, sub, meta, ink: c.ink, muted: c.muted, size: L.size };
+    const title = rtPlain($('#pcText')), sub = rtPlain($('#pcSub'));
+    // 부분 서식이 있으면 그 정보도 함께 넘겨요 (글씨가 바뀌지 않은 경우에만 쓰여요)
+    const rt = rtStyled($('#pcText')) ? rtLines($('#pcText')) : null, rs = rtStyled($('#pcSub')) ? rtLines($('#pcSub')) : null;
+    if (rt) ensureRich(rt); if (rs) ensureRich(rs, true);
+    const T = { rt, rtText: title, rs, rsText: sub, u, title, sub, meta, ink: c.ink, muted: c.muted, size: L.size };
     const grad = (y0, y1, a) => { const g = x.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, `rgba(0,0,0,${a})`); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, Math.min(y0, y1), W, Math.abs(y1 - y0)); };
     // 사진 위에 올리는 글씨: 고른 색(검정이면 검정, 아니면 밝은 색) + 그림자
     const lightInk = st.color === 'black' ? '#141413' : (lum(c.bg) > .55 ? c.bg : '#fbfaf6');
@@ -2589,6 +2690,15 @@ const Postcard = (() => {
   }
   // 고른 글꼴의 한글·영문 글자를 내려받은 뒤 한 번 더 그려요
   const seenFaces = new Set();
+  const richSeen = new Set();
+  function ensureRich(L, sub) {
+    const [sty, fam] = FONT[st.font];
+    L.flat().forEach(r => {
+      const spec = sub ? `${r.i ? 'italic ' : ''}${r.w || 400} 40px Pretendard` : `${r.i === true ? 'italic' : r.i === false ? '' : sty} ${r.w || st.weight} 40px ${fam}`;
+      if (richSeen.has(spec)) return; richSeen.add(spec);
+      document.fonts.load(spec, r.t + 'Aa가').then(fs => { if (fs.length && im) draw(); }).catch(() => {});
+    });
+  }
   function ensureFont(text) {
     document.fonts.load(face(40).font, (text || '') + 'Aa가').then(fs => {
       const fresh = fs.filter(f => !seenFaces.has(f)); fresh.forEach(f => seenFaces.add(f));
@@ -2681,7 +2791,7 @@ const Postcard = (() => {
     sum('fmt', fmtLabel() + ' · 사진 ' + Math.round(st.zoom * 100) + '%');
     sum('layout', label('layout', st.layout));
     sum('fx', label('fx', st.fx));
-    sum('text', ($('#pcText').value.trim().split('\n')[0] || '(비어 있음)'));
+    sum('text', (rtPlain($('#pcText')).split('\n')[0] || '(비어 있음)') + (rtStyled($('#pcText')) || rtStyled($('#pcSub')) ? ' · 부분 서식' : ''));
     sum('font', label('font', st.font) + ' · ' + Math.round(st.size * 100) + '% · ' + st.weight + (st.track ? ' · 자간 ' + Math.round(st.track * 100) : ''));
     sum('pos', st.ox || st.oy ? '직접 옮김' : '추천 ' + (st.spot % Math.max(1, (st.spots || []).length) + 1) + '번');
     sum('color', (st.tcolor ? '글씨 ' + st.tcolor : '글씨 자동') + (st.outline ? ' · 테두리' : '') + ' · 바탕 ' + st.color);
@@ -2728,7 +2838,7 @@ const Postcard = (() => {
     st.p = p; el.hidden = false; im = null; cache = {}; pop = {};
     useLayout('full');
     Object.assign(st, { ratio: 'orig', orient: 'p', fx: 'none', zoom: 1, cx: .5, cy: .5, calYear: null, calMonth: null });
-    $('#pcText').value = ''; $('#pcSub').value = '';
+    $('#pcText').innerHTML = ''; $('#pcSub').innerHTML = '';
     const i = new Image();
     i.onload = () => {
       im = i; cols = photoColors(); if (st.color[0] === 'c' && !cols[+st.color.slice(1)]) st.color = 'cream';
@@ -2768,6 +2878,10 @@ const Postcard = (() => {
   $('#pcOutAuto').onclick = () => { st.ocolor = null; paintControls(); draw(); };
   $('#pcWeight').addEventListener('input', e => { st.weight = +e.target.value; paintWeight(); draw(); });
   $('#pcSize').addEventListener('input', e => { st.size = e.target.value / 100; $('#pcSizeN').textContent = e.target.value + '%'; draw(); });
+  ['#pcText', '#pcSub'].forEach(id => rtInit($(id)));
+  // 버튼을 눌러도 고른 글자가 풀리지 않게, 누르는 순간의 기본 동작(포커스 이동)을 막아요
+  $('#pcRtBar').addEventListener('mousedown', e => { if (e.target.closest('button')) e.preventDefault(); });
+  $('#pcRtBar').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; rtApply(b.dataset.rt, b.dataset.rt === 's' ? +b.dataset.v : b.dataset.v); });
   ['#pcText', '#pcSub', '#pcFrom'].forEach(id => $(id).addEventListener('input', () => { draw(); paintSummary(); }));
   $('#pcDice').onclick = () => {
     const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -2891,7 +3005,7 @@ const Postcard = (() => {
       const ox = o.getContext('2d'); ox.fillStyle = '#f1e9d8'; ox.fillRect(0, 0, o.width, o.height); ox.drawImage(cv, 0, 0, o.width, o.height);
       const blob = await new Promise(r => o.toBlob(r, 'image/jpeg', .88));
       const d = new Date(), date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-      await publishPoster(blob, { photo: st.p.filename, title: $('#pcText').value.trim().split('\n')[0], layout: st.layout, fmt: fmtKey(), date, w: o.width, h: o.height });
+      await publishPoster(blob, { photo: st.p.filename, title: rtPlain($('#pcText')).split('\n')[0], layout: st.layout, fmt: fmtKey(), date, w: o.width, h: o.height });
       toast('전시(Projects › Prints)에 올렸어요 · 1~2분 뒤 홈페이지에도 반영돼요', 4200);
     } catch (err) { console.error(err); toast('올리지 못했어요: ' + err.message, 6000); paintAdmin(); }
     finally { b.disabled = false; b.innerHTML = label; }
