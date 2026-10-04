@@ -1153,3 +1153,18 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
 .lb-pal-names { display: block; margin-top: 6px; color: #8d897d; font-size: 10.5px; text-transform: none; letter-spacing: 0; }
 .m-pal { align-self: center; height: 12px; }
 .q-pal { height: 18px; margin-top: 8px; }
+
+/* 관리: 프린트 · 전시 · 달력 목록 */
+.wk-sec { margin-bottom: 16px; }
+.wk-sec h3 { margin: 0 0 4px; }
+.wk-sub { font-size: 12.5px; margin: 0 0 12px; }
+.wk-row { display: grid; grid-template-columns: 84px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.wk-img { width: 84px; height: 60px; border-radius: 6px; overflow: hidden; background: var(--bg-2); }
+.wk-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wk-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.wk-main b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wk-title { width: 100%; max-width: 420px; background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; color: var(--ink); font: inherit; }
+.wk-title:focus { outline: none; border-color: var(--ink-2); }
+.wk-act { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 720px) { .wk-row { grid-template-columns: 64px minmax(0, 1fr); } .wk-img { width: 64px; height: 46px; } .wk-act { grid-column: 1 / -1; justify-content: flex-start; } }
+.cm-editing { margin: 0 0 10px; padding: 10px 14px; border: 1px solid var(--accent); border-radius: 10px; font-size: 13.5px; }

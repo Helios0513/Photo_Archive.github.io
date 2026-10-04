@@ -911,6 +911,10 @@ const CAL_FRONT = { side: '사진 왼쪽', right: '사진 오른쪽', bottom: '�
 const CAL_BACK = { full: '꽉 찬 사진', frame: '액자', large: '사진 크게 + 정보', split: '반반 + 글귀', triptych: '세 폭', circle: '원형', arch: '아치 창', type: '숫자 속 사진', memo: '사진 + 메모', palette: '사진 + 색 구성', polaroid: '폴라로이드', note: '메모장' };
 const CAL_COVER = { frame: '액자', full: '꽉 찬 사진', side: '옆 사진', center: '가운데 사진', arch: '아치 창', triptych: '세 폭', polaroid: '폴라로이드', type: '사진 든 연도' };
 const CAL_END = { grid: '열두 장 모음', year: '한 해 달력', film: '필름 띠', circles: '열두 개의 원', single: '사진 한 장', palette: '한 해의 색', colophon: '맺음말 · 목록' };
+// 표지 뒷면(첫 장을 넘기면 보이는 면) · 뒷표지 뒷면(달력 맨 바깥 면): 다른 장과 겹치지 않는 구도
+const CAL_COVERB = { intro: '서문 + 사진', contents: '열두 달 목차', quote: '큰 글귀', photo: '작은 사진 한 장', owner: '이 달력의 주인', dates: '기억할 날' };
+const CAL_ENDB = { imprint: '판권 면', brand: '로고 · 주소', postcard: '엽서 뒷면', strip: '가로 사진 띠', nextyear: '다음 해 미리 보기' };
+const CAL_COVERB_TEXT = '열두 달, 열두 장의 사진.\n지나간 날들을 한 장씩 넘겨 보세요.';
 // 장마다 켜고 끌 수 있는 것
 const CAL_SHOW = { photo: '사진', info: '사진 정보', quote: '글귀', memo: '메모 줄', palette: '색', next: '다음 달' };
 const CAL_COVER_SHOW = { year: '연도', title: '제목', sub: '한 줄 문구', months: '열두 달 목록', brand: 'HAMIHAMOO' };
@@ -923,6 +927,8 @@ const CAL_RECT = {
   back: { full: [0, 0, CAL_W, CAL_H], frame: [190, 230, CAL_W - 380, 1220], large: [0, 0, 1660, CAL_H], split: [1240, 0, 1240, CAL_H], triptych: [70, 220, 2340, 1180], circle: [90, 290, 1300, 1300], arch: [150, 220, 1000, 1458], type: [0, 0, CAL_W, CAL_H], memo: [0, 0, CAL_W, 900], palette: [0, 0, 1560, CAL_H], polaroid: [0, 0, 1000, 1000], note: [70, 200, 600, 420] },
   cover: { frame: [70, 200, CAL_W - 140, 1060], full: [0, 0, CAL_W, CAL_H], side: [0, 0, 1320, CAL_H], center: [CAL_W / 2 - 470, 300, 940, 940], arch: [CAL_W / 2 - 380, 240, 760, 1000], triptych: [70, 240, 2340, 900], polaroid: [0, 0, 1000, 1000], type: [0, 0, CAL_W, CAL_H] },
   end: { grid: null, year: null, film: null, circles: null, single: [0, 0, CAL_W, CAL_H], palette: null, colophon: null },
+  coverb: { intro: [1460, 200, 950, 1478], contents: null, quote: [CAL_W / 2 - 150, 250, 300, 300], photo: [CAL_W / 2 - 450, 270, 900, 1060], owner: null, dates: null },
+  endb: { imprint: null, brand: null, postcard: [CAL_W - 70 - 340, 250, 300, 380], strip: [0, 560, CAL_W, 620], nextyear: null },
 };
 // 예전 이름으로 저장된 달력도 열 수 있게
 const CAL_OLD_FRONT = { split: 'side', mirror: 'right', band: 'side', full: 'side', strip: 'side', top: 'side', poster: 'corner', focus: 'planner', circle: 'side', polaroid: 'side' };
@@ -939,6 +945,10 @@ function calFix(cal) {
   cal.end = Object.assign({ layout: 'grid', photo: null, edit: null, note: '' }, cal.end || {});
   if (!CAL_END[cal.end.layout]) cal.end.layout = 'grid';
   cal.end.show = Object.assign({ title: true, note: true, labels: true, site: true }, cal.end.show || {});
+  cal.coverB = Object.assign({ layout: 'intro', photo: null, edit: null, text: CAL_COVERB_TEXT }, cal.coverB || {});
+  if (!CAL_COVERB[cal.coverB.layout]) cal.coverB.layout = 'intro';
+  cal.endB = Object.assign({ layout: 'imprint', photo: null, edit: null, text: '' }, cal.endB || {});
+  if (!CAL_ENDB[cal.endB.layout]) cal.endB.layout = 'imprint';
   cal.months.forEach(it => {
     if (!CAL_FRONT[it.layout]) it.layout = CAL_OLD_FRONT[it.layout] || 'side';
     it.back = Object.assign(calBackDefault(), it.back || {}); it.back.show = Object.assign(calBackDefault().show, it.back.show || {});
@@ -1024,19 +1034,26 @@ function calGrid(x, X, Y, w, h, y, m, T, hol, o = {}) {
 
 // ---------- 한 장 그리기 ----------
 // page: {k: 'cover' | 'front' | 'back' | 'end', m}. W 너비로 그려요 (높이는 탁상 달력 비율)
-function calPages() { return [{ k: 'cover' }, ...Array.from({ length: 12 }, (_, m) => [{ k: 'front', m }, { k: 'back', m }]).flat(), { k: 'end' }]; }
-const calPageName = pg => pg.k === 'cover' ? '표지' : pg.k === 'end' ? '뒷표지' : `${pg.m + 1}월 ${pg.k === 'front' ? '앞면' : '뒷면'}`;
+// 종이 한 장 = 앞쪽 면 + 그 뒤쪽 면. 뒤쪽 면(back · coverb · endb)은 넘겨 보기에서 뒤집어서 봐요
+function calPages() { return [{ k: 'cover' }, { k: 'coverb' }, ...Array.from({ length: 12 }, (_, m) => [{ k: 'front', m }, { k: 'back', m }]).flat(), { k: 'end' }, { k: 'endb' }]; }
+const CAL_FLIP = { front: 'back', cover: 'coverb', end: 'endb' }, CAL_UNFLIP = { back: 'front', coverb: 'cover', endb: 'end' };
+const calIsBack = k => !!CAL_UNFLIP[k];
+const calPageName = pg => pg.k === 'cover' ? '표지' : pg.k === 'coverb' ? '표지 뒷면' : pg.k === 'end' ? '뒷표지' : pg.k === 'endb' ? '뒷표지 뒷면' : `${pg.m + 1}월 ${pg.k === 'front' ? '앞면' : '뒷면'}`;
 // 이 장에 쓰는 사진 · 편집 그림 열쇠 · 설정 묶음 · 사진 칸
-const calKey = pg => pg.k === 'cover' ? 'c' : pg.k === 'end' ? 'e' : pg.k === 'back' ? 'b' + pg.m : pg.m;
+const calKey = pg => pg.k === 'cover' ? 'c' : pg.k === 'coverb' ? 'cb' : pg.k === 'end' ? 'e' : pg.k === 'endb' ? 'eb' : pg.k === 'back' ? 'b' + pg.m : pg.m;
 function calPhotoOf(cal, pg) {
   if (pg.k === 'cover') return cal.cover.photo;
+  if (pg.k === 'coverb') return cal.coverB.photo || cal.cover.photo;
   if (pg.k === 'end') return cal.end.photo || cal.months[11].photo;
+  if (pg.k === 'endb') return cal.endB.photo || cal.end.photo || cal.months[11].photo;
   const it = cal.months[pg.m]; if (!it) return null;
   return pg.k === 'back' ? (it.back.photo || it.photo) : it.photo;
 }
-function calEditOf(cal, pg) { return pg.k === 'cover' ? cal.cover : pg.k === 'end' ? cal.end : pg.k === 'front' ? cal.months[pg.m] : cal.months[pg.m].back; }
+function calEditOf(cal, pg) { return pg.k === 'cover' ? cal.cover : pg.k === 'coverb' ? cal.coverB : pg.k === 'end' ? cal.end : pg.k === 'endb' ? cal.endB : pg.k === 'front' ? cal.months[pg.m] : cal.months[pg.m].back; }
 function calRectOf(cal, pg) {
   if (pg.k === 'cover') return CAL_RECT.cover[cal.cover.layout];
+  if (pg.k === 'coverb') return CAL_RECT.coverb[cal.coverB.layout];
+  if (pg.k === 'endb') return CAL_RECT.endb[cal.endB.layout];
   if (pg.k === 'end') return CAL_RECT.end[cal.end.layout];
   if (pg.k === 'front') return CAL_RECT.front[cal.months[pg.m].layout];
   const b = cal.months[pg.m].back; return b.show.photo ? CAL_RECT.back[b.layout] : null;
@@ -1265,6 +1282,126 @@ function calDraw(cal, pg, W, art, imgs, ext) {
       if (P.length) band(SX, SB - 30, 600, 12, false);
       foot();
     }
+  } else if (pg.k === 'coverb') {
+    // ---------- 표지 뒷면: 첫 장을 넘기면 보이는 면 ----------
+    const o = cal.coverB, L = o.layout, R = CAL_RECT.coverb[L], txt = (o.text || '').trim(), tt = title || 'A Year in Photographs';
+    const para = (t, X, Y, w, px, maxL, col = T.ink, align, sty = '') => { calFont(x, px, CF.serif, sty); const L2 = calWrap(x, t, w).slice(0, maxL); L2.forEach((l, i) => l && calText(x, l, X, Y + i * px * 1.4, { px, fam: CF.serif, sty, color: col, align })); return L2.length * px * 1.4; };
+    if (L === 'intro') {
+      // 서문: 왼쪽에 제목과 글, 오른쪽에 세로로 긴 사진
+      photo(R);
+      const w = R[0] - 140 - SX;
+      calText(x, `PREFACE  —  ${y}`, SX, SY + 40, { px: 22, color: T.muted, track: 5 });
+      calFont(x, 96, CF.serif, 'italic'); const tl = calWrap(x, tt, w).slice(0, 2);
+      tl.forEach((l, i) => calText(x, l, SX, SY + 180 + i * 104, { px: 96, fam: CF.serif, sty: 'italic', color: T.ink }));
+      const t0 = SY + 180 + tl.length * 104 + 40;
+      x.fillStyle = T.ink; x.fillRect(SX, t0, 120, 3);
+      para(txt, SX, t0 + 100, w, 40, 13);
+      calText(x, host, SX, SB, { px: 20, color: T.muted, track: 5 });
+      if (cap) calText(x, cap.toUpperCase(), R[0] - 60, SB, { px: 18, color: T.muted, align: 'right', track: 3 });
+    } else if (L === 'contents') {
+      // 목차: 열두 달 사진을 작게, 달 이름과 글귀 첫 줄
+      calText(x, tt, SX, SY + 110, { px: 90, fam: CF.serif, sty: 'italic', color: T.ink });
+      calText(x, `CONTENTS  —  ${y}`, SR, SY + 110, { px: 22, color: T.muted, align: 'right', track: 5 });
+      x.fillStyle = T.line; x.fillRect(SX, SY + 160, SW, 2);
+      const top = SY + 210, rh = (SB - top) / 6, cw = (SW - 100) / 2;
+      cal.months.forEach((it, i) => {
+        const X = SX + (i >= 6 ? cw + 100 : 0), Y = top + rh * (i % 6), ph = rh - 34, pw = ph * 1.5, npx = Math.min(110, ph * .7);
+        monthPic(i, [X, Y, pw, ph]);
+        big(pad(i + 1), X + pw + 36, Y + ph * .7, npx);
+        const nx = X + pw + 36 + numW(pad(i + 1), T.num === 'mono' ? npx * .8 : npx) + 30, maxW = X + cw - nx;
+        calText(x, CAL_MON[i], nx, Y + ph * .42, { px: 44, fam: CF.serif, sty: 'italic', color: T.ink });
+        const line = (it.quote || '').split('\n')[0].trim() || info(S.byName.get(it.photo)).join('  ·  ');
+        if (line) { calFont(x, 22, CF.sans); let s = line; while (s.length > 2 && x.measureText(s + '…').width > maxW) s = s.slice(0, -1); calText(x, s === line ? s : s + '…', nx, Y + ph * .42 + 52, { px: 22, fam: CF.sans, color: T.muted }); }
+      });
+    } else if (L === 'quote') {
+      // 큰 글귀: 위에 작은 원형 사진, 가운데에 글
+      shaped('circle', R);
+      calFont(x, 76, CF.serif, 'italic'); const ql = calWrap(x, txt || tt, 1700).slice(0, 6), lh = 76 * 1.3, from = R[1] + R[3] + 160;
+      const y0 = from + 76 + Math.max(0, (SB - 120 - from - ql.length * lh) / 2);
+      ql.forEach((l, i) => l && calText(x, l, W0 / 2, y0 + i * lh, { px: 76, fam: CF.serif, sty: 'italic', color: T.ink, align: 'center' }));
+      calText(x, `—  ${title ? title + ',  ' : ''}${y}`, W0 / 2, SB - 20, { px: 22, color: T.muted, align: 'center', track: 4 });
+    } else if (L === 'photo') {
+      // 작은 사진 한 장: 넉넉한 여백 가운데 사진, 아래에 짧은 글
+      photo(R);
+      let yy = R[1] + R[3] + 100;
+      if (txt) yy += para(txt, W0 / 2, yy, 1600, 42, 2, T.ink, 'center', 'italic');
+      if (cap) calText(x, cap.toUpperCase(), W0 / 2, Math.min(yy + 10, SB), { px: 20, color: T.muted, align: 'center', track: 4 });
+    } else if (L === 'owner') {
+      // 이 달력의 주인: 이름 · 연락처를 적는 줄
+      calText(x, 'THIS CALENDAR BELONGS TO', W0 / 2, SY + 230, { px: 26, color: T.muted, align: 'center', track: 8 });
+      const X = W0 / 2 - 700, w = 1400;
+      x.fillStyle = T.ink; x.fillRect(X, SY + 460, w, 3);
+      [['PHONE', SY + 640], ['E-MAIL', SY + 790]].forEach(([l, Y]) => { calText(x, l, X, Y - 20, { px: 18, color: T.muted, track: 4 }); x.fillStyle = T.line; x.fillRect(X + 180, Y, w - 180, 2); });
+      if (txt) para(txt, W0 / 2, SY + 930, 1400, 34, 2, T.muted, 'center', 'italic');
+      big(String(y), W0 / 2, SB, 300, T.line, 'center');
+    } else {
+      // 기억할 날: 달마다 생일·기념일을 적는 칸
+      calText(x, 'Dates to remember', SX, SY + 110, { px: 90, fam: CF.serif, sty: 'italic', color: T.ink });
+      calText(x, `${y}${title ? '  ·  ' + title.toUpperCase() : ''}`, SR, SY + 110, { px: 22, color: T.muted, align: 'right', track: 5 });
+      const top = SY + 200, gx = 40, gy = 50, cw = (SW - gx * 5) / 6, ch = (SB - top - gy) / 2;
+      for (let i = 0; i < 12; i++) {
+        const X = SX + (cw + gx) * (i % 6), Y = top + (ch + gy) * Math.floor(i / 6);
+        big(pad(i + 1), X, Y + 80, 80);
+        calText(x, CAL_MON[i].toUpperCase(), X + cw, Y + 74, { px: 18, color: T.muted, align: 'right', track: 3 });
+        lines(X, Y + 160, cw, Math.floor((ch - 160) / 70) + 1);
+      }
+    }
+  } else if (pg.k === 'endb') {
+    // ---------- 뒷표지 뒷면: 달력을 세워 두면 맨 바깥에 보이는 면 ----------
+    const o = cal.endB, L = o.layout, R = CAL_RECT.endb[L], txt = (o.text || '').trim(), tt = title || 'Desk Calendar';
+    if (L === 'imprint') {
+      // 판권 면: 아래 왼쪽에 만든 정보를 작게, 오른쪽에 장식 바코드
+      calText(x, String(y), SR, SY + 40, { px: 22, color: T.muted, align: 'right', track: 5 });
+      const rows = [tt, `${y}  Desk Calendar`, `Photographs — ${host}`, `12 photographs · ${calPages().length} pages`, 'Format — 210 × 148 mm', 'hamihamoo.com'], Y = SB - (rows.length - 1) * 44;
+      if (txt) { calFont(x, 32, CF.serif, 'italic'); const tl = calWrap(x, txt, 1100).slice(0, 4); tl.forEach((l, i) => l && calText(x, l, SX, Y - 110 - (tl.length - 1 - i) * 46, { px: 32, fam: CF.serif, sty: 'italic', color: T.ink })); }
+      rows.forEach((r, i) => calText(x, r, SX, Y + i * 44, i ? { px: 20, color: T.muted, track: 2 } : { px: 34, fam: CF.serif, sty: 'italic', color: T.ink }));
+      // 연도·제목으로 늘 같은 무늬가 나와요
+      let s = 7; for (const ch of String(y) + tt) s = (s * 31 + ch.charCodeAt(0)) >>> 0;
+      const bx = SR - 400, by = SB - 220; let cx = bx; x.fillStyle = T.ink;
+      while (true) { s = (s * 1103515245 + 12345) >>> 0; const bw = 3 + (s >>> 16) % 4 * 3; if (cx + bw > SR) break; if ((s >>> 8) % 3) x.fillRect(cx, by, bw, 160); cx += bw + 4 + (s >>> 4) % 3 * 2; }
+      calText(x, `HM — ${y}`, bx, SB, { px: 20, color: T.ink, track: 6 });
+    } else if (L === 'brand') {
+      // 로고 · 주소: 가운데에 작게, 나머지는 비워 둬요
+      calText(x, S.site.brandMark || 'h.', W0 / 2, H / 2 + 40, { px: 220, fam: CF.serif, sty: 'italic', color: T.ink, align: 'center' });
+      calText(x, host, W0 / 2, H / 2 + 160, { px: 30, color: T.ink, align: 'center', track: 16 });
+      if (txt) wrapQ(txt, W0 / 2, H / 2 + 280, 1400, 32, 2, T.muted, 'center');
+      calText(x, `DESK CALENDAR ${y}  ·  HAMIHAMOO.COM`, W0 / 2, SB, { px: 20, color: T.muted, align: 'center', track: 5 });
+    } else if (L === 'postcard') {
+      // 엽서 뒷면: 왼쪽은 글, 오른쪽은 우표 자리와 주소 줄
+      calText(x, 'Post Card', SX, SY + 80, { px: 64, fam: CF.serif, sty: 'italic', color: T.ink });
+      calText(x, `${host}  ·  ${y}`, SX, SY + 130, { px: 18, color: T.muted, track: 4 });
+      const mid = Math.round(W0 * .56); x.fillStyle = T.line; x.fillRect(mid, SY + 200, 2, SB - SY - 260);
+      x.fillStyle = T.muted; for (let k = -14; k < R[2] + 14; k += 18) { x.fillRect(R[0] + k, R[1] - 16, 10, 2); x.fillRect(R[0] + k, R[1] + R[3] + 14, 10, 2); }
+      for (let k = -14; k < R[3] + 14; k += 18) { x.fillRect(R[0] - 16, R[1] + k, 2, 10); x.fillRect(R[0] + R[2] + 14, R[1] + k, 2, 10); }
+      photo(R);
+      if (txt) { calFont(x, 44, CF.serif, 'italic'); calWrap(x, txt, mid - SX - 100).slice(0, 13).forEach((l, i) => l && calText(x, l, SX, SY + 300 + i * 66, { px: 44, fam: CF.serif, sty: 'italic', color: T.ink })); }
+      else lines(SX, SY + 330, mid - SX - 100, 9, 120);
+      const ax = mid + 100;
+      calText(x, 'TO.', ax, SB - 560, { px: 22, color: T.muted, track: 4 });
+      lines(ax, SB - 450, SR - ax, 4, 130);
+      if (cap) calText(x, cap.toUpperCase(), SR, R[1] + R[3] + 70, { px: 16, color: T.muted, align: 'right', track: 3 });
+    } else if (L === 'strip') {
+      // 가로 사진 띠: 가운데를 가로지르는 사진, 위에 제목
+      photo(R);
+      calText(x, tt, SX, R[1] - 90, { px: 96, fam: CF.serif, sty: 'italic', color: T.ink });
+      calText(x, String(y), SR, R[1] - 90, { px: 26, color: T.muted, align: 'right', track: 6 });
+      if (cap) calText(x, cap.toUpperCase(), SR, R[1] + R[3] + 60, { px: 18, color: T.muted, align: 'right', track: 3 });
+      if (txt) wrapQ(txt, SX, R[1] + R[3] + 110, 1500, 34, 2, T.ink);
+      calText(x, 'HAMIHAMOO.COM', SR, SB, { px: 22, color: T.muted, align: 'right', track: 5 });
+    } else {
+      // 다음 해 미리 보기: 내년 열두 달을 작은 달력으로
+      const ny = y + 1, nh = Holidays.year(ny);
+      big(String(ny), SX - 8, SY + 300, 300);
+      calText(x, 'SEE YOU NEXT YEAR', SX, SY + 380, { px: 24, color: T.muted, track: 6 });
+      if (txt) wrapQ(txt, SX, SY + 500, 600, 34, 6, T.ink);
+      const X0 = SX + 760, gx = 40, gy = 40, cw = (SR - X0 - gx * 3) / 4, ch = (SB - SY - gy * 2) / 3;
+      for (let i = 0; i < 12; i++) {
+        const X = X0 + (cw + gx) * (i % 4), Y = SY + (ch + gy) * Math.floor(i / 4);
+        calText(x, `${pad(i + 1)}  ${CAL_MON[i].toUpperCase()}`, X, Y + 24, { px: 18, color: T.ink, track: 3 });
+        calGrid(x, X, Y + 40, cw, ch - 40, ny, i, T, nh, { center: true, short: true, hs: 15, num: Math.min(26, cw / 13), noNames: true, head: 40, rule: 1 });
+      }
+      calText(x, 'HAMIHAMOO.COM', SX, SB, { px: 20, color: T.muted, track: 5 });
+    }
   } else if (pg.k === 'cover') {
     // ---------- 표지 ----------
     const co = cal.cover, sh = co.show, L = co.layout, R = CAL_RECT.cover[L], sub = sh.sub ? (co.sub || '').trim() : '';
@@ -1471,12 +1608,12 @@ function renderCalendars(view) {
   }
 }
 const calSrc = (c, pg) => pg._local || S.posterBase + pg.file;
-const calFileName = (c, pg, i) => `hamihamoo-calendar-${c.year}-${pad(i, 2)}-${pg.k === 'cover' ? 'cover' : pg.k === 'end' ? 'backcover' : pad(pg.m + 1) + '-' + CAL_MON[pg.m].slice(0, 3).toLowerCase() + '-' + pg.k}.jpg`;
+const calFileName = (c, pg, i) => `hamihamoo-calendar-${c.year}-${pad(i, 2)}-${({ cover: 'cover', coverb: 'cover-back', end: 'backcover', endb: 'backcover-back' })[pg.k] || pad(pg.m + 1) + '-' + CAL_MON[pg.m].slice(0, 3).toLowerCase() + '-' + pg.k}.jpg`;
 
 // ---------- 넘겨 보기: 한 장씩 넘기고, 달마다 앞·뒤를 뒤집어 봐요 ----------
 function openCalendar(c) {
   const pages = c.pages, stops = [];
-  pages.forEach((pg, i) => { if (pg.k !== 'back') stops.push(i); });
+  pages.forEach((pg, i) => { if (!calIsBack(pg.k)) stops.push(i); });
   let prep = null; // 편집용 파일을 만들 때 한 번만 준비해요
   let s = 0, back = false;
   const el = document.createElement('div'); el.className = 'pview cal-view';
@@ -1487,7 +1624,7 @@ function openCalendar(c) {
   document.body.appendChild(el); document.body.classList.add('locked');
   const sheet = $('.cal-sheet', el), cap = $('figcaption', el), [fi, bi] = $$('.cal-face img', el);
   const show = anim => {
-    const i = stops[s], pg = pages[i], hasBack = pages[i + 1] && pages[i + 1].k === 'back';
+    const i = stops[s], pg = pages[i], hasBack = pages[i + 1] && calIsBack(pages[i + 1].k);
     if (!hasBack) back = false;
     fi.src = calSrc(c, pg); if (hasBack) bi.src = calSrc(c, pages[i + 1]);
     sheet.classList.toggle('flipped', back);
@@ -1664,13 +1801,15 @@ function renderCalMaker(view) {
   if (!cal || !Array.isArray(cal.months) || cal.months.length !== 12 || !cal.months.every(it => S.byName.get(it.photo)) || !S.byName.get(cal.cover && cal.cover.photo)) cal = calNew();
   calFix(cal);
   const art = new Map(), imgs = new Map(), pages = calPages();
+  let editing = (S.calendars || []).find(c => c.id === store.get('hm-cal-edit', null)) || null;
   let cur = 0, alive = true, guide = store.get('hm-cal-guide', true);
   pageCleanup.push(() => { alive = false; });
   const save = () => store.set('hm-cal-draft', cal);
   view.innerHTML = `<section class="page cal-make">
     <div class="page-head">
       <div><div class="page-kicker mono"><a href="#/calendars" class="faint">← Calendars</a></div><h1 class="page-title split">${splitChars('New calendar')}</h1></div>
-      <p class="page-sub">탁상 달력(가로) 한 권: 표지, 열두 달 앞·뒷면, 뒷표지. 장마다 구도를 고르거나 모든 달에 한 번에 적용할 수 있어요. 만드는 중인 달력은 이 기기에 저장돼요.</p>
+      ${editing ? `<p class="cm-editing" id="cmEditing"><b>「${esc(editing.title || editing.year)}」 달력을 고치는 중</b> · 올리면 원래 달력이 이 버전으로 바뀌어요 <button class="pc-link" id="cmEditOff">새 달력으로 만들기</button></p>` : ''}
+      <p class="page-sub">탁상 달력(가로) 한 권: 표지와 그 뒷면, 열두 달 앞·뒷면, 뒷표지와 그 뒷면. 장마다 구도를 고르거나 모든 달에 한 번에 적용할 수 있어요. 만드는 중인 달력은 이 기기에 저장돼요.</p>
     </div>
     <div class="cm-top">
       <label class="field"><span>제목</span><input id="cmTitle" maxlength="40" placeholder="예: 연기처럼 지나간 날들"></label>
@@ -1688,13 +1827,13 @@ function renderCalMaker(view) {
       <div class="cm-dl" id="cmDl">
         <button class="btn" id="cmDlBtn" aria-expanded="false" aria-controls="cmDlMenu">내려받기 <span class="arrow">▾</span></button>
         <div class="cm-dl-menu" id="cmDlMenu" hidden>
-          <button id="cmDown"><b>이미지 묶음 (JPG)</b><small>26장 · 폰, SNS</small></button>
+          <button id="cmDown"><b>이미지 묶음 (JPG)</b><small>28장 · 폰, SNS</small></button>
           <button id="cmPdf"><b>인쇄용 PDF</b><small>한 파일 · 인쇄소, 프린터</small></button>
           <button id="cmSvg"><b>편집용 SVG (전체)</b><small>일러스트레이터, 피그마</small></button>
           <button id="cmPsd"><b>포토샵 PSD (지금 보는 면)</b><small>레이어로 나뉜 한 면</small></button>
         </div>
       </div>
-      <button class="btn" id="cmPublish" hidden>전시에 올리기 <span class="arrow">↗</span></button>
+      <button class="btn" id="cmPublish" hidden>${editing ? '고친 달력 올리기' : '전시에 올리기'} <span class="arrow">↗</span></button>
       <button class="pc-link" id="cmReset">처음부터 다시</button>
     </div>
   </section>`;
@@ -1703,7 +1842,7 @@ function renderCalMaker(view) {
   const idx = (k, m) => pages.findIndex(q => q.k === k && (m == null || q.m === m));
 
   async function ensureImgs() {
-    const need = [cal.cover, cal.end, ...cal.months, ...cal.months.map(it => it.back)].map(it => it.photo && S.byName.get(it.photo)).filter(p => p && !imgs.has(p.filename));
+    const need = [cal.cover, cal.coverB, cal.end, cal.endB, ...cal.months, ...cal.months.map(it => it.back)].map(it => it.photo && S.byName.get(it.photo)).filter(p => p && !imgs.has(p.filename));
     await Promise.all(need.map(p => calImg(p).then(i => imgs.set(p.filename, i)).catch(() => {})));
   }
   // 편집기로 다듬은 칸은 저장된 설정으로 다시 그려 둬요. 구도를 바꿔 칸 크기가 달라지면 새 크기로 다시
@@ -1730,20 +1869,21 @@ function renderCalMaker(view) {
       paintStrip();
     });
   }
-  // 위 줄: 표지 · 1~12월(위 앞면, 아래 뒷면) · 뒷표지
+  // 위 줄: 표지 · 1~12월 · 뒷표지 (위 앞쪽 면, 아래 뒤쪽 면)
   function paintStrip() {
     strip.innerHTML = '';
     const thumb = i => { const b = document.createElement('button'); b.className = 'cm-thumb' + (i === cur ? ' on' : ''); b.dataset.i = i; b.title = calPageName(pages[i]); b.appendChild(calDraw(cal, pages[i], 240, art, imgs)); return b; };
     const col = (label, ...is) => { const d = document.createElement('div'); d.className = 'cm-col'; is.forEach(i => d.appendChild(thumb(i))); const l = document.createElement('span'); l.className = 'mono'; l.textContent = label; d.appendChild(l); strip.appendChild(d); };
-    col('표지', 0);
+    col('표지', idx('cover'), idx('coverb'));
     for (let m = 0; m < 12; m++) col(`${m + 1}월`, idx('front', m), idx('back', m));
-    col('뒷표지', pages.length - 1);
+    col('뒷표지', idx('end'), idx('endb'));
   }
   const pills = (map, on, attr) => `<div class="pc-chips cm-pills">${Object.entries(map).map(([k, t]) => `<button class="pill${k === on ? ' on' : ''}" ${attr}="${k}">${t}</button>`).join('')}</div>`;
   function paintSide() {
     const q = pg(), y = cal.year, it = calEditOf(cal, q), fn = calPhotoOf(cal, q), p = fn && S.byName.get(fn);
     const flip = $('#cmFlip', view);
-    flip.innerHTML = (q.m != null ? `<div class="seg" id="cmFace"><span class="seg-ind"></span><button data-v="front" class="${q.k === 'front' ? 'on' : ''}">앞면</button><button data-v="back" class="${q.k === 'back' ? 'on' : ''}">뒷면</button></div>` : '') + `<label class="cm-guide"><input type="checkbox" id="cmGuide" ${guide ? 'checked' : ''}> 안전 영역 보기 <span class="faint">(화면에만 보여요)</span></label>`;
+    const fk = CAL_UNFLIP[q.k] || q.k;
+    flip.innerHTML = `<div class="seg" id="cmFace"><span class="seg-ind"></span><button data-v="${fk}" class="${calIsBack(q.k) ? '' : 'on'}">앞면</button><button data-v="${CAL_FLIP[fk]}" class="${calIsBack(q.k) ? 'on' : ''}">뒷면</button></div>` + `<label class="cm-guide"><input type="checkbox" id="cmGuide" ${guide ? 'checked' : ''}> 안전 영역 보기 <span class="faint">(화면에만 보여요)</span></label>`;
     if ($('#cmFace', view)) requestAnimationFrame(() => syncSeg($('#cmFace', view)));
     const R0 = calRectOf(cal, q);
     const photoBox = (extra = '') => p && R0 ? `<div class="cm-photo"><img src="${esc(thumbUrl(p))}" alt=""><div><span class="mono faint">${esc(fmtDate(p.date))}</span><span class="cm-state">${it.edit ? '편집기로 다듬음' : '원본 그대로'}</span></div></div>
@@ -1764,7 +1904,13 @@ function renderCalMaker(view) {
       <div class="mono faint pc-l">보여 줄 것</div>${toggles(CAL_END_SHOW, cal.end.show, 'data-eshow')}
       <label class="field" style="margin-top:12px"><span>맺음말</span><textarea id="cmNote" maxlength="400" rows="3" placeholder="한 해를 마치며 남기는 말">${esc(cal.end.note || '')}</textarea></label>
       ${R0 ? '<div class="mono faint pc-l">사진 (기본은 12월 사진)</div>' + photoBox(cal.end.photo ? '<button class="pill" id="cmSame">12월 사진으로</button>' : '') : '<p class="faint">이 구도는 열두 달 사진으로 채워져요.</p>'}`;
-    else if (q.k === 'front') {
+    else if (q.k === 'coverb' || q.k === 'endb') {
+      const cb = q.k === 'coverb', map = cb ? CAL_COVERB : CAL_ENDB;
+      h += `<div class="mono faint pc-l">${cb ? '표지 뒷면' : '뒷표지 뒷면'} 구도</div>${pills(map, it.layout, 'data-inner')}
+      <p class="faint" style="font-size:12px;margin:6px 0 0">${cb ? '첫 장을 넘기면 보이는 면이에요.' : '달력을 세워 두면 맨 바깥(뒤쪽)에 보이는 면이에요.'}</p>
+      <label class="field" style="margin-top:12px"><span>글 (구도에 따라 서문 · 글귀 · 엽서 글 · 한 줄 메모로 쓰여요)</span><textarea id="cmInner" maxlength="400" rows="4" placeholder="${cb ? '예: 한 해 동안 찍은 열두 장의 사진' : '예: 내년에 또 만나요'}">${esc(it.text || '')}</textarea></label>
+      ${R0 ? `<div class="mono faint pc-l">사진 (기본은 ${cb ? '표지' : '뒷표지'} 사진)</div>` + photoBox(it.photo ? `<button class="pill" id="cmSame">${cb ? '표지' : '뒷표지'} 사진으로</button>` : '') : `<p class="faint">${it.layout === 'contents' ? '이 구도는 열두 달 사진으로 채워져요.' : '이 구도에는 사진 칸이 없어요.'}</p>`}`;
+    } else if (q.k === 'front') {
       const holMap = Holidays.year(y), mHol = Object.entries(holMap).filter(([d]) => +d.slice(5, 7) === q.m + 1).sort();
       const extra = (cal.extra || []).filter(e => +e.d.slice(5, 7) === q.m + 1);
       h += `<div class="mono faint pc-l">앞면 구도</div>${pills(CAL_FRONT, it.layout, 'data-front')}<button class="pc-link cm-all" id="cmAllFront">이 구도를 모든 달에 적용</button>
@@ -1816,6 +1962,7 @@ function renderCalMaker(view) {
     if (lay('[data-front]', b => { it.layout = b.dataset.front; })) return;
     if (lay('[data-back]', b => { it.layout = b.dataset.back; })) return;
     if (lay('[data-end]', b => { cal.end.layout = b.dataset.end; })) return;
+    if (lay('[data-inner]', b => { it.layout = b.dataset.inner; })) return;
     if (lay('[data-tyf]', b => { cal.cover.type.font = b.dataset.tyf; tyFont(); })) return;
     if (lay('[data-tya]', b => { cal.cover.type.align = b.dataset.tya; })) return;
     if (lay('[data-cshow]', b => { const k = b.dataset.cshow; cal.cover.show[k] = !cal.cover.show[k]; })) return;
@@ -1841,7 +1988,7 @@ function renderCalMaker(view) {
     if (id === 'cmTyW') { ty.weight = v; $('#cmTyWN', view).textContent = v; tyFont(); }
     else if (id === 'cmTyS') { ty.size = v; $('#cmTySN', view).textContent = v + '%'; }
     else if (id === 'cmTyV') { ty.v = v; $('#cmTyVN', view).textContent = v === 0 ? '맨 위' : v === 100 ? '맨 아래' : v; }
-    else if (id === 'cmQuote') cal.months[pg().m].quote = e.target.value; else if (id === 'cmSub') cal.cover.sub = e.target.value; else if (id === 'cmNote') cal.end.note = e.target.value; else return;
+    else if (id === 'cmQuote') cal.months[pg().m].quote = e.target.value; else if (id === 'cmSub') cal.cover.sub = e.target.value; else if (id === 'cmNote') cal.end.note = e.target.value; else if (id === 'cmInner') calEditOf(cal, pg()).text = e.target.value; else return;
     save(); paint();
   });
   view.addEventListener('change', e => { if (e.target.id === 'cmGuide') { guide = e.target.checked; store.set('hm-cal-guide', guide); paint(); } });
@@ -1850,7 +1997,9 @@ function renderCalMaker(view) {
     const d = $('#cmAddD', view).value, n = $('#cmAddN', view).value.trim(); if (!d || !n) return;
     (cal.extra = cal.extra || []).push({ d, n }); save(); refresh(); toast(`${+d.slice(5, 7)}월 ${+d.slice(8)}일을 쉬는 날로 넣었어요`);
   });
-  $('#cmReset', view).onclick = async () => { if (!confirm('지금 만든 달력을 지우고 새로 시작할까요?')) return; cal = calFix(calNew()); art.clear(); save(); tEl.value = ''; yEl.value = cal.year; paintPaper(); cur = 0; await ensureImgs(); refresh(); };
+  function editOff() { editing = null; store.set('hm-cal-edit', null); const n = $('#cmEditing', view); if (n) n.remove(); $('#cmPublish', view).innerHTML = '전시에 올리기 <span class="arrow">↗</span>'; }
+  if ($('#cmEditOff', view)) $('#cmEditOff', view).onclick = () => { editOff(); toast('이제 올리면 새 달력으로 더해져요'); };
+  $('#cmReset', view).onclick = async () => { if (!confirm('지금 만든 달력을 지우고 새로 시작할까요?')) return; editOff(); cal = calFix(calNew()); art.clear(); save(); tEl.value = ''; yEl.value = cal.year; paintPaper(); cur = 0; await ensureImgs(); refresh(); };
 
   // 한 권을 다 그려요 (내려받기·넘겨 보기·전시용). 네 장씩 함께 그려서 기다리는 시간을 줄여요
   let progress = null;
@@ -1888,12 +2037,14 @@ function renderCalMaker(view) {
     openCalendar({ title: cal.title, year: cal.year, pages: out.map(p2 => ({ k: p2.k, m: p2.m, _local: URL.createObjectURL(p2.blob) })) });
   });
   const pubBtn = $('#cmPublish', view); pubBtn.hidden = !Studio.authed;
+  let published = false;
   pubBtn.onclick = e => busy(e.currentTarget, '올리는 중…', async () => {
     const out = await renderAll(2000, .86), d = new Date();
     // recipe: 나중에 편집 가능한 파일(SVG·PSD 등)로 다시 그릴 수 있게 달력 설정도 함께 저장해요
-    await publishCalendar(out, { title: cal.title.trim(), year: cal.year, paper: cal.paper, recipe: JSON.parse(JSON.stringify(cal)), date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`, w: 2000, h: Math.round(2000 * CAL_H / CAL_W) });
-    toast('전시(Projects › Calendars)에 올렸어요 · 1~2분 뒤 홈페이지에도 반영돼요', 4200);
-  });
+    await publishCalendar(out, { title: cal.title.trim(), year: cal.year, paper: cal.paper, recipe: JSON.parse(JSON.stringify(cal)), date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`, w: 2000, h: Math.round(2000 * CAL_H / CAL_W) }, editing && editing.id);
+    toast(editing ? '달력을 새 버전으로 바꿨어요 · 1~2분 뒤 홈페이지에도 반영돼요' : '전시(Projects › Calendars)에 올렸어요 · 1~2분 뒤 홈페이지에도 반영돼요', 4200);
+    published = true;
+  }).then(() => { if (published && editing) editOff(); published = false; });
 
   // 처음 그리기: 글꼴·사진 → 화면 → 다듬은 칸 → 음력 공휴일이 오면 한 번 더
   (async () => {
@@ -2985,8 +3136,14 @@ async function publishPoster(blob, meta) {
   await updateJson('posters.json', d => [item, ...(Array.isArray(d) ? d : [])], `Add poster: ${meta.title || name}`);
   S.posters = [{ ...item, _local: URL.createObjectURL(blob) }, ...(S.posters || [])];
 }
-// 달력: 26장을 images/calendars/<id>/에 올리고, calendars.json 맨 앞에 추가해요
-async function publishCalendar(pages, meta) {
+// 저장소의 파일 하나 지우기 (없으면 그냥 넘어가요)
+async function deleteFile(path) {
+  const f = await gh(path); if (!f) return;
+  await gh(path, { method: 'DELETE', body: JSON.stringify({ message: `Delete ${path}`, sha: f.sha }) });
+}
+// 달력: 모든 장을 images/calendars/<id>/에 올리고, calendars.json 맨 앞에 추가해요
+// replaceId가 있으면(다시 편집) 그 달력 자리에 새 버전을 넣고, 예전 그림 파일은 지워요
+async function publishCalendar(pages, meta, replaceId) {
   const id = `${meta.year}-${Date.now().toString(36)}`, out = [];
   for (let i = 0; i < pages.length; i++) {
     const pg = pages[i], file = `images/calendars/${id}/${String(i).padStart(2, '0')}.jpg`;
@@ -2994,8 +3151,34 @@ async function publishCalendar(pages, meta) {
     out.push({ k: pg.k, ...(pg.m != null ? { m: pg.m } : {}), file });
   }
   const item = { ...meta, id, pages: out };
-  await updateJson('calendars.json', d => [item, ...(Array.isArray(d) ? d : [])], `Add calendar: ${meta.title || id}`);
-  S.calendars = [{ ...item, pages: out.map((p, i) => ({ ...p, _local: URL.createObjectURL(pages[i].blob) })) }, ...(S.calendars || [])];
+  let old = null;
+  await updateJson('calendars.json', d => {
+    const a = Array.isArray(d) ? d : [], i = replaceId ? a.findIndex(c => c.id === replaceId) : -1;
+    if (i >= 0) { old = a[i]; a[i] = item; return a; }
+    return [item, ...a];
+  }, `${replaceId ? 'Update' : 'Add'} calendar: ${meta.title || id}`);
+  const local = { ...item, pages: out.map((p, i) => ({ ...p, _local: URL.createObjectURL(pages[i].blob) })) }, a = S.calendars || [];
+  S.calendars = a.some(c => c.id === replaceId) ? a.map(c => c.id === replaceId ? local : c) : [local, ...a];
+  if (old) for (const p of old.pages || []) await deleteFile(p.file).catch(e => console.warn('예전 달력 그림 삭제 실패', p.file, e));
+}
+async function updateCalendar(c, patch) {
+  await updateJson('calendars.json', d => (Array.isArray(d) ? d : []).map(q => q.id === c.id ? { ...q, ...patch } : q), `Edit calendar: ${patch.title || c.id}`);
+  Object.assign(c, patch);
+}
+async function deleteCalendar(c) {
+  await updateJson('calendars.json', d => (Array.isArray(d) ? d : []).filter(q => q.id !== c.id), `Remove calendar: ${c.title || c.id}`);
+  S.calendars = (S.calendars || []).filter(q => q.id !== c.id);
+  for (const p of c.pages || []) await deleteFile(p.file).catch(e => console.warn('달력 그림 삭제 실패', p.file, e));
+}
+// 프린트: posters.json에서 file로 찾아요
+async function updatePoster(p, patch) {
+  await updateJson('posters.json', d => (Array.isArray(d) ? d : []).map(q => q.file === p.file ? { ...q, ...patch } : q), `Edit poster: ${patch.title || p.file}`);
+  Object.assign(p, patch);
+}
+async function deletePoster(p) {
+  await updateJson('posters.json', d => (Array.isArray(d) ? d : []).filter(q => q.file !== p.file), `Remove poster: ${p.title || p.file}`);
+  S.posters = (S.posters || []).filter(q => q.file !== p.file);
+  await deleteFile(p.file).catch(e => console.warn('포스터 그림 삭제 실패', p.file, e));
 }
 // 전시: 사진은 이미 저장소에 있어서 exhibitions.json만 고쳐요 (새 전시는 맨 앞, 고친 전시는 제자리)
 async function publishExhibition(ex) {
@@ -4565,7 +4748,7 @@ function renderStudio(view) {
     });
     return;
   }
-  const TABS = [['upload', '사진 올리기'], ['photos', '사진 관리'], ['featured', '대표작'], ['projects', '프로젝트'], ['settings', '사이트 문구']];
+  const TABS = [['upload', '사진 올리기'], ['photos', '사진 관리'], ['featured', '대표작'], ['projects', '프로젝트'], ['works', '프린트 · 전시 · 달력'], ['settings', '사이트 문구']];
   view.innerHTML = `<section class="studio">
     <div class="st-head"><div><div class="mono accent" style="margin-bottom:10px">( Studio )</div><h1>Manage the archive</h1></div>
       <div style="display:flex;gap:14px;align-items:center"><span class="mono faint">${S.photos.length} photos · ${S.projects.length} projects</span><button class="pill" id="stLogout">나가기</button></div></div>
@@ -4575,7 +4758,7 @@ function renderStudio(view) {
   $('#stTabs', view).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; Studio.tab = b.dataset.t; renderStudio(view); wireImages(view); observeReveal(view); });
   $('#stLogout', view).onclick = () => { setToken(''); Studio.authed = false; render(); };
   const body = $('#stBody', view);
-  ({ upload: stUpload, photos: stPhotos, featured: stFeatured, projects: stProjects, settings: stSettings })[Studio.tab](body, view);
+  ({ upload: stUpload, photos: stPhotos, featured: stFeatured, projects: stProjects, works: stWorks, settings: stSettings })[Studio.tab](body, view);
 }
 
 
@@ -4883,7 +5066,44 @@ function stProjects(body) {
   paint();
 }
 
-/* 5) 사이트 문구 */
+/* 5) 프린트 · 전시 · 달력: 제목 고치기, 다시 편집, 삭제 */
+function stWorks(body) {
+  const posters = [...(S.posters || [])].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const exs = [...(S.exhibitions || [])].sort((a, b) => (b.from || '').localeCompare(a.from || ''));
+  const cals = [...(S.calendars || [])].sort((a, b) => (+b.year - +a.year) || (b.date || '').localeCompare(a.date || ''));
+  const row = (kind, i, img, main, meta, extra = '') => `<div class="wk-row" data-kind="${kind}" data-i="${i}">
+      <div class="wk-img">${img ? `<img src="${esc(img)}" alt="" loading="lazy">` : ''}</div>
+      <div class="wk-main">${main}<span class="mono faint">${meta}</span></div>
+      <div class="wk-act">${extra}<button class="link-danger" data-act="del">삭제</button></div></div>`;
+  const titleIn = v => `<input class="wk-title" maxlength="80" value="${esc(v || '')}" placeholder="제목 없음" aria-label="제목">`;
+  const sec = (h, n, list, sub) => `<div class="fx-box wk-sec"><h3>${h} <span class="mono faint">${n}</span></h3><p class="faint wk-sub">${sub}</p>${list || '<div class="empty">아직 없어요</div>'}</div>`;
+  body.innerHTML = sec('Prints', posters.length, posters.map((p, i) => row('poster', i, p._local || S.posterBase + p.file, titleIn(p.title), esc(fmtDate(p.date)), '<button class="btn small ghost" data-act="save">제목 저장</button>')).join(''), '제목을 고치거나 지울 수 있어요. 그림 자체를 바꾸려면 엽서 창에서 새로 만들어 올려 주세요.')
+    + sec('Exhibitions', exs.length, exs.map((ex, i) => { const c = exCover(ex); return row('ex', i, c && thumbUrl(c), `<b>${esc(ex.title)}</b>`, `${esc(exPeriod(ex))} · ${exWorks(ex).length}점`, `<a class="btn small ghost" href="#/exhibitions/${encodeURIComponent(ex.id)}/edit">수정</a>`); }).join(''), '수정을 누르면 기획 화면에서 글 · 방 · 작품을 고칠 수 있어요. 삭제해도 사진은 지워지지 않아요.')
+    + sec('Calendars', cals.length, cals.map((c, i) => row('cal', i, calSrc(c, c.pages[0]), titleIn(c.title), `${esc(c.year)} · ${c.pages.length}쪽`, `<button class="btn small ghost" data-act="save">제목 저장</button>${c.recipe ? '<button class="btn small ghost" data-act="edit">다시 편집</button>' : ''}`)).join(''), '다시 편집: 만들기 화면에서 고친 뒤 올리면 원래 달력이 새 버전으로 바뀌어요.');
+  wireImages(body);
+  const run = async (btn, msg, fn) => {
+    const h = btn.innerHTML; btn.disabled = true; btn.textContent = '저장 중…';
+    try { await fn(); toast(msg + ' · 1~2분 뒤 홈페이지에 반영돼요', 3800); stWorks(body); }
+    catch (err) { console.error(err); toast('저장하지 못했어요: ' + err.message, 6000); if (btn.isConnected) { btn.disabled = false; btn.innerHTML = h; } }
+  };
+  body.onclick = e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const r = b.closest('.wk-row'), kind = r.dataset.kind, item = (kind === 'poster' ? posters : kind === 'ex' ? exs : cals)[+r.dataset.i];
+    const t = $('.wk-title', r), tv = t ? t.value.trim() : '';
+    if (b.dataset.act === 'save') return run(b, '제목을 고쳤어요', () => kind === 'poster' ? updatePoster(item, { title: tv }) : updateCalendar(item, { title: tv, ...(item.recipe ? { recipe: { ...item.recipe, title: tv } } : {}) }));
+    if (b.dataset.act === 'edit') {
+      if (!confirm('이 달력을 만들기 화면으로 불러올까요? 지금 만들던 달력이 있다면 바뀌어요.')) return;
+      store.set('hm-cal-draft', calFix(JSON.parse(JSON.stringify(item.recipe)))); store.set('hm-cal-edit', item.id); location.hash = '#/calendars/new'; return;
+    }
+    if (b.dataset.act === 'del') {
+      const what = { poster: '이 프린트를', ex: '이 전시를', cal: '이 달력을' }[kind];
+      if (!confirm(`${what} 삭제할까요? 되돌릴 수 없어요.${kind === 'ex' ? ' (사진은 지워지지 않아요)' : ''}`)) return;
+      run(b, '삭제했어요', () => kind === 'poster' ? deletePoster(item) : kind === 'ex' ? unpublishExhibition(item.id) : deleteCalendar(item));
+    }
+  };
+}
+
+/* 6) 사이트 문구 */
 function stSettings(body) {
   const F = [
     ['h', '이름과 로고'], ['brandMark', '로고 글자'], ['brandName', '사이트 이름'], ['brandSubtitle', '이름 아래 작은 글씨'],
