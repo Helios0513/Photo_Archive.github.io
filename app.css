@@ -782,20 +782,21 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
 /* 엽서·포스터 */
 .pc-modal { position: absolute; inset: 0; z-index: 10; background: rgba(5,5,4,.82); backdrop-filter: blur(10px); display: grid; place-items: center; padding: 24px; }
 .pc-modal[hidden] { display: none; }
-.pc-panel { position: relative; width: min(1320px, 100%); max-height: 100%; overflow: auto; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 22px; background: #121211; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 22px; color: #f1eee6; }
+/* 창 크기는 항상 같게: 묶음을 펼쳐도 커지지 않고, 오른쪽 조작판만 안에서 스크롤돼요 */
+.pc-panel { position: relative; width: min(1320px, 100%); height: min(100%, 760px); overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: minmax(0, 1fr); gap: 22px; background: #121211; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 22px; color: #f1eee6; }
 .pc-close { position: absolute; top: 10px; right: 10px; color: #f1eee6; z-index: 2; }
-.pc-stage { display: grid; place-items: center; min-height: 460px; border-radius: 12px; background: radial-gradient(circle at 50% 40%, #262622, #0b0b0a 70%); padding: 26px; perspective: 1200px; }
+.pc-stage { display: grid; place-items: center; min-height: 0; border-radius: 12px; background: radial-gradient(circle at 50% 40%, #262622, #0b0b0a 70%); padding: 26px; perspective: 1200px; }
 /* 미리보기는 캔버스로 바로 그리고, 위에 투명한 이미지를 겹쳐 휴대폰에서 길게 눌러 저장할 수 있게 해요 */
 .pc-sheet { position: relative; max-width: 100%; display: grid; justify-items: center; transform: rotateX(4deg) rotateZ(-1.5deg); touch-action: none; cursor: grab; }
 .pc-sheet.dragging { cursor: grabbing; }
 .pc-sheet.panning { cursor: move; }
-.pc-sheet canvas { display: block; max-width: 100%; max-height: 72vh; width: auto; height: auto; border-radius: 3px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.8); }
+.pc-sheet canvas { display: block; max-width: 100%; max-height: min(calc(100vh - 150px), 640px); width: auto; height: auto; border-radius: 3px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.8); }
 .pc-sheet img { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; -webkit-touch-callout: default; user-select: auto; }
 .pc-sheet.flip { animation: pcIn .5s var(--ease); }
 @keyframes pcIn { from { transform: rotateX(4deg) rotateZ(-1.5deg) rotateY(-60deg); opacity: 0; } }
 .pc-hint { margin: 12px 0 0; font-size: 12px; line-height: 1.6; color: #8d897d; }
 @media (hover: hover) and (pointer: fine) { .pc-hint { display: none; } }
-.pc-ctrl { max-height: calc(100vh - 92px); overflow-y: auto; padding-right: 4px; }
+.pc-ctrl { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 6px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
 .pc-ctrl h3 { margin: 6px 0 14px; font-family: var(--f-display); font-weight: 400; font-size: 36px; }
 .pc-ctrl h3 em { color: #8d897d; font-size: .62em; }
 .pc-l { margin: 14px 0 8px; }
@@ -884,7 +885,7 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
   .lb-note-bar #lbNoteName { width: 88px; }
   .lb-subs { bottom: 64px; padding: 0 14px; }
   .lb-subs span { font-size: 12.5px; }
-  .pc-panel { grid-template-columns: 1fr; }
+  .pc-panel { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; max-height: 100%; overflow: auto; }
   .pc-stage { min-height: 300px; padding: 16px; }
   .pc-sheet canvas { max-height: 56vh; }
   .pc-ctrl { max-height: none; overflow: visible; }
