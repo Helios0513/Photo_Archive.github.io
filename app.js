@@ -142,10 +142,10 @@ async function loadJson(name, fallback) {
   catch (e) { return fallback; }
 }
 async function loadData() {
-  const [photos, projects, site, profile, posters, calendars] = await Promise.all([
-    loadJson('photos.json', []), loadJson('projects.json', []), loadJson('site.json', {}), loadJson('profile.json', {}), loadJson('posters.json', []), loadJson('calendars.json', []),
+  const [photos, projects, site, profile, posters, calendars, exhibitions] = await Promise.all([
+    loadJson('photos.json', []), loadJson('projects.json', []), loadJson('site.json', {}), loadJson('profile.json', {}), loadJson('posters.json', []), loadJson('calendars.json', []), loadJson('exhibitions.json', []),
   ]);
-  S.site = site; S.profile = profile; S.projects = projects; S.posters = posters; S.posterBase = DATA_BASE; S.calendars = calendars;
+  S.site = site; S.profile = profile; S.projects = projects; S.posters = posters; S.posterBase = DATA_BASE; S.calendars = calendars; S.exhibitions = exhibitions;
   S.photos = photos
     .filter(p => p && p.filename)
     .map(({ location, ...p }) => p) // 위치 정보는 쓰지 않아요
@@ -282,6 +282,11 @@ const ROUTES = [
   [/^\/?$/, 'home', renderHome],
   [/^\/projects\/?$/, 'projects', renderProjects],
   [/^\/prints\/?$/, 'projects', renderPrints],
+  [/^\/exhibitions\/?$/, 'projects', renderExhibitions],
+  [/^\/exhibitions\/new\/?$/, 'projects', v => renderExEditor(v, null)],
+  [/^\/exhibitions\/preview\/?$/, 'projects', v => renderExhibition(v, null, S._exDraft)],
+  [/^\/exhibitions\/([^/]+)\/edit\/?$/, 'projects', renderExEditor],
+  [/^\/exhibitions\/([^/]+)\/?$/, 'projects', renderExhibition],
   [/^\/calendars\/new\/?$/, 'projects', renderCalMaker],
   [/^\/calendars\/?$/, 'projects', renderCalendars],
   [/^\/projects\/(.+)$/, 'projects', renderProject],
@@ -309,6 +314,8 @@ function render() {
     scrollTo(0, 0);
     r.fn(view, ...r.args);
     wireImages(view); observeReveal(view);
+    // 작업물 탭이 옆으로 밀리는 휴대폰에서는 지금 고른 탭이 보이게
+    const tabOn = $(".ptabs a.on", view); if (tabOn && tabOn.parentNode.scrollWidth > tabOn.parentNode.clientWidth) tabOn.parentNode.scrollLeft = tabOn.offsetLeft - 16;
     setDock(r.name);
     onScroll();
   };
@@ -692,9 +699,10 @@ function renderProjects(view) {
    Projects / Prints 공용 머리말: 사진 묶음(Series)과 엽서·포스터(Prints)를 탭으로 나눠요
    ============================================================ */
 function worksHead(tab, n) {
-  const series = S.projects.filter(pr => projectPhotos(pr).length).length, prints = (S.posters || []).length, cals = (S.calendars || []).length;
+  const series = S.projects.filter(pr => projectPhotos(pr).length).length, prints = (S.posters || []).length, cals = (S.calendars || []).length, exs = (S.exhibitions || []).length;
   const t = tab === 'series'
     ? ['Projects', `( ${pad(n)} series )`, '장소와 계절, 하나의 주제로 엮은 사진 묶음이에요. 제목 위에 마우스를 올려 표지를 미리 보세요.']
+    : tab === 'exhibitions' ? ['Exhibitions', `( ${pad(n)} exhibitions )`, '여러 시리즈에서 골라 주제로 엮은 전시예요. 입구부터 출구까지, 한 점씩 천천히 걸어 보세요.']
     : tab === 'prints' ? ['Prints', `( ${pad(n)} prints )`, '아카이브의 사진으로 만든 엽서와 포스터예요. 누르면 크게 보고, 원본 사진으로도 갈 수 있어요.']
     : ['Calendars', `( ${pad(n)} calendars )`, '열두 달 사진으로 엮은 탁상 달력이에요. 한 장씩 넘겨 보고, 뒤집어 뒷면도 보고, 내려받을 수 있어요.'];
   return `<div class="page-head">
@@ -703,6 +711,7 @@ function worksHead(tab, n) {
     </div>
     <nav class="ptabs" aria-label="작업물 종류">
       <a href="#/projects" class="${tab === 'series' ? 'on' : ''}">Series <sup class="mono">${pad(series)}</sup><small>사진 묶음</small></a>
+      <a href="#/exhibitions" class="${tab === 'exhibitions' ? 'on' : ''}">Exhibitions <sup class="mono">${pad(exs)}</sup><small>주제 전시</small></a>
       <a href="#/prints" class="${tab === 'prints' ? 'on' : ''}">Prints <sup class="mono">${pad(prints)}</sup><small>엽서 · 포스터</small></a>
       <a href="#/calendars" class="${tab === 'calendars' ? 'on' : ''}">Calendars <sup class="mono">${pad(cals)}</sup><small>탁상 달력</small></a>
     </nav>`;
@@ -1914,6 +1923,223 @@ function pickPhoto(month, done) {
   });
 }
 
+/* ============================================================
+   Exhibitions: 여러 시리즈에서 골라 주제로 엮는 전시
+   Series = 한 번의 여행 기록 전부 / Exhibitions = 골라낸 몇 점을 방·글·라벨로 엮은 작품
+   ============================================================ */
+const EX_WALL = { light: '밝은 벽', dark: '어두운 벽', concrete: '콘크리트' };
+const exWorks = ex => (ex.rooms || []).flatMap(r => (r.works || []).filter(w => S.byName.get(w.f)));
+const exCover = ex => S.byName.get(ex.cover) || S.byName.get((exWorks(ex)[0] || {}).f);
+const exPeriod = ex => `${fmtDate(ex.from)} —${ex.to ? ' ' + fmtDate(ex.to) : ''}`;
+// 이 전시에 걸린 사진들이 어느 시리즈에서 왔는지 (시리즈를 넘나든다는 게 보이게)
+const exSeries = ex => [...new Set(exWorks(ex).flatMap(w => (S.photoProjects.get(w.f) || []).map(pr => pr.title)))];
+const exNo = ex => pad([...(S.exhibitions || [])].sort((a, b) => (a.created || '').localeCompare(b.created || '')).findIndex(e => e.id === ex.id) + 1 || 1);
+
+// ---------- 목록: Projects › Exhibitions ----------
+function renderExhibitions(view) {
+  const all = [...(S.exhibitions || [])].sort((a, b) => (b.from || '').localeCompare(a.from || ''));
+  const card = (ex, i) => {
+    const c = exCover(ex), works = exWorks(ex), series = exSeries(ex);
+    return `<a class="ex-card rv" href="#/exhibitions/${encodeURIComponent(ex.id)}" style="--d:${(i % 6) * 60}ms">
+      <div class="ex-poster ph-frame" data-wall="${esc(ex.wall || 'light')}">${c ? `<img src="${esc(imgUrl(c))}" alt="" loading="lazy">` : ''}
+        <div class="ex-poster-t"><span class="mono">Exhibition ${exNo(ex)}</span><b>${esc(ex.title)}</b><span>${esc(ex.subtitle || '')}${ex.subtitle ? ' · ' : ''}${works.length}점</span></div></div>
+      <div class="ex-card-meta"><span class="mono faint">${esc(exPeriod(ex))}</span><span class="ex-from">${series.map(t => `<i>${esc(t)}</i>`).join('')}</span></div>
+    </a>`;
+  };
+  view.innerHTML = `<section class="page">
+    ${worksHead('exhibitions', all.length)}
+    <div class="ex-list">${all.map(card).join('')}
+      ${Studio.authed ? '<a class="ex-new rv" href="#/exhibitions/new"><span class="cal-new-plus" aria-hidden="true">+</span><b>새 전시 기획하기</b><small>여러 시리즈에서 사진을 골라<br>주제로 엮고, 방을 나누고, 글을 붙여요</small></a>' : ''}
+    </div>
+    ${all.length ? '' : `<div class="empty">아직 열린 전시가 없어요.${Studio.authed ? '' : ' <a class="accent" href="#/exhibitions/new">관리자라면 첫 전시를 기획해 보세요</a>'}</div>`}
+  </section>`;
+}
+
+// ---------- 전시 보기: 입구 → 방마다 작품 → 출구 ----------
+function renderExhibition(view, id, draft) {
+  const ex = draft || (S.exhibitions || []).find(e => e.id === id);
+  if (!ex) { view.innerHTML = `<section class="page"><div class="empty">전시를 찾을 수 없어요. <a class="accent" href="#/exhibitions">전시 목록으로</a></div></section>`; return; }
+  const works = exWorks(ex), photos = works.map(w => S.byName.get(w.f)), total = works.length;
+  let n = 0;
+  const label = w => {
+    const p = S.byName.get(w.f), k = n++, inf = parseInfo(p.info), from = (S.photoProjects.get(p.filename) || []).map(pr => pr.title).join(', ');
+    const set = [inf.aperture, inf.shutter, inf.iso].filter(v => v && v !== '—').join(' · ');
+    return `<section class="ex-work" data-n="${k + 1}">
+      <button class="ex-frame rv" data-k="${k}" aria-label="${esc(w.title || '무제')} 크게 보기"><img src="${esc(imgUrl(p))}" alt="" loading="lazy"></button>
+      <div class="ex-label rv"><div class="mono ex-no">No. ${pad(k + 1)}</div><h3>${esc(w.title || '무제')}</h3>
+        <div class="mono ex-meta">${esc(fmtDate(p.date))}${from ? ' · ' + esc(from) : ''}</div>
+        <p>${esc(inf.camera !== '—' ? inf.camera : '')}${set ? `<br>${esc(set)}` : ''}</p>${w.note ? `<p class="ex-note">${esc(w.note)}</p>` : ''}</div>
+    </section>`;
+  };
+  const series = exSeries(ex);
+  view.innerHTML = `<div class="ex" data-wall="${esc(ex.wall || 'light')}">
+    <div class="ex-bar">
+      <a class="mono" href="${draft ? (draft.id ? '#/exhibitions/' + encodeURIComponent(draft.id) + '/edit' : '#/exhibitions/new') : '#/exhibitions'}">${draft ? '← 기획으로 돌아가기' : '← Exhibitions'}</a>
+      <span class="mono" id="exProg">${draft ? '미리 보기 · ' : ''}Entrance</span>
+      <div class="ex-walls" id="exWalls">${Object.entries(EX_WALL).map(([k, t]) => `<button data-v="${k}" class="${(ex.wall || 'light') === k ? 'on' : ''}">${t}</button>`).join('')}${!draft && Studio.authed ? `<a class="ex-edit" href="#/exhibitions/${encodeURIComponent(ex.id)}/edit">수정</a>` : ''}</div>
+    </div>
+    <section class="ex-entrance">
+      <div class="rv"><div class="mono">Exhibition ${draft ? '—' : exNo(ex)} · ${esc(exPeriod(ex))}</div><h1>${esc(ex.title || '제목 없는 전시')}</h1>${ex.subtitle ? `<div class="ex-sub">${esc(ex.subtitle)}</div>` : ''}</div>
+      <div class="ex-statement rv">${(ex.statement || '').split(/\n{2,}/).filter(Boolean).map(t => `<p>${esc(t).replace(/\n/g, '<br>')}</p>`).join('')}
+        <div class="mono ex-facts">${total}점 · 방 ${ex.rooms.filter(r => r.works.length).length}개${series.length ? ' · ' + esc(series.join(' / ')) : ''}</div>
+        <span class="mono faint">↓ 전시장으로</span></div>
+    </section>
+    ${ex.rooms.filter(r => (r.works || []).some(w => S.byName.get(w.f))).map((r, i) => `<section class="ex-room rv"><span class="mono">Room ${i + 1}</span><b>${esc(r.title || '')}</b>${r.text ? `<p>${esc(r.text)}</p>` : ''}</section>${r.works.filter(w => S.byName.get(w.f)).map(label).join('')}`).join('')}
+    <section class="ex-exit">
+      <span class="mono">Exit</span><h2>전시를 마치며</h2>
+      <div class="ex-index">${works.map((w, k) => `<button data-k="${k}"><img src="${esc(thumbUrl(photos[k]))}" alt="" loading="lazy"><span class="mono">${pad(k + 1)} · ${esc(w.title || '무제')}</span></button>`).join('')}</div>
+      ${!draft ? `<div class="ex-more">${(S.exhibitions || []).filter(e => e.id !== ex.id).slice(0, 3).map(e => `<a href="#/exhibitions/${encodeURIComponent(e.id)}"><span class="mono">다른 전시</span><b>${esc(e.title)}</b></a>`).join('')}<a href="#/exhibitions"><span class="mono">목록</span><b>모든 전시 보기 →</b></a></div>` : ''}
+    </section>
+  </div>`;
+  const root = $('.ex', view), prog = $('#exProg', view), secs = $$('.ex-work', view);
+  // 벽 색은 보는 사람이 바꿔 볼 수 있어요 (저장되지는 않아요)
+  $('#exWalls', view).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; root.dataset.wall = b.dataset.v; $$('#exWalls button', view).forEach(x => x.classList.toggle('on', x === b)); });
+  view.addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b && photos.length) Lightbox.open(photos, +b.dataset.k, $('img', b)); });
+  // 지금 몇 번째 작품 앞에 서 있는지
+  pageScroll.push(() => {
+    const mid = innerHeight / 2, w = secs.find(el => { const r = el.getBoundingClientRect(); return r.top < mid && r.bottom > mid; });
+    prog.textContent = (draft ? '미리 보기 · ' : '') + (w ? `${pad(w.dataset.n)} / ${pad(total)}` : scrollY < innerHeight * .6 ? 'Entrance' : '·');
+  });
+}
+
+// ---------- 전시 기획 (관리자) ----------
+function renderExEditor(view, id) {
+  if (!Studio.authed) {
+    view.innerHTML = `<section class="page"><div class="ex-gate"><h2>전시 기획은 관리자만 할 수 있어요</h2><p class="faint">GitHub 열쇠(토큰)로 들어오면 전시를 기획하고 열 수 있어요.</p>
+      <form id="exGate" autocomplete="off"><input type="password" id="exTok" placeholder="GitHub 열쇠 (토큰)" required><button class="btn small">확인</button></form><p class="faint" id="exGateMsg"></p></div></section>`;
+    $('#exGate', view).addEventListener('submit', async e => { e.preventDefault(); $('#exGateMsg', view).textContent = '확인하는 중…'; const ok = await adminLogin($('#exTok', view).value.trim()).catch(() => false); if (ok) render(); else $('#exGateMsg', view).textContent = '열쇠가 맞지 않거나, 저장할 권한이 없어요.'; });
+    return;
+  }
+  const orig = id && (S.exhibitions || []).find(e => e.id === id);
+  if (id && !orig) { view.innerHTML = `<section class="page"><div class="empty">전시를 찾을 수 없어요. <a class="accent" href="#/exhibitions">전시 목록으로</a></div></section>`; return; }
+  const today = new Date(), iso = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+  const blank = () => ({ id: null, title: '', subtitle: '', statement: '', from: iso, to: '', wall: 'light', cover: null, rooms: [{ title: '', text: '', works: [] }] });
+  const DKEY = 'hm-ex-draft';
+  // 미리 보기를 다녀와도 고치던 내용이 그대로 남아 있게
+  let ex = orig ? (S._exDraft && S._exDraft.id === id ? S._exDraft : JSON.parse(JSON.stringify(orig))) : (S._exDraft && !S._exDraft.id ? S._exDraft : store.get(DKEY, null) || blank());
+  let room = 0, fSeries = 'all', fColor = 'all', hideUsed = false;
+  const save = () => { S._exDraft = ex; if (!ex.id) store.set(DKEY, ex); };
+  const used = () => new Set(ex.rooms.flatMap(r => r.works.map(w => w.f)));
+  const series = S.projects.filter(pr => projectPhotos(pr).length);
+  const COLORS = { all: '모든 색', ...Object.fromEntries(FAMILIES.map(([k, t]) => [k, t])) };
+  view.innerHTML = `<section class="page ex-ed">
+    <div class="page-head"><div><div class="page-kicker mono"><a href="#/exhibitions" class="faint">← Exhibitions</a></div><h1 class="page-title split">${splitChars(orig ? 'Edit exhibition' : 'New exhibition')}</h1></div>
+      <p class="page-sub">여러 시리즈에서 사진을 골라 주제로 엮어요. 방을 나누고, 서문과 작품 제목을 쓰면 하나의 전시가 돼요.</p></div>
+    <div class="ex-ed-grid">
+      <div class="ex-ed-main">
+        <div class="ex-ed-basic">
+          <label class="field"><span>전시 제목</span><input id="exT" maxlength="60" placeholder="예: 푸른 시간"></label>
+          <label class="field"><span>부제 (선택)</span><input id="exSub" maxlength="60" placeholder="예: 세 도시의 파란 오후"></label>
+          <label class="field ex-wide"><span>서문 (빈 줄로 문단을 나눠요)</span><textarea id="exSt" maxlength="1200" rows="5" placeholder="이 전시를 왜, 어떻게 엮었는지 들려주세요."></textarea></label>
+          <div class="ex-row2"><label class="field"><span>시작일</span><input type="date" id="exFrom"></label><label class="field"><span>종료일 (비우면 상설)</span><input type="date" id="exTo"></label></div>
+          <div class="field"><span>벽 색</span><div class="seg" id="exWallSeg"><span class="seg-ind"></span>${Object.entries(EX_WALL).map(([k, t]) => `<button data-v="${k}">${t}</button>`).join('')}</div></div>
+        </div>
+        <div class="ex-rooms" id="exRooms"></div>
+        <button class="pill" id="exAddRoom">+ 방 추가</button>
+        <div class="ex-ed-actions">
+          <button class="btn ghost" id="exPrev">미리 보기</button>
+          <button class="btn" id="exSave">${orig ? '저장하기' : '전시 열기'} <span class="arrow">↗</span></button>
+          ${orig ? '<button class="pc-link" id="exDel">이 전시 내리기</button>' : '<button class="pc-link" id="exReset">처음부터 다시</button>'}
+          <span class="faint" id="exMsg"></span>
+        </div>
+      </div>
+      <aside class="ex-pick">
+        <div class="ex-pick-head"><b>사진 고르기</b><span class="mono faint" id="exPickTo"></span></div>
+        <div class="ex-chips" id="exFS"><button data-v="all" class="on">모든 시리즈</button>${series.map(pr => `<button data-v="${esc(pr.id)}">${esc(pr.title)}</button>`).join('')}</div>
+        <div class="ex-chips" id="exFC">${Object.entries(COLORS).map(([k, t]) => `<button data-v="${k}" class="${k === 'all' ? 'on' : ''}">${k !== 'all' ? `<i style="--c:${FAMILIES.find(f => f[0] === k)[2]}"></i>` : ''}${t}</button>`).join('')}</div>
+        <label class="ex-hide"><input type="checkbox" id="exHide"> 이미 건 사진 숨기기</label>
+        <div class="ex-grid" id="exGrid"></div>
+      </aside>
+    </div>
+  </section>`;
+  const $v = s => $(s, view);
+  $v('#exT').value = ex.title; $v('#exSub').value = ex.subtitle || ''; $v('#exSt').value = ex.statement || ''; $v('#exFrom').value = ex.from || iso; $v('#exTo').value = ex.to || '';
+  const wallSeg = $v('#exWallSeg'), paintWall = () => { $$('button', wallSeg).forEach(b => b.classList.toggle('on', b.dataset.v === ex.wall)); requestAnimationFrame(() => syncSeg(wallSeg)); };
+  paintWall();
+  wallSeg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; ex.wall = b.dataset.v; paintWall(); save(); });
+  [['#exT', 'title'], ['#exSub', 'subtitle'], ['#exSt', 'statement'], ['#exFrom', 'from'], ['#exTo', 'to']].forEach(([s, k]) => $v(s).addEventListener('input', e => { ex[k] = e.target.value; save(); }));
+
+  // 방과 작품
+  function paintRooms() {
+    room = Math.min(room, ex.rooms.length - 1);
+    $v('#exRooms').innerHTML = ex.rooms.map((r, i) => `<div class="exr${i === room ? ' on' : ''}" data-r="${i}">
+      <div class="exr-head"><span class="mono">Room ${i + 1}</span><input data-k="title" maxlength="40" placeholder="방 이름 (예: 도착)" value="${esc(r.title || '')}">
+        <button class="pill exr-pick" data-act="room">${i === room ? '✓ 여기에 담는 중' : '여기에 담기'}</button>${ex.rooms.length > 1 ? '<button class="pc-link" data-act="delroom">방 지우기</button>' : ''}</div>
+      <textarea data-k="text" rows="2" maxlength="300" placeholder="방 설명 (선택)">${esc(r.text || '')}</textarea>
+      <ol class="exw">${r.works.map((w, j) => { const p = S.byName.get(w.f); return p ? `<li data-w="${j}"><img src="${esc(thumbUrl(p))}" alt=""><div class="exw-f"><input data-k="wtitle" maxlength="40" placeholder="작품 제목 (비우면 무제)" value="${esc(w.title || '')}"><input data-k="wnote" maxlength="120" placeholder="한 줄 설명 (선택)" value="${esc(w.note || '')}"><span class="mono faint">${esc(fmtDate(p.date))} · ${esc((S.photoProjects.get(p.filename) || []).map(pr => pr.title).join(', ') || '시리즈 없음')}</span></div>
+        <div class="exw-b"><button data-act="cover" class="${ex.cover === w.f ? 'on' : ''}" title="전시 대표 사진으로">★</button><button data-act="up" title="위로">↑</button><button data-act="down" title="아래로">↓</button>${ex.rooms.length > 1 ? `<select data-act="move" title="다른 방으로"><option value="">방 옮기기</option>${ex.rooms.map((rr, k) => k !== i ? `<option value="${k}">Room ${k + 1}${rr.title ? ' · ' + esc(rr.title) : ''}</option>` : '').join('')}</select>` : ''}<button data-act="del" title="빼기">✕</button></div></li>` : ''; }).join('')}</ol>
+      ${r.works.length ? '' : '<p class="faint exr-empty">오른쪽에서 사진을 눌러 이 방에 걸어요.</p>'}
+    </div>`).join('');
+    $v('#exPickTo').textContent = `Room ${room + 1}${ex.rooms[room].title ? ' · ' + ex.rooms[room].title : ''}에 담아요`;
+  }
+  function paintGrid() {
+    const u = used(), sp = fSeries === 'all' ? null : series.find(pr => pr.id === fSeries);
+    let list = sp ? projectPhotos(sp) : S.photos;
+    if (fColor !== 'all') list = list.filter(p => familyShare(p, fColor) >= minShare(fColor));
+    if (hideUsed) list = list.filter(p => !u.has(p.filename));
+    $v('#exGrid').innerHTML = list.map(p => `<button data-f="${esc(p.filename)}" class="${u.has(p.filename) ? 'on' : ''}"><img src="${esc(thumbUrl(p))}" alt="" loading="lazy"><span class="ex-ck" aria-hidden="true">✓</span></button>`).join('') || '<p class="faint">조건에 맞는 사진이 없어요.</p>';
+  }
+  const refresh = () => { paintRooms(); paintGrid(); };
+  refresh();
+
+  const chipSel = (sel, set) => $v(sel).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; $$('button', $v(sel)).forEach(x => x.classList.toggle('on', x === b)); set(b.dataset.v); paintGrid(); });
+  chipSel('#exFS', v => { fSeries = v; }); chipSel('#exFC', v => { fColor = v; });
+  $v('#exHide').addEventListener('change', e => { hideUsed = e.target.checked; paintGrid(); });
+  // 사진 누르면 지금 고른 방에 걸고, 이미 걸린 사진이면 빼요
+  $v('#exGrid').addEventListener('click', e => {
+    const b = e.target.closest('[data-f]'); if (!b) return; const f = b.dataset.f;
+    const where = ex.rooms.findIndex(r => r.works.some(w => w.f === f));
+    if (where >= 0) { ex.rooms[where].works = ex.rooms[where].works.filter(w => w.f !== f); if (ex.cover === f) ex.cover = null; }
+    else ex.rooms[room].works.push({ f, title: '', note: '' });
+    save(); refresh();
+  });
+  $v('#exRooms').addEventListener('input', e => {
+    const r = ex.rooms[+e.target.closest('[data-r]').dataset.r], li = e.target.closest('[data-w]'), k = e.target.dataset.k;
+    if (k === 'title' || k === 'text') { r[k] = e.target.value; if (k === 'title') $v('#exPickTo').textContent = `Room ${room + 1}${ex.rooms[room].title ? ' · ' + ex.rooms[room].title : ''}에 담아요`; }
+    else if (li) r.works[+li.dataset.w][k === 'wtitle' ? 'title' : 'note'] = e.target.value;
+    save();
+  });
+  $v('#exRooms').addEventListener('change', e => {
+    if (e.target.dataset.act !== 'move' || e.target.value === '') return;
+    const i = +e.target.closest('[data-r]').dataset.r, j = +e.target.closest('[data-w]').dataset.w, w = ex.rooms[i].works.splice(j, 1)[0];
+    ex.rooms[+e.target.value].works.push(w); save(); refresh();
+  });
+  $v('#exRooms').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b || b.tagName === 'SELECT') return;
+    const i = +b.closest('[data-r]').dataset.r, li = b.closest('[data-w]'), j = li ? +li.dataset.w : -1, ws = ex.rooms[i].works, act = b.dataset.act;
+    if (act === 'room') room = i;
+    else if (act === 'delroom') { if (ws.length && !confirm('이 방과 방에 건 사진을 모두 뺄까요? (사진 자체는 지워지지 않아요)')) return; ex.rooms.splice(i, 1); if (room >= ex.rooms.length) room = ex.rooms.length - 1; }
+    else if (act === 'cover') ex.cover = ws[j].f;
+    else if (act === 'up' && j > 0) [ws[j - 1], ws[j]] = [ws[j], ws[j - 1]];
+    else if (act === 'down' && j < ws.length - 1) [ws[j + 1], ws[j]] = [ws[j], ws[j + 1]];
+    else if (act === 'del') { if (ex.cover === ws[j].f) ex.cover = null; ws.splice(j, 1); }
+    save(); refresh();
+  });
+  $v('#exAddRoom').onclick = () => { ex.rooms.push({ title: '', text: '', works: [] }); room = ex.rooms.length - 1; save(); refresh(); };
+  const check = () => { if (!ex.title.trim()) return '전시 제목을 써 주세요'; if (!exWorks(ex).length) return '사진을 한 장 이상 걸어 주세요'; return ''; };
+  $v('#exPrev').onclick = () => { S._exDraft = ex; location.hash = '#/exhibitions/preview'; };
+  $v('#exSave').onclick = async e => {
+    const msg = check(); if (msg) { $v('#exMsg').textContent = msg; return toast(msg); }
+    const btn = e.currentTarget, h = btn.innerHTML; btn.disabled = true; btn.textContent = '저장하는 중…';
+    try {
+      // 빈 방은 빼고, 대표 사진이 없으면 첫 작품으로
+      const out = { ...ex, title: ex.title.trim(), rooms: ex.rooms.filter(r => r.works.length).map(r => ({ title: (r.title || '').trim(), text: (r.text || '').trim(), works: r.works.map(w => ({ f: w.f, title: (w.title || '').trim(), note: (w.note || '').trim() })) })) };
+      out.cover = out.cover && exWorks(out).some(w => w.f === out.cover) ? out.cover : exWorks(out)[0].f;
+      out.id = out.id || `ex-${iso}-${Date.now().toString(36)}`; out.created = out.created || new Date().toISOString(); out.updated = new Date().toISOString();
+      await publishExhibition(out);
+      if (!orig) store.set(DKEY, null);
+      S._exDraft = null;
+      toast(orig ? '전시를 고쳤어요 · 1~2분 뒤 홈페이지에도 반영돼요' : '전시를 열었어요 · 1~2분 뒤 홈페이지에도 반영돼요', 4200);
+      location.hash = '#/exhibitions/' + encodeURIComponent(out.id);
+    } catch (err) { console.error(err); toast('저장하지 못했어요: ' + err.message, 6000); btn.disabled = false; btn.innerHTML = h; }
+  };
+  if ($v('#exDel')) $v('#exDel').onclick = async () => {
+    if (!confirm('이 전시를 내릴까요? 전시만 사라지고 사진은 그대로 남아요.')) return;
+    try { await unpublishExhibition(orig.id); toast('전시를 내렸어요'); location.hash = '#/exhibitions'; } catch (err) { toast('내리지 못했어요: ' + err.message, 6000); }
+  };
+  if ($v('#exReset')) $v('#exReset').onclick = () => { if (!confirm('지금 기획 중인 전시를 지우고 새로 시작할까요?')) return; ex = blank(); room = 0; store.set(DKEY, null); S._exDraft = null; $v('#exT').value = ''; $v('#exSub').value = ''; $v('#exSt').value = ''; $v('#exFrom').value = iso; $v('#exTo').value = ''; paintWall(); refresh(); };
+}
+
 /* 예전 공유 링크(p.html#abc123)에서 쓰던 짧은 코드 */
 function projectShortCode(id) {
   const A = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -2770,6 +2996,15 @@ async function publishCalendar(pages, meta) {
   const item = { ...meta, id, pages: out };
   await updateJson('calendars.json', d => [item, ...(Array.isArray(d) ? d : [])], `Add calendar: ${meta.title || id}`);
   S.calendars = [{ ...item, pages: out.map((p, i) => ({ ...p, _local: URL.createObjectURL(pages[i].blob) })) }, ...(S.calendars || [])];
+}
+// 전시: 사진은 이미 저장소에 있어서 exhibitions.json만 고쳐요 (새 전시는 맨 앞, 고친 전시는 제자리)
+async function publishExhibition(ex) {
+  await updateJson('exhibitions.json', d => { const a = Array.isArray(d) ? d : [], i = a.findIndex(e => e.id === ex.id); if (i >= 0) a[i] = ex; else a.unshift(ex); return a; }, `${(S.exhibitions || []).some(e => e.id === ex.id) ? 'Update' : 'Open'} exhibition: ${ex.title}`);
+  const a = S.exhibitions || []; S.exhibitions = a.some(e => e.id === ex.id) ? a.map(e => e.id === ex.id ? ex : e) : [ex, ...a];
+}
+async function unpublishExhibition(id) {
+  await updateJson('exhibitions.json', d => (Array.isArray(d) ? d : []).filter(e => e.id !== id), 'Close exhibition');
+  S.exhibitions = (S.exhibitions || []).filter(e => e.id !== id);
 }
 /* ---------- 전시에 올리기: 저장 방법 끝 ---------- */
 /* ---------- 서식 있는 글씨 칸: 글자를 골라 그 부분만 굵기·기울임·크기를 바꿔요 ---------- */
