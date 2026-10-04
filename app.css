@@ -799,6 +799,26 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
 .pc-ctrl h3 { margin: 6px 0 14px; font-family: var(--f-display); font-weight: 400; font-size: 36px; }
 .pc-ctrl h3 em { color: #8d897d; font-size: .62em; }
 .pc-l { margin: 14px 0 8px; }
+/* 접을 수 있는 조작 묶음 */
+.pc-sec { border-top: 1px solid rgba(255,255,255,.1); }
+.pc-sec:last-of-type { border-bottom: 1px solid rgba(255,255,255,.1); }
+.pc-sec > summary { display: flex; align-items: center; gap: 10px; padding: 13px 2px; cursor: pointer; list-style: none; user-select: none; }
+.pc-sec > summary::-webkit-details-marker { display: none; }
+.pc-sec > summary span { font-size: 14px; font-weight: 600; }
+.pc-sec > summary em { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: right; font-style: normal; font-size: 12px; color: #8d897d; }
+.pc-sec > summary::after { content: ""; width: 7px; height: 7px; border-right: 1.5px solid #8d897d; border-bottom: 1.5px solid #8d897d; transform: rotate(45deg) translateY(-2px); transition: transform .2s var(--ease); }
+.pc-sec[open] > summary::after { transform: rotate(-135deg) translateY(-1px); }
+.pc-sec-body { padding: 0 2px 16px; }
+.pc-sec-body > .field:first-child { margin-top: 2px; }
+/* 긴 목록 위의 분류 버튼 (프로젝트의 Series | Prints처럼) */
+.pc-cats { display: flex; flex-wrap: wrap; gap: 2px 14px; margin: 2px 0 10px; }
+.pc-cats button { padding: 4px 0; border: 0; border-bottom: 1.5px solid transparent; background: none; color: #8d897d; font-size: 12.5px; transition: color .15s ease-out, border-color .15s ease-out; }
+.pc-cats button.on { color: #f1eee6; border-bottom-color: var(--accent); }
+@media (hover: hover) and (pointer: fine) { .pc-cats button:hover { color: #f1eee6; } }
+.pc-chips .pill.off { display: none; }
+.pc-cal:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; font-size: 12px; }
+.pc-cal .pill { width: 32px; padding: 0; justify-content: center; }
+.pc-cal input { width: 74px; height: 32px; padding: 0 8px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: #0b0b0a; color: #f1eee6; font: inherit; text-align: center; }
 .pc-ctrl .field input, .pc-ctrl .field textarea { background: #0b0b0a; color: #f1eee6; border-color: rgba(255,255,255,.14); }
 .pc-ctrl .field textarea { min-height: 0; }
 .pc-chips { display: flex; flex-wrap: wrap; gap: 6px; }

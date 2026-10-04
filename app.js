@@ -696,7 +696,7 @@ function worksHead(tab, n) {
 // 엽서·포스터 분류: 만든 형태로 나눠요
 const PRINT_KIND = { land: 'card', port: 'card', square: 'etc', poster: 'poster', posterL: 'poster', feed: 'social', story: 'social', phone: 'social', wide: 'social', bookmark: 'etc', ticket: 'etc' };
 const PRINT_KIND_KO = { all: '전체', card: '엽서', poster: '포스터', social: 'SNS · 배경화면', etc: '기타' };
-const LAYOUT_KO = { card: '엽서', gallery: '전시 포스터', full: '꽉 찬 사진', type: '글자 속 사진', swiss: '스위스', cover: '잡지 표지', split: '반반', frame: '액자', polaroid: '폴라로이드', circle: '원형', warhol: '팝아트 4분할', bluenote: '재즈 앨범', repeat: '반복 글자', ticket: '입장권', newspaper: '신문 1면', movie: '영화 포스터', editorial: '잡지 지면' };
+const LAYOUT_KO = { card: '엽서', gallery: '전시 포스터', full: '꽉 찬 사진', type: '글자 속 사진', swiss: '스위스', cover: '잡지 표지', split: '반반', frame: '액자', polaroid: '폴라로이드', circle: '원형', warhol: '팝아트 4분할', repeat: '반복 글자', ticket: '입장권', newspaper: '신문 1면', movie: '영화 포스터', editorial: '잡지 지면', campaign: '캠페인', filmstill: '영화 스틸', calendar: '달력', receipt: '영수증', nowplaying: '음악 재생', arch: '아치 창', triptych: '세 폭', museum: '미술관 배너', cutstrip: '잘린 글자' };
 function renderPrints(view) {
   const all = [...(S.posters || [])].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   const kinds = ['all', ...['card', 'poster', 'social', 'etc'].filter(k => all.some(p => PRINT_KIND[p.fmt] === k))];
@@ -1691,6 +1691,23 @@ const Postcard = (() => {
     bodoni: ['italic', '"Bodoni Moda", "Noto Serif KR", serif', .9, .95, 400, 900, 800],
     grotesk: ['', '"Space Grotesk", Pretendard, sans-serif', .82, 1.0, 300, 700, 700],
     wide: ['', 'Unbounded, Pretendard, sans-serif', .62, 1.08, 200, 900, 800],
+    gothicA1: ['', '"Gothic A1", Pretendard, sans-serif', .8, 1.05, 100, 900, 800],
+    nanummj: ['', '"Nanum Myeongjo", "Noto Serif KR", serif', .8, 1.25, 400, 800, 800],
+    songmyung: ['', '"Song Myung", "Noto Serif KR", serif', .82, 1.2, 400, 400, 400],
+    dohyeon: ['', '"Do Hyeon", Pretendard, sans-serif', .86, 1.05, 400, 400, 400],
+    dodum: ['', '"Gowun Dodum", Pretendard, sans-serif', .82, 1.2, 400, 400, 400],
+    plexkr: ['', '"IBM Plex Sans KR", Pretendard, sans-serif', .8, 1.1, 100, 700, 600],
+    orbit: ['', 'Orbit, Pretendard, sans-serif', .8, 1.1, 400, 400, 400],
+    playfair: ['italic', '"Playfair Display", "Noto Serif KR", serif', .86, .98, 400, 900, 700],
+    fraunces: ['', 'Fraunces, "Noto Serif KR", serif', .86, 1.0, 100, 900, 600],
+    cormorant: ['italic', '"Cormorant Garamond", "Noto Serif KR", serif', .95, .95, 300, 700, 500],
+    dmserif: ['', '"DM Serif Display", "Noto Serif KR", serif', .88, .98, 400, 400, 400],
+    syne: ['', 'Syne, Pretendard, sans-serif', .78, 1.0, 400, 800, 800],
+    archivo: ['', '"Archivo Black", Pretendard, sans-serif', .78, 1.0, 400, 400, 400],
+    bebas: ['', '"Bebas Neue", Pretendard, sans-serif', .95, .95, 400, 400, 400],
+    intertight: ['', '"Inter Tight", Pretendard, sans-serif', .82, 1.0, 100, 900, 800],
+    spacemono: ['', '"Space Mono", monospace', .6, 1.15, 400, 700, 700],
+    majormono: ['', '"Major Mono Display", monospace', .6, 1.15, 400, 400, 400],
   };
   // 디자인마다 처음 쓰는 글꼴, 위치, 크기(1200px 기준), 색
   const LAYOUT = {
@@ -1705,15 +1722,46 @@ const Postcard = (() => {
     polaroid: { font: 'serif', size: 70, color: 'c0' },
     circle: { font: 'wide', size: 54, color: 'cream', upper: true },
     warhol: { font: 'black', size: 150, color: 'white' },
-    bluenote: { font: 'condensed', size: 150, color: 'black', upper: true },
     repeat: { font: 'condensed', size: 200, color: 'c0', upper: true },
     ticket: { font: 'grotesk', size: 80, color: 'cream' },
     newspaper: { font: 'myeongjo', size: 104, color: 'cream', weight: 900 },
     movie: { font: 'wide', size: 120, color: 'white', upper: true },
     editorial: { font: 'bodoni', size: 100, color: 'white', weight: 500 },
+    campaign: { font: 'gothic', size: 56, color: 'white', upper: true, weight: 900 },
+    filmstill: { font: 'gothic', size: 46, color: 'black', weight: 500 },
+    calendar: { font: 'serif', size: 56, color: 'white' },
+    receipt: { font: 'spacemono', size: 52, color: 'black', upper: true },
+    nowplaying: { font: 'gothic', size: 62, color: 'black', weight: 800 },
+    arch: { font: 'cormorant', size: 92, color: 'cream' },
+    triptych: { font: 'grotesk', size: 80, color: 'white' },
+    museum: { font: 'gothic', size: 150, color: 'c0', weight: 900 },
+    cutstrip: { font: 'condensed', size: 260, color: 'cream', upper: true },
+  };
+  // 목록: [이름, 보이는 글자, 분류]. 분류 버튼으로 걸러 보고, 안 쓰는 묶음은 접어 둘 수 있어요
+  const CAT = {
+    fmt: { cats: { paper: '종이', poster: '포스터', screen: '화면 · SNS', special: '특수' }, items: [
+      ['land', '엽서 가로', 'paper'], ['port', '엽서 세로', 'paper'], ['square', '정사각', 'paper'], ['poster', '포스터', 'poster'], ['posterL', '가로 포스터', 'poster'],
+      ['feed', '인스타 4:5', 'screen'], ['story', '스토리 9:16', 'screen'], ['phone', '휴대폰 배경', 'screen'], ['wide', '와이드 16:9', 'screen'], ['bookmark', '책갈피', 'special'], ['ticket', '티켓', 'special']] },
+    layout: { cats: { card: '엽서 · 카드', poster: '포스터', print: '잡지 · 인쇄물', graphic: '그래픽 실험' }, items: [
+      ['card', '엽서', 'card'], ['polaroid', '폴라로이드', 'card'], ['frame', '액자', 'card'], ['arch', '아치 창', 'card'], ['calendar', '달력', 'card'], ['ticket', '입장권', 'card'], ['receipt', '영수증', 'card'],
+      ['gallery', '전시 포스터', 'poster'], ['full', '꽉 찬 사진', 'poster'], ['movie', '영화 포스터', 'poster'], ['filmstill', '영화 스틸', 'poster'], ['campaign', '캠페인', 'poster'], ['museum', '미술관 배너', 'poster'], ['triptych', '세 폭', 'poster'], ['split', '반반', 'poster'],
+      ['cover', '잡지 표지', 'print'], ['editorial', '잡지 지면', 'print'], ['newspaper', '신문 1면', 'print'], ['nowplaying', '음악 재생', 'print'],
+      ['swiss', '스위스', 'graphic'], ['type', '글자 속 사진', 'graphic'], ['cutstrip', '잘린 글자', 'graphic'], ['repeat', '반복 글자', 'graphic'], ['circle', '원형', 'graphic'], ['warhol', '팝아트 4분할', 'graphic']] },
+    fx: { cats: { color: '색감', bw: '흑백 · 인쇄', blur: '흐림 · 움직임', warp: '왜곡 · 변형', graphic: '그래픽' }, items: [
+      ['none', '원본', 'color'], ['duo', '투톤', 'color'], ['gradmap', '그라디언트 맵', 'color'], ['vintage', '빈티지', 'color'], ['sepia', '세피아', 'color'], ['cyanotype', '청사진', 'color'], ['infrared', '적외선', 'color'], ['crossprocess', '크로스 프로세스', 'color'], ['bleach', '블리치 바이패스', 'color'], ['lomo', '로모', 'color'], ['lightleak', '빛 번짐', 'color'], ['bluemon', '블루 모니터', 'color'], ['heat', '열기', 'color'], ['thermal', '열화상', 'color'], ['invert', '네거티브', 'color'],
+      ['mono', '흑백', 'bw'], ['highkey', '하이키 흑백', 'bw'], ['ghost', '고스트 흑백', 'bw'], ['solarize', '솔라리제이션', 'bw'], ['halftone', '망점', 'bw'], ['riso', '리소 인쇄', 'bw'], ['lines', '선 판화', 'bw'], ['crosshatch', '크로스해치', 'bw'], ['sketch', '연필 스케치', 'bw'], ['xerox', '복사기', 'bw'], ['dither', '1비트', 'bw'], ['stencil', '스텐실', 'bw'],
+      ['dreamy', '몽환', 'blur'], ['motion', '모션 블러', 'blur'], ['shutter', '흔들린 셔터', 'blur'], ['zoom', '줌 블러', 'blur'], ['tiltshift', '미니어처', 'blur'],
+      ['ripple', '물결 왜곡', 'warp'], ['fisheye', '어안 렌즈', 'warp'], ['glassblock', '유리 블록', 'warp'], ['slitscan', '슬릿 스캔', 'warp'], ['slice', '조각내기', 'warp'], ['mirror', '거울', 'warp'], ['kaleido', '만화경', 'warp'], ['chroma', '색수차', 'warp'],
+      ['poster', '팝아트', 'graphic'], ['pixel', '픽셀', 'graphic'], ['glitch', '글리치', 'graphic'], ['neon', '네온 윤곽', 'graphic'], ['emboss', '엠보싱', 'graphic']] },
+    font: { cats: { ko: '한글 되는 글꼴', en: '영문 전용' }, items: [
+      ['gothic', '고딕', 'ko', 'font-weight:900'], ['gothicA1', '고딕 A1', 'ko', "font-family:'Gothic A1';font-weight:800"], ['plexkr', '플렉스', 'ko', "font-family:'IBM Plex Sans KR';font-weight:600"], ['black', '검은고딕', 'ko', "font-family:'Black Han Sans'"], ['dohyeon', '도현', 'ko', "font-family:'Do Hyeon'"], ['dodum', '고운돋움', 'ko', "font-family:'Gowun Dodum'"], ['orbit', '오르빗', 'ko', 'font-family:Orbit'],
+      ['myeongjo', '명조', 'ko', "font-family:'Noto Serif KR'"], ['nanummj', '나눔명조', 'ko', "font-family:'Nanum Myeongjo';font-weight:800"], ['batang', '바탕', 'ko', "font-family:'Gowun Batang';font-weight:700"], ['hahmlet', '함렛', 'ko', 'font-family:Hahmlet;font-weight:600'], ['songmyung', '송명', 'ko', "font-family:'Song Myung'"],
+      ['serif', 'Serif', 'en', "font-family:'Instrument Serif';font-style:italic;font-size:16px"], ['playfair', 'Playfair', 'en', "font-family:'Playfair Display';font-style:italic;font-weight:700"], ['bodoni', 'Bodoni', 'en', "font-family:'Bodoni Moda';font-style:italic;font-weight:800"], ['fraunces', 'Fraunces', 'en', 'font-family:Fraunces;font-weight:600'], ['cormorant', 'Cormorant', 'en', "font-family:'Cormorant Garamond';font-style:italic;font-size:16px"], ['dmserif', 'DM Serif', 'en', "font-family:'DM Serif Display'"],
+      ['condensed', 'CONDENSED', 'en', 'font-family:Anton'], ['bebas', 'BEBAS', 'en', "font-family:'Bebas Neue';font-size:16px"], ['archivo', 'Archivo', 'en', "font-family:'Archivo Black'"], ['grotesk', 'Grotesk', 'en', "font-family:'Space Grotesk';font-weight:700"], ['intertight', 'Inter Tight', 'en', "font-family:'Inter Tight';font-weight:800"], ['syne', 'Syne', 'en', 'font-family:Syne;font-weight:800'], ['wide', 'WIDE', 'en', 'font-family:Unbounded;font-weight:800'],
+      ['mono', 'Mono', 'en', "font-family:'JetBrains Mono'"], ['spacemono', 'Space Mono', 'en', "font-family:'Space Mono'"], ['majormono', 'major mono', 'en', "font-family:'Major Mono Display'"]] },
   };
   const PAPER = { white: '#fbfaf6', cream: '#f1e9d8', black: '#141413', orange: '#e2672b' };
-  const st = { p: null, fmt: 'land', layout: 'card', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
+  const st = { p: null, fmt: 'land', layout: 'card', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, calYear: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
   const el = $('#pcModal'), cv = $('#pcCanvas'), out = $('#pcImg'), sheet = $('#pcSheet');
   const api = { get isOpen() { return !el.hidden; } };
   let im = null, cols = [], cache = {};
@@ -1959,6 +2007,68 @@ const Postcard = (() => {
       }
       x.putImageData(img, 0, 0);
     }
+    // ---------- 색감·인쇄·윤곽 효과 (픽셀마다 계산) ----------
+    const NEWFX = ['cyanotype', 'sepia', 'infrared', 'crossprocess', 'bleach', 'solarize', 'lomo', 'chroma', 'glassblock', 'emboss', 'sketch', 'crosshatch', 'neon', 'tiltshift'];
+    if (NEWFX.includes(st.fx)) {
+      const img = x.getImageData(0, 0, w, h), d = img.data, ref = new Uint8ClampedArray(d), N = w * h, Lr = new Float32Array(N);
+      for (let p = 0, i = 0; p < N; p++, i += 4) Lr[p] = (.299 * ref[i] + .587 * ref[i + 1] + .114 * ref[i + 2]) / 255;
+      const at = (X, Y) => Math.max(0, Math.min(h - 1, Y | 0)) * w + Math.max(0, Math.min(w - 1, X | 0));
+      const ramp = list => { const S2 = list.map(hx); return t => { t = Math.max(0, Math.min(1, t)); const k = Math.min(S2.length - 2, Math.floor(t * (S2.length - 1))), f = t * (S2.length - 1) - k; return [0, 1, 2].map(j => S2[k][j] + (S2[k + 1][j] - S2[k][j]) * f); }; };
+      // S자 곡선: 어두운 곳은 더 어둡게, 밝은 곳은 더 밝게
+      const sig = (v, k) => { const f = t => 1 / (1 + Math.exp(-k * (t - .5))); return (f(v) - f(0)) / (f(1) - f(0)); };
+      const CYAN = ramp(['#081a3a', '#1c4f8f', '#79a6d8', '#eef4fb']), SEPIA = ramp(['#24160c', '#6f4c2c', '#c4a274', '#f4e8cf']);
+      const uu = Math.min(w, h) / 1200, cx0 = w / 2, cy0 = h / 2, Rm = Math.hypot(cx0, cy0);
+      const cell = Math.max(w, h) / 26, gap = Math.max(1, 3 * uu), per = Math.max(3, 9 * uu);
+      const sobel = p => { const X = p % w, Y = (p - X) / w, g = (a, b) => Lr[at(X + a, Y + b)]; const gx = -g(-1, -1) - 2 * g(-1, 0) - g(-1, 1) + g(1, -1) + 2 * g(1, 0) + g(1, 1), gy = -g(-1, -1) - 2 * g(0, -1) - g(1, -1) + g(-1, 1) + 2 * g(0, 1) + g(1, 1); return Math.min(1, Math.hypot(gx, gy)); };
+      for (let p = 0, i = 0; p < N; p++, i += 4) {
+        const X = p % w, Y = (p - X) / w, L = Lr[p], r = ref[i], g = ref[i + 1], b = ref[i + 2];
+        const vx = X / w - .5, vy = Y / h - .5, vig = vx * vx + vy * vy;
+        let o;
+        switch (st.fx) {
+          case 'cyanotype': o = CYAN(sig(L, 5)); break;
+          case 'sepia': { const n = (rnd(p % 2087) - .5) * 14; o = SEPIA(sig(L, 4)).map(v => v * (1 - vig * .9) + n); break; }
+          // 적외선(에어로크롬): 초록 잎이 붉은 분홍으로 바뀌어요
+          case 'infrared': o = [Math.min(255, g * 1.25 + 20), r * .75, b * 1.05].map((v, k) => 255 * sig(v / 255, k === 0 ? 4 : 5)); break;
+          // 크로스 프로세스: 채널마다 다른 곡선 → 그림자는 청록, 밝은 곳은 노랗게
+          case 'crossprocess': o = [255 * sig(r / 255, 7), 255 * sig(g / 255, 5), 40 + b * .7]; break;
+          // 블리치 바이패스: 흑백을 색 위에 겹친 듯, 채도는 낮고 대비는 높게
+          case 'bleach': { const m = 255 * sig(L, 7); o = [r, g, b].map(v => m * .62 + v * .38); break; }
+          // 솔라리제이션(만 레이): 밝은 부분의 명암이 뒤집혀요
+          case 'solarize': { const v = L < .55 ? L : 1.1 - L; o = [255 * sig(v * 1.8, 4)].concat(255 * sig(v * 1.8, 4), 255 * sig(v * 1.8, 4)); break; }
+          case 'lomo': { const avg = (r + g + b) / 3, k = 1 - vig * 1.6; o = [r, g, b].map((v, j) => 255 * sig(Math.max(0, (avg + (v - avg) * 1.5) / 255), 6) * Math.max(0, k) + (j === 2 ? 8 : 0)); break; }
+          // 색수차: 가장자리로 갈수록 빨강·파랑이 바깥·안쪽으로 어긋나요
+          case 'chroma': { const s1 = 1 + .035 * Math.hypot(X - cx0, Y - cy0) / Rm, s2 = 1 - .035 * Math.hypot(X - cx0, Y - cy0) / Rm; const jr = at(cx0 + (X - cx0) / s1, cy0 + (Y - cy0) / s1) * 4, jb = at(cx0 + (X - cx0) / s2, cy0 + (Y - cy0) / s2) * 4; o = [ref[jr], g, ref[jb + 2]]; break; }
+          // 유리 블록: 칸마다 작은 렌즈처럼 안쪽이 확대되고, 칸 사이에 밝은 줄
+          case 'glassblock': { const gx0 = Math.floor(X / cell) * cell + cell / 2, gy0 = Math.floor(Y / cell) * cell + cell / 2, j = at(gx0 + (X - gx0) * .55, gy0 + (Y - gy0) * .55) * 4, edge = (X % cell < gap || Y % cell < gap) ? 40 : 0; o = [ref[j] + edge, ref[j + 1] + edge, ref[j + 2] + edge]; break; }
+          case 'emboss': { const v = 128 + (Lr[at(X - 1, Y - 1)] - Lr[at(X + 1, Y + 1)]) * 255 * 2.2; o = [v, v, v - 6]; break; }
+          case 'sketch': { const e = sobel(p), n = (rnd(p % 1931) - .5) * 10, v = 246 - Math.pow(e, .7) * 255 * 1.1 - (1 - L) * 30 + n; o = [v, v, v - 4]; break; }
+          // 크로스해치: 어두울수록 선 방향이 한 겹씩 더해져요
+          case 'crosshatch': { const d1 = (X + Y) % per < per * .22, d2 = (X - Y + 99999) % per < per * .22, d3 = Y % per < per * .22; const ink = (L < .78 && d1) || (L < .52 && d2) || (L < .3 && d3) || L < .1; o = ink ? [28, 26, 24] : [244, 240, 230]; break; }
+          // 네온 윤곽: 윤곽선만 남기고, 가로 위치에 따라 분홍→하늘 색으로 빛나요
+          case 'neon': { const e = Math.min(1, Math.pow(sobel(p) * 2.6, .8)), t = X / w; o = [255 * (1 - t) * e + 30 * e, 80 * e, 255 * t * e + 120 * e * (1 - t)]; break; }
+          // 미니어처: 채도를 올리고 (흐림은 아래에서 위·아래만)
+          case 'tiltshift': { const avg = (r + g + b) / 3; o = [r, g, b].map(v => avg + (v - avg) * 1.45); break; }
+        }
+        d[i] = o[0]; d[i + 1] = o[1]; d[i + 2] = o[2];
+      }
+      x.putImageData(img, 0, 0);
+      if (st.fx === 'tiltshift') {
+        // 위·아래만 흐리게: 흐린 사진에 가운데가 비는 그라디언트 마스크를 씌워 덮어요
+        const bl = blurC(can, 22), bx2 = bl.getContext('2d'), gm = bx2.createLinearGradient(0, 0, 0, h);
+        gm.addColorStop(0, 'rgba(0,0,0,1)'); gm.addColorStop(.3, 'rgba(0,0,0,.85)'); gm.addColorStop(.44, 'rgba(0,0,0,0)'); gm.addColorStop(.56, 'rgba(0,0,0,0)'); gm.addColorStop(.7, 'rgba(0,0,0,.85)'); gm.addColorStop(1, 'rgba(0,0,0,1)');
+        bx2.globalCompositeOperation = 'destination-in'; bx2.fillStyle = gm; bx2.fillRect(0, 0, w, h);
+        x.drawImage(bl, 0, 0);
+      }
+    }
+    if (st.fx === 'lightleak') {
+      // 빛 번짐: 필름 끝이 빛에 샌 것처럼 주황·빨강 빛이 가장자리에서 번져요
+      x.globalCompositeOperation = 'screen';
+      [[rnd(1) < .5 ? 0 : w, h * rnd(2), '255,120,40'], [w * rnd(3), rnd(4) < .5 ? 0 : h, '255,60,60'], [rnd(5) < .5 ? 0 : w, h * rnd(6), '255,200,80']].forEach(([lx, ly, c2], k) => {
+        const rg = x.createRadialGradient(lx, ly, 0, lx, ly, Math.max(w, h) * (.55 - k * .1));
+        rg.addColorStop(0, `rgba(${c2},.85)`); rg.addColorStop(1, `rgba(${c2},0)`); x.fillStyle = rg; x.fillRect(0, 0, w, h);
+      });
+      x.globalCompositeOperation = 'source-over';
+    }
     cache = { key, c: can };
     return can;
   }
@@ -2185,17 +2295,6 @@ const Postcard = (() => {
       [['#ff4f9a', '#ffe14d'], ['#2747ff', '#7dffc0'], ['#ff6a00', '#b9a8ff'], ['#00b8a0', '#ffd0e0']].forEach((pr, i) => x.drawImage(popCell(W / 2, H / 2, pr), (i % 2) * W / 2, Math.floor(i / 2) * H / 2));
       const R = inset();
       put([[R, 'mc'], [R, 'bc'], [R, 'tl'], [R, 'bl'], [R, 'tc']], { ...onPhoto, muted: onPhoto.ink, shadow: true });
-    } else if (st.layout === 'bluenote') {
-      // Reid Miles의 Blue Note 앨범: 한 가지 색으로 물들이고 과감하게 자른 사진 + 한곳에 모은 굵은 글자
-      const tint = '#2f6fd0', R = land ? { x: m, y: m + 50 * u, w: W * .38 - m * 1.5, h: H - m * 2 - 50 * u } : { x: m, y: H * .5 + m * .6, w: W - m * 2, h: H * .5 - m * 1.6 };
-      const P = land ? [W * .38, 0, W * .62, H] : [0, 0, W, H * .5];
-      x.drawImage(fxCanvas(P[2] * 1.5, P[3] * 1.5, c), P[2] * .25, P[3] * .1, P[2], P[3], P[0], P[1], P[2], P[3]);
-      if (st.fx === 'none') { x.globalCompositeOperation = 'color'; x.fillStyle = tint; x.fillRect(...P); x.globalCompositeOperation = 'source-over'; }
-      x.fillStyle = tint; land ? x.fillRect(W * .38 - 14 * u, 0, 14 * u, H) : x.fillRect(0, H * .5, W, 14 * u);
-      mono(x, 20 * u, c.muted);
-      x.fillText('HAMIHAMOO  ·  BLP ' + String(1500 + idx), m, land ? m + 10 * u : H - m * .5);
-      const Rp = { x: P[0] + m, y: P[1] + m, w: P[2] - m * 2, h: P[3] - m * 2 };
-      put([[R, land ? 'bl' : 'tl'], [R, land ? 'tl' : 'bl'], [R, land ? 'ml' : 'tr'], [Rp, 'bl', onPhoto], [Rp, 'tr', onPhoto]]);
     } else if (st.layout === 'repeat') {
       // 큰 글자를 꽉 채워 반복하고, 가운데 사진 위를 지나는 줄은 색이 뒤집혀 보여요 (끌면 글자 띠가 움직여요)
       const t0 = ((st.upper ? title.toUpperCase() : title) || MONTH_FULL[month].toUpperCase()).replace(/\n/g, ' ') + '  —  ';
@@ -2313,6 +2412,128 @@ const Postcard = (() => {
         if (cur && lines.length < maxRows * 2) lines.push(cur);
         lines.slice(0, maxRows * 2).forEach((l, i) => { const col = i < maxRows ? 0 : 1, rI = i % maxRows; x.fillText(l, page.x + col * (cw + g) + (col === 0 && rI < 3 ? dw : 0), by + lh * (rI + 1)); });
       }
+    } else if (st.layout === 'campaign') {
+      // 캠페인(패션 브랜드 광고): 꽉 찬 사진 한가운데 작고 굵은 글씨 한 줄
+      pic(0, 0, W, H);
+      const R = inset(1.2);
+      put([[R, 'mc'], [R, 'bc'], [R, 'tc'], [R, 'bl'], [R, 'tl']], { ...onPhoto, shadow: false, meta: '' });
+    } else if (st.layout === 'filmstill') {
+      // 영화 스틸: 검은 바탕에 2.39:1 화면, 그 아래쪽에 자막처럼 글씨
+      const ph = Math.min(W / 2.39, H * .8), py = (H - ph) / 2;
+      x.fillStyle = '#0a0a0a'; x.fillRect(0, 0, W, H);
+      pic(0, py, W, ph);
+      mono(x, 18 * u, 'rgba(255,255,255,.55)');
+      x.fillText(`SCENE ${String(idx).padStart(3, '0')}`, m, py - 24 * u); x.textAlign = 'right';
+      x.fillText(`00:${String(12 + idx % 47).padStart(2, '0')}:${String((idx * 7) % 60).padStart(2, '0')}:${String((idx * 13) % 24).padStart(2, '0')}`, W - m, py - 24 * u); x.textAlign = 'left';
+      const Rs = { x: m * 2, y: py + ph * .62, w: W - m * 4, h: ph * .34 }, Rb = { x: m, y: py + ph + 30 * u, w: W - m * 2, h: H - (py + ph + 30 * u) - m };
+      put([[Rs, 'bc'], [Rs, 'mc'], [Rb, 'tc']], { ink: '#fff6c8', muted: 'rgba(255,255,255,.6)', subInk: '#fff6c8', shadow: true, meta: '' });
+    } else if (st.layout === 'calendar') {
+      // 달력: 사진 아래(가로형은 옆)에 그 사진을 찍은 달의 달력, 찍은 날에 동그라미
+      const dd = p.date ? new Date(p.date + 'T12:00:00') : new Date(), yy = st.calYear || dd.getFullYear(), mo = dd.getMonth(), day = yy === dd.getFullYear() ? dd.getDate() : 0;
+      const first = new Date(yy, mo, 1).getDay(), days = new Date(yy, mo + 1, 0).getDate();
+      let Rp, G;
+      if (land) { Rp = { x: m, y: m, w: W * .5 - m, h: H - m * 2 }; G = { x: W * .5 + m, y: m, w: W * .5 - m * 2, h: H - m * 2 }; }
+      else { Rp = { x: m, y: m, w: W - m * 2, h: H * .5 }; G = { x: m, y: m + H * .5 + 40 * u, w: W - m * 2, h: H * .5 - m * 2 - 40 * u }; }
+      pic(Rp.x, Rp.y, Rp.w, Rp.h);
+      const hs = Math.round(Math.min(G.h * .2, G.w * .16));
+      x.fillStyle = c.ink; x.font = `italic ${hs}px "Instrument Serif", Georgia, serif`; x.fillText(MONTH_FULL[mo], G.x, G.y + hs * .8);
+      mono(x, 20 * u, c.muted); x.textAlign = 'right'; x.fillText(String(yy), G.x + G.w, G.y + hs * .8); x.textAlign = 'left';
+      const gy = G.y + hs + 30 * u, cw = G.w / 7, rows = Math.ceil((first + days) / 7), rh = Math.min((G.h - hs - 60 * u) / (rows + 1), cw * .8);
+      x.textAlign = 'center'; mono(x, 17 * u, c.muted);
+      'SMTWTFS'.split('').forEach((d2, k) => x.fillText(d2, G.x + cw * (k + .5), gy + rh * .5));
+      x.font = `500 ${Math.round(Math.min(30 * u, rh * .45))}px Pretendard, sans-serif`;
+      for (let n = 1; n <= days; n++) {
+        const k = first + n - 1, cx = G.x + cw * (k % 7 + .5), cy = gy + rh * (Math.floor(k / 7) + 1.5);
+        if (n === day) { x.fillStyle = c.accent; x.beginPath(); x.arc(cx, cy - rh * .14, rh * .36, 0, Math.PI * 2); x.fill(); x.fillStyle = lum(c.accent) > .55 ? '#1c1b18' : '#fbfaf6'; }
+        else x.fillStyle = k % 7 === 0 ? c.accent : c.ink;
+        x.fillText(String(n), cx, cy);
+      }
+      x.textAlign = 'left';
+      const Rph = { x: Rp.x + m * .7, y: Rp.y + m * .7, w: Rp.w - m * 1.4, h: Rp.h - m * 1.4 };
+      put([[Rph, 'bl', onPhoto], [Rph, 'tl', onPhoto], [Rph, 'bc', onPhoto]], { meta: '' });
+    } else if (st.layout === 'receipt') {
+      // 영수증: 톱니처럼 찢긴 감열지 위에 흑백 사진, 항목 줄, 합계, 바코드
+      const rw = land ? H * .62 : W * .66, rx = (W - rw) / 2, ry = m * .6, rh = H - m * 1.2, pad = rw * .08, ink = '#1d1c1a';
+      x.save(); x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = 40 * u; x.shadowOffsetY = 14 * u;
+      x.fillStyle = '#f7f5ef'; x.beginPath();
+      const zz = rw / 28; x.moveTo(rx, ry + zz);
+      for (let k = 0; k < 28; k++) { x.lineTo(rx + zz * (k + .5), ry); x.lineTo(rx + zz * (k + 1), ry + zz); }
+      x.lineTo(rx + rw, ry + rh - zz);
+      for (let k = 28; k > 0; k--) { x.lineTo(rx + zz * (k - .5), ry + rh); x.lineTo(rx + zz * (k - 1), ry + rh - zz); }
+      x.closePath(); x.fill(); x.restore();
+      const inner = rw - pad * 2; let y = ry + pad;
+      x.fillStyle = ink; x.textAlign = 'center'; x.font = `700 ${Math.round(rw * .065)}px "Space Mono", monospace`; x.fillText('HAMIHAMOO', W / 2, y + rw * .05);
+      x.font = `${Math.round(rw * .03)}px "Space Mono", monospace`; x.fillText('PHOTO ARCHIVE · NO. ' + String(idx).padStart(4, '0'), W / 2, y + rw * .1);
+      x.fillText((date || '') + '  ' + String(9 + idx % 12).padStart(2, '0') + ':' + String((idx * 7) % 60).padStart(2, '0'), W / 2, y + rw * .145);
+      y += rw * .19;
+      const dash = yy2 => { x.save(); x.strokeStyle = ink; x.setLineDash([6 * u, 6 * u]); x.lineWidth = 2 * u; x.beginPath(); x.moveTo(rx + pad, yy2); x.lineTo(rx + rw - pad, yy2); x.stroke(); x.restore(); };
+      dash(y); y += 20 * u;
+      const phh = inner * .78; pic(rx + pad, y, inner, phh);
+      x.globalCompositeOperation = 'saturation'; x.fillStyle = '#808080'; x.fillRect(rx + pad, y, inner, phh); x.globalCompositeOperation = 'source-over';
+      y += phh + 30 * u;
+      x.textAlign = 'left'; x.font = `${Math.round(rw * .032)}px "Space Mono", monospace`;
+      const rows = [['1 x PHOTOGRAPH', '1'], ...((p.info || '').split(/[,·|]/).map(t2 => t2.trim()).filter(Boolean).slice(0, 3).map(t2 => [t2.toUpperCase().slice(0, 24), '✓'])), ['LIGHT', '100%']];
+      rows.forEach(([k2, v2]) => { x.fillText(k2, rx + pad, y); x.textAlign = 'right'; x.fillText(v2, rx + rw - pad, y); x.textAlign = 'left'; y += rw * .05; });
+      dash(y - rw * .02); y += 10 * u;
+      const Rt = { x: rx + pad, y, w: inner, h: Math.max(60 * u, ry + rh - y - rw * .2) };
+      put([[Rt, 'tl'], [Rt, 'tc']], { ink, muted: '#6b6860', subInk: ink, meta: from ? 'SERVED BY ' + from.toUpperCase() : '' });
+      let bx2 = rx + pad; const by2 = ry + rh - rw * .16;
+      for (let k = 0; bx2 < rx + rw - pad; k++) { const bw2 = (1 + Math.floor(rnd(k + 300) * 3)) * 2.4 * u; if (k % 2 === 0) { x.fillStyle = ink; x.fillRect(bx2, by2, bw2, rw * .07); } bx2 += bw2; }
+      x.fillStyle = ink; x.textAlign = 'center'; x.font = `${Math.round(rw * .028)}px "Space Mono", monospace`; x.fillText('THANK YOU · ' + host, W / 2, by2 + rw * .11); x.textAlign = 'left';
+    } else if (st.layout === 'nowplaying') {
+      // 음악 재생 화면: 흐린 사진 배경, 둥근 앨범 표지, 곡 제목, 재생 막대와 버튼
+      x.drawImage(blurC(fxCanvas(W, H, c), 28), 0, 0, W, H); x.fillStyle = 'rgba(0,0,0,.42)'; x.fillRect(0, 0, W, H);
+      const sz2 = land ? H * .62 : W * .74, ax = land ? m * 1.6 : (W - sz2) / 2, ay = land ? (H - sz2) / 2 : H * .1;
+      x.save(); x.shadowColor = 'rgba(0,0,0,.5)'; x.shadowBlur = 50 * u; x.shadowOffsetY = 20 * u;
+      x.beginPath(); x.roundRect(ax, ay, sz2, sz2, 28 * u); x.fillStyle = '#000'; x.fill(); x.restore();
+      x.save(); x.beginPath(); x.roundRect(ax, ay, sz2, sz2, 28 * u); x.clip(); pic(ax, ay, sz2, sz2); x.restore();
+      const tx0 = land ? ax + sz2 + m * 1.2 : ax, tw = land ? W - tx0 - m * 1.6 : sz2, ty = land ? ay + sz2 * .1 : ay + sz2 + 60 * u;
+      const Rt = { x: tx0, y: ty, w: tw, h: land ? sz2 * .5 : H * .14 };
+      put([[Rt, 'tl'], [Rt, 'tc']], { ink: '#ffffff', muted: 'rgba(255,255,255,.65)', subInk: 'rgba(255,255,255,.75)', meta: '' });
+      const py2 = land ? ay + sz2 * .72 : ty + H * .16, total = 180 + idx % 120, now = Math.round(total * .38);
+      x.fillStyle = 'rgba(255,255,255,.3)'; x.beginPath(); x.roundRect(tx0, py2, tw, 8 * u, 4 * u); x.fill();
+      x.fillStyle = '#fff'; x.beginPath(); x.roundRect(tx0, py2, tw * .38, 8 * u, 4 * u); x.fill(); x.beginPath(); x.arc(tx0 + tw * .38, py2 + 4 * u, 12 * u, 0, Math.PI * 2); x.fill();
+      const tm = v => Math.floor(v / 60) + ':' + String(v % 60).padStart(2, '0');
+      mono(x, 18 * u, 'rgba(255,255,255,.7)'); x.fillText(tm(now), tx0, py2 + 40 * u); x.textAlign = 'right'; x.fillText('-' + tm(total - now), tx0 + tw, py2 + 40 * u); x.textAlign = 'left';
+      // 이전 · 재생 · 다음 버튼
+      const bcx = tx0 + tw / 2, bcy = py2 + 110 * u, bs = 34 * u; x.fillStyle = '#fff';
+      x.fillRect(bcx - bs * .4, bcy - bs * .6, bs * .28, bs * 1.2); x.fillRect(bcx + bs * .12, bcy - bs * .6, bs * .28, bs * 1.2);
+      [[-1, bcx - bs * 2.6], [1, bcx + bs * 2.6]].forEach(([dir, ox2]) => { for (let k = 0; k < 2; k++) { const o2 = ox2 + dir * k * bs * .55 - dir * bs * .3; x.beginPath(); x.moveTo(o2 - dir * bs * .45, bcy - bs * .45); x.lineTo(o2 + dir * bs * .25, bcy); x.lineTo(o2 - dir * bs * .45, bcy + bs * .45); x.fill(); } });
+    } else if (st.layout === 'arch') {
+      // 아치 창: 위가 둥근 창 모양으로 사진을 오리고, 아래에 고전적인 세리프 제목
+      const aw = land ? H * .62 : W * .66, ah = land ? H - m * 2.4 : H * .62, ax = land ? W * .12 : (W - aw) / 2, ay = m * 1.2;
+      const archPath = (x0, y0, w0, h0) => { x.beginPath(); x.moveTo(x0, y0 + h0); x.lineTo(x0, y0 + w0 / 2); x.arc(x0 + w0 / 2, y0 + w0 / 2, w0 / 2, Math.PI, 0); x.lineTo(x0 + w0, y0 + h0); x.closePath(); };
+      x.save(); archPath(ax, ay, aw, ah); x.clip(); pic(ax, ay, aw, ah); x.restore();
+      x.strokeStyle = c.muted; x.lineWidth = 2 * u; archPath(ax - 18 * u, ay - 18 * u, aw + 36 * u, ah + 36 * u); x.stroke();
+      const R = land ? { x: ax + aw + m * 1.4, y: m, w: W - (ax + aw + m * 1.4) - m, h: H - m * 2 } : { x: m, y: ay + ah + 70 * u, w: W - m * 2, h: H - (ay + ah + 70 * u) - m };
+      put(land ? [[R, 'ml'], [R, 'bl'], [R, 'tl']] : [[R, 'tc'], [R, 'tl'], [R, 'mc']]);
+    } else if (st.layout === 'triptych') {
+      // 세 폭(트립틱): 사진 한 장을 세로로 세 폭에 나눠 걸어요. 가운데 폭은 살짝 내려서 리듬을
+      const gap = Math.max(14 * u, W * .022), top = m, ph = land ? H - m * 2 - 150 * u : H * .7, pw = (W - m * 2 - gap * 2) / 3, src = fxCanvas(W - m * 2, ph, c);
+      for (let k = 0; k < 3; k++) { const dy = k === 1 ? ph * .04 : 0; x.drawImage(src, (pw + gap) * k * (src.width / (W - m * 2)), 0, pw * (src.width / (W - m * 2)), src.height, m + (pw + gap) * k, top + dy, pw, ph - ph * .04); }
+      const R = { x: m, y: top + ph + 40 * u, w: W - m * 2, h: H - (top + ph + 40 * u) - m }, Rp = { x: m + gap, y: top + gap, w: W - m * 2 - gap * 2, h: ph - gap * 2 };
+      put([[R, 'tl'], [R, 'tc'], [Rp, 'bl', onPhoto]]);
+    } else if (st.layout === 'museum') {
+      // 미술관 배너: 위에는 전시 제목과 기간, 아래(가로형은 오른쪽)는 꽉 찬 사진
+      const d0 = p.date ? new Date(p.date + 'T12:00:00') : new Date(), d1 = new Date(d0); d1.setMonth(d1.getMonth() + 3);
+      const fd = d2 => `${d2.getFullYear()}.${String(d2.getMonth() + 1).padStart(2, '0')}.${String(d2.getDate()).padStart(2, '0')}`;
+      let Rt, Ph;
+      if (land) { Ph = [W * .48, 0, W * .52, H]; Rt = { x: m, y: m * 1.6, w: W * .48 - m * 2, h: H - m * 3.2 - 120 * u }; }
+      else { Ph = [0, H * .46, W, H * .54]; Rt = { x: m, y: m * 1.6, w: W - m * 2, h: H * .46 - m * 2.6 - 90 * u }; }
+      pic(...Ph);
+      mono(x, 20 * u, c.ink); x.fillText('HAMIHAMOO MUSEUM OF PHOTOGRAPHY', m, m);
+      put([[Rt, 'bl'], [Rt, 'tl']], { meta: '' });
+      x.fillStyle = c.ink; x.font = `700 ${Math.round(34 * u)}px Pretendard, sans-serif`;
+      x.fillText(fd(d0) + ' — ' + fd(d1), m, land ? H - m * 1.6 : H * .46 - m * .8);
+    } else if (st.layout === 'cutstrip') {
+      // 잘린 글자: 큰 글씨를 가로로 잘라 띠마다 옆으로 어긋나게 붙이고, 사진은 한쪽에 작게
+      const pw = land ? W * .3 : W * .42, ph2 = pw * 1.25;
+      pic(W - m - pw, H - m - ph2, pw, ph2);
+      const t = document.createElement('canvas'); t.width = W; t.height = H; const tx = t.getContext('2d');
+      put([[inset(), 'tl'], [inset(), 'ml'], [inset(), 'bl']], { sub: '', meta: '' }, tx);
+      const bands = 9 + Math.floor(rnd(31) * 6);
+      for (let k = 0, y0 = 0; k < bands; k++) { const bh = H / bands, dx = (rnd(k + 40) - .5) * W * .08; x.drawImage(t, 0, y0, W, bh + 1, dx, y0, W, bh + 1); y0 += bh; }
+      mono(x, 20 * u, c.ink); x.fillText([sub, meta].filter(Boolean).join('   ·   ') || host, m, H - m * .6);
     }
     st.spots = spots.map(s => ({ R: s.R, pos: s.pos, W, H }));
     prepareFile();
@@ -2380,7 +2601,44 @@ const Postcard = (() => {
   }
 
   // ---------- 조작 ----------
+  // 분류 버튼과 목록 버튼을 한 번 그려 둬요 (고른 분류와 접힘 상태는 이 브라우저에 기억해요)
+  const ui = store.get('hm-pc-ui', { cats: {}, open: { layout: true, text: true } });
+  const ID = { fmt: '#pcFmt', layout: '#pcLayout', fx: '#pcFx', font: '#pcFont' };
+  const label = (g, v) => (CAT[g].items.find(it => it[0] === v) || [, v])[1];
+  function buildLists() {
+    Object.entries(CAT).forEach(([g, { cats, items }]) => {
+      const cur = ui.cats[g] || 'all';
+      $(ID[g] + 'Cats').innerHTML = [['all', '전체'], ...Object.entries(cats)].map(([k, t]) => `<button type="button" data-cat="${k}" class="${k === cur ? 'on' : ''}">${t}</button>`).join('');
+      $(ID[g]).innerHTML = items.map(([k, t, c, sty]) => `<button class="pill${cur !== 'all' && c !== cur ? ' off' : ''}" data-v="${k}" data-c="${c}"${sty ? ` style="${sty}"` : ''}>${t}</button>`).join('');
+      $(ID[g] + 'Cats').addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        ui.cats[g] = b.dataset.cat; store.set('hm-pc-ui', ui);
+        $$('button', $(ID[g] + 'Cats')).forEach(x => x.classList.toggle('on', x === b));
+        $$('.pill', $(ID[g])).forEach(x => x.classList.toggle('off', b.dataset.cat !== 'all' && x.dataset.c !== b.dataset.cat));
+      });
+    });
+    $$('.pc-sec', el).forEach(d => {
+      d.open = !!ui.open[d.dataset.sec];
+      d.addEventListener('toggle', () => { ui.open[d.dataset.sec] = d.open; store.set('hm-pc-ui', ui); });
+    });
+  }
+  buildLists();
+  // 접어 둔 묶음 제목 옆에 지금 고른 것을 보여 줘요
+  function paintSummary() {
+    const sum = (k, t) => { const e = $('#pcSum-' + k); if (e) e.textContent = t; };
+    sum('fmt', label('fmt', st.fmt) + ' · 사진 ' + Math.round(st.zoom * 100) + '%');
+    sum('layout', label('layout', st.layout));
+    sum('fx', label('fx', st.fx));
+    sum('text', ($('#pcText').value.trim().split('\n')[0] || '(비어 있음)'));
+    sum('font', label('font', st.font) + ' · ' + Math.round(st.size * 100) + '% · ' + st.weight);
+    sum('pos', st.ox || st.oy ? '직접 옮김' : '추천 ' + (st.spot % Math.max(1, (st.spots || []).length) + 1) + '번');
+    sum('color', (st.tcolor ? '글씨 ' + st.tcolor : '글씨 자동') + ' · 바탕 ' + st.color);
+  }
   function paintControls() {
+    paintSummary();
+    // 달력 디자인일 때만 연도 고르기가 보여요
+    $('#pcCal').hidden = st.layout !== 'calendar';
+    if (st.p) $('#pcCalYear').value = st.calYear || (st.p.date ? +st.p.date.slice(0, 4) : new Date().getFullYear());
     [['#pcFmt', 'fmt'], ['#pcLayout', 'layout'], ['#pcFx', 'fx'], ['#pcFont', 'font']].forEach(([id, k]) => $$('button', $(id)).forEach(b => b.classList.toggle('on', b.dataset.v === st[k])));
     $$('#pcAlign button').forEach(b => b.classList.toggle('on', b.dataset.v === st.align));
     // 글씨 색: 자동 + 자주 쓰는 색 + 이 사진에서 뽑은 색 + 직접 고르기
@@ -2406,7 +2664,7 @@ const Postcard = (() => {
   }
   api.open = p => {
     paintAdmin();
-    st.p = p; el.hidden = false; im = null; cache = {}; pop = {}; Object.assign(st, { zoom: 1, cx: .5, cy: .5 });
+    st.p = p; el.hidden = false; im = null; cache = {}; pop = {}; Object.assign(st, { zoom: 1, cx: .5, cy: .5, calYear: null });
     $('#pcText').value = $('#pcText').value || (S.site.heroNote || '').replace(/\n/g, ' ');
     const i = new Image();
     i.onload = () => {
@@ -2423,6 +2681,10 @@ const Postcard = (() => {
   chips('#pcLayout', v => { useLayout(v); popIn(); });
   // 같은 효과를 한 번 더 누르면 조각 배치·색 묶음이 바뀌어요
   chips('#pcFx', v => { if (v === st.fx) st.seed++; st.fx = v; });
+  const setYear = y => { st.calYear = Math.max(1900, Math.min(2200, Math.round(y) || new Date().getFullYear())); paintControls(); draw(); };
+  $('#pcCalYear').addEventListener('change', e => setYear(+e.target.value));
+  $('#pcCalPrev').onclick = () => setYear(+$('#pcCalYear').value - 1);
+  $('#pcCalNext').onclick = () => setYear(+$('#pcCalYear').value + 1);
   chips('#pcFont', v => { st.font = v; st.weight = FONT[v][6]; });
   chips('#pcTColor', v => { st.tcolor = v === 'auto' ? null : v; });
   $('#pcTPick').addEventListener('input', e => { st.tcolor = e.target.value; paintControls(); draw(); });
@@ -2433,11 +2695,11 @@ const Postcard = (() => {
   $('#pcUpper').onclick = () => { st.upper = !st.upper; paintControls(); draw(); };
   $('#pcWeight').addEventListener('input', e => { st.weight = +e.target.value; paintWeight(); draw(); });
   $('#pcSize').addEventListener('input', e => { st.size = e.target.value / 100; $('#pcSizeN').textContent = e.target.value + '%'; draw(); });
-  ['#pcText', '#pcSub', '#pcFrom'].forEach(id => $(id).addEventListener('input', () => draw()));
+  ['#pcText', '#pcSub', '#pcFrom'].forEach(id => $(id).addEventListener('input', () => { draw(); paintSummary(); }));
   $('#pcDice').onclick = () => {
     const pick = a => a[Math.floor(Math.random() * a.length)];
     useLayout(pick(Object.keys(LAYOUT).filter(l => l !== st.layout)));
-    st.fx = pick(['none', 'none', 'ghost', 'bluemon', 'heat', 'shutter', 'zoom', 'highkey', 'slitscan', 'ripple', 'fisheye', 'mono', 'duo', 'halftone', 'riso', 'poster', 'slice', 'mirror', 'pixel', 'dither', 'dreamy', 'vintage', 'invert', 'glitch', 'stencil', 'gradmap', 'thermal', 'lines', 'xerox', 'motion', 'kaleido']);
+    st.fx = pick(['none', 'none', ...CAT.fx.items.map(it => it[0])]);
     if (Math.random() < .5) { st.font = pick(Object.keys(FONT)); st.weight = FONT[st.font][6]; }
     st.color = pick([...Object.keys(PAPER), ...cols.map((v, i) => 'c' + i)]);
     st.seed = Math.floor(Math.random() * 1000);
@@ -2517,7 +2779,7 @@ const Postcard = (() => {
     if (pinch) { if (touches.size < 2) pinch = null; return; }
     if (!drag) return;
     const mode = drag.mode;
-    drag = null; cancelAnimationFrame(raf); raf = 0; draw();
+    drag = null; cancelAnimationFrame(raf); raf = 0; draw(); paintSummary();
     if (mode === 'photo') return sheet.classList.remove('panning');
     // 그리드 선 가까이에서 놓으면 그 선에 맞춰 짧게 미끄러져 붙어요
     const sn = snapOf(st.box), dx = sn && sn.x ? sn.x.d : 0, dy = sn && sn.y ? sn.y.d : 0;
