@@ -542,7 +542,8 @@ body.top-visible .toolbar { top: var(--top-h); }
 .cm-dl-menu b { font-weight: 500; font-size: 14px; }
 .cm-dl-menu small { font-size: 12px; color: var(--ink-3); }
 @keyframes dlIn { from { opacity: 0; transform: translateY(4px); } }
-.cm-pick { display: grid; place-items: center; grid-template-columns: 1fr; }
+/* 크게 보기 창(.pview)의 3칸 배치를 물려받지 않게 한 칸으로 */
+.pview.cm-pick { display: grid; place-items: center; grid-template-columns: minmax(0, 1fr); }
 .cm-pick-box { width: min(980px, 100%); max-height: calc(100vh - 48px); display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 14px; }
 .cm-pick-head { display: flex; align-items: center; gap: 14px; }
 .cm-pick-head b { font-family: var(--f-display); font-weight: 400; font-size: 28px; margin-right: auto; }
