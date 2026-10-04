@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Gothic+A1:wght@100;300;500;700;800;900&family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@100;300;500;600;700&family=Orbit&family=Playfair+Display:ital,wght@1,400..900&family=Fraunces:wght@100..900&family=Cormorant+Garamond:ital,wght@1,300..700&family=DM+Serif+Display&family=Syne:wght@400..800&family=Archivo+Black&family=Bebas+Neue&family=Inter+Tight:wght@100..900&family=Space+Mono:wght@400;700&family=Major+Mono+Display&family=UnifrakturMaguntia&family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..900&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@100..900&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@200..900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@100..800&family=Noto+Serif+KR:wght@200..900&display=swap">
-<link rel="stylesheet" href="app.css?v=19">
+<link rel="stylesheet" href="app.css?v=20">
 <script>
   // 저장된 밝기 모드를 화면이 그려지기 전에 적용해 깜빡임을 막아요.
   try { var t = localStorage.getItem('hm-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -111,6 +111,10 @@
             <div style="flex:1"><div class="mono faint pc-l">크기 <span id="pcSizeN">100%</span></div><input type="range" id="pcSize" min="40" max="240" value="100" class="pc-range"></div>
             <div style="flex:1"><div class="mono faint pc-l">두께 <span id="pcWeightN">400</span></div><input type="range" id="pcWeight" min="100" max="900" step="100" value="400" class="pc-range"></div>
           </div>
+          <div class="pc-row">
+            <div style="flex:1"><div class="mono faint pc-l">자간 <span id="pcTrackN">0</span></div><input type="range" id="pcTrack" min="-10" max="60" value="0" class="pc-range" aria-label="글자 사이 간격"></div>
+            <div style="flex:1"><div class="mono faint pc-l">행간 <span id="pcLeadN">100%</span></div><input type="range" id="pcLead" min="70" max="220" value="100" class="pc-range" aria-label="줄 사이 간격"></div>
+          </div>
           <button class="pill" id="pcUpper" style="margin-top:10px">ABC 대문자</button>
         </div></details>
         <details class="pc-sec" data-sec="pos"><summary><span>글씨 자리</span><em id="pcSum-pos"></em></summary><div class="pc-sec-body">
@@ -124,6 +128,8 @@
         <details class="pc-sec" data-sec="color"><summary><span>색</span><em id="pcSum-color"></em></summary><div class="pc-sec-body">
           <div class="mono faint pc-l">글씨 색</div>
           <div class="pc-row" style="align-items:center"><div class="pc-swatches" id="pcTColor" style="flex:1"></div><input type="color" id="pcTPick" value="#d8401e" class="pc-pick" aria-label="글씨 색 직접 고르기"></div>
+          <div class="mono faint pc-l">글씨 테두리 <span id="pcOutN">없음</span></div>
+          <div class="pc-row" style="align-items:center"><input type="range" id="pcOut" min="0" max="10" value="0" class="pc-range" style="flex:1" aria-label="테두리 굵기"><button type="button" class="pill" id="pcOutAuto">자동 색</button><input type="color" id="pcOutPick" value="#141413" class="pc-pick" aria-label="테두리 색 고르기"></div>
           <div class="mono faint pc-l">바탕 색 <span class="faint">(뒤 두 줄은 이 사진에서 뽑은 색)</span></div>
           <div class="pc-swatches" id="pcColor"></div>
         </div></details>
@@ -148,6 +154,6 @@
 <div class="toast" id="toast"></div>
 <div class="curtain" id="curtain"></div>
 
-<script src="app.js?v=19" defer></script>
+<script src="app.js?v=20" defer></script>
 </body>
 </html>

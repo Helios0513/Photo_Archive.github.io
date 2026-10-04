@@ -1761,7 +1761,7 @@ const Postcard = (() => {
       ['mono', 'Mono', 'en', "font-family:'JetBrains Mono'"], ['spacemono', 'Space Mono', 'en', "font-family:'Space Mono'"], ['majormono', 'major mono', 'en', "font-family:'Major Mono Display'"]] },
   };
   const PAPER = { white: '#fbfaf6', cream: '#f1e9d8', black: '#141413', orange: '#e2672b' };
-  const st = { p: null, fmt: 'land', layout: 'card', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, calYear: null, calMonth: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
+  const st = { p: null, fmt: 'land', layout: 'card', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, calYear: null, calMonth: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
   const el = $('#pcModal'), cv = $('#pcCanvas'), out = $('#pcImg'), sheet = $('#pcSheet');
   const api = { get isOpen() { return !el.hidden; } };
   let im = null, cols = [], cache = {};
@@ -2074,17 +2074,17 @@ const Postcard = (() => {
   }
 
   // ---------- 글씨 ----------
-  function wrap(x, t, maxW) {
+  function wrap(x, t, maxW, meas = s0 => x.measureText(s0).width) {
     const lines = [];
     t.split('\n').forEach(par => {
       let cur = '';
       const push = () => { if (cur.trim()) lines.push(cur.trim()); cur = ''; };
       for (const word of par.split(/\s+/).filter(Boolean)) {
         const next = cur ? cur + ' ' + word : word;
-        if (x.measureText(next).width <= maxW) { cur = next; continue; }
+        if (meas(next) <= maxW) { cur = next; continue; }
         push();
-        if (x.measureText(word).width <= maxW) { cur = word; continue; }
-        for (const ch of word) { if (cur && x.measureText(cur + ch).width > maxW) push(); cur += ch; }
+        if (meas(word) <= maxW) { cur = word; continue; }
+        for (const ch of word) { if (cur && meas(cur + ch) > maxW) push(); cur += ch; }
       }
       push();
     });
@@ -2100,11 +2100,14 @@ const Postcard = (() => {
     const titleInk = st.tcolor || o.ink, subInk = st.tcolor || o.subInk || o.ink;
     const pos = o.pos || 'tl', row = pos[0], col = st.align || pos[1];
     x.font = f.font;
-    const lines = wrap(x, t, R.w);
+    // 자간(글자 사이)은 글씨 크기에 대한 비율, 행간(줄 사이)은 글꼴 기본값에 곱해요
+    const ls = st.track * size, LH = lh * st.lead;
+    const lineW = l => ls ? [...l].reduce((a, ch) => a + x.measureText(ch).width, 0) + ls * Math.max(0, [...l].length - 1) : x.measureText(l).width;
+    const lines = wrap(x, t, R.w, lineW);
     const subSize = Math.max(Math.round(size * .24), Math.round(26 * u)), metaSize = Math.round(21 * u);
     x.font = `400 ${subSize}px Pretendard, sans-serif`;
     const subs = o.sub ? wrap(x, o.sub, Math.min(R.w, 900 * u)) : [];
-    const titleH = lines.length ? size * .8 + (lines.length - 1) * size * lh + size * .22 : 0;
+    const titleH = lines.length ? size * .8 + (lines.length - 1) * size * LH + size * .22 : 0;
     const subH = subs.length ? subSize * 1.5 * subs.length + (titleH ? size * .2 : 0) : 0;
     const metaH = o.meta ? metaSize * 1.2 + ((titleH || subH) ? metaSize * 1.6 : 0) : 0;
     const H = titleH + subH + metaH;
@@ -2115,11 +2118,25 @@ const Postcard = (() => {
     // 실제로 잉크가 묻는 범위(글자 모양 그대로)를 모아 두었다가 점선 상자와 그리드 맞춤에 써요
     let bl = Infinity, bt = Infinity, br = -Infinity, bb = -Infinity;
     const ink = (s0, X0, Y0, pad) => { const mt = x.measureText(s0); bl = Math.min(bl, X0 - mt.actualBoundingBoxLeft - pad); br = Math.max(br, X0 + mt.actualBoundingBoxRight + pad); bt = Math.min(bt, Y0 - mt.actualBoundingBoxAscent - pad); bb = Math.max(bb, Y0 + mt.actualBoundingBoxDescent + pad); };
+    // 테두리: 글씨 뒤에 굵은 선을 먼저 그리고 그 위에 글씨를 덮어요 (색은 고르거나, 글씨와 반대되는 색)
+    const ow = st.outline * size * .012, oc = st.ocolor || (lum(titleInk) > .5 ? '#141413' : '#fbfaf6');
+    const outline = (str, X0, Y0, w0) => { if (!w0) return; x.save(); x.shadowColor = 'transparent'; x.lineJoin = 'round'; x.lineWidth = w0 * 2; x.strokeStyle = oc; x.strokeText(str, X0, Y0); x.restore(); };
     x.fillStyle = titleInk; x.font = f.font;
-    lines.forEach((l, i) => { const Y0 = y + size * .8 + i * size * lh; fill(x, f, l, X, Y0); ink(l, X, Y0, f.extra / 2); });
+    lines.forEach((l, i) => {
+      const Y0 = y + size * .8 + i * size * LH;
+      if (!ls) { outline(l, X, Y0, ow); fill(x, f, l, X, Y0); ink(l, X, Y0, f.extra / 2 + ow); return; }
+      // 자간이 있으면 한 글자씩 놓아요 (어느 브라우저에서나 똑같이 보이게)
+      const w = lineW(l), mt = x.measureText(l); let cx = col === 'l' ? X : col === 'c' ? X - w / 2 : X - w;
+      const a0 = x.textAlign; x.textAlign = 'left';
+      for (const ch of l) { outline(ch, cx, Y0, ow); fill(x, f, ch, cx, Y0); cx += x.measureText(ch).width + ls; }
+      x.textAlign = a0;
+      const sx = col === 'l' ? X : col === 'c' ? X - w / 2 : X - w, pad = f.extra / 2 + ow;
+      bl = Math.min(bl, sx - pad); br = Math.max(br, sx + w + pad); bt = Math.min(bt, Y0 - mt.actualBoundingBoxAscent - pad); bb = Math.max(bb, Y0 + mt.actualBoundingBoxDescent + pad);
+    });
     y += titleH + (subs.length && titleH ? size * .2 : 0);
     x.fillStyle = subInk; x.font = `400 ${subSize}px Pretendard, sans-serif`;
-    subs.forEach((l, i) => { const Y0 = y + subSize * (1.1 + i * 1.5); x.fillText(l, X, Y0); ink(l, X, Y0, 0); });
+    const sow = st.outline * subSize * .02;
+    subs.forEach((l, i) => { const Y0 = y + subSize * (1.1 + i * 1.5); outline(l, X, Y0, sow); x.fillText(l, X, Y0); ink(l, X, Y0, sow); });
     y += subs.length ? subSize * 1.5 * subs.length : 0;
     if (o.meta) { const Y0 = y + metaH - metaSize * .2; x.fillStyle = o.muted; x.font = `${metaSize}px "JetBrains Mono", monospace`; x.fillText(o.meta, X, Y0); ink(o.meta, X, Y0, 0); }
     if (bl < Infinity) markBox(x, bl, bt, br - bl, bb - bt);
@@ -2630,9 +2647,9 @@ const Postcard = (() => {
     sum('layout', label('layout', st.layout));
     sum('fx', label('fx', st.fx));
     sum('text', ($('#pcText').value.trim().split('\n')[0] || '(비어 있음)'));
-    sum('font', label('font', st.font) + ' · ' + Math.round(st.size * 100) + '% · ' + st.weight);
+    sum('font', label('font', st.font) + ' · ' + Math.round(st.size * 100) + '% · ' + st.weight + (st.track ? ' · 자간 ' + Math.round(st.track * 100) : ''));
     sum('pos', st.ox || st.oy ? '직접 옮김' : '추천 ' + (st.spot % Math.max(1, (st.spots || []).length) + 1) + '번');
-    sum('color', (st.tcolor ? '글씨 ' + st.tcolor : '글씨 자동') + ' · 바탕 ' + st.color);
+    sum('color', (st.tcolor ? '글씨 ' + st.tcolor : '글씨 자동') + (st.outline ? ' · 테두리' : '') + ' · 바탕 ' + st.color);
   }
   function paintControls() {
     paintSummary();
@@ -2651,6 +2668,11 @@ const Postcard = (() => {
     $('#pcUpper').classList.toggle('on', st.upper);
     $('#pcSize').value = Math.round(st.size * 100); $('#pcSizeN').textContent = Math.round(st.size * 100) + '%';
     $('#pcWeight').value = st.weight; paintWeight();
+    $('#pcTrack').value = Math.round(st.track * 100); $('#pcTrackN').textContent = (st.track > 0 ? '+' : '') + Math.round(st.track * 100);
+    $('#pcLead').value = Math.round(st.lead * 100); $('#pcLeadN').textContent = Math.round(st.lead * 100) + '%';
+    $('#pcOut').value = st.outline; $('#pcOutN').textContent = st.outline ? st.outline + (st.ocolor ? '' : ' · 자동 색') : '없음';
+    if (st.ocolor) $('#pcOutPick').value = st.ocolor;
+    $('#pcOutAuto').classList.toggle('on', !st.ocolor);
     $('#pcZoom').value = Math.round(st.zoom * 100); $('#pcZoomN').textContent = Math.round(st.zoom * 100) + '%';
     $('#pcColor').innerHTML = [...Object.entries(PAPER).map(([k, v]) => [k, v]), ...cols.map((v, i) => ['c' + i, v])]
       .map(([k, v]) => `<button data-v="${k}" class="${st.color === k ? 'on' : ''}" style="--c:${v}" aria-label="색 ${k}"></button>`).join('');
@@ -2700,6 +2722,11 @@ const Postcard = (() => {
   $('#pcReset').onclick = () => { st.ox = st.oy = 0; st.align = null; paintControls(); draw(); };
   chips('#pcColor', v => { st.color = v; });
   $('#pcUpper').onclick = () => { st.upper = !st.upper; paintControls(); draw(); };
+  $('#pcTrack').addEventListener('input', e => { st.track = e.target.value / 100; paintControls(); draw(); });
+  $('#pcLead').addEventListener('input', e => { st.lead = e.target.value / 100; paintControls(); draw(); });
+  $('#pcOut').addEventListener('input', e => { st.outline = +e.target.value; paintControls(); draw(); });
+  $('#pcOutPick').addEventListener('input', e => { st.ocolor = e.target.value; if (!st.outline) st.outline = 3; paintControls(); draw(); });
+  $('#pcOutAuto').onclick = () => { st.ocolor = null; paintControls(); draw(); };
   $('#pcWeight').addEventListener('input', e => { st.weight = +e.target.value; paintWeight(); draw(); });
   $('#pcSize').addEventListener('input', e => { st.size = e.target.value / 100; $('#pcSizeN').textContent = e.target.value + '%'; draw(); });
   ['#pcText', '#pcSub', '#pcFrom'].forEach(id => $(id).addEventListener('input', () => { draw(); paintSummary(); }));
