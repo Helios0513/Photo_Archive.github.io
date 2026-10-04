@@ -142,10 +142,10 @@ async function loadJson(name, fallback) {
   catch (e) { return fallback; }
 }
 async function loadData() {
-  const [photos, projects, site, profile, posters] = await Promise.all([
-    loadJson('photos.json', []), loadJson('projects.json', []), loadJson('site.json', {}), loadJson('profile.json', {}), loadJson('posters.json', []),
+  const [photos, projects, site, profile, posters, calendars] = await Promise.all([
+    loadJson('photos.json', []), loadJson('projects.json', []), loadJson('site.json', {}), loadJson('profile.json', {}), loadJson('posters.json', []), loadJson('calendars.json', []),
   ]);
-  S.site = site; S.profile = profile; S.projects = projects; S.posters = posters; S.posterBase = DATA_BASE;
+  S.site = site; S.profile = profile; S.projects = projects; S.posters = posters; S.posterBase = DATA_BASE; S.calendars = calendars;
   S.photos = photos
     .filter(p => p && p.filename)
     .map(({ location, ...p }) => p) // 위치 정보는 쓰지 않아요
@@ -282,6 +282,8 @@ const ROUTES = [
   [/^\/?$/, 'home', renderHome],
   [/^\/projects\/?$/, 'projects', renderProjects],
   [/^\/prints\/?$/, 'projects', renderPrints],
+  [/^\/calendars\/new\/?$/, 'projects', renderCalMaker],
+  [/^\/calendars\/?$/, 'projects', renderCalendars],
   [/^\/projects\/(.+)$/, 'projects', renderProject],
   [/^\/p\/(\w+)$/, 'projects', renderShortProject],
   [/^\/colors(?:\/(\w+))?\/?$/, 'home', renderColorsRedirect],
@@ -685,10 +687,11 @@ function renderProjects(view) {
    Projects / Prints 공용 머리말: 사진 묶음(Series)과 엽서·포스터(Prints)를 탭으로 나눠요
    ============================================================ */
 function worksHead(tab, n) {
-  const series = S.projects.filter(pr => projectPhotos(pr).length).length, prints = (S.posters || []).length;
+  const series = S.projects.filter(pr => projectPhotos(pr).length).length, prints = (S.posters || []).length, cals = (S.calendars || []).length;
   const t = tab === 'series'
     ? ['Projects', `( ${pad(n)} series )`, '장소와 계절, 하나의 주제로 엮은 사진 묶음이에요. 제목 위에 마우스를 올려 표지를 미리 보세요.']
-    : ['Prints', `( ${pad(n)} prints )`, '아카이브의 사진으로 만든 엽서와 포스터예요. 누르면 크게 보고, 원본 사진으로도 갈 수 있어요.'];
+    : tab === 'prints' ? ['Prints', `( ${pad(n)} prints )`, '아카이브의 사진으로 만든 엽서와 포스터예요. 누르면 크게 보고, 원본 사진으로도 갈 수 있어요.']
+    : ['Calendars', `( ${pad(n)} calendars )`, '열두 달 사진으로 엮은 탁상 달력이에요. 한 장씩 넘겨 보고, 뒤집어 뒷면도 보고, 내려받을 수 있어요.'];
   return `<div class="page-head">
       <div><div class="page-kicker mono">${t[1]}</div><h1 class="page-title split">${splitChars(t[0])}</h1></div>
       <p class="page-sub">${t[2]}</p>
@@ -696,6 +699,7 @@ function worksHead(tab, n) {
     <nav class="ptabs" aria-label="작업물 종류">
       <a href="#/projects" class="${tab === 'series' ? 'on' : ''}">Series <sup class="mono">${pad(series)}</sup><small>사진 묶음</small></a>
       <a href="#/prints" class="${tab === 'prints' ? 'on' : ''}">Prints <sup class="mono">${pad(prints)}</sup><small>엽서 · 포스터</small></a>
+      <a href="#/calendars" class="${tab === 'calendars' ? 'on' : ''}">Calendars <sup class="mono">${pad(cals)}</sup><small>탁상 달력</small></a>
     </nav>`;
 }
 // 엽서·포스터 분류: 만든 형태로 나눠요
@@ -834,6 +838,933 @@ function openPrint(list, i) {
     if (e.target.closest('[data-src]')) { const f = list[i].photo, k = S.photos.findIndex(p => p.filename === f); close(); if (k >= 0) Lightbox.open(S.photos, k); }
   });
   show();
+}
+
+/* ============================================================
+   Calendars: 탁상 달력(가로) 만들기 · 전시 · 내려받기
+   표지 → 1~12월(앞면 사진+날짜, 뒷면 사진 이야기·메모) → 뒷표지
+   ============================================================ */
+// ---------- 공휴일: 양력 공휴일 + 음력(설·부처님오신날·추석) 자동 계산 + 대체공휴일 규칙 ----------
+const Holidays = (() => {
+  let K = null, loading = null;
+  // 음력 → 양력 바꾸기 도구는 처음 쓸 때만 불러와요 (2050년까지 계산돼요)
+  const load = () => loading || (loading = new Promise(res => {
+    const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/korean-lunar-calendar@0.3.6/dist/korean-lunar-calendar.min.js';
+    sc.onload = () => { K = window.KoreanLunarCalendar || null; res(!!K); }; sc.onerror = () => { loading = null; res(false); };
+    document.head.appendChild(sc);
+  }));
+  const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const add = (d, n) => { const t = new Date(d); t.setDate(t.getDate() + n); return t; };
+  const lunar = (y, m, d) => { if (!K) return null; const c = new K(); if (!c.setLunarDate(y, m, d, false)) return null; const r = c.getSolarCalendar(); return new Date(r.year, r.month - 1, r.day); };
+  const cache = {};
+  function year(y) {
+    const key = y + (K ? 'L' : '');
+    if (cache[key]) return cache[key];
+    const map = {}, put = (d, n) => { (map[iso(d)] = map[iso(d)] || []).push(n); };
+    // [월, 일, 이름, 주말·겹침이면 대체공휴일이 생기는지]
+    const subs = [], groups = [];
+    [[1, 1, '신정', 0], [3, 1, '삼일절', 1], [5, 5, '어린이날', 1], [6, 6, '현충일', 0], [8, 15, '광복절', 1], [10, 3, '개천절', 1], [10, 9, '한글날', 1], [12, 25, '성탄절', 1]]
+      .forEach(([m, d, n, s]) => { const t = new Date(y, m - 1, d); put(t, n); if (s) subs.push(t); });
+    const ny = lunar(y, 1, 1), bd = lunar(y, 4, 8), cs = lunar(y, 8, 15);
+    if (ny) { const g = [add(ny, -1), ny, add(ny, 1)]; g.forEach(d => put(d, '설날')); groups.push(g); }
+    if (bd) { put(bd, '부처님오신날'); subs.push(bd); }
+    if (cs) { const g = [add(cs, -1), cs, add(cs, 1)]; g.forEach(d => put(d, '추석')); groups.push(g); }
+    // 설·추석 연휴는 일요일이나 다른 공휴일과 겹치면, 나머지는 토·일요일이나 다른 공휴일과 겹치면 다음 평일이 쉬는 날
+    const inGroup = d => groups.some(g => g.some(x => iso(x) === iso(d)));
+    const need = [];
+    groups.forEach(g => { if (g.some(d => d.getDay() === 0 || map[iso(d)].length > 1)) need.push(g[2]); });
+    const seen = new Set();
+    subs.forEach(d => { const k = iso(d); if (seen.has(k) || inGroup(d)) return; seen.add(k); if (d.getDay() === 0 || d.getDay() === 6 || map[k].length > 1) need.push(d); });
+    const off = d => d.getDay() === 0 || d.getDay() === 6 || map[iso(d)];
+    need.sort((a, b) => a - b).forEach(d => { let t = add(d, 1); while (off(t)) t = add(t, 1); put(t, '대체공휴일'); });
+    return (cache[key] = map);
+  }
+  return { load, year, iso, get lunarOk() { return !!K; } };
+})();
+
+const CAL_W = 2480, CAL_H = 1748;
+const CAL_MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+// 종이 색: 모든 장에 함께 써요. num은 큰 숫자 글꼴(serif/mono)
+const CAL_PAPER = {
+  ivory: { name: '아이보리', bg: '#f6f4ee', ink: '#1d1c19', muted: '#8b887f', red: '#d2452b', blue: '#3563b5', line: 'rgba(29,28,25,.16)', num: 'serif' },
+  white: { name: '화이트', bg: '#fdfdfb', ink: '#161614', muted: '#8d8b84', red: '#d2452b', blue: '#3563b5', line: 'rgba(22,22,20,.14)', num: 'serif' },
+  kraft: { name: '크라프트', bg: '#d8c6a5', ink: '#2a2118', muted: '#76634c', red: '#a93a1f', blue: '#2d4c86', line: 'rgba(42,33,24,.22)', num: 'serif' },
+  night: { name: '밤', bg: '#151514', ink: '#efece4', muted: '#8d8a82', red: '#ff7a5c', blue: '#86a8ff', line: 'rgba(239,236,228,.16)', num: 'mono' },
+};
+// 구도: 장마다 따로 고르거나 모든 달에 한 번에 적용해요
+// 앞면 = 달력(날짜 칸이 주인공), 뒷면 = 사진이 주인공
+const CAL_FRONT = { side: '사진 왼쪽', right: '사진 오른쪽', bottom: '아래 사진 띠', corner: '모서리 사진', circle: '원형 사진', arch: '아치 사진', numeral: '숫자 속 사진', stamp: '우표 사진', planner: '플래너', minimal: '날짜만 + 색 띠' };
+const CAL_BACK = { full: '꽉 찬 사진', frame: '액자', large: '사진 크게 + 정보', split: '반반 + 글귀', triptych: '세 폭', circle: '원형', arch: '아치 창', type: '숫자 속 사진', memo: '사진 + 메모', palette: '사진 + 색 구성', polaroid: '폴라로이드', note: '메모장' };
+const CAL_COVER = { frame: '액자', full: '꽉 찬 사진', side: '옆 사진', center: '가운데 사진', arch: '아치 창', triptych: '세 폭', polaroid: '폴라로이드', type: '사진 든 연도' };
+const CAL_END = { grid: '열두 장 모음', year: '한 해 달력', film: '필름 띠', circles: '열두 개의 원', single: '사진 한 장', palette: '한 해의 색', colophon: '맺음말 · 목록' };
+// 장마다 켜고 끌 수 있는 것
+const CAL_SHOW = { photo: '사진', info: '사진 정보', quote: '글귀', memo: '메모 줄', palette: '색', next: '다음 달' };
+const CAL_COVER_SHOW = { year: '연도', title: '제목', sub: '한 줄 문구', months: '열두 달 목록', brand: 'HAMIHAMOO' };
+const CAL_END_SHOW = { title: '제목', note: '맺음말', labels: '달 이름', site: '사이트 주소' };
+// 탁상 달력(A5 가로 210×148mm, 300dpi). 위쪽은 스프링 구멍 자리라 날짜·글씨는 안전 영역 안에만
+const CAL_SAFE = { x: 70, y: 200, r: CAL_W - 70, b: CAL_H - 70 };
+// 구도마다 사진 칸 [x, y, 너비, 높이]. 편집기도 이 크기로 열려요 (null이면 사진 칸 없음)
+const CAL_RECT = {
+  front: { side: [0, 0, 760, CAL_H], right: [CAL_W - 760, 0, 760, CAL_H], bottom: [0, CAL_H - 460, CAL_W, 460], circle: [90, 240, 640, 640], arch: [90, 220, 640, 900], numeral: [70, 200, 860, 1478], corner: [70, 200, 560, 380], stamp: [CAL_W - 70 - 420, 230, 380, 300], planner: [70, 200, 600, 450], minimal: null },
+  back: { full: [0, 0, CAL_W, CAL_H], frame: [190, 230, CAL_W - 380, 1220], large: [0, 0, 1660, CAL_H], split: [1240, 0, 1240, CAL_H], triptych: [70, 220, 2340, 1180], circle: [90, 290, 1300, 1300], arch: [150, 220, 1000, 1458], type: [0, 0, CAL_W, CAL_H], memo: [0, 0, CAL_W, 900], palette: [0, 0, 1560, CAL_H], polaroid: [0, 0, 1000, 1000], note: [70, 200, 600, 420] },
+  cover: { frame: [70, 200, CAL_W - 140, 1060], full: [0, 0, CAL_W, CAL_H], side: [0, 0, 1320, CAL_H], center: [CAL_W / 2 - 470, 300, 940, 940], arch: [CAL_W / 2 - 380, 240, 760, 1000], triptych: [70, 240, 2340, 900], polaroid: [0, 0, 1000, 1000], type: [0, 0, CAL_W, CAL_H] },
+  end: { grid: null, year: null, film: null, circles: null, single: [0, 0, CAL_W, CAL_H], palette: null, colophon: null },
+};
+// 예전 이름으로 저장된 달력도 열 수 있게
+const CAL_OLD_FRONT = { split: 'side', mirror: 'right', band: 'side', full: 'side', strip: 'side', top: 'side', poster: 'corner', focus: 'planner', circle: 'side', polaroid: 'side' };
+const CAL_OLD_BACK = { standard: 'large', photo: 'large', palette: 'palette', note: 'note' };
+const CAL_OLD_THEME = { gallery: ['ivory', 'side', 'frame'], bleed: ['white', 'top', 'full'], night: ['night', 'right', 'side'] };
+const calBackDefault = () => ({ layout: 'large', photo: null, edit: null, show: { photo: true, info: true, quote: true, memo: true, palette: true, next: true } });
+function calFix(cal) {
+  if (cal.theme) { const o = CAL_OLD_THEME[cal.theme] || CAL_OLD_THEME.gallery; cal.paper = o[0]; cal.cover.layout = cal.cover.layout || o[2]; cal.months.forEach(it => { it.layout = it.layout || o[1]; }); delete cal.theme; }
+  cal.paper = CAL_PAPER[cal.paper] ? cal.paper : 'ivory';
+  if (!CAL_COVER[cal.cover.layout]) cal.cover.layout = 'frame';
+  cal.cover.sub = cal.cover.sub || '';
+  cal.cover.show = Object.assign({ year: true, title: true, sub: true, months: true, brand: true }, cal.cover.show || {});
+  cal.cover.type = Object.assign({ font: 'serif', weight: 400, size: 100, v: 0, align: 'center' }, cal.cover.type || {});
+  cal.end = Object.assign({ layout: 'grid', photo: null, edit: null, note: '' }, cal.end || {});
+  if (!CAL_END[cal.end.layout]) cal.end.layout = 'grid';
+  cal.end.show = Object.assign({ title: true, note: true, labels: true, site: true }, cal.end.show || {});
+  cal.months.forEach(it => {
+    if (!CAL_FRONT[it.layout]) it.layout = CAL_OLD_FRONT[it.layout] || 'side';
+    it.back = Object.assign(calBackDefault(), it.back || {}); it.back.show = Object.assign(calBackDefault().show, it.back.show || {});
+    if (!CAL_BACK[it.back.layout]) it.back.layout = CAL_OLD_BACK[it.back.layout] || 'large';
+  });
+  return cal;
+}
+const CF = { serif: '"Instrument Serif", "Noto Serif KR", Georgia, serif', sans: 'Pretendard, sans-serif', mono: '"JetBrains Mono", monospace' };
+const calFonts = () => Promise.all(['italic 40px "Instrument Serif"', '40px "Instrument Serif"', '400 40px Pretendard', '700 40px Pretendard', '900 40px Pretendard', '100 40px Pretendard', '400 40px Fraunces', '900 40px Fraunces', '40px "JetBrains Mono"', '40px "Noto Serif KR"'].map(f => document.fonts.load(f, 'Aa가1').catch(() => {})));
+
+// 사진 불러오기 · 사진에서 색 뽑기 (한 번 불러온 건 기억해 둬요)
+const calImgs = new Map(), calPal = new Map();
+const calImg = p => {
+  if (!calImgs.has(p.filename)) calImgs.set(p.filename, new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = imgUrl(p); }));
+  return calImgs.get(p.filename);
+};
+function calPalette(fn, img) {
+  if (calPal.has(fn)) return calPal.get(fn);
+  const c = document.createElement('canvas'); c.width = c.height = 40;
+  const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0, 40, 40);
+  const d = x.getImageData(0, 0, 40, 40).data, bins = {};
+  for (let i = 0; i < d.length; i += 4) { const k = (d[i] >> 5) << 6 | (d[i + 1] >> 5) << 3 | d[i + 2] >> 5, b = bins[k] || (bins[k] = { n: 0, r: 0, g: 0, b: 0 }); b.n++; b.r += d[i]; b.g += d[i + 1]; b.b += d[i + 2]; }
+  const hex = b => '#' + [b.r, b.g, b.b].map(v => Math.round(v / b.n).toString(16).padStart(2, '0')).join('');
+  const out = [];
+  Object.values(bins).sort((a, b) => b.n - a.n).forEach(b => {
+    const h = hex(b), rgb = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+    const near = out.find(o => Math.hypot(...o.rgb.map((v, i) => v - rgb[i])) < 60);
+    if (near) near.n += b.n; else if (out.length < 5) out.push({ h, rgb, n: b.n });
+  });
+  const tot = out.reduce((a, o) => a + o.n, 0) || 1, res = out.map(o => ({ h: o.h, share: o.n / tot }));
+  calPal.set(fn, res); return res;
+}
+
+// ---------- 그리기 도우미 ----------
+function calCover(x, src, X, Y, w, h) {
+  const sw = src.naturalWidth || src.width, sh = src.naturalHeight || src.height, k = Math.max(w / sw, h / sh), dw = sw * k, dh = sh * k;
+  x.save(); x.beginPath(); x.rect(X, Y, w, h); x.clip(); x.drawImage(src, X + (w - dw) / 2, Y + (h - dh) / 2, dw, dh); x.restore();
+}
+const calFont = (x, px, fam, sty = '') => { x.font = `${sty} ${Math.round(px)}px ${fam}`.trim(); };
+function calText(x, t, X, Y, { px = 24, fam = CF.mono, sty = '', color, align = 'left', track = 0 } = {}) {
+  calFont(x, px, fam, sty); x.fillStyle = color; x.textAlign = align; x.textBaseline = 'alphabetic';
+  if ('letterSpacing' in x) x.letterSpacing = track ? track + 'px' : '0px';
+  x.fillText(t, X, Y);
+  if ('letterSpacing' in x) x.letterSpacing = '0px';
+  x.textAlign = 'left';
+}
+// 줄 바꿈: 띄어쓰기 기준, 너무 긴 낱말은 글자 단위로 잘라요. 빈 줄은 그대로 띄워요
+function calWrap(x, t, maxW) {
+  const lines = [];
+  String(t || '').split('\n').forEach(par => {
+    if (!par.trim()) { lines.push(''); return; }
+    let cur = '';
+    par.split(/(\s+)/).forEach(w => {
+      if (!w) return;
+      const tryL = cur + w;
+      if (x.measureText(tryL.trimEnd()).width <= maxW || !cur.trim()) {
+        if (x.measureText(tryL.trimEnd()).width > maxW) { [...w].forEach(ch => { if (x.measureText(cur + ch).width > maxW && cur) { lines.push(cur); cur = ch; } else cur += ch; }); }
+        else cur = tryL;
+      } else { lines.push(cur.trimEnd()); cur = w.trimStart(); }
+    });
+    lines.push(cur.trimEnd());
+  });
+  return lines;
+}
+// 한 달 날짜 칸. 일요일·공휴일은 빨강, 토요일은 파랑, 공휴일 이름은 숫자 아래 작게
+function calGrid(x, X, Y, w, h, y, m, T, hol, o = {}) {
+  const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate(), rows = Math.ceil((first + days) / 7);
+  const head = o.head || 58, cw = w / 7, rh = (h - head) / rows, num = o.num || Math.min(rh * .42, cw * .4);
+  ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].forEach((d, i) => calText(x, o.short ? d[0] : d, X + cw * i + (o.center ? cw / 2 : 0), Y + head * .55, { px: o.hs || 20, color: i === 0 ? T.red : i === 6 ? T.blue : T.muted, align: o.center ? 'center' : 'left', track: 2 }));
+  x.fillStyle = T.line; x.fillRect(X, Y + head * .8, w, Math.max(1, o.rule || 2));
+  for (let d = 1; d <= days; d++) {
+    const k = first + d - 1, col = k % 7, row = Math.floor(k / 7), date = new Date(y, m, d), names = hol[Holidays.iso(date)];
+    const color = col === 0 || names ? T.red : col === 6 ? T.blue : T.ink;
+    const cx = X + cw * col + (o.center ? cw / 2 : 0), cy = Y + head + rh * row + num * 1.05;
+    calText(x, String(d), cx, cy, { px: num, fam: o.fam || CF.sans, sty: o.weight || '500', color, align: o.center ? 'center' : 'left' });
+    if (names && !o.noNames) {
+      let px = o.np || 19; calFont(x, px, CF.sans, '500');
+      const t = names[0]; while (px > 11 && x.measureText(t).width > cw - 10) { px--; calFont(x, px, CF.sans, '500'); }
+      calText(x, t, cx, cy + px * 1.45, { px, fam: CF.sans, sty: '500', color: T.red, align: o.center ? 'center' : 'left' });
+    }
+  }
+}
+
+// ---------- 한 장 그리기 ----------
+// page: {k: 'cover' | 'front' | 'back' | 'end', m}. W 너비로 그려요 (높이는 탁상 달력 비율)
+function calPages() { return [{ k: 'cover' }, ...Array.from({ length: 12 }, (_, m) => [{ k: 'front', m }, { k: 'back', m }]).flat(), { k: 'end' }]; }
+const calPageName = pg => pg.k === 'cover' ? '표지' : pg.k === 'end' ? '뒷표지' : `${pg.m + 1}월 ${pg.k === 'front' ? '앞면' : '뒷면'}`;
+// 이 장에 쓰는 사진 · 편집 그림 열쇠 · 설정 묶음 · 사진 칸
+const calKey = pg => pg.k === 'cover' ? 'c' : pg.k === 'end' ? 'e' : pg.k === 'back' ? 'b' + pg.m : pg.m;
+function calPhotoOf(cal, pg) {
+  if (pg.k === 'cover') return cal.cover.photo;
+  if (pg.k === 'end') return cal.end.photo || cal.months[11].photo;
+  const it = cal.months[pg.m]; if (!it) return null;
+  return pg.k === 'back' ? (it.back.photo || it.photo) : it.photo;
+}
+function calEditOf(cal, pg) { return pg.k === 'cover' ? cal.cover : pg.k === 'end' ? cal.end : pg.k === 'front' ? cal.months[pg.m] : cal.months[pg.m].back; }
+function calRectOf(cal, pg) {
+  if (pg.k === 'cover') return CAL_RECT.cover[cal.cover.layout];
+  if (pg.k === 'end') return CAL_RECT.end[cal.end.layout];
+  if (pg.k === 'front') return CAL_RECT.front[cal.months[pg.m].layout];
+  const b = cal.months[pg.m].back; return b.show.photo ? CAL_RECT.back[b.layout] : null;
+}
+// cal: 달력 설정, art: 편집기로 다듬은 그림(열쇠 → canvas), imgs: 파일 이름 → 불러온 사진
+function calDraw(cal, pg, W, art, imgs) {
+  const c = document.createElement('canvas'); c.width = Math.round(W); c.height = Math.round(W * CAL_H / CAL_W);
+  const x = c.getContext('2d'), u = W / CAL_W, T = CAL_PAPER[cal.paper] || CAL_PAPER.ivory, NF = T.num === 'mono' ? CF.mono : CF.serif;
+  x.scale(u, u); x.imageSmoothingQuality = 'high';
+  x.fillStyle = T.bg; x.fillRect(0, 0, CAL_W, CAL_H);
+  const y = cal.year, hol = { ...Holidays.year(y) };
+  (cal.extra || []).forEach(e => { if (e.d && e.d.startsWith(y + '-')) (hol[e.d] = [...(hol[e.d] || []), e.n || '쉬는 날']); });
+  const fn = calPhotoOf(cal, pg), p = fn && S.byName.get(fn), im = p && imgs.get(p.filename), key = calKey(pg);
+  const { x: SX, y: SY, r: SR, b: SB } = CAL_SAFE, SW = SR - SX, H = CAL_H, W0 = CAL_W;
+  // 사진 칸: 편집기로 다듬은 그림이 있으면 그걸, 없으면 원본을 꽉 차게
+  const pic = (R, k = key, src = im) => { const a = art.get(k); if (a) calCover(x, a, ...R); else if (src) calCover(x, src, ...R); else { x.fillStyle = T.line; x.fillRect(...R); } };
+  const photo = R => pic(R);
+  const shapePath = (kind, R) => { const [X, Y, w, h] = R; x.beginPath(); if (kind === 'circle') x.arc(X + w / 2, Y + h / 2, Math.min(w, h) / 2, 0, Math.PI * 2); else { const r = w / 2; x.moveTo(X, Y + h); x.lineTo(X, Y + r); x.arc(X + r, Y + r, r, Math.PI, 0); x.lineTo(X + w, Y + h); x.closePath(); } };
+  const shaped = (kind, R) => { x.save(); shapePath(kind, R); x.clip(); pic(R); x.restore(); };
+  // 큰 글자 모양으로 사진을 오려요 (R은 사진 칸, 글자는 X·Y 기준)
+  const inText = (t, R, px, fam, X, Y, align = 'left') => {
+    const c2 = document.createElement('canvas'); c2.width = Math.ceil(W0 * u); c2.height = Math.ceil(H * u); const t2 = c2.getContext('2d'); t2.scale(u, u);
+    const a = art.get(key); if (a) calCover(t2, a, ...R); else if (im) calCover(t2, im, ...R);
+    t2.globalCompositeOperation = 'destination-in'; t2.fillStyle = '#000'; t2.textAlign = align; t2.font = `${Math.round(px)}px ${fam}`; t2.fillText(t, X, Y);
+    x.drawImage(c2, 0, 0, W0, H);
+  };
+  const fitPx = (t, fam, maxW, maxH, start = 1600) => { let px = start; calFont(x, px, fam); while (px > 100 && (x.measureText(t).width > maxW || px * .72 > maxH)) { px -= 20; calFont(x, px, fam); } return px; };
+  const monthPic = (i, R) => { const q = S.byName.get(cal.months[i].photo); pic(R, i, q && imgs.get(q.filename)); };
+  const title = (cal.title || '').trim(), host = 'HAMIHAMOO';
+  const info = q => q ? [fmtDate(q.date), parseInfo(q.info).camera].filter(v => v && v !== '—') : [];
+  const cap = info(p).join('  ·  ');
+  const mm = pg.m != null ? pad(pg.m + 1) : '', mon = pg.m != null ? CAL_MON[pg.m] : '';
+  const numW = (t, px) => { calFont(x, px, NF); return x.measureText(t).width; };
+  const big = (t, X, Y, px, col = T.ink, align) => calText(x, t, X, Y, { px: T.num === 'mono' ? px * .8 : px, fam: NF, color: col, track: -px * .03, align });
+  const light = { ink: '#fbfaf6', muted: 'rgba(251,250,246,.78)', red: '#ff9a80', blue: '#b2c8ff', line: 'rgba(251,250,246,.35)' };
+  const shade = (y0, y1, a) => { const g = x.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${a})`); x.fillStyle = g; x.fillRect(0, Math.min(y0, y1), W0, Math.abs(y1 - y0)); };
+  const pal = (q, src) => q && src ? calPalette(q.filename, src) : [];
+  // 날짜 칸 (크게). 칸 크기에 맞춰 숫자·공휴일 이름 크기가 정해져요
+  const grid = (X, Y, w, h, o = {}) => {
+    const cw = w / 7, rows0 = Math.ceil((new Date(y, pg.m, 1).getDay() + new Date(y, pg.m + 1, 0).getDate()) / 7), rh0 = (h - Math.min(80, h * .08)) / rows0;
+    calGrid(x, X, Y, w, h, y, pg.m, o.T || T, hol, { num: Math.min(rh0 * .36, cw * .3, 72), hs: Math.min(26, cw * .12), np: Math.max(16, Math.min(26, cw * .1)), head: Math.min(80, h * .08), ...(T.num === 'mono' ? { fam: CF.mono, weight: '400' } : {}), ...o });
+    if (o.rows) { const first = new Date(y, pg.m, 1).getDay(), rows = Math.ceil((first + new Date(y, pg.m + 1, 0).getDate()) / 7), head = Math.min(80, h * .08), rh = (h - head) / rows; x.fillStyle = (o.T || T).line; for (let r = 1; r < rows; r++) x.fillRect(X, Y + head + rh * r - 4, w, 1.5); }
+  };
+  const lines = (X, Y, w, n, gap = 70) => { x.fillStyle = T.line; for (let i = 0; i < n; i++) x.fillRect(X, Y + i * gap, w, 2); };
+  const wrapQ = (q, X, Y, w, px, maxL, col = T.ink, align) => { if (!q) return 0; calFont(x, px, CF.serif, 'italic'); const L = calWrap(x, q, w).slice(0, maxL); L.forEach((l, i) => l && calText(x, l, X, Y + i * px * 1.32, { px, fam: CF.serif, sty: 'italic', color: col, align })); return L.length * px * 1.32; };
+
+  if (pg.k === 'front') {
+    // ---------- 앞면: 날짜 칸이 주인공 ----------
+    const L = cal.months[pg.m].layout, R = CAL_RECT.front[L];
+    const head = (X, Y, w, o = {}) => {
+      const nw = numW(mm, o.px || 220);
+      big(mm, X - 6, Y, o.px || 220);
+      calText(x, mon, X + nw + 26, Y - (o.px || 220) * .38, { px: o.mp || 76, fam: CF.serif, sty: 'italic', color: T.ink });
+      calText(x, String(y), X + nw + 28, Y - 6, { px: 24, color: T.muted, track: 4 });
+      if (!o.noHost) calText(x, o.cap === false || !cap ? host : cap, X + w, Y - 6, { px: 20, color: T.muted, align: 'right', track: 3 });
+    };
+    if (L === 'side' || L === 'right') {
+      photo(R);
+      const X = L === 'side' ? R[2] + 90 : SX, w = (L === 'side' ? SR : R[0] - 90) - X;
+      head(X, SY + 190, w);
+      grid(X, SY + 270, w, SB - SY - 270, { rows: true });
+    } else if (L === 'corner') {
+      photo(R);
+      const X = R[0] + R[2] + 60; big(mm, X - 6, R[1] + R[3] - 6, 330);
+      const nw = numW(mm, 330);
+      calText(x, mon, X + nw + 30, R[1] + R[3] - 120, { px: 84, fam: CF.serif, sty: 'italic', color: T.ink });
+      calText(x, `${y}  ·  ${host}`, X + nw + 32, R[1] + R[3] - 50, { px: 22, color: T.muted, track: 4 });
+      if (cap) calText(x, cap, SR, R[1] + 30, { px: 20, color: T.muted, align: 'right', track: 3 });
+      grid(SX, R[1] + R[3] + 60, SW, SB - R[1] - R[3] - 60, { rows: true });
+    } else if (L === 'stamp') {
+      // 우표: 톱니 테두리 안에 사진, 살짝 기울여서
+      x.save(); x.translate(R[0] + R[2] / 2, R[1] + R[3] / 2); x.rotate(3 * Math.PI / 180);
+      const bw = R[2] + 56, bh = R[3] + 56; x.shadowColor = 'rgba(0,0,0,.18)'; x.shadowBlur = 18; x.shadowOffsetY = 6;
+      x.fillStyle = '#fbfaf6'; x.fillRect(-bw / 2, -bh / 2, bw, bh); x.shadowColor = 'transparent';
+      x.fillStyle = T.bg; for (let i = 0; i <= 14; i++) { [[-bw / 2 + bw * i / 14, -bh / 2], [-bw / 2 + bw * i / 14, bh / 2]].forEach(([a, b]) => { x.beginPath(); x.arc(a, b, 11, 0, Math.PI * 2); x.fill(); }); }
+      for (let i = 0; i <= 11; i++) { [[-bw / 2, -bh / 2 + bh * i / 11], [bw / 2, -bh / 2 + bh * i / 11]].forEach(([a, b]) => { x.beginPath(); x.arc(a, b, 11, 0, Math.PI * 2); x.fill(); }); }
+      pic([-R[2] / 2, -R[3] / 2, R[2], R[3]]);
+      x.restore();
+      calText(x, mon, SX, SY + 150, { px: 130, fam: CF.serif, sty: 'italic', color: T.ink });
+      calText(x, `${mm} / ${y}`, SX, SY + 230, { px: 26, color: T.muted, track: 5 });
+      if (cap) calText(x, cap, SX + 700, SY + 230, { px: 20, color: T.muted, track: 3 });
+      grid(SX, SY + 380, SW, SB - SY - 380, { rows: true });
+    } else if (L === 'planner') {
+      photo(R);
+      big(mm, SX - 8, R[1] + R[3] + 300, 300);
+      calText(x, `${mon.toUpperCase()}  ${y}`, SX, R[1] + R[3] + 370, { px: 26, color: T.muted, track: 5 });
+      calText(x, 'NOTES', SX, R[1] + R[3] + 470, { px: 20, color: T.muted, track: 4 });
+      lines(SX, R[1] + R[3] + 530, R[2], Math.floor((SB - R[1] - R[3] - 530) / 70) + 1);
+      grid(SX + R[2] + 80, SY, SW - R[2] - 80, SB - SY, { rows: true });
+    } else if (L === 'bottom') {
+      // 아래 사진 띠: 아래쪽은 구멍이 없어서 사진이 넉넉히 보여요
+      photo(R);
+      head(SX, SY + 190, SW);
+      grid(SX, SY + 260, SW, R[1] - 50 - SY - 260, { rows: true });
+    } else if (L === 'circle' || L === 'arch') {
+      shaped(L, R);
+      const by = R[1] + R[3] + (L === 'circle' ? 250 : 200);
+      big(mm, SX - 6, by, L === 'circle' ? 240 : 200);
+      calText(x, `${mon.toUpperCase()}  ${y}`, SX, by + 70, { px: 24, color: T.muted, track: 5 });
+      if (cap && by + 130 < SB) calText(x, cap, SX, by + 120, { px: 18, color: T.muted, track: 2 });
+      const X = R[0] + R[2] + 100;
+      grid(X, SY, SR - X, SB - SY, { rows: true });
+    } else if (L === 'numeral') {
+      // 숫자 속 사진: 왼쪽에 달 숫자를 크게, 그 안에 사진
+      const px = fitPx(mm, NF, R[2], R[3] - 260);
+      inText(mm, R, px, NF, SX - 10, SY + px * .74);
+      const by = SY + px * .74;
+      calText(x, mon, SX, by + 120, { px: 84, fam: CF.serif, sty: 'italic', color: T.ink });
+      calText(x, `${y}${cap ? '  ·  ' + cap : ''}`, SX, by + 180, { px: 20, color: T.muted, track: 3 });
+      const X = R[0] + R[2] + 80;
+      grid(X, SY, SR - X, SB - SY, { rows: true });
+    } else {
+      // 날짜만: 사진은 위쪽 구멍 자리에 색 띠로만 (사진에서 뽑은 색)
+      let px0 = 0; const P = pal(p, im);
+      P.forEach((c2, i) => { const pw = i === P.length - 1 ? W0 - px0 : Math.round(W0 * c2.share); x.fillStyle = c2.h; x.fillRect(px0, 0, pw, 120); px0 += pw; });
+      head(SX, SY + 200, SW, { px: 240, mp: 84 });
+      grid(SX, SY + 280, SW, SB - SY - 280, { rows: true });
+    }
+  } else if (pg.k === 'back') {
+    // ---------- 뒷면: 사진이 주인공 ----------
+    const m = pg.m, b = cal.months[m].back, sh = b.show, L = b.layout, R = CAL_RECT.back[L];
+    const prs = p ? (S.photoProjects.get(p.filename) || []).map(pr => pr.title) : [];
+    const inf = sh.info ? [...info(p), prs.length ? 'SERIES — ' + prs.join(', ') : ''].filter(Boolean) : [];
+    const q = sh.quote ? (cal.months[m].quote || '').trim() : '';
+    const ny = m === 11 ? y + 1 : y, nm = (m + 1) % 12, nhol = ny === y ? hol : Holidays.year(ny);
+    const P = sh.palette ? pal(p, im) : [];
+    const next = (X, Y, w, h, TT = T) => { if (!sh.next) return; calText(x, `NEXT — ${CAL_MON[nm].toUpperCase()} ${ny}`, X, Y, { px: 22, color: TT.ink, track: 4 }); calGrid(x, X, Y + 30, w, h - 30, ny, nm, TT, nhol, { center: true, short: true, hs: 18, num: Math.min(30, w / 26), noNames: true, head: 50, rule: 1 }); };
+    const band = (X, Y, w, h, labels = true, col = T.muted) => { let px0 = X; P.forEach((c2, i) => { const pw = i === P.length - 1 ? X + w - px0 : Math.round(w * c2.share); x.fillStyle = c2.h; x.fillRect(px0, Y, pw, h); if (labels && pw > 120) calText(x, c2.h.toUpperCase(), px0, Y + h + 34, { px: 18, color: col, track: 2 }); px0 += pw; }); };
+    const infoAt = (X, Y, col = T.muted, align) => inf.forEach((t, i) => calText(x, t.toUpperCase(), X, Y + i * 40, { px: 20, color: col, track: 3, align }));
+    const foot = (col = T.muted) => { const left = L === 'split' && sh.photo; calText(x, [`${mm} / 12`, host, title.toUpperCase()].filter(Boolean).join('  ·  '), left ? SX : SR, SB, { px: 18, color: col, align: left ? 'left' : 'right', track: 3 }); };
+    const show = sh.photo;
+    if (L === 'full') {
+      if (show) photo(R);
+      const TT = show ? light : T;
+      if (show) shade(H * .5, H, .6);
+      const qh = wrapQ(q, SX, SB - 120 - (inf.length * 40) - 40, 1500, q.length > 60 ? 46 : 58, 3, TT.ink);
+      infoAt(SX, SB - 90 - Math.max(0, inf.length - 1) * 40 + 20, TT.muted);
+      if (P.length) P.forEach((c2, i) => { x.fillStyle = c2.h; x.beginPath(); x.arc(SR - 30 - i * 64, SB - 90, 24, 0, Math.PI * 2); x.fill(); if (show) { x.strokeStyle = 'rgba(255,255,255,.6)'; x.lineWidth = 3; x.stroke(); } });
+      calText(x, `${mon.toUpperCase()}  ·  ${y}`, SR, SY + 10, { px: 22, color: TT.muted, align: 'right', track: 4 });
+      foot(TT.muted);
+      void qh;
+    } else if (L === 'frame') {
+      if (show) photo(R);
+      const by = R[1] + R[3] + (P.length ? 120 : 80);
+      if (P.length) band(R[0], R[1] + R[3] + 26, R[2], 14, false);
+      calText(x, `${mon}`, R[0], by + 30, { px: 64, fam: CF.serif, sty: 'italic', color: T.ink });
+      wrapQ(q, R[0] + 420, by + 20, 1100, 40, 2);
+      infoAt(R[0] + R[2], by - 6, T.muted, 'right');
+      foot();
+    } else if (L === 'large' || L === 'split' || L === 'palette') {
+      if (show) photo(R);
+      const X = L === 'split' ? SX : (show ? R[2] + 80 : SX), w = (L === 'split' ? (show ? R[0] - 80 : SR) : SR) - X;
+      calText(x, `${mon.toUpperCase()}  ·  ${y}`, X, SY + 10, { px: 22, color: T.muted, track: 4 });
+      if (L === 'palette') {
+        // 사진의 색을 세로로 쌓아 보여 줘요
+        let y0 = SY + 60; const tot = SB - 200 - y0;
+        P.forEach(c2 => { const hh = Math.max(70, Math.round(tot * c2.share)); x.fillStyle = c2.h; x.fillRect(X, y0, w, hh - 10); const [r, g2, bb] = [1, 3, 5].map(k => parseInt(c2.h.slice(k, k + 2), 16)), lt = (.2126 * r + .7152 * g2 + .0722 * bb) / 255 > .55; calText(x, `${c2.h.toUpperCase()}   ${Math.round(c2.share * 100)}%`, X + 24, y0 + Math.min(hh - 10, 80) - 26, { px: 20, color: lt ? 'rgba(0,0,0,.6)' : 'rgba(255,255,255,.8)', track: 3 }); y0 += hh; });
+        if (!P.length) wrapQ(q, X, SY + 140, w, 52, 8);
+        infoAt(X, SB - 60 - Math.max(0, inf.length - 1) * 40);
+      } else {
+        const qp = L === 'split' ? (q.length > 60 ? 64 : 84) : (q.length > 60 ? 48 : 60);
+        const qh = wrapQ(q, X, SY + 140, w, qp, L === 'split' ? 7 : 6);
+        infoAt(X, SY + 170 + qh + 30);
+        next(X, SB - 420, Math.min(w, 760), 330);
+        if (P.length) band(X, SB - (sh.next ? 540 : 110), w, 36);
+      }
+      foot();
+    } else if (L === 'memo') {
+      if (show) photo(R);
+      const top = show ? R[3] + 70 : SY + 40;
+      calText(x, mon, SX, top + 70, { px: 80, fam: CF.serif, sty: 'italic', color: T.ink });
+      calText(x, String(y), SX, top + 120, { px: 22, color: T.muted, track: 4 });
+      infoAt(SX, top + 190);
+      if (P.length) P.forEach((c2, i) => { x.fillStyle = c2.h; x.fillRect(SX + i * 90, SB - 110, 70, 70); });
+      const X = 780; wrapQ(q, X, top + 40, SR - X, 40, 2);
+      if (sh.memo) lines(X, top + (q ? 140 : 40), SR - X, Math.floor((SB - 40 - top - (q ? 140 : 40)) / 70) + 1);
+      foot();
+    } else if (L === 'polaroid') {
+      // 폴라로이드: 크게 기울인 사진 + 옆에 손글씨처럼 글귀
+      if (show) {
+        x.save(); x.translate(720, 930); x.rotate(-4 * Math.PI / 180);
+        x.shadowColor = 'rgba(0,0,0,.22)'; x.shadowBlur = 40; x.shadowOffsetY = 16; x.fillStyle = '#fbfaf6'; x.fillRect(-540, -620, 1080, 1260); x.shadowColor = 'transparent';
+        pic([-500, -580, 1000, 1000]); calText(x, `${mon}, ${y}`, -500, 520, { px: 60, fam: CF.serif, sty: 'italic', color: '#2a2925' }); x.restore();
+      }
+      const X = show ? 1420 : SX, w = SR - X;
+      const qh = wrapQ(q, X, SY + 160, w, q.length > 60 ? 48 : 60, 6);
+      infoAt(X, SY + 200 + qh);
+      if (sh.memo) lines(X, SY + 320 + qh + inf.length * 40, w, 5);
+      if (P.length) band(X, SB - 120, w, 30);
+      foot();
+    } else if (L === 'triptych') {
+      // 세 폭: 한 장의 사진을 세 칸으로 나눠 걸어요
+      if (show) { [0, 1, 2].forEach(i => { const gw = 40, pw = (R[2] - gw * 2) / 3; x.save(); x.beginPath(); x.rect(R[0] + i * (pw + gw), R[1], pw, R[3]); x.clip(); pic(R); x.restore(); }); }
+      const by = (show ? R[1] + R[3] : SY) + 110;
+      calText(x, mon, SX, by + 20, { px: 70, fam: CF.serif, sty: 'italic', color: T.ink });
+      wrapQ(q, SX + 420, by, 1200, 40, 2);
+      infoAt(SR, by - 20, T.muted, 'right');
+      if (P.length) band(SX, by + 60, 300, 12, false);
+      foot();
+    } else if (L === 'circle' || L === 'arch' || L === 'type') {
+      let X;
+      if (L === 'type') {
+        // 숫자 속 사진: 달 숫자를 종이 높이만큼 크게, 그 안에 사진
+        const px = fitPx(mm, NF, SW * .72, SB - SY - 60);
+        if (show) inText(mm, R, px, NF, SX - 20, SY + 30 + px * .72); else big(mm, SX - 20, SY + 30 + px * .72, px, T.line);
+        calFont(x, px, NF); X = SX + x.measureText(mm).width + 60;
+      } else { if (show) shaped(L, R); X = R[0] + R[2] + 110; }
+      const w = SR - X;
+      calText(x, `${mon.toUpperCase()}  ·  ${y}`, X, SY + 30, { px: 22, color: T.muted, track: 4 });
+      const qh = w > 380 ? wrapQ(q, X, SY + 160, w, q.length > 50 ? 44 : 56, 7) : 0;
+      infoAt(X, SY + 190 + qh + 20);
+      next(X, SB - 420, Math.min(w, 700), 330);
+      if (P.length) band(X, SB - (sh.next ? 540 : 110), w, 30);
+      foot();
+    } else {
+      // 메모장: 사진은 작게, 줄을 넓게
+      if (show) photo(R);
+      const X = show ? R[0] + R[2] + 80 : SX;
+      calText(x, mon, X, SY + 110, { px: 110, fam: CF.serif, sty: 'italic', color: T.ink });
+      calText(x, `${y}  ·  MEMO`, X, SY + 170, { px: 22, color: T.muted, track: 4 });
+      wrapQ(q, X, SY + 270, SR - X - (sh.next ? 700 : 0), 40, 3);
+      next(SR - 620, SY + 20, 620, 320);
+      if (show) infoAt(SX, R[1] + R[3] + 60);
+      if (sh.memo) lines(SX, SY + 520, SW, Math.floor((SB - 80 - SY - 520) / 70) + 1);
+      if (P.length) band(SX, SB - 30, 600, 12, false);
+      foot();
+    }
+  } else if (pg.k === 'cover') {
+    // ---------- 표지 ----------
+    const co = cal.cover, sh = co.show, L = co.layout, R = CAL_RECT.cover[L], sub = sh.sub ? (co.sub || '').trim() : '';
+    const tt = sh.title ? title : '';
+    const brand = (X, Y, col, align) => { if (sh.brand) calText(x, 'DESK CALENDAR  ·  ' + host, X, Y, { px: 22, color: col, align, track: 4 }); };
+    if (L === 'full') {
+      photo(R); shade(H * .4, H, .6);
+      if (sh.year) big(String(y), SX - 8, SB, 440, '#fbfaf6');
+      if (tt) calText(x, tt, SR, SB - 120, { px: 84, fam: CF.serif, sty: 'italic', color: '#fbfaf6', align: 'right' });
+      if (sub) calText(x, sub, SR, SB - 60, { px: 28, fam: CF.sans, color: 'rgba(251,250,246,.85)', align: 'right' });
+      brand(SR, SY, 'rgba(251,250,246,.8)', 'right');
+    } else if (L === 'side') {
+      photo(R);
+      const X = R[2] + 110, w = SR - X;
+      if (sh.year) big(String(y), X - 6, SY + 260, 300);
+      if (tt) { calFont(x, 86, CF.serif, 'italic'); calWrap(x, tt, w).slice(0, 3).forEach((l, i) => calText(x, l, X, SY + 400 + i * 96, { px: 86, fam: CF.serif, sty: 'italic', color: T.ink })); }
+      if (sub) wrapQ(sub, X, SY + 720, w, 34, 3, T.muted);
+      if (sh.months) CAL_MON.forEach((n, i) => calText(x, `${pad(i + 1)}  ${n.toUpperCase()}`, X + (i >= 6 ? 420 : 0), SB - 420 + (i % 6) * 56, { px: 22, color: T.muted, track: 3 }));
+      brand(X, SB, T.muted);
+    } else if (L === 'center' || L === 'arch') {
+      const bh = R[3] + (sh.year ? 150 : 0) + (tt ? 90 : 0) + (sub ? 64 : 0), top = SY + Math.max(0, (SB - 60 - SY - bh) / 2), P2 = [R[0], top, R[2], R[3]];
+      if (L === 'arch') shaped('arch', P2); else photo(P2);
+      let yy = top + R[3];
+      if (sh.year) { yy += 150; calText(x, String(y), W0 / 2, yy, { px: T.num === 'mono' ? 100 : 130, fam: NF, color: T.ink, align: 'center' }); }
+      if (tt) { yy += 90; calText(x, tt, W0 / 2, yy, { px: 60, fam: CF.serif, sty: 'italic', color: T.ink, align: 'center' }); }
+      if (sub) { yy += 64; calText(x, sub, W0 / 2, yy, { px: 26, fam: CF.sans, color: T.muted, align: 'center' }); }
+      brand(W0 / 2, SB, T.muted, 'center');
+      if (sh.months) { calText(x, CAL_MON.slice(0, 6).map(n => n.slice(0, 3).toUpperCase()).join('   '), SX, top + 30, { px: 20, color: T.muted, track: 3 }); calText(x, CAL_MON.slice(6).map(n => n.slice(0, 3).toUpperCase()).join('   '), SR, top + 30, { px: 20, color: T.muted, align: 'right', track: 3 }); }
+    } else if (L === 'triptych') {
+      // 세 폭: 사진 한 장을 세 칸으로 나눠 걸고, 아래에 연도와 제목
+      [0, 1, 2].forEach(i => { const gw = 40, pw = (R[2] - gw * 2) / 3; x.save(); x.beginPath(); x.rect(R[0] + i * (pw + gw), R[1], pw, R[3]); x.clip(); photo(R); x.restore(); });
+      if (sh.year) big(String(y), SX - 10, SB + 10, 330);
+      if (tt) calText(x, tt, SR, SB - 110, { px: 76, fam: CF.serif, sty: 'italic', color: T.ink, align: 'right' });
+      if (sub) calText(x, sub, SR, SB - 55, { px: 26, fam: CF.sans, color: T.muted, align: 'right' });
+      if (sh.months) calText(x, CAL_MON.map(n => n.slice(0, 3).toUpperCase()).join('  ·  '), SX, R[1] + R[3] + 60, { px: 20, color: T.muted, track: 3 });
+      brand(SR, SB, T.muted, 'right');
+    } else if (L === 'polaroid') {
+      // 폴라로이드: 기울인 사진 아래 여백에 제목, 오른쪽에 연도
+      x.save(); x.translate(760, 960); x.rotate(-4 * Math.PI / 180);
+      x.shadowColor = 'rgba(0,0,0,.22)'; x.shadowBlur = 40; x.shadowOffsetY = 16; x.fillStyle = '#fbfaf6'; x.fillRect(-550, -640, 1100, 1290); x.shadowColor = 'transparent';
+      pic([-500, -590, 1000, 1000]);
+      calText(x, tt || String(y), -500, 530, { px: 64, fam: CF.serif, sty: 'italic', color: '#2a2925' });
+      x.restore();
+      const X = 1480, w = SR - X;
+      if (sh.year) big(String(y), X - 6, SY + 330, 300);
+      if (tt) { calFont(x, 80, CF.serif, 'italic'); calWrap(x, tt, w).slice(0, 3).forEach((l, i) => calText(x, l, X, SY + 470 + i * 90, { px: 80, fam: CF.serif, sty: 'italic', color: T.ink })); }
+      if (sub) wrapQ(sub, X, SY + 760, w, 32, 3, T.muted);
+      if (sh.months) CAL_MON.forEach((n, i) => calText(x, `${pad(i + 1)}  ${n.toUpperCase()}`, X + (i >= 6 ? 420 : 0), SB - 420 + (i % 6) * 56, { px: 22, color: T.muted, track: 3 }));
+      brand(X, SB, T.muted);
+    } else if (L === 'type') {
+      // 큰 연도 글자 안에 사진이 보여요
+      const t = document.createElement('canvas'); t.width = W0; t.height = H; const tx = t.getContext('2d');
+      const a = art.get(key); if (a) calCover(tx, a, 0, 0, W0, H); else if (im) calCover(tx, im, 0, 0, W0, H);
+      const ty = co.type, fam = ty.font === 'sans' ? 'Pretendard, sans-serif' : ty.font === 'classic' ? NF : 'Fraunces, "Noto Serif KR", serif', wt = ty.font === 'classic' ? 400 : ty.weight;
+      tx.globalCompositeOperation = 'destination-in'; tx.fillStyle = '#000'; tx.textAlign = ty.align;
+      // 안전 영역 너비에 꼭 맞는 크기를 찾고, 고른 크기(%)를 곱해요
+      let px = 1200; const setF = () => { tx.font = `${wt} ${Math.round(px)}px ${fam}`; }; setF();
+      while (tx.measureText(String(y)).width > SW && px > 200) { px -= 20; setF(); }
+      px *= ty.size / 100; setF();
+      // 세로 위치 0 = 맨 위(구멍 자리 아래), 100 = 맨 아래
+      const top0 = SY + px * .74, bot0 = SB - 40;
+      tx.fillText(String(y), ty.align === 'left' ? SX : ty.align === 'right' ? SR : W0 / 2, top0 + Math.max(0, bot0 - top0) * ty.v / 100);
+      x.drawImage(t, 0, 0);
+      if (tt) calText(x, tt, SX, SB - 60, { px: 84, fam: CF.serif, sty: 'italic', color: T.ink });
+      if (sub) calText(x, sub, SX, SB, { px: 28, fam: CF.sans, color: T.muted });
+      brand(SR, SB, T.muted, 'right');
+    } else {
+      photo(R);
+      if (sh.year) big(String(y), SX - 10, SB + 10, 360);
+      if (tt) calText(x, tt, SR, SB - 110, { px: 76, fam: CF.serif, sty: 'italic', color: T.ink, align: 'right' });
+      if (sub) calText(x, sub, SR, SB - 55, { px: 26, fam: CF.sans, color: T.muted, align: 'right' });
+      brand(SR, SB, T.muted, 'right');
+      if (sh.months) calText(x, CAL_MON.map(n => n.slice(0, 3).toUpperCase()).join('  ·  '), SX, R[1] - 40 > 0 ? R[1] + R[3] + 60 : SB, { px: 20, color: T.muted, track: 3 });
+    }
+  } else {
+    // ---------- 뒷표지 ----------
+    const e = cal.end, sh = e.show, L = e.layout, note = sh.note ? (e.note || '').trim() : '', tt = sh.title ? (title || String(y)) : '';
+    const site = col => { if (sh.site) calText(x, 'HAMIHAMOO.COM', SR, SB, { px: 22, color: col, align: 'right', track: 5 }); };
+    const headE = () => { if (tt) calText(x, tt, SX, SY + 110, { px: 100, fam: CF.serif, sty: 'italic', color: T.ink }); calText(x, `A YEAR IN PHOTOGRAPHS  —  ${y}`, SX, SY + 175, { px: 22, color: T.muted, track: 5 }); };
+    if (L === 'year') {
+      // 한 해 달력: 열두 달을 작은 달력으로 한눈에
+      headE();
+      const top = SY + 250, gx = 50, gy = 40, cw = (SW - gx * 5) / 6, ch = (SB - 80 - top - gy) / 2;
+      for (let i = 0; i < 12; i++) {
+        const X = SX + (cw + gx) * (i % 6), Y = top + (ch + gy) * Math.floor(i / 6);
+        calText(x, `${pad(i + 1)}  ${CAL_MON[i].toUpperCase()}`, X, Y + 24, { px: 20, color: T.ink, track: 3 });
+        calGrid(x, X, Y + 44, cw, ch - 44, y, i, T, hol, { center: true, short: true, hs: 16, num: Math.min(28, cw / 12), noNames: true, head: 44, rule: 1 });
+      }
+      wrapQ(note, SX, SB, 1500, 26, 1, T.muted);
+      site(T.ink);
+    } else if (L === 'film') {
+      // 필름 띠: 열두 장을 두 줄 필름처럼
+      headE();
+      const top = SY + 260, sh2 = (SB - 80 - top - 60) / 2, fw = SW / 6;
+      for (let r = 0; r < 2; r++) {
+        const Y = top + r * (sh2 + 60); x.fillStyle = '#141413'; x.fillRect(0, Y, W0, sh2);
+        x.fillStyle = T.bg; for (let k = 0; k < 40; k++) { const hx = 20 + k * (W0 - 40) / 39; [Y + 22, Y + sh2 - 46].forEach(hy => { x.beginPath(); x.roundRect ? x.roundRect(hx - 14, hy, 28, 24, 5) : x.rect(hx - 14, hy, 28, 24); x.fill(); }); }
+        for (let c2 = 0; c2 < 6; c2++) { const i = r * 6 + c2, X = SX + fw * c2 + 12; monthPic(i, [X, Y + 70, fw - 24, sh2 - 160]); if (sh.labels) calText(x, `${pad(i + 1)}  ${CAL_MON[i].slice(0, 3).toUpperCase()}`, X, Y + sh2 - 60, { px: 18, color: '#e9b44c', track: 3 }); }
+      }
+      wrapQ(note, SX, SB, 1500, 26, 1, T.muted);
+      site(T.ink);
+    } else if (L === 'circles') {
+      // 열두 개의 원
+      headE();
+      const top = SY + 250, cw = SW / 6, ch = (SB - 70 - top) / 2, d = Math.min(cw - 50, ch - 80);
+      for (let i = 0; i < 12; i++) {
+        const cx = SX + cw * (i % 6) + cw / 2, cy = top + ch * Math.floor(i / 6) + d / 2 + 10;
+        x.save(); x.beginPath(); x.arc(cx, cy, d / 2, 0, Math.PI * 2); x.clip(); monthPic(i, [cx - d / 2, cy - d / 2, d, d]); x.restore();
+        if (sh.labels) calText(x, `${pad(i + 1)}  ${CAL_MON[i].slice(0, 3).toUpperCase()}`, cx, cy + d / 2 + 44, { px: 20, color: T.muted, align: 'center', track: 3 });
+      }
+      wrapQ(note, SX, SB, 1500, 26, 1, T.muted);
+      site(T.ink);
+    } else if (L === 'single') {
+      photo(CAL_RECT.end.single); shade(H * .45, H, .6);
+      if (tt) calText(x, tt, SX, SB - 150, { px: 96, fam: CF.serif, sty: 'italic', color: '#fbfaf6' });
+      wrapQ(note, SX, SB - 80, 1500, 30, 2, 'rgba(251,250,246,.85)');
+      site('rgba(251,250,246,.85)');
+    } else if (L === 'palette') {
+      // 한 해의 색: 달마다 사진에서 가장 많은 색 한 줄씩
+      if (tt) calText(x, tt, SX, SY + 110, { px: 96, fam: CF.serif, sty: 'italic', color: T.ink });
+      calText(x, `THE COLOURS OF ${y}`, SX, SY + 180, { px: 22, color: T.muted, track: 5 });
+      const top = SY + 260, bw = SW / 12;
+      cal.months.forEach((it, i) => {
+        const q = S.byName.get(it.photo), src = q && imgs.get(q.filename), P = pal(q, src); let y0 = top; const hh = SB - 140 - top;
+        P.forEach(c2 => { const h2 = Math.round(hh * c2.share); x.fillStyle = c2.h; x.fillRect(SX + bw * i, y0, bw - 8, h2); y0 += h2; });
+        if (sh.labels) calText(x, CAL_MON[i].slice(0, 3).toUpperCase(), SX + bw * i, SB - 90, { px: 18, color: T.muted, track: 3 });
+      });
+      wrapQ(note, SX, SB, 1500, 26, 1, T.muted);
+      site(T.ink);
+    } else if (L === 'colophon') {
+      // 맺음말 · 목록: 열두 장의 날짜와 카메라를 목록으로
+      if (tt) calText(x, tt, SX, SY + 130, { px: 110, fam: CF.serif, sty: 'italic', color: T.ink });
+      calText(x, `A YEAR IN PHOTOGRAPHS  —  ${y}`, SX, SY + 200, { px: 22, color: T.muted, track: 5 });
+      wrapQ(note, SX, SY + 330, 1000, 40, 12);
+      cal.months.forEach((it, i) => { const q = S.byName.get(it.photo), Y = SY + 300 + i * 92; monthPic(i, [1260, Y - 50, 96, 64]); calText(x, `${pad(i + 1)}  ${CAL_MON[i].toUpperCase()}`, 1400, Y, { px: 20, color: T.ink, track: 3 }); calText(x, info(q).join('  ·  ').toUpperCase(), 1720, Y, { px: 18, color: T.muted, track: 2 }); });
+      site(T.ink);
+    } else {
+      if (tt) calText(x, tt, SX, SY + 110, { px: 110, fam: CF.serif, sty: 'italic', color: T.ink });
+      calText(x, `A YEAR IN PHOTOGRAPHS  —  ${y}`, SX, SY + 180, { px: 22, color: T.muted, track: 4 });
+      const gy = SY + 260, gap = 26, cw = (SW - gap * 5) / 6, ch = (SB - gy - 160 - gap - 50) / 2;
+      cal.months.forEach((it, i) => { const X = SX + (cw + gap) * (i % 6), Y = gy + (ch + gap + 50) * Math.floor(i / 6); monthPic(i, [X, Y, cw, ch]); if (sh.labels) calText(x, `${pad(i + 1)}  ${CAL_MON[i].slice(0, 3).toUpperCase()}`, X, Y + ch + 34, { px: 20, color: T.muted, track: 3 }); });
+      wrapQ(note, SX, SB, 1500, 26, 1, T.muted);
+      site(T.ink);
+    }
+  }
+  return c;
+}
+// 화면에서만 보이는 안내: 디자인 안전 영역(점선)과 위쪽 스프링 구멍 자리
+function calGuide(cv) {
+  const x = cv.getContext('2d'), k = cv.width / CAL_W, { x: SX, y: SY, r: SR, b: SB } = CAL_SAFE;
+  x.save(); x.setTransform(k, 0, 0, k, 0, 0);
+  x.setLineDash([14, 10]); x.lineWidth = 2.5 / Math.max(k, .3); x.strokeStyle = 'rgba(255,90,54,.9)'; x.strokeRect(SX, SY, SR - SX, SB - SY); x.setLineDash([]);
+  x.fillStyle = 'rgba(255,90,54,.12)'; x.fillRect(0, 0, CAL_W, SY);
+  x.fillStyle = 'rgba(40,40,38,.55)'; for (let i = 0; i < 34; i++) { const cx = 170 + i * ((CAL_W - 340) / 33); x.beginPath(); x.roundRect ? x.roundRect(cx - 9, 70, 18, 38, 9) : x.rect(cx - 9, 70, 18, 38); x.fill(); }
+  calText(x, '디자인 안전 영역 · 위쪽은 스프링 구멍 자리', CAL_W / 2, SY - 26, { px: 30, fam: CF.sans, sty: '600', color: 'rgba(255,90,54,.95)', align: 'center' });
+  x.restore();
+}
+
+// ---------- 사진 채우기 ----------
+// 계절 맞춤: 그 달에 찍은 사진 → 가까운 달 → 아무 사진 (겹치지 않게)
+function calFill(mode) {
+  const all = S.photos.filter(p => p.filename), used = new Set(), shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const pool = shuffle(all), take = ok => { const p = pool.find(q => !used.has(q.filename) && ok(q)) || pool.find(q => !used.has(q.filename)) || pool[0]; if (p) used.add(p.filename); return p; };
+  const mon = q => q.date ? +q.date.slice(5, 7) - 1 : -9, near = (a, b) => Math.min(Math.abs(a - b), 12 - Math.abs(a - b));
+  const months = Array.from({ length: 12 }, (_, m) => {
+    if (mode !== 'season') return take(() => true);
+    for (let d = 0; d <= 6; d++) { const p = pool.find(q => !used.has(q.filename) && near(mon(q), m) === d); if (p) { used.add(p.filename); return p; } }
+    return take(() => true);
+  });
+  return { cover: take(q => (q.light || '') !== 'dark') || months[0], months };
+}
+const calNew = () => { const f = calFill('season'), y = new Date().getMonth() >= 9 ? new Date().getFullYear() + 1 : new Date().getFullYear(); return calFix({ title: '', year: y, paper: 'ivory', cover: { photo: f.cover.filename, edit: null, layout: 'frame' }, months: f.months.map(p => ({ photo: p.filename, edit: null, quote: p.story || '', layout: 'side', back: calBackDefault() })), extra: [] }); };
+
+// ---------- 목록: Projects › Calendars ----------
+function renderCalendars(view) {
+  const all = [...(S.calendars || [])].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  view.innerHTML = `<section class="page">
+    ${worksHead('calendars', all.length)}
+    <div class="cal-wall" id="calWall">
+      ${all.map((c, i) => `<figure class="cal-card rv" style="--d:${(i % 6) * 60}ms"><button class="cal-frame" data-i="${i}" aria-label="${esc(c.title || c.year)} 달력 넘겨 보기"><img src="${esc(calSrc(c, c.pages[0]))}" alt="" loading="lazy"></button>
+        <figcaption><b>${esc(c.title || 'Desk calendar')}</b><span class="mono faint">${esc(c.year)} · ${esc((CAL_PAPER[c.paper] || {}).name || '')} · ${c.pages.length}쪽</span></figcaption></figure>`).join('')}
+      <a class="cal-new rv" href="#/calendars/new"><span class="cal-new-plus" aria-hidden="true">+</span><b>새 달력 만들기</b><small>열두 달 사진을 고르고 다듬어서<br>표지부터 뒷표지까지 한 권으로</small></a>
+    </div>
+  </section>`;
+  $('#calWall', view).addEventListener('click', e => { const b = e.target.closest('.cal-frame'); if (b) openCalendar(all[+b.dataset.i]); });
+}
+const calSrc = (c, pg) => pg._local || S.posterBase + pg.file;
+const calFileName = (c, pg, i) => `hamihamoo-calendar-${c.year}-${pad(i, 2)}-${pg.k === 'cover' ? 'cover' : pg.k === 'end' ? 'backcover' : pad(pg.m + 1) + '-' + CAL_MON[pg.m].slice(0, 3).toLowerCase() + '-' + pg.k}.jpg`;
+
+// ---------- 넘겨 보기: 한 장씩 넘기고, 달마다 앞·뒤를 뒤집어 봐요 ----------
+function openCalendar(c) {
+  const pages = c.pages, stops = [];
+  pages.forEach((pg, i) => { if (pg.k !== 'back') stops.push(i); });
+  let s = 0, back = false;
+  const el = document.createElement('div'); el.className = 'pview cal-view';
+  el.innerHTML = `<button class="icon-btn pview-x" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="pview-nav prev" aria-label="이전 장">←</button>
+    <figure><div class="cal-sheet"><div class="cal-face front"><img alt=""></div><div class="cal-face back"><img alt=""></div></div><figcaption></figcaption></figure>
+    <button class="pview-nav next" aria-label="다음 장">→</button>`;
+  document.body.appendChild(el); document.body.classList.add('locked');
+  const sheet = $('.cal-sheet', el), cap = $('figcaption', el), [fi, bi] = $$('.cal-face img', el);
+  const show = anim => {
+    const i = stops[s], pg = pages[i], hasBack = pages[i + 1] && pages[i + 1].k === 'back';
+    if (!hasBack) back = false;
+    fi.src = calSrc(c, pg); if (hasBack) bi.src = calSrc(c, pages[i + 1]);
+    sheet.classList.toggle('flipped', back);
+    if (anim && !reduced) $('figure', el).animate([{ opacity: .3, transform: `translateX(${anim * 24}px)` }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.22,1,.36,1)' });
+    cap.innerHTML = `<b>${esc(c.title || c.year)}</b><span class="mono">${esc(calPageName(back ? pages[i + 1] : pg))} · ${pad(s + 1)} / ${pad(stops.length)}</span>
+      ${hasBack ? `<button class="btn small ghost" data-flip>${back ? '앞면 보기' : '뒷면 보기'} ↻</button>` : ''}
+      <span class="cal-down"><span class="mono">내려받기</span><button class="btn small" data-down="img">이미지 묶음 (JPG)</button><button class="btn small" data-down="pdf">인쇄용 PDF</button></span>`;
+  };
+  // 뒤로 가기 등으로 페이지가 바뀌면 같이 닫아요
+  const close = () => { el.remove(); document.body.classList.remove('locked'); removeEventListener('keydown', key); removeEventListener('hashchange', close); };
+  addEventListener('hashchange', close);
+  const step = d => { s = (s + d + stops.length) % stops.length; back = false; show(d); };
+  const flip = () => { back = !back; show(0); };
+  const key = e => { if (e.key === 'Escape') close(); else if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1); else if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); flip(); } };
+  addEventListener('keydown', key);
+  el.addEventListener('click', async e => {
+    if (e.target === el || e.target.closest('.pview-x')) return close();
+    if (e.target.closest('.prev')) return step(-1);
+    if (e.target.closest('.next')) return step(1);
+    if (e.target.closest('[data-flip]') || e.target.closest('.cal-sheet')) return flip();
+    const db = e.target.closest('[data-down]');
+    if (db) {
+      const label = db.textContent, files = () => pages.map((pg, i) => fetch(calSrc(c, pg)).then(r => r.blob()).then(b => new File([b], calFileName(c, pg, i), { type: 'image/jpeg' })));
+      db.disabled = true; db.textContent = '준비 중…';
+      try { if (db.dataset.down === 'pdf') await calPdf(c.year, files()); else await calDownload(c.year, files()); }
+      catch (err) { console.error(err); toast(err.message || '내려받지 못했어요', 4000); }
+      finally { db.disabled = false; db.textContent = label; }
+    }
+  });
+  show(0);
+}
+// PDF 만드는 도구(jsPDF)는 처음 쓸 때만 불러와요
+let pdfLib = null;
+const loadPdf = () => pdfLib || (pdfLib = new Promise((res, rej) => {
+  const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  sc.onload = () => res(window.jspdf.jsPDF); sc.onerror = () => { pdfLib = null; rej(new Error('PDF 도구를 불러오지 못했어요')); };
+  document.head.appendChild(sc);
+}));
+// 인쇄용 PDF 한 파일: 한 쪽 = 탁상 달력 한 면(210×148mm)
+async function calPdf(year, filePromises) {
+  const [JsPDF, list] = await Promise.all([loadPdf(), Promise.all(filePromises)]);
+  const doc = new JsPDF({ orientation: 'landscape', unit: 'mm', format: [148, 210], compress: true });
+  for (let i = 0; i < list.length; i++) {
+    const url = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(list[i]); });
+    if (i) doc.addPage([148, 210], 'landscape');
+    doc.addImage(url, 'JPEG', 0, 0, 210, 148);
+  }
+  const file = new File([doc.output('blob')], `hamihamoo-calendar-${year}.pdf`, { type: 'application/pdf' });
+  if (isTouch && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: `Hamihamoo calendar ${year}` }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  saveBlob(file, file.name); toast(`PDF 한 파일(${list.length}쪽)로 내려받았어요`);
+}
+// 휴대폰은 공유 창, 컴퓨터는 zip 하나로
+async function calDownload(year, filePromises) {
+  const list = await Promise.all(filePromises);
+  if (isTouch && navigator.canShare && navigator.canShare({ files: list })) {
+    try { await navigator.share({ files: list, title: `Hamihamoo calendar ${year}` }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  const JSZip = await loadZip(), zip = new JSZip();
+  list.forEach(f => zip.file(f.name, f));
+  saveBlob(await zip.generateAsync({ type: 'blob', compression: 'STORE' }), `hamihamoo-calendar-${year}.zip`);
+  toast(`${list.length}장을 압축 파일 하나로 내려받았어요`);
+}
+
+// ---------- 만들기 ----------
+function renderCalMaker(view) {
+  let cal = store.get('hm-cal-draft', null);
+  if (!cal || !Array.isArray(cal.months) || cal.months.length !== 12 || !cal.months.every(it => S.byName.get(it.photo)) || !S.byName.get(cal.cover && cal.cover.photo)) cal = calNew();
+  calFix(cal);
+  const art = new Map(), imgs = new Map(), pages = calPages();
+  let cur = 0, alive = true, guide = store.get('hm-cal-guide', true);
+  pageCleanup.push(() => { alive = false; });
+  const save = () => store.set('hm-cal-draft', cal);
+  view.innerHTML = `<section class="page cal-make">
+    <div class="page-head">
+      <div><div class="page-kicker mono"><a href="#/calendars" class="faint">← Calendars</a></div><h1 class="page-title split">${splitChars('New calendar')}</h1></div>
+      <p class="page-sub">탁상 달력(가로) 한 권: 표지, 열두 달 앞·뒷면, 뒷표지. 장마다 구도를 고르거나 모든 달에 한 번에 적용할 수 있어요. 만드는 중인 달력은 이 기기에 저장돼요.</p>
+    </div>
+    <div class="cm-top">
+      <label class="field"><span>제목</span><input id="cmTitle" maxlength="40" placeholder="예: 연기처럼 지나간 날들"></label>
+      <label class="field cm-year"><span>연도</span><input id="cmYear" type="number" min="2000" max="2050"></label>
+      <div class="field"><span>종이 색 (모든 장)</span><div class="seg" id="cmPaper"><span class="seg-ind"></span>${Object.entries(CAL_PAPER).map(([k, t]) => `<button data-v="${k}">${t.name}</button>`).join('')}</div></div>
+      <div class="field"><span>한 번에 바꾸기</span><div class="cm-row"><button class="pill" data-fill="season">사진: 계절 맞춤 랜덤</button><button class="pill" data-fill="random">사진: 완전 랜덤</button><button class="pill" id="cmMix">구도 섞기</button></div></div>
+    </div>
+    <div class="cm-strip" id="cmStrip"></div>
+    <div class="cm-main">
+      <div class="cm-stage"><canvas id="cmCanvas"></canvas><div class="cm-flip" id="cmFlip"></div></div>
+      <aside class="cm-side" id="cmSide"></aside>
+    </div>
+    <div class="cm-actions">
+      <button class="btn ghost" id="cmView">넘겨 보기</button>
+      <button class="btn" id="cmDown">이미지 묶음 내려받기 <span class="arrow">↓</span></button>
+      <button class="btn" id="cmPdf">인쇄용 PDF 내려받기 <span class="arrow">↓</span></button>
+      <button class="btn" id="cmPublish" hidden>전시에 올리기 <span class="arrow">↗</span></button>
+      <button class="pc-link" id="cmReset">처음부터 다시</button>
+    </div>
+  </section>`;
+  const cv = $('#cmCanvas', view), strip = $('#cmStrip', view), side = $('#cmSide', view);
+  const pg = () => pages[cur];
+  const idx = (k, m) => pages.findIndex(q => q.k === k && (m == null || q.m === m));
+
+  async function ensureImgs() {
+    const need = [cal.cover, cal.end, ...cal.months, ...cal.months.map(it => it.back)].map(it => it.photo && S.byName.get(it.photo)).filter(p => p && !imgs.has(p.filename));
+    await Promise.all(need.map(p => calImg(p).then(i => imgs.set(p.filename, i)).catch(() => {})));
+  }
+  // 편집기로 다듬은 칸은 저장된 설정으로 다시 그려 둬요. 구도를 바꿔 칸 크기가 달라지면 새 크기로 다시
+  let artRun = 0;
+  async function ensureArt() {
+    const run = ++artRun;
+    for (const q of pages) {
+      const it = calEditOf(cal, q); if (!it || !it.edit) continue;
+      const R = calRectOf(cal, q), k = calKey(q); if (!R) continue;
+      const a0 = art.get(k); if (a0 && a0.width === Math.round(R[2]) && a0.height === Math.round(R[3])) continue;
+      const a = await Postcard.render(S.byName.get(calPhotoOf(cal, q)), R[2], R[3], it.edit).catch(() => null);
+      if (!alive || run !== artRun) return; if (a) art.set(k, a); paint();
+    }
+  }
+  let pr = 0;
+  function paint() {
+    if (pr) return;
+    pr = requestAnimationFrame(() => {
+      pr = 0; if (!alive) return;
+      const W = Math.min(1600, Math.round(cv.parentNode.clientWidth * (devicePixelRatio || 1)));
+      const big = calDraw(cal, pg(), W, art, imgs);
+      cv.width = big.width; cv.height = big.height; cv.getContext('2d').drawImage(big, 0, 0);
+      if (guide) calGuide(cv);
+      paintStrip();
+    });
+  }
+  // 위 줄: 표지 · 1~12월(위 앞면, 아래 뒷면) · 뒷표지
+  function paintStrip() {
+    strip.innerHTML = '';
+    const thumb = i => { const b = document.createElement('button'); b.className = 'cm-thumb' + (i === cur ? ' on' : ''); b.dataset.i = i; b.title = calPageName(pages[i]); b.appendChild(calDraw(cal, pages[i], 240, art, imgs)); return b; };
+    const col = (label, ...is) => { const d = document.createElement('div'); d.className = 'cm-col'; is.forEach(i => d.appendChild(thumb(i))); const l = document.createElement('span'); l.className = 'mono'; l.textContent = label; d.appendChild(l); strip.appendChild(d); };
+    col('표지', 0);
+    for (let m = 0; m < 12; m++) col(`${m + 1}월`, idx('front', m), idx('back', m));
+    col('뒷표지', pages.length - 1);
+  }
+  const pills = (map, on, attr) => `<div class="pc-chips cm-pills">${Object.entries(map).map(([k, t]) => `<button class="pill${k === on ? ' on' : ''}" ${attr}="${k}">${t}</button>`).join('')}</div>`;
+  function paintSide() {
+    const q = pg(), y = cal.year, it = calEditOf(cal, q), fn = calPhotoOf(cal, q), p = fn && S.byName.get(fn);
+    const flip = $('#cmFlip', view);
+    flip.innerHTML = (q.m != null ? `<div class="seg" id="cmFace"><span class="seg-ind"></span><button data-v="front" class="${q.k === 'front' ? 'on' : ''}">앞면</button><button data-v="back" class="${q.k === 'back' ? 'on' : ''}">뒷면</button></div>` : '') + `<label class="cm-guide"><input type="checkbox" id="cmGuide" ${guide ? 'checked' : ''}> 안전 영역 보기 <span class="faint">(화면에만 보여요)</span></label>`;
+    if ($('#cmFace', view)) requestAnimationFrame(() => syncSeg($('#cmFace', view)));
+    const R0 = calRectOf(cal, q);
+    const photoBox = (extra = '') => p && R0 ? `<div class="cm-photo"><img src="${esc(thumbUrl(p))}" alt=""><div><span class="mono faint">${esc(fmtDate(p.date))}</span><span class="cm-state">${it.edit ? '편집기로 다듬음' : '원본 그대로'}</span></div></div>
+      <div class="cm-row"><button class="pill" id="cmPick">사진 바꾸기</button><button class="pill" id="cmEdit">편집기에서 다듬기</button>${it.edit ? '<button class="pill" id="cmPlain">원본으로</button>' : ''}${extra}</div>` : '';
+    let h = `<h3>${esc(calPageName(q))}</h3>`;
+    const toggles = (map, sh, attr) => `<div class="pc-chips cm-pills">${Object.entries(map).map(([k, t]) => `<button class="pill${sh[k] ? ' on' : ''}" ${attr}="${k}">${sh[k] ? '✓ ' : ''}${t}</button>`).join('')}</div>`;
+    if (q.k === 'cover') h += `<div class="mono faint pc-l">표지 구도</div>${pills(CAL_COVER, cal.cover.layout, 'data-cover')}
+      <div class="mono faint pc-l">보여 줄 것</div>${toggles(CAL_COVER_SHOW, cal.cover.show, 'data-cshow')}
+      ${cal.cover.layout === 'type' ? (() => { const ty = cal.cover.type; return `<div class="cm-type">
+        <div class="mono faint pc-l">연도 글꼴</div>${pills({ serif: '세리프', sans: '고딕', classic: '기본(가는 세리프)' }, ty.font, 'data-tyf')}
+        <div class="mono faint pc-l">두께 <span id="cmTyWN">${ty.font === 'classic' ? '이 글꼴은 두께 고정' : ty.weight}</span></div><input type="range" class="pc-range" id="cmTyW" min="100" max="900" step="50" value="${ty.weight}" ${ty.font === 'classic' ? 'disabled' : ''}>
+        <div class="mono faint pc-l">크기 <span id="cmTySN">${ty.size}%</span></div><input type="range" class="pc-range" id="cmTyS" min="40" max="130" step="1" value="${ty.size}">
+        <div class="mono faint pc-l">세로 위치 <span id="cmTyVN">${ty.v === 0 ? '맨 위' : ty.v === 100 ? '맨 아래' : ty.v}</span></div><input type="range" class="pc-range" id="cmTyV" min="0" max="100" step="1" value="${ty.v}">
+        <div class="mono faint pc-l">가로 위치</div>${pills({ left: '왼쪽', center: '가운데', right: '오른쪽' }, ty.align, 'data-tya')}</div>`; })() : ''}
+      <label class="field" style="margin-top:12px"><span>한 줄 문구 (제목은 위 칸에서)</span><input id="cmSub" maxlength="80" placeholder="예: 한 해 동안 찍은 열두 장의 사진" value="${esc(cal.cover.sub || '')}"></label>
+      ${R0 ? '<div class="mono faint pc-l">사진</div>' + photoBox() : '<p class="faint">이 구도는 열두 달 사진으로 채워져요.</p>'}`;
+    else if (q.k === 'end') h += `<div class="mono faint pc-l">뒷표지 구도</div>${pills(CAL_END, cal.end.layout, 'data-end')}
+      <div class="mono faint pc-l">보여 줄 것</div>${toggles(CAL_END_SHOW, cal.end.show, 'data-eshow')}
+      <label class="field" style="margin-top:12px"><span>맺음말</span><textarea id="cmNote" maxlength="400" rows="3" placeholder="한 해를 마치며 남기는 말">${esc(cal.end.note || '')}</textarea></label>
+      ${R0 ? '<div class="mono faint pc-l">사진 (기본은 12월 사진)</div>' + photoBox(cal.end.photo ? '<button class="pill" id="cmSame">12월 사진으로</button>' : '') : '<p class="faint">이 구도는 열두 달 사진으로 채워져요.</p>'}`;
+    else if (q.k === 'front') {
+      const holMap = Holidays.year(y), mHol = Object.entries(holMap).filter(([d]) => +d.slice(5, 7) === q.m + 1).sort();
+      const extra = (cal.extra || []).filter(e => +e.d.slice(5, 7) === q.m + 1);
+      h += `<div class="mono faint pc-l">앞면 구도</div>${pills(CAL_FRONT, it.layout, 'data-front')}<button class="pc-link cm-all" id="cmAllFront">이 구도를 모든 달에 적용</button>
+      <div class="mono faint pc-l">사진</div>${photoBox()}
+      <div class="mono faint pc-l">이 달의 공휴일 ${Holidays.lunarOk || y > 2050 ? '' : '(음력 공휴일 계산 중…)'}</div>
+      <ul class="cm-hol">${mHol.length ? mHol.map(([d, n]) => `<li><b>${+d.slice(8)}일</b> ${esc(n.join(' · '))}</li>`).join('') : '<li class="faint">없음</li>'}${extra.map(e => `<li><b>${+e.d.slice(8)}일</b> ${esc(e.n)} <button class="pc-link" data-del="${(cal.extra || []).indexOf(e)}">지우기</button></li>`).join('')}</ul>
+      ${y > 2050 ? '<p class="faint" style="font-size:12px">2050년 뒤는 설날·추석 같은 음력 공휴일이 자동으로 안 들어가요. 아래에서 직접 넣어 주세요.</p>' : ''}
+      <form class="cm-add" id="cmAdd"><input type="date" id="cmAddD" required min="${y}-${pad(q.m + 1)}-01" max="${y}-${pad(q.m + 1)}-${new Date(y, q.m + 1, 0).getDate()}" value="${y}-${pad(q.m + 1)}-01"><input id="cmAddN" maxlength="10" placeholder="예: 선거일" required><button class="pill">쉬는 날 추가</button></form>`;
+    } else {
+      const b = it, mo = cal.months[q.m];
+      h += `<div class="mono faint pc-l">뒷면 구도</div>${pills(CAL_BACK, b.layout, 'data-back')}<button class="pc-link cm-all" id="cmAllBack">이 구도를 모든 달 뒷면에 적용</button>
+      <div class="mono faint pc-l">보여 줄 것</div>${toggles(CAL_SHOW, b.show, 'data-show')}<button class="pc-link cm-all" id="cmAllShow">이 구성을 모든 달 뒷면에 적용</button>
+      <label class="field" style="margin-top:14px"><span>글귀</span><textarea id="cmQuote" maxlength="200" rows="3" placeholder="이 달에 남기고 싶은 한 줄">${esc(mo.quote || '')}</textarea></label>
+      <div class="mono faint pc-l">뒷면 사진 ${b.photo ? '(앞면과 다른 사진)' : '(앞면과 같은 사진)'}</div>${photoBox(b.photo ? '<button class="pill" id="cmSame">앞면 사진으로</button>' : '')}`;
+    }
+    side.innerHTML = h;
+  }
+  const refresh = () => { paintSide(); paint(); };
+  // 연도 글꼴의 고른 두께를 내려받은 뒤 한 번 더 그려요
+  const tyFont = () => { const ty = cal.cover.type; if (ty.font === 'classic') return Promise.resolve(); return document.fonts.load(`${ty.weight} 40px ${ty.font === 'sans' ? 'Pretendard' : 'Fraunces'}`, '0123456789').then(() => paint()).catch(() => {}); };
+  const go = i => { cur = i; refresh(); };
+
+  // 위쪽 설정
+  const tEl = $('#cmTitle', view), yEl = $('#cmYear', view), paperSeg = $('#cmPaper', view);
+  tEl.value = cal.title || ''; yEl.value = cal.year;
+  const paintPaper = () => { $$('button', paperSeg).forEach(b => b.classList.toggle('on', b.dataset.v === cal.paper)); requestAnimationFrame(() => syncSeg(paperSeg)); };
+  paintPaper();
+  tEl.addEventListener('input', () => { cal.title = tEl.value; save(); paint(); });
+  yEl.addEventListener('change', () => { cal.year = Math.max(2000, Math.min(2050, Math.round(+yEl.value) || new Date().getFullYear())); yEl.value = cal.year; save(); refresh(); });
+  paperSeg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; cal.paper = b.dataset.v; save(); paintPaper(); paint(); });
+  $$('[data-fill]', view).forEach(b => b.onclick = async () => {
+    const f = calFill(b.dataset.fill);
+    cal.cover.photo = f.cover.filename; cal.cover.edit = null;
+    f.months.forEach((p, m) => { const it = cal.months[m]; it.photo = p.filename; it.edit = null; it.back.photo = null; it.back.edit = null; });
+    art.clear(); save(); await ensureImgs(); refresh();
+  });
+  // 구도 섞기: 달마다 다른 구도를 골라요 (같은 구도가 연달아 나오지 않게)
+  $('#cmMix', view).onclick = () => {
+    const keys = Object.keys(CAL_FRONT); let last = null;
+    cal.months.forEach(it => { const pool = keys.filter(k => k !== last); it.layout = last = pool[Math.floor(Math.random() * pool.length)]; });
+    save(); refresh(); ensureArt();
+  };
+  strip.addEventListener('click', e => { const b = e.target.closest('.cm-thumb'); if (b) go(+b.dataset.i); });
+  view.addEventListener('click', e => {
+    const fb = e.target.closest('#cmFace button'); if (fb) return go(idx(fb.dataset.v, pg().m));
+    const q = pg(), it = calEditOf(cal, q), t = e.target;
+    const lay = (sel, set) => { const b = t.closest(sel); if (!b) return false; set(b); save(); refresh(); ensureArt(); return true; };
+    if (lay('[data-cover]', b => { cal.cover.layout = b.dataset.cover; })) return;
+    if (lay('[data-front]', b => { it.layout = b.dataset.front; })) return;
+    if (lay('[data-back]', b => { it.layout = b.dataset.back; })) return;
+    if (lay('[data-end]', b => { cal.end.layout = b.dataset.end; })) return;
+    if (lay('[data-tyf]', b => { cal.cover.type.font = b.dataset.tyf; tyFont(); })) return;
+    if (lay('[data-tya]', b => { cal.cover.type.align = b.dataset.tya; })) return;
+    if (lay('[data-cshow]', b => { const k = b.dataset.cshow; cal.cover.show[k] = !cal.cover.show[k]; })) return;
+    if (lay('[data-eshow]', b => { const k = b.dataset.eshow; cal.end.show[k] = !cal.end.show[k]; })) return;
+    if (lay('[data-show]', b => { it.show[b.dataset.show] = !it.show[b.dataset.show]; })) return;
+    if (t.closest('#cmAllFront')) { cal.months.forEach(o => { o.layout = it.layout; }); save(); refresh(); ensureArt(); return toast(`열두 달 앞면을 "${CAL_FRONT[it.layout]}" 구도로 바꿨어요`); }
+    if (t.closest('#cmAllBack')) { cal.months.forEach(o => { o.back.layout = it.layout; }); save(); refresh(); ensureArt(); return toast(`열두 달 뒷면을 "${CAL_BACK[it.layout]}" 구도로 바꿨어요`); }
+    if (t.closest('#cmAllShow')) { cal.months.forEach(o => { o.back.show = { ...it.show }; }); save(); refresh(); ensureArt(); return toast('열두 달 뒷면에 같은 구성을 적용했어요'); }
+    if (t.closest('#cmPick')) return pickPhoto(q.m != null ? q.m : null, async p => {
+      it.photo = p.filename; it.edit = null; art.delete(calKey(q));
+      // 앞면 사진을 바꾸면, 앞면 사진을 함께 쓰던 뒷면도 새로 그려요
+      if (q.k === 'front' && !it.back.photo) { it.back.edit = null; art.delete('b' + q.m); if (!it.quote && p.story) it.quote = p.story; }
+      save(); await ensureImgs(); refresh();
+    });
+    if (t.closest('#cmEdit')) { const R = calRectOf(cal, q); if (!R) return toast('이 구도에는 사진 칸이 없어요'); return Postcard.edit(S.byName.get(calPhotoOf(cal, q)), R[2], R[3], it.edit, (c, sv) => { it.edit = sv; art.set(calKey(q), c); save(); refresh(); }); }
+    if (t.closest('#cmPlain')) { it.edit = null; art.delete(calKey(q)); save(); refresh(); return; }
+    if (t.closest('#cmSame')) { it.photo = null; it.edit = null; art.delete(calKey(q)); save(); refresh(); return; }
+    const del = t.closest('[data-del]'); if (del) { cal.extra.splice(+del.dataset.del, 1); save(); refresh(); }
+  });
+  view.addEventListener('input', e => {
+    const id = e.target.id;
+    const ty = cal.cover.type, v = +e.target.value;
+    if (id === 'cmTyW') { ty.weight = v; $('#cmTyWN', view).textContent = v; tyFont(); }
+    else if (id === 'cmTyS') { ty.size = v; $('#cmTySN', view).textContent = v + '%'; }
+    else if (id === 'cmTyV') { ty.v = v; $('#cmTyVN', view).textContent = v === 0 ? '맨 위' : v === 100 ? '맨 아래' : v; }
+    else if (id === 'cmQuote') cal.months[pg().m].quote = e.target.value; else if (id === 'cmSub') cal.cover.sub = e.target.value; else if (id === 'cmNote') cal.end.note = e.target.value; else return;
+    save(); paint();
+  });
+  view.addEventListener('change', e => { if (e.target.id === 'cmGuide') { guide = e.target.checked; store.set('hm-cal-guide', guide); paint(); } });
+  view.addEventListener('submit', e => {
+    if (e.target.id !== 'cmAdd') return; e.preventDefault();
+    const d = $('#cmAddD', view).value, n = $('#cmAddN', view).value.trim(); if (!d || !n) return;
+    (cal.extra = cal.extra || []).push({ d, n }); save(); refresh(); toast(`${+d.slice(5, 7)}월 ${+d.slice(8)}일을 쉬는 날로 넣었어요`);
+  });
+  $('#cmReset', view).onclick = async () => { if (!confirm('지금 만든 달력을 지우고 새로 시작할까요?')) return; cal = calFix(calNew()); art.clear(); save(); tEl.value = ''; yEl.value = cal.year; paintPaper(); cur = 0; await ensureImgs(); refresh(); };
+
+  // 한 권을 다 그려요 (내려받기·넘겨 보기·전시용). 네 장씩 함께 그려서 기다리는 시간을 줄여요
+  let progress = null;
+  const renderAll = async (W, q = .9) => {
+    await calFonts(); await tyFont(); await ensureImgs();
+    const out = [];
+    for (let i = 0; i < pages.length; i += 4) {
+      const part = await Promise.all(pages.slice(i, i + 4).map(p2 => new Promise(r => calDraw(cal, p2, W, art, imgs).toBlob(b => r({ ...p2, blob: b }), 'image/jpeg', q))));
+      out.push(...part); if (progress) progress(out.length, pages.length);
+    }
+    return out;
+  };
+  const busy = async (btn, txt, fn) => { const h = btn.innerHTML; btn.disabled = true; btn.textContent = txt; progress = (n, t) => { btn.textContent = `${txt.replace('…', '')} ${n}/${t}`; }; try { await fn(); } catch (err) { console.error(err); toast(err.message || '문제가 생겼어요', 5000); } finally { progress = null; btn.disabled = false; btn.innerHTML = h; } };
+  $('#cmDown', view).onclick = e => busy(e.currentTarget, '그리는 중…', async () => {
+    const out = await renderAll(CAL_W, .92), c = { year: cal.year };
+    await calDownload(cal.year, out.map((p2, i) => Promise.resolve(new File([p2.blob], calFileName(c, p2, i), { type: 'image/jpeg' }))));
+  });
+  $('#cmPdf', view).onclick = e => busy(e.currentTarget, '그리는 중…', async () => {
+    const out = await renderAll(CAL_W, .92), c = { year: cal.year };
+    await calPdf(cal.year, out.map((p2, i) => Promise.resolve(new File([p2.blob], calFileName(c, p2, i), { type: 'image/jpeg' }))));
+  });
+  $('#cmView', view).onclick = e => busy(e.currentTarget, '준비 중…', async () => {
+    const out = await renderAll(1600, .85);
+    openCalendar({ title: cal.title, year: cal.year, pages: out.map(p2 => ({ k: p2.k, m: p2.m, _local: URL.createObjectURL(p2.blob) })) });
+  });
+  const pubBtn = $('#cmPublish', view); pubBtn.hidden = !Studio.authed;
+  pubBtn.onclick = e => busy(e.currentTarget, '올리는 중…', async () => {
+    const out = await renderAll(2000, .86), d = new Date();
+    // recipe: 나중에 편집 가능한 파일(SVG·PSD 등)로 다시 그릴 수 있게 달력 설정도 함께 저장해요
+    await publishCalendar(out, { title: cal.title.trim(), year: cal.year, paper: cal.paper, recipe: JSON.parse(JSON.stringify(cal)), date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`, w: 2000, h: Math.round(2000 * CAL_H / CAL_W) });
+    toast('전시(Projects › Calendars)에 올렸어요 · 1~2분 뒤 홈페이지에도 반영돼요', 4200);
+  });
+
+  // 처음 그리기: 글꼴·사진 → 화면 → 다듬은 칸 → 음력 공휴일이 오면 한 번 더
+  (async () => {
+    await calFonts(); await ensureImgs(); if (!alive) return;
+    refresh(); ensureArt(); tyFont();
+    if (await Holidays.load() && alive) refresh();
+  })();
+  const onResize = () => paint(); addEventListener('resize', onResize); pageCleanup.push(() => removeEventListener('resize', onResize));
+}
+// 사진 고르기 창: 이 달에 찍은 사진을 먼저 보여 줘요
+function pickPhoto(month, done) {
+  const el = document.createElement('div'); el.className = 'pview cm-pick';
+  const list = [...S.photos], inMonth = month == null ? [] : list.filter(p => p.date && +p.date.slice(5, 7) === month + 1);
+  let only = inMonth.length > 0;
+  el.innerHTML = `<div class="cm-pick-box"><div class="cm-pick-head"><b>사진 고르기</b>${month != null ? `<div class="seg" id="cmPickSeg"><span class="seg-ind"></span><button data-v="m" class="${only ? 'on' : ''}">${month + 1}월에 찍은 사진 ${inMonth.length}</button><button data-v="a" class="${only ? '' : 'on'}">전체 ${list.length}</button></div>` : ''}<button class="icon-btn" data-x aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="cm-pick-grid" id="cmPickGrid"></div></div>`;
+  document.body.appendChild(el); document.body.classList.add('locked');
+  const grid = $('#cmPickGrid', el);
+  const paintG = () => { const l = only ? inMonth : list; grid.innerHTML = l.map(p => `<button data-f="${esc(p.filename)}"><img src="${esc(thumbUrl(p))}" alt="" loading="lazy"><span class="mono">${esc(fmtDate(p.date))}</span></button>`).join(''); };
+  paintG(); const seg = $('#cmPickSeg', el); if (seg) requestAnimationFrame(() => syncSeg(seg));
+  const close = () => { el.remove(); document.body.classList.remove('locked'); removeEventListener('keydown', key); };
+  const key = e => { if (e.key === 'Escape') close(); };
+  addEventListener('keydown', key);
+  el.addEventListener('click', e => {
+    if (e.target === el || e.target.closest('[data-x]')) return close();
+    const sb = e.target.closest('#cmPickSeg button'); if (sb) { only = sb.dataset.v === 'm'; $$('button', seg).forEach(b => b.classList.toggle('on', b === sb)); syncSeg(seg); paintG(); return; }
+    const b = e.target.closest('[data-f]'); if (b) { close(); done(S.byName.get(b.dataset.f)); }
+  });
 }
 
 /* 예전 공유 링크(p.html#abc123)에서 쓰던 짧은 코드 */
@@ -1681,6 +2612,18 @@ async function publishPoster(blob, meta) {
   await updateJson('posters.json', d => [item, ...(Array.isArray(d) ? d : [])], `Add poster: ${meta.title || name}`);
   S.posters = [{ ...item, _local: URL.createObjectURL(blob) }, ...(S.posters || [])];
 }
+// 달력: 26장을 images/calendars/<id>/에 올리고, calendars.json 맨 앞에 추가해요
+async function publishCalendar(pages, meta) {
+  const id = `${meta.year}-${Date.now().toString(36)}`, out = [];
+  for (let i = 0; i < pages.length; i++) {
+    const pg = pages[i], file = `images/calendars/${id}/${String(i).padStart(2, '0')}.jpg`;
+    await gh(file, { method: 'PUT', body: JSON.stringify({ message: `Calendar ${id}: page ${i + 1}/${pages.length}`, content: await blobToBase64(pg.blob) }) });
+    out.push({ k: pg.k, ...(pg.m != null ? { m: pg.m } : {}), file });
+  }
+  const item = { ...meta, id, pages: out };
+  await updateJson('calendars.json', d => [item, ...(Array.isArray(d) ? d : [])], `Add calendar: ${meta.title || id}`);
+  S.calendars = [{ ...item, pages: out.map((p, i) => ({ ...p, _local: URL.createObjectURL(pages[i].blob) })) }, ...(S.calendars || [])];
+}
 /* ---------- 전시에 올리기: 저장 방법 끝 ---------- */
 /* ---------- 서식 있는 글씨 칸: 글자를 골라 그 부분만 굵기·기울임·크기를 바꿔요 ---------- */
 // 칸 안의 글씨를 줄마다 [{t: 글자, w: 굵기, i: 기울임, s: 크기 배율}] 묶음으로 읽어요
@@ -1748,6 +2691,8 @@ const Postcard = (() => {
   };
   // 저장해 두는 형태 이름(예: r45-p)으로 실제 크기를 구해요. 긴 쪽은 1800px
   function dims() {
+    // 달력 만들기에서 열면 그 달 사진 칸의 크기 그대로 만들어요
+    if (st.fixed) return st.fixed;
     // 휴대폰 배경은 화면 픽셀 그대로 만들어요 (확대 없이 딱 맞게)
     if (st.ratio === 'phone') return st.orient === 'l' ? [PHONE[1], PHONE[0]] : [PHONE[0], PHONE[1]];
     const nw = im ? im.naturalWidth : 3, nh = im ? im.naturalHeight : 2;
@@ -1758,7 +2703,7 @@ const Postcard = (() => {
     return landNow ? [L, Sh] : [Sh, L];
   }
   const fmtKey = () => st.ratio === 'orig' || st.ratio === 'sq' ? st.ratio : st.ratio + '-' + st.orient;
-  const fmtLabel = () => { const d = RATIO[st.ratio], l = st.orient === 'l' && d[3]; return st.ratio === 'orig' ? '원본 비율' : (l ? d[3] + ' ' + d[4] : d[1] + ' ' + d[2]); };
+  const fmtLabel = () => { if (st.fixed) return '달력 사진 칸'; const d = RATIO[st.ratio], l = st.orient === 'l' && d[3]; return st.ratio === 'orig' ? '원본 비율' : (l ? d[3] + ' ' + d[4] : d[1] + ' ' + d[2]); };
   // [기울기, 글꼴, 크기 배율, 줄 간격, 가장 가는 두께, 가장 굵은 두께, 기본 두께]
   const FONT = {
     serif: ['italic', '"Instrument Serif", "Noto Serif KR", Georgia, serif', 1, .92, 400, 400, 400],
@@ -1839,7 +2784,7 @@ const Postcard = (() => {
       ['mono', 'Mono', 'en', "font-family:'JetBrains Mono'"], ['spacemono', 'Space Mono', 'en', "font-family:'Space Mono'"], ['majormono', 'major mono', 'en', "font-family:'Major Mono Display'"]] },
   };
   const PAPER = { white: '#fbfaf6', cream: '#f1e9d8', black: '#141413', orange: '#e2672b' };
-  const st = { p: null, ratio: 'orig', orient: 'p', layout: 'full', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, calYear: null, calMonth: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
+  const st = { p: null, ratio: 'orig', orient: 'p', layout: 'full', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, calYear: null, calMonth: null, fixed: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
   const el = $('#pcModal'), cv = $('#pcCanvas'), out = $('#pcImg'), sheet = $('#pcSheet');
   const api = { get isOpen() { return !el.hidden; } };
   let im = null, cols = [], cache = {};
@@ -2834,7 +3779,7 @@ const Postcard = (() => {
     if (st.color[0] === 'c' && !cols.length) st.color = 'cream';
   }
   api.open = p => {
-    paintAdmin();
+    paintAdmin(); solo(false); st.fixed = null;
     st.p = p; el.hidden = false; im = null; cache = {}; pop = {};
     useLayout('full');
     Object.assign(st, { ratio: 'orig', orient: 'p', fx: 'none', zoom: 1, cx: .5, cy: .5, calYear: null, calMonth: null });
@@ -2843,12 +3788,53 @@ const Postcard = (() => {
     i.onload = () => {
       im = i; cols = photoColors(); if (st.color[0] === 'c' && !cols[+st.color.slice(1)]) st.color = 'cream';
       paintControls();
-      Promise.all(['italic 40px "Instrument Serif"', '40px Anton', '900 40px Pretendard', '40px "Noto Serif KR"', '40px "JetBrains Mono"'].map(f => document.fonts.load(f).catch(() => {}))).then(() => { draw(); popIn(); });
+      fontsReady().then(() => { draw(); popIn(); });
     };
     i.src = imgUrl(p);
     if (!reduced) $('.pc-panel', el).animate([{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: 'cubic-bezier(.22,1,.36,1)' });
   };
-  api.close = () => { el.hidden = true; };
+  api.close = () => { el.hidden = true; onUse = null; };
+  const fontsReady = () => Promise.all(['italic 40px "Instrument Serif"', '40px Anton', '900 40px Pretendard', '40px "Noto Serif KR"', '40px "JetBrains Mono"'].map(f => document.fonts.load(f).catch(() => {})));
+  // ---------- 달력 만들기에서 쓰는 편집 모드 ----------
+  // 정해진 사진 칸 크기(w×h)로 열고, "이 달에 쓰기"를 누르면 다 그린 그림과 설정을 돌려줘요
+  const home = el.parentNode;
+  let onUse = null;
+  function solo(on) {
+    el.classList.toggle('solo', on);
+    if (on && el.parentNode !== document.body) document.body.appendChild(el);
+    if (!on && el.parentNode !== home) home.appendChild(el);
+    $('#pcUse').hidden = !on;
+  }
+  // 지금 설정을 저장해 둘 수 있는 모양으로 (사진은 파일 이름만)
+  const snap = () => { const { p, frame, box, spots, fixed, ...rest } = st; return { st: JSON.parse(JSON.stringify(rest)), text: $('#pcText').innerHTML, sub: $('#pcSub').innerHTML, from: $('#pcFrom').value }; };
+  function restore(sv) {
+    useLayout('full');
+    Object.assign(st, { ratio: 'orig', orient: 'p', fx: 'none', zoom: 1, cx: .5, cy: .5, calYear: null, calMonth: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, seed: 1 });
+    $('#pcText').innerHTML = ''; $('#pcSub').innerHTML = ''; $('#pcFrom').value = '';
+    if (sv) { Object.assign(st, sv.st); $('#pcText').innerHTML = sv.text || ''; $('#pcSub').innerHTML = sv.sub || ''; $('#pcFrom').value = sv.from || ''; }
+  }
+  const loadPhoto = p => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = imgUrl(p); });
+  const copyCv = () => { const c = document.createElement('canvas'); c.width = cv.width; c.height = cv.height; c.getContext('2d').drawImage(cv, 0, 0); return c; };
+  api.edit = (p, w, h, sv, done) => {
+    paintAdmin(); solo(true);
+    st.p = p; el.hidden = false; im = null; cache = {}; pop = {};
+    restore(sv); st.fixed = [Math.round(w), Math.round(h)]; onUse = done;
+    loadPhoto(p).then(i => {
+      im = i; cols = photoColors(); if (st.color[0] === 'c' && !cols[+st.color.slice(1)]) st.color = 'cream';
+      paintControls(); fontsReady().then(() => { draw(); popIn(); });
+    });
+    if (!reduced) $('.pc-panel', el).animate([{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: 'cubic-bezier(.22,1,.36,1)' });
+  };
+  $('#pcUse').onclick = () => { if (!im || !onUse) return; const f = onUse, c = copyCv(), sv = snap(); api.close(); f(c, sv); };
+  // 화면에 띄우지 않고 저장해 둔 설정대로 다시 그려요 (여러 개를 부탁해도 하나씩 차례로)
+  let queue = Promise.resolve();
+  api.render = (p, w, h, sv) => (queue = queue.catch(() => {}).then(async () => {
+    const i = await loadPhoto(p);
+    st.p = p; im = i; cache = {}; pop = {}; cols = photoColors();
+    restore(sv); st.fixed = [Math.round(w), Math.round(h)];
+    await fontsReady(); draw(); await document.fonts.ready; draw();
+    return copyCv();
+  }));
   const chips = (id, fn) => $(id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; fn(b.dataset.v); paintControls(); draw(); });
   chips('#pcFmt', v => { st.ratio = v; st.ox = st.oy = 0; popIn(); });
   chips('#pcOrient', v => { st.orient = v; st.ox = st.oy = 0; popIn(); });
