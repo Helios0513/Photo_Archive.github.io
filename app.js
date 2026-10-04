@@ -1652,10 +1652,15 @@ function renderCalMaker(view) {
     </div>
     <div class="cm-actions">
       <button class="btn ghost" id="cmView">넘겨 보기</button>
-      <button class="btn" id="cmDown">이미지 묶음 내려받기 <span class="arrow">↓</span></button>
-      <button class="btn" id="cmPdf">인쇄용 PDF 내려받기 <span class="arrow">↓</span></button>
-      <button class="btn ghost" id="cmSvg">편집용 SVG (전체) <span class="arrow">↓</span></button>
-      <button class="btn ghost" id="cmPsd">포토샵 PSD (지금 보는 면) <span class="arrow">↓</span></button>
+      <div class="cm-dl" id="cmDl">
+        <button class="btn" id="cmDlBtn" aria-expanded="false" aria-controls="cmDlMenu">내려받기 <span class="arrow">▾</span></button>
+        <div class="cm-dl-menu" id="cmDlMenu" hidden>
+          <button id="cmDown"><b>이미지 묶음 (JPG)</b><small>26장 · 폰, SNS</small></button>
+          <button id="cmPdf"><b>인쇄용 PDF</b><small>한 파일 · 인쇄소, 프린터</small></button>
+          <button id="cmSvg"><b>편집용 SVG (전체)</b><small>일러스트레이터, 피그마</small></button>
+          <button id="cmPsd"><b>포토샵 PSD (지금 보는 면)</b><small>레이어로 나뉜 한 면</small></button>
+        </div>
+      </div>
       <button class="btn" id="cmPublish" hidden>전시에 올리기 <span class="arrow">↗</span></button>
       <button class="pc-link" id="cmReset">처음부터 다시</button>
     </div>
@@ -1834,6 +1839,13 @@ function renderCalMaker(view) {
     const out = await renderAll(CAL_W, .92), c = { year: cal.year };
     await calPdf(cal.year, out.map((p2, i) => Promise.resolve(new File([p2.blob], calFileName(c, p2, i), { type: 'image/jpeg' }))));
   });
+  const dlBtn = $('#cmDlBtn', view), dlMenu = $('#cmDlMenu', view);
+  const dlOpen = on => { dlMenu.hidden = !on; dlBtn.setAttribute('aria-expanded', on); };
+  dlBtn.onclick = () => dlOpen(dlMenu.hidden);
+  const dlAway = e => { if (!dlMenu.hidden && !e.target.closest('#cmDl') && !dlMenu.querySelector(':disabled')) dlOpen(false); };
+  const dlEsc = e => { if (e.key === 'Escape' && !dlMenu.querySelector(':disabled')) dlOpen(false); };
+  document.addEventListener('click', dlAway); addEventListener('keydown', dlEsc);
+  pageCleanup.push(() => { document.removeEventListener('click', dlAway); removeEventListener('keydown', dlEsc); });
   // 편집용: 다듬은 사진까지 다 준비된 뒤에 만들어요
   const readyAll = async () => { await calFonts(); await tyFont(); await ensureImgs(); await ensureArt(); };
   $('#cmSvg', view).onclick = e => busy(e.currentTarget, '그리는 중…', async () => { await readyAll(); await calSvgZip(cal, art, imgs, progress); });

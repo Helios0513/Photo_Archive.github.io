@@ -407,6 +407,16 @@ body.top-visible .toolbar { top: var(--top-h); }
 .cm-add input[type=date] { width: 150px; }
 .cm-add #cmAddN { flex: 1; min-width: 100px; }
 .cm-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 30px; }
+/* 내려받기: 버튼 하나를 누르면 네 가지 형식이 펼쳐져요 */
+.cm-dl { position: relative; }
+.cm-dl-menu { position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 20; display: grid; min-width: 260px; padding: 6px; border: 1px solid var(--line-2); border-radius: 14px; background: var(--bg-2); box-shadow: var(--shadow); animation: dlIn .16s ease-out; }
+.cm-dl-menu[hidden] { display: none; }
+.cm-dl-menu button { display: grid; gap: 2px; padding: 10px 12px; border: 0; border-radius: 9px; background: none; color: var(--ink); text-align: left; cursor: pointer; transition: background-color .12s ease; }
+.cm-dl-menu button:hover { background: var(--bg-3); }
+.cm-dl-menu button:disabled { opacity: .6; cursor: progress; }
+.cm-dl-menu b { font-weight: 500; font-size: 14px; }
+.cm-dl-menu small { font-size: 12px; color: var(--ink-3); }
+@keyframes dlIn { from { opacity: 0; transform: translateY(4px); } }
 .cm-pick { display: grid; place-items: center; grid-template-columns: 1fr; }
 .cm-pick-box { width: min(980px, 100%); max-height: calc(100vh - 48px); display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 14px; }
 .cm-pick-head { display: flex; align-items: center; gap: 14px; }
