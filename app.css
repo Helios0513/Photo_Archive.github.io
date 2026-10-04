@@ -331,7 +331,28 @@ body.top-visible .toolbar { top: var(--top-h); }
 @media (hover: hover) and (pointer: fine) { .ptabs a:hover { color: var(--ink); } }
 
 /* ---------- Prints: 엽서·포스터 전시 벽 (크기가 제각각인 작품을 벽에 걸듯이) ---------- */
-.prints-bar { margin-bottom: 28px; }
+.prints-bar { margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.print-frame { position: relative; }
+/* 선택할 때만 보이는 동그란 체크 */
+.print-check { position: absolute; top: 10px; left: 10px; width: 28px; height: 28px; display: none; place-items: center; border-radius: 50%; border: 2px solid #fff; background: rgba(0,0,0,.35); color: transparent; box-shadow: 0 1px 4px rgba(0,0,0,.4); pointer-events: none; transition: background-color .15s ease-out, border-color .15s ease-out; }
+.print-check svg { width: 16px; height: 16px; }
+.selecting .print-check { display: grid; }
+.selecting .print-frame { cursor: pointer; }
+.print.sel .print-check { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.print.sel .print-frame img { outline: 3px solid var(--accent); outline-offset: 4px; }
+/* 선택 중일 때 하단 메뉴 위에 뜨는 막대 */
+.pr-selbar { position: fixed; left: 50%; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 62px); z-index: 86; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; max-width: calc(100vw - 24px); overflow-x: auto; padding: 6px 6px 6px 16px; border-radius: 999px; background: var(--ink); color: var(--bg); box-shadow: var(--shadow); white-space: nowrap; animation: selIn .2s ease-out; }
+.pr-selbar[hidden] { display: none; }
+@keyframes selIn { from { opacity: 0; transform: translate(-50%, 10px); } }
+.pr-selbar .mono { margin-right: 6px; font-size: 12px; }
+.pr-selbar button { height: 34px; padding: 0 12px; border-radius: 99px; color: var(--bg); font-size: 13px; transition: background-color .15s ease-out; }
+.pr-selbar button:active { transform: scale(.97); }
+.pr-selbar .go { background: var(--accent); color: var(--accent-ink); }
+.pr-selbar button:disabled { opacity: .4; }
+@media (hover: hover) and (pointer: fine) { .pr-selbar button:not(.go):hover { background: rgba(127,127,120,.25); } }
+.pr-selbar { scrollbar-width: none; }
+.pr-selbar::-webkit-scrollbar { display: none; }
+@media (max-width: 720px) { .pr-selbar { gap: 0; padding-left: 12px; } .pr-selbar .mono { margin-right: 2px; } .pr-selbar button { padding: 0 9px; font-size: 12.5px; } }
 .prints-wall { columns: 3 260px; column-gap: clamp(18px, 3vw, 44px); }
 .print { break-inside: avoid; margin: 0 0 clamp(28px, 4vw, 52px); }
 .print-frame { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }

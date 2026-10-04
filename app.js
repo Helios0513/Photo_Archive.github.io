@@ -701,20 +701,28 @@ function renderPrints(view) {
   const all = [...(S.posters || [])].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   const kinds = ['all', ...['card', 'poster', 'social', 'etc'].filter(k => all.some(p => PRINT_KIND[p.fmt] === k))];
   const count = k => k === 'all' ? all.length : all.filter(p => PRINT_KIND[p.fmt] === k).length;
-  let kind = 'all';
+  const keyOf = p => p.file || p._local;
+  let kind = 'all', selecting = false;
+  const picked = new Set();
   view.innerHTML = `<section class="page">
     ${worksHead('prints', all.length)}
-    ${all.length ? `<div class="toolbar-row prints-bar"><div class="seg" id="prKind"><span class="seg-ind"></span>${kinds.map(k => `<button data-v="${k}" class="${k === 'all' ? 'on' : ''}">${PRINT_KIND_KO[k]} <span class="mono">${count(k)}</span></button>`).join('')}</div></div>` : ''}
+    ${all.length ? `<div class="toolbar-row prints-bar"><div class="seg" id="prKind"><span class="seg-ind"></span>${kinds.map(k => `<button data-v="${k}" class="${k === 'all' ? 'on' : ''}">${PRINT_KIND_KO[k]} <span class="mono">${count(k)}</span></button>`).join('')}</div><button class="pill" id="prSelect">선택해서 내려받기</button></div>` : ''}
     <div class="prints-wall" id="prWall"></div>
     ${all.length ? '' : '<div class="empty">아직 전시된 엽서·포스터가 없어요. 사진을 열고 엽서 버튼으로 만들어 보세요.</div>'}
+    <div class="pr-selbar" id="prBar" hidden>
+      <span class="mono" id="prCount">0장 선택</span>
+      <button id="prAll">전체 선택</button><button id="prNone">선택 해제</button>
+      <button class="go" id="prDown" disabled>내려받기 ↓</button><button id="prDone" aria-label="선택 끝내기">완료</button>
+    </div>
   </section>`;
   const wall = $('#prWall', view);
   const list = () => kind === 'all' ? all : all.filter(p => PRINT_KIND[p.fmt] === kind);
   function paint() {
+    wall.classList.toggle('selecting', selecting);
     wall.innerHTML = list().map((p, i) => {
       const src = S.byName.get(p.photo), prs = src ? (S.photoProjects.get(src.filename) || []) : [];
-      return `<figure class="print rv" data-i="${i}" style="--d:${(i % 6) * 60}ms">
-        <button class="print-frame" aria-label="${esc(p.title || '포스터')} 크게 보기"><img src="${esc(p._local || S.posterBase + p.file)}" alt="" loading="lazy" style="aspect-ratio:${p.w} / ${p.h}"></button>
+      return `<figure class="print rv ${picked.has(keyOf(p)) ? 'sel' : ''}" data-i="${i}" style="--d:${(i % 6) * 60}ms">
+        <button class="print-frame" aria-label="${esc(p.title || '포스터')} ${selecting ? '선택' : '크게 보기'}"><img src="${esc(p._local || S.posterBase + p.file)}" alt="" loading="lazy" style="aspect-ratio:${p.w} / ${p.h}"><span class="print-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>
         <figcaption>
           <b>${esc(p.title || 'Untitled')}</b>
           <span class="mono faint">${[...new Set([PRINT_KIND_KO[PRINT_KIND[p.fmt]], LAYOUT_KO[p.layout]])].filter(Boolean).concat(p.date ? [fmtDate(p.date)] : []).join(' · ')}</span>
@@ -724,17 +732,79 @@ function renderPrints(view) {
     }).join('');
     observeReveal(wall);
   }
+  // 선택 상태를 아래 막대에 보여 줘요. 고른 엽서는 미리 받아 두어서, 휴대폰 공유 창이 바로 뜨게 해요
+  const files = new Map();
+  const prefetch = p => { const k = keyOf(p); if (!files.has(k)) files.set(k, fetchPrint(p, files.size).catch(() => { files.delete(k); return null; })); };
+  function paintBar() {
+    $('#prBar', view).hidden = !selecting;
+    $('#prCount', view).textContent = `${picked.size}장 선택`;
+    $('#prDown', view).disabled = !picked.size;
+    $('#prSelect', view) && $('#prSelect', view).classList.toggle('on', selecting);
+  }
+  const setSelecting = on => { selecting = on; if (!on) picked.clear(); paint(); paintBar(); };
   paint();
   const seg = $('#prKind', view);
   if (seg) {
     requestAnimationFrame(() => syncSeg(seg));
     seg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; $$('button', seg).forEach(x => x.classList.toggle('on', x === b)); syncSeg(seg); kind = b.dataset.v; paint(); });
   }
+  if (all.length) {
+    $('#prSelect', view).onclick = () => setSelecting(!selecting);
+    $('#prDone', view).onclick = () => setSelecting(false);
+    // 전체 선택은 지금 보고 있는 분류(예: 포스터만) 안에서 골라요
+    $('#prAll', view).onclick = () => { list().forEach(p => { picked.add(keyOf(p)); prefetch(p); }); paint(); paintBar(); };
+    $('#prNone', view).onclick = () => { picked.clear(); paint(); paintBar(); };
+    $('#prDown', view).onclick = async () => {
+      const items = all.filter(p => picked.has(keyOf(p)));
+      if (!items.length) return;
+      const btn = $('#prDown', view); btn.disabled = true; btn.textContent = '준비 중…';
+      try { items.forEach(prefetch); await downloadPrints(items.map(p => files.get(keyOf(p)))); }
+      catch (err) { console.error(err); toast(err.message || '내려받지 못했어요', 5000); }
+      finally { btn.textContent = '내려받기 ↓'; btn.disabled = !picked.size; }
+    };
+  }
   wall.addEventListener('click', e => {
     const ph = e.target.closest('[data-photo]');
     if (ph) { e.preventDefault(); const i = S.photos.findIndex(p => p.filename === ph.dataset.photo); if (i >= 0) Lightbox.open(S.photos, i); return; }
-    const fr = e.target.closest('.print-frame'); if (fr) openPrint(list(), +fr.closest('.print').dataset.i);
+    const fr = e.target.closest('.print-frame'); if (!fr) return;
+    const fig = fr.closest('.print'), p = list()[+fig.dataset.i];
+    if (!selecting) return openPrint(list(), +fig.dataset.i);
+    const k = keyOf(p);
+    picked.has(k) ? picked.delete(k) : (picked.add(k), prefetch(p));
+    fig.classList.toggle('sel', picked.has(k)); paintBar();
   });
+}
+// ---------- 엽서·포스터 내려받기 ----------
+const printName = (p, n) => `hamihamoo-${p.date || 'print'}-${p.layout || 'poster'}-${String(n + 1).padStart(2, '0')}.jpg`;
+async function fetchPrint(p, n) {
+  const r = await fetch(p._local || S.posterBase + p.file);
+  if (!r.ok) throw new Error('이미지를 받지 못했어요');
+  return new File([await r.blob()], printName(p, n), { type: 'image/jpeg' });
+}
+const saveBlob = (blob, name) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
+// 여러 장을 한 파일로 묶는 도구(JSZip)는 처음 쓸 때만 불러와요
+let zipLib = null;
+const loadZip = () => zipLib || (zipLib = new Promise((res, rej) => {
+  const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+  sc.onload = () => res(window.JSZip); sc.onerror = () => { zipLib = null; rej(new Error('압축 도구를 불러오지 못했어요')); };
+  document.head.appendChild(sc);
+}));
+// 휴대폰: 공유 창 (아이폰은 "이미지 저장"으로 사진 앱에 한 번에) / 컴퓨터: 1장은 그대로, 여러 장은 zip 하나로
+async function downloadPrints(filePromises) {
+  const list = (await Promise.all(filePromises)).filter(Boolean);
+  if (!list.length) throw new Error('이미지를 받지 못했어요');
+  if (isTouch && navigator.canShare && navigator.canShare({ files: list })) {
+    try { await navigator.share({ files: list, title: 'Hamihamoo prints' }); return; }
+    catch (e) {
+      if (e && e.name === 'AbortError') return;
+      if (e && e.name === 'NotAllowedError') throw new Error('준비가 끝났어요. 내려받기를 한 번 더 눌러 주세요');
+    }
+  }
+  if (list.length === 1) { saveBlob(list[0], list[0].name); return; }
+  const JSZip = await loadZip(), zip = new JSZip();
+  list.forEach(f => zip.file(f.name, f));
+  saveBlob(await zip.generateAsync({ type: 'blob', compression: 'STORE' }), `hamihamoo-prints-${list.length}.zip`);
+  toast(`${list.length}장을 압축 파일 하나로 내려받았어요`);
 }
 // 포스터 크게 보기: 좌우로 넘기고, 원본 사진으로 갈 수 있어요
 function openPrint(list, i) {
