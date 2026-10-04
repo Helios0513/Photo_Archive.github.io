@@ -65,7 +65,7 @@
           "layout": "numeral",
           "back": {
             "layout": "triptych",
-            "photo": null,
+            "photo": "DSC_1325_1772453729477.jpg",
             "edit": null,
             "show": {
               "photo": true,
@@ -114,38 +114,8 @@
           "layout": "numeral",
           "back": {
             "layout": "triptych",
-            "photo": null,
-            "edit": {
-              "st": {
-                "ratio": "orig",
-                "orient": "p",
-                "layout": "full",
-                "fx": "none",
-                "font": "condensed",
-                "spot": 0,
-                "align": null,
-                "size": 1,
-                "weight": 400,
-                "zoom": 1,
-                "cx": 0.38623456928330396,
-                "cy": 0,
-                "tcolor": null,
-                "track": 0,
-                "lead": 1,
-                "outline": 0,
-                "ocolor": null,
-                "calYear": null,
-                "calMonth": null,
-                "color": "white",
-                "upper": true,
-                "ox": 0,
-                "oy": 0,
-                "seed": 1
-              },
-              "text": "",
-              "sub": "",
-              "from": ""
-            },
+            "photo": "DSC_2243_1790286768944_10.jpg",
+            "edit": null,
             "show": {
               "photo": true,
               "info": true,
@@ -242,7 +212,7 @@
           "layout": "numeral",
           "back": {
             "layout": "triptych",
-            "photo": null,
+            "photo": "DSC_1847_1775384559624.jpg",
             "edit": null,
             "show": {
               "photo": true,
@@ -340,7 +310,7 @@
           "layout": "numeral",
           "back": {
             "layout": "triptych",
-            "photo": null,
+            "photo": "DSC_2340_1790286772645_12.jpg",
             "edit": null,
             "show": {
               "photo": true,
@@ -408,7 +378,7 @@
           "layout": "numeral",
           "back": {
             "layout": "triptych",
-            "photo": "DSCF0066_1787952764365.jpg",
+            "photo": "DSCF0224_1790286819005_32.jpg",
             "edit": null,
             "show": {
               "photo": true,
@@ -446,8 +416,38 @@
           "layout": "numeral",
           "back": {
             "layout": "triptych",
-            "photo": null,
-            "edit": null,
+            "photo": "DSC_0546_1769882297198.jpg",
+            "edit": {
+              "st": {
+                "ratio": "orig",
+                "orient": "p",
+                "layout": "full",
+                "fx": "none",
+                "font": "condensed",
+                "spot": 0,
+                "align": null,
+                "size": 1,
+                "weight": 400,
+                "zoom": 1,
+                "cx": 0.5,
+                "cy": 0,
+                "tcolor": null,
+                "track": 0,
+                "lead": 1,
+                "outline": 0,
+                "ocolor": null,
+                "calYear": null,
+                "calMonth": null,
+                "color": "white",
+                "upper": true,
+                "ox": 0,
+                "oy": 0,
+                "seed": 1
+              },
+              "text": "",
+              "sub": "",
+              "from": ""
+            },
             "show": {
               "photo": true,
               "info": true,
@@ -484,7 +484,7 @@
           "layout": "numeral",
           "back": {
             "layout": "triptych",
-            "photo": null,
+            "photo": "DSC_0524_1769882296049.jpg",
             "edit": null,
             "show": {
               "photo": true,
@@ -499,9 +499,39 @@
       ],
       "extra": [],
       "end": {
-        "layout": "palette",
-        "photo": null,
-        "edit": null,
+        "layout": "single",
+        "photo": "DSCF0224_1790286819005_32.jpg",
+        "edit": {
+          "st": {
+            "ratio": "orig",
+            "orient": "p",
+            "layout": "full",
+            "fx": "none",
+            "font": "condensed",
+            "spot": 0,
+            "align": null,
+            "size": 1,
+            "weight": 400,
+            "zoom": 1,
+            "cx": 0.6653355159207952,
+            "cy": 0.23021509981370242,
+            "tcolor": null,
+            "track": 0,
+            "lead": 1,
+            "outline": 0,
+            "ocolor": null,
+            "calYear": null,
+            "calMonth": null,
+            "color": "white",
+            "upper": true,
+            "ox": 0,
+            "oy": 0,
+            "seed": 1
+          },
+          "text": "",
+          "sub": "",
+          "from": ""
+        },
         "note": "",
         "show": {
           "title": true,
@@ -509,140 +539,190 @@
           "labels": true,
           "site": true
         }
+      },
+      "coverB": {
+        "layout": "dates",
+        "photo": null,
+        "edit": {
+          "st": {
+            "ratio": "orig",
+            "orient": "p",
+            "layout": "full",
+            "fx": "none",
+            "font": "condensed",
+            "spot": 0,
+            "align": null,
+            "size": 1,
+            "weight": 400,
+            "zoom": 1,
+            "cx": 0.2889131009561587,
+            "cy": 0.901695218329698,
+            "tcolor": null,
+            "track": 0,
+            "lead": 1,
+            "outline": 0,
+            "ocolor": null,
+            "calYear": null,
+            "calMonth": null,
+            "color": "white",
+            "upper": true,
+            "ox": 0,
+            "oy": 0,
+            "seed": 1
+          },
+          "text": "",
+          "sub": "",
+          "from": ""
+        },
+        "text": ""
+      },
+      "endB": {
+        "layout": "brand",
+        "photo": null,
+        "edit": null,
+        "text": ""
       }
     },
     "date": "2026-10-04",
     "w": 2000,
     "h": 1410,
-    "id": "2027-mutp6vyq",
+    "id": "2027-mutttah8",
     "pages": [
       {
         "k": "cover",
-        "file": "images/calendars/2027-mutp6vyq/00.jpg"
+        "file": "images/calendars/2027-mutttah8/00.jpg"
+      },
+      {
+        "k": "coverb",
+        "file": "images/calendars/2027-mutttah8/01.jpg"
       },
       {
         "k": "front",
         "m": 0,
-        "file": "images/calendars/2027-mutp6vyq/01.jpg"
+        "file": "images/calendars/2027-mutttah8/02.jpg"
       },
       {
         "k": "back",
         "m": 0,
-        "file": "images/calendars/2027-mutp6vyq/02.jpg"
+        "file": "images/calendars/2027-mutttah8/03.jpg"
       },
       {
         "k": "front",
         "m": 1,
-        "file": "images/calendars/2027-mutp6vyq/03.jpg"
+        "file": "images/calendars/2027-mutttah8/04.jpg"
       },
       {
         "k": "back",
         "m": 1,
-        "file": "images/calendars/2027-mutp6vyq/04.jpg"
+        "file": "images/calendars/2027-mutttah8/05.jpg"
       },
       {
         "k": "front",
         "m": 2,
-        "file": "images/calendars/2027-mutp6vyq/05.jpg"
+        "file": "images/calendars/2027-mutttah8/06.jpg"
       },
       {
         "k": "back",
         "m": 2,
-        "file": "images/calendars/2027-mutp6vyq/06.jpg"
+        "file": "images/calendars/2027-mutttah8/07.jpg"
       },
       {
         "k": "front",
         "m": 3,
-        "file": "images/calendars/2027-mutp6vyq/07.jpg"
+        "file": "images/calendars/2027-mutttah8/08.jpg"
       },
       {
         "k": "back",
         "m": 3,
-        "file": "images/calendars/2027-mutp6vyq/08.jpg"
+        "file": "images/calendars/2027-mutttah8/09.jpg"
       },
       {
         "k": "front",
         "m": 4,
-        "file": "images/calendars/2027-mutp6vyq/09.jpg"
+        "file": "images/calendars/2027-mutttah8/10.jpg"
       },
       {
         "k": "back",
         "m": 4,
-        "file": "images/calendars/2027-mutp6vyq/10.jpg"
+        "file": "images/calendars/2027-mutttah8/11.jpg"
       },
       {
         "k": "front",
         "m": 5,
-        "file": "images/calendars/2027-mutp6vyq/11.jpg"
+        "file": "images/calendars/2027-mutttah8/12.jpg"
       },
       {
         "k": "back",
         "m": 5,
-        "file": "images/calendars/2027-mutp6vyq/12.jpg"
+        "file": "images/calendars/2027-mutttah8/13.jpg"
       },
       {
         "k": "front",
         "m": 6,
-        "file": "images/calendars/2027-mutp6vyq/13.jpg"
+        "file": "images/calendars/2027-mutttah8/14.jpg"
       },
       {
         "k": "back",
         "m": 6,
-        "file": "images/calendars/2027-mutp6vyq/14.jpg"
+        "file": "images/calendars/2027-mutttah8/15.jpg"
       },
       {
         "k": "front",
         "m": 7,
-        "file": "images/calendars/2027-mutp6vyq/15.jpg"
+        "file": "images/calendars/2027-mutttah8/16.jpg"
       },
       {
         "k": "back",
         "m": 7,
-        "file": "images/calendars/2027-mutp6vyq/16.jpg"
+        "file": "images/calendars/2027-mutttah8/17.jpg"
       },
       {
         "k": "front",
         "m": 8,
-        "file": "images/calendars/2027-mutp6vyq/17.jpg"
+        "file": "images/calendars/2027-mutttah8/18.jpg"
       },
       {
         "k": "back",
         "m": 8,
-        "file": "images/calendars/2027-mutp6vyq/18.jpg"
+        "file": "images/calendars/2027-mutttah8/19.jpg"
       },
       {
         "k": "front",
         "m": 9,
-        "file": "images/calendars/2027-mutp6vyq/19.jpg"
+        "file": "images/calendars/2027-mutttah8/20.jpg"
       },
       {
         "k": "back",
         "m": 9,
-        "file": "images/calendars/2027-mutp6vyq/20.jpg"
+        "file": "images/calendars/2027-mutttah8/21.jpg"
       },
       {
         "k": "front",
         "m": 10,
-        "file": "images/calendars/2027-mutp6vyq/21.jpg"
+        "file": "images/calendars/2027-mutttah8/22.jpg"
       },
       {
         "k": "back",
         "m": 10,
-        "file": "images/calendars/2027-mutp6vyq/22.jpg"
+        "file": "images/calendars/2027-mutttah8/23.jpg"
       },
       {
         "k": "front",
         "m": 11,
-        "file": "images/calendars/2027-mutp6vyq/23.jpg"
+        "file": "images/calendars/2027-mutttah8/24.jpg"
       },
       {
         "k": "back",
         "m": 11,
-        "file": "images/calendars/2027-mutp6vyq/24.jpg"
+        "file": "images/calendars/2027-mutttah8/25.jpg"
       },
       {
         "k": "end",
-        "file": "images/calendars/2027-mutp6vyq/25.jpg"
+        "file": "images/calendars/2027-mutttah8/26.jpg"
+      },
+      {
+        "k": "endb",
+        "file": "images/calendars/2027-mutttah8/27.jpg"
       }
     ]
   }
