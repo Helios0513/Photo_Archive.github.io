@@ -2141,6 +2141,7 @@ function renderExhibition(view, id, draft) {
     ${ex.rooms.filter(r => (r.works || []).some(w => S.byName.get(w.f))).map((r, i) => `<section class="ex-room rv"><span class="mono">Room ${i + 1}</span><b>${esc(r.title || '')}</b>${r.text ? `<p>${esc(r.text)}</p>` : ''}</section>${r.works.filter(w => S.byName.get(w.f)).map(label).join('')}`).join('')}
     <section class="ex-exit">
       <span class="mono">Exit</span><h2>전시를 마치며</h2>
+      ${(ex.closing || '').trim() ? `<div class="ex-statement ex-closing">${ex.closing.trim().split(/\n{2,}/).map(t => `<p>${esc(t).replace(/\n/g, '<br>')}</p>`).join('')}</div>` : ''}
       <div class="ex-index">${works.map((w, k) => `<button data-k="${k}"><img src="${esc(thumbUrl(photos[k]))}" alt="" loading="lazy"><span class="mono">${pad(k + 1)} · ${esc(w.title || '무제')}</span></button>`).join('')}</div>
       ${!draft ? `<div class="ex-more">${(S.exhibitions || []).filter(e => e.id !== ex.id).slice(0, 3).map(e => `<a href="#/exhibitions/${encodeURIComponent(e.id)}"><span class="mono">다른 전시</span><b>${esc(e.title)}</b></a>`).join('')}<a href="#/exhibitions"><span class="mono">목록</span><b>모든 전시 보기 →</b></a></div>` : ''}
     </section>
@@ -2185,6 +2186,7 @@ function renderExEditor(view, id) {
           <label class="field"><span>전시 제목</span><input id="exT" maxlength="60" placeholder="예: 푸른 시간"></label>
           <label class="field"><span>부제 (선택)</span><input id="exSub" maxlength="60" placeholder="예: 세 도시의 파란 오후"></label>
           <label class="field ex-wide"><span>서문 (빈 줄로 문단을 나눠요)</span><textarea id="exSt" maxlength="1200" rows="5" placeholder="이 전시를 왜, 어떻게 엮었는지 들려주세요."></textarea></label>
+          <label class="field ex-wide"><span>맺음말 (전시 끝 "전시를 마치며" 아래에 보여요 · 비워 두면 안 보여요)</span><textarea id="exClose" maxlength="1200" rows="4" placeholder="전시를 둘러본 관람객에게 마지막으로 남기고 싶은 말"></textarea></label>
           <div class="ex-row2"><label class="field"><span>시작일</span><input type="date" id="exFrom"></label><label class="field"><span>종료일 (비우면 상설)</span><input type="date" id="exTo"></label></div>
           <div class="field"><span>벽 색</span><div class="seg" id="exWallSeg"><span class="seg-ind"></span>${Object.entries(EX_WALL).map(([k, t]) => `<button data-v="${k}">${t}</button>`).join('')}</div></div>
         </div>
@@ -2207,11 +2209,11 @@ function renderExEditor(view, id) {
     </div>
   </section>`;
   const $v = s => $(s, view);
-  $v('#exT').value = ex.title; $v('#exSub').value = ex.subtitle || ''; $v('#exSt').value = ex.statement || ''; $v('#exFrom').value = ex.from || iso; $v('#exTo').value = ex.to || '';
+  $v('#exT').value = ex.title; $v('#exSub').value = ex.subtitle || ''; $v('#exSt').value = ex.statement || ''; $v('#exClose').value = ex.closing || ''; $v('#exFrom').value = ex.from || iso; $v('#exTo').value = ex.to || '';
   const wallSeg = $v('#exWallSeg'), paintWall = () => { $$('button', wallSeg).forEach(b => b.classList.toggle('on', b.dataset.v === ex.wall)); requestAnimationFrame(() => syncSeg(wallSeg)); };
   paintWall();
   wallSeg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; ex.wall = b.dataset.v; paintWall(); save(); });
-  [['#exT', 'title'], ['#exSub', 'subtitle'], ['#exSt', 'statement'], ['#exFrom', 'from'], ['#exTo', 'to']].forEach(([s, k]) => $v(s).addEventListener('input', e => { ex[k] = e.target.value; save(); }));
+  [['#exT', 'title'], ['#exSub', 'subtitle'], ['#exSt', 'statement'], ['#exClose', 'closing'], ['#exFrom', 'from'], ['#exTo', 'to']].forEach(([s, k]) => $v(s).addEventListener('input', e => { ex[k] = e.target.value; save(); }));
 
   // 방과 작품
   function paintRooms() {
