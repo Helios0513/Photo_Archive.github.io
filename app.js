@@ -1159,11 +1159,14 @@ function calDraw(cal, pg, W, art, imgs, ext) {
       grid(X, SY, SR - X, SB - SY, { rows: true });
     } else if (L === 'numeral') {
       // 숫자 속 사진: 왼쪽에 달 숫자를 크게, 그 안에 사진
-      const px = fitPx(mm, NF, R[2], R[3] - 260);
+      // 숫자 크기는 열두 달 중 가장 넓은 숫자에 맞춰서 모든 달이 같아요
+      const px = Math.min(...CAL_MON.map((_, i) => fitPx(pad(i + 1), NF, R[2], R[3] - 260)));
       inText(mm, R, px, NF, SX - 10, SY + px * .74);
       const by = SY + px * .74;
       calText(x, mon, SX, by + 120, { px: 84, fam: CF.serif, sty: 'italic', color: T.ink });
       calText(x, `${y}${cap ? '  ·  ' + cap : ''}`, SX, by + 180, { px: 20, color: T.muted, track: 3 });
+      // 남는 아래 공간은 플래너처럼 메모 줄
+      if (SB - by - 330 >= 0) { calText(x, 'NOTES', SX, by + 270, { px: 20, color: T.muted, track: 4 }); lines(SX, by + 330, R[2], Math.floor((SB - by - 330) / 70) + 1); }
       const X = R[0] + R[2] + 80;
       grid(X, SY, SR - X, SB - SY, { rows: true });
     } else {
