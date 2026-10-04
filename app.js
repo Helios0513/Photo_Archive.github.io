@@ -1431,16 +1431,35 @@ const calNew = () => { const f = calFill('season'), y = new Date().getMonth() >=
 
 // ---------- 목록: Projects › Calendars ----------
 function renderCalendars(view) {
-  const all = [...(S.calendars || [])].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  // 달력은 "몇 년도 달력인지"로 묶어요 (최신 연도부터, 같은 해 안에서는 최근에 올린 것부터)
+  const all = [...(S.calendars || [])].sort((a, b) => (+b.year - +a.year) || (b.date || '').localeCompare(a.date || ''));
+  const years = [...new Set(all.map(c => +c.year))], ofYear = y => all.filter(c => +c.year === y);
+  const card = (c, i) => `<figure class="cal-card rv" style="--d:${(i % 6) * 60}ms"><button class="cal-frame" data-i="${all.indexOf(c)}" aria-label="${esc(c.title || c.year)} 달력 넘겨 보기"><img src="${esc(calSrc(c, c.pages[0]))}" alt="" loading="lazy"></button>
+        <figcaption><b>${esc(c.title || 'Desk calendar')}</b><span class="mono faint">${esc(c.year)} · ${esc((CAL_PAPER[c.paper] || {}).name || '')} · ${c.pages.length}쪽</span></figcaption></figure>`;
+  const make = '<a class="cal-new rv" href="#/calendars/new"><span class="cal-new-plus" aria-hidden="true">+</span><b>새 달력 만들기</b><small>열두 달 사진을 고르고 다듬어서<br>표지부터 뒷표지까지 한 권으로</small></a>';
   view.innerHTML = `<section class="page">
     ${worksHead('calendars', all.length)}
-    <div class="cal-wall" id="calWall">
-      ${all.map((c, i) => `<figure class="cal-card rv" style="--d:${(i % 6) * 60}ms"><button class="cal-frame" data-i="${i}" aria-label="${esc(c.title || c.year)} 달력 넘겨 보기"><img src="${esc(calSrc(c, c.pages[0]))}" alt="" loading="lazy"></button>
-        <figcaption><b>${esc(c.title || 'Desk calendar')}</b><span class="mono faint">${esc(c.year)} · ${esc((CAL_PAPER[c.paper] || {}).name || '')} · ${c.pages.length}쪽</span></figcaption></figure>`).join('')}
-      <a class="cal-new rv" href="#/calendars/new"><span class="cal-new-plus" aria-hidden="true">+</span><b>새 달력 만들기</b><small>열두 달 사진을 고르고 다듬어서<br>표지부터 뒷표지까지 한 권으로</small></a>
+    ${years.length > 1 ? `<div class="toolbar-row"><div class="seg" id="calYears"><span class="seg-ind"></span><button data-v="all" class="on">전체 <span class="mono">${all.length}</span></button>${years.map(y => `<button data-v="${y}">${y} <span class="mono">${ofYear(y).length}</span></button>`).join('')}</div></div>` : ''}
+    <div id="calWall">
+      ${years.length ? years.map((y, k) => `<section class="cal-year" data-y="${y}">
+        <h2 class="cal-year-h"><span>${y}</span><span class="mono faint">${pad(ofYear(y).length)} calendars</span></h2>
+        <div class="cal-wall">${k === 0 ? make : ''}${ofYear(y).map(card).join('')}</div>
+      </section>`).join('') : `<div class="cal-wall">${make}</div>`}
     </div>
   </section>`;
   $('#calWall', view).addEventListener('click', e => { const b = e.target.closest('.cal-frame'); if (b) openCalendar(all[+b.dataset.i]); });
+  // 연도 버튼: 그 해 달력만 보여요
+  const seg = $('#calYears', view);
+  if (seg) {
+    requestAnimationFrame(() => syncSeg(seg));
+    seg.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      $$('button', seg).forEach(x => x.classList.toggle('on', x === b)); syncSeg(seg);
+      $$('.cal-year', view).forEach(sec => { sec.hidden = b.dataset.v !== 'all' && sec.dataset.y !== b.dataset.v; });
+      // 새 달력 만들기 칸은 지금 보이는 첫 해의 맨 앞으로 옮겨요
+      const make = $('.cal-new', view), first = $('.cal-year:not([hidden]) .cal-wall', view); if (make && first) first.prepend(make);
+    });
+  }
 }
 const calSrc = (c, pg) => pg._local || S.posterBase + pg.file;
 const calFileName = (c, pg, i) => `hamihamoo-calendar-${c.year}-${pad(i, 2)}-${pg.k === 'cover' ? 'cover' : pg.k === 'end' ? 'backcover' : pad(pg.m + 1) + '-' + CAL_MON[pg.m].slice(0, 3).toLowerCase() + '-' + pg.k}.jpg`;
