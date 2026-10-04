@@ -1028,9 +1028,10 @@ function calRectOf(cal, pg) {
   const b = cal.months[pg.m].back; return b.show.photo ? CAL_RECT.back[b.layout] : null;
 }
 // cal: 달력 설정, art: 편집기로 다듬은 그림(열쇠 → canvas), imgs: 파일 이름 → 불러온 사진
-function calDraw(cal, pg, W, art, imgs) {
-  const c = document.createElement('canvas'); c.width = Math.round(W); c.height = Math.round(W * CAL_H / CAL_W);
-  const x = c.getContext('2d'), u = W / CAL_W, T = CAL_PAPER[cal.paper] || CAL_PAPER.ivory, NF = T.num === 'mono' ? CF.mono : CF.serif;
+// ext: 바깥에서 준 그리기 판(편집용 SVG, PSD 레이어). 없으면 새 canvas에 그려요
+function calDraw(cal, pg, W, art, imgs, ext) {
+  const c = ext ? null : document.createElement('canvas'); if (c) { c.width = Math.round(W); c.height = Math.round(W * CAL_H / CAL_W); }
+  const x = ext || c.getContext('2d'), u = W / CAL_W, T = CAL_PAPER[cal.paper] || CAL_PAPER.ivory, NF = T.num === 'mono' ? CF.mono : CF.serif;
   x.scale(u, u); x.imageSmoothingQuality = 'high';
   x.fillStyle = T.bg; x.fillRect(0, 0, CAL_W, CAL_H);
   const y = cal.year, hol = { ...Holidays.year(y) };
@@ -1044,7 +1045,7 @@ function calDraw(cal, pg, W, art, imgs) {
   const shaped = (kind, R) => { x.save(); shapePath(kind, R); x.clip(); pic(R); x.restore(); };
   // 큰 글자 모양으로 사진을 오려요 (R은 사진 칸, 글자는 X·Y 기준)
   const inText = (t, R, px, fam, X, Y, align = 'left') => {
-    const c2 = document.createElement('canvas'); c2.width = Math.ceil(W0 * u); c2.height = Math.ceil(H * u); const t2 = c2.getContext('2d'); t2.scale(u, u);
+    const c2 = document.createElement('canvas'); c2._alpha = true; c2.width = Math.ceil(W0 * u); c2.height = Math.ceil(H * u); const t2 = c2.getContext('2d'); t2.scale(u, u);
     const a = art.get(key); if (a) calCover(t2, a, ...R); else if (im) calCover(t2, im, ...R);
     t2.globalCompositeOperation = 'destination-in'; t2.fillStyle = '#000'; t2.textAlign = align; t2.font = `${Math.round(px)}px ${fam}`; t2.fillText(t, X, Y);
     x.drawImage(c2, 0, 0, W0, H);
@@ -1301,7 +1302,7 @@ function calDraw(cal, pg, W, art, imgs) {
       brand(X, SB, T.muted);
     } else if (L === 'type') {
       // 큰 연도 글자 안에 사진이 보여요
-      const t = document.createElement('canvas'); t.width = W0; t.height = H; const tx = t.getContext('2d');
+      const t = document.createElement('canvas'); t._alpha = true; t.width = W0; t.height = H; const tx = t.getContext('2d');
       const a = art.get(key); if (a) calCover(tx, a, 0, 0, W0, H); else if (im) calCover(tx, im, 0, 0, W0, H);
       const ty = co.type, fam = ty.font === 'sans' ? 'Pretendard, sans-serif' : ty.font === 'classic' ? NF : 'Fraunces, "Noto Serif KR", serif', wt = ty.font === 'classic' ? 400 : ty.weight;
       tx.globalCompositeOperation = 'destination-in'; tx.fillStyle = '#000'; tx.textAlign = ty.align;
@@ -1395,7 +1396,7 @@ function calDraw(cal, pg, W, art, imgs) {
       site(T.ink);
     }
   }
-  return c;
+  return c || x;
 }
 // 화면에서만 보이는 안내: 디자인 안전 영역(점선)과 위쪽 스프링 구멍 자리
 function calGuide(cv) {
@@ -1443,6 +1444,7 @@ const calFileName = (c, pg, i) => `hamihamoo-calendar-${c.year}-${pad(i, 2)}-${p
 function openCalendar(c) {
   const pages = c.pages, stops = [];
   pages.forEach((pg, i) => { if (pg.k !== 'back') stops.push(i); });
+  let prep = null; // 편집용 파일을 만들 때 한 번만 준비해요
   let s = 0, back = false;
   const el = document.createElement('div'); el.className = 'pview cal-view';
   el.innerHTML = `<button class="icon-btn pview-x" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -1459,7 +1461,7 @@ function openCalendar(c) {
     if (anim && !reduced) $('figure', el).animate([{ opacity: .3, transform: `translateX(${anim * 24}px)` }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.22,1,.36,1)' });
     cap.innerHTML = `<b>${esc(c.title || c.year)}</b><span class="mono">${esc(calPageName(back ? pages[i + 1] : pg))} · ${pad(s + 1)} / ${pad(stops.length)}</span>
       ${hasBack ? `<button class="btn small ghost" data-flip>${back ? '앞면 보기' : '뒷면 보기'} ↻</button>` : ''}
-      <span class="cal-down"><span class="mono">내려받기</span><button class="btn small" data-down="img">이미지 묶음 (JPG)</button><button class="btn small" data-down="pdf">인쇄용 PDF</button></span>`;
+      <span class="cal-down"><span class="mono">내려받기</span><button class="btn small" data-down="img">이미지 묶음 (JPG)</button><button class="btn small" data-down="pdf">인쇄용 PDF</button>${c.recipe ? '<button class="btn small" data-down="svg">편집용 SVG (전체)</button><button class="btn small" data-down="psd">포토샵 PSD (이 면)</button>' : ''}</span>`;
   };
   // 뒤로 가기 등으로 페이지가 바뀌면 같이 닫아요
   const close = () => { el.remove(); document.body.classList.remove('locked'); removeEventListener('keydown', key); removeEventListener('hashchange', close); };
@@ -1477,7 +1479,14 @@ function openCalendar(c) {
     if (db) {
       const label = db.textContent, files = () => pages.map((pg, i) => fetch(calSrc(c, pg)).then(r => r.blob()).then(b => new File([b], calFileName(c, pg, i), { type: 'image/jpeg' })));
       db.disabled = true; db.textContent = '준비 중…';
-      try { if (db.dataset.down === 'pdf') await calPdf(c.year, files()); else await calDownload(c.year, files()); }
+      const kind = db.dataset.down;
+      try {
+        if (kind === 'svg' || kind === 'psd') {
+          const pr = await (prep || (prep = calPrepare(c.recipe)));
+          if (kind === 'svg') await calSvgZip(pr.cal, pr.art, pr.imgs, (n, t) => { db.textContent = `그리는 중 ${n}/${t}`; });
+          else { const k = stops[s] + (back ? 1 : 0); await calPsd(pr.cal, pages[k], k, pr.art, pr.imgs); }
+        } else if (kind === 'pdf') await calPdf(c.year, files()); else await calDownload(c.year, files());
+      }
       catch (err) { console.error(err); toast(err.message || '내려받지 못했어요', 4000); }
       finally { db.disabled = false; db.textContent = label; }
     }
@@ -1506,6 +1515,102 @@ async function calPdf(year, filePromises) {
     catch (e) { if (e && e.name === 'AbortError') return; }
   }
   saveBlob(file, file.name); toast(`PDF 한 파일(${list.length}쪽)로 내려받았어요`);
+}
+// ---------- 편집용 파일: SVG(일러스트레이터·피그마) · PSD(포토샵 레이어) ----------
+// 도구는 처음 쓸 때만 불러와요
+const loadLib = (src, get) => new Promise((res, rej) => { const v = get(); if (v) return res(v); const sc = document.createElement('script'); sc.src = src; sc.onload = () => res(get()); sc.onerror = () => rej(new Error('도구를 불러오지 못했어요. 인터넷 연결을 확인해 주세요')); document.head.appendChild(sc); });
+const loadC2S = () => loadLib('https://cdn.jsdelivr.net/npm/canvas2svg@1.0.16/canvas2svg.js', () => window.C2S);
+const loadAgPsd = () => loadLib('https://cdn.jsdelivr.net/npm/ag-psd@31.0.2/dist/bundle.js', () => window.agPsd);
+const CAL_README = `Hamihamoo 탁상 달력 · 편집용 파일
+==============================
+
+크기: 210 × 148 mm (A5 가로), 300dpi 기준 2480 × 1748 px
+위쪽 약 17mm는 스프링 구멍 자리예요. 글씨와 날짜는 그 아래에 있어요.
+
+[SVG] 일러스트레이터 · 피그마 · 인디자인 · 잉크스케이프
+- 일러스트레이터: 파일 > 열기로 SVG를 열고, 다른 이름으로 저장에서 .ai를 고르면 AI 파일이 돼요.
+- 피그마: SVG 파일을 캔버스에 끌어다 놓으면 돼요.
+- 글씨는 진짜 글자라서 고칠 수 있고, 사진은 틀(클리핑 마스크) 안에 들어 있어 위치·크기를 바꿀 수 있어요.
+
+[PSD] 포토샵
+- 레이어: 배경 / 아래 장식 / 사진 / 글씨·날짜·장식
+- 글씨는 그림으로 들어 있어요(포토샵에서 글자를 고치려면 SVG를 쓰세요).
+
+[글꼴] 글씨를 똑같이 보려면 아래 글꼴을 컴퓨터에 설치하세요 (모두 무료)
+- Instrument Serif, Fraunces, JetBrains Mono, Noto Serif KR : https://fonts.google.com
+- Pretendard : https://github.com/orioncactus/pretendard
+`;
+// 사진은 SVG 안에 JPEG로 넣어요 (PNG보다 훨씬 가벼워요). 글자 모양 사진처럼 투명한 곳이 있는 그림은 PNG 그대로
+const calJpeg = new WeakMap();
+function calSvgCtx(C2S) {
+  const ctx = new C2S({ width: CAL_W, height: CAL_H });
+  // canvas2svg는 오려 낼 모양을 비워 둔 채 clip해서, 모양을 먼저 적어 줘요
+  const clip = ctx.clip; ctx.clip = function () { if (this.__currentElement && this.__currentElement.nodeName === 'path') this.__applyCurrentDefaultPath(); return clip.apply(this); };
+  const draw = ctx.drawImage;
+  ctx.drawImage = function (img) {
+    // canvas2svg는 사진 위치(x, y)를 빼먹고 빈 묶음을 남겨서, 위치를 직접 적고 빈 묶음은 지워요
+    const parent = this.__closestGroupOrSvg(), before = parent.childNodes.length; draw.apply(this, arguments);
+    const added = [...parent.childNodes].slice(before), el = added.find(n => n.nodeName === 'image');
+    added.forEach(n => { if (n !== el && n.nodeName === 'g' && !n.childNodes.length) parent.removeChild(n); });
+    if (!el) return;
+    const a = arguments; el.setAttribute('x', a.length === 9 ? a[5] : a[1]); el.setAttribute('y', a.length === 9 ? a[6] : a[2]);
+    if (img._alpha) return;
+    if (!calJpeg.has(img)) {
+      const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height, k = Math.min(1, 2600 / Math.max(w, h)), c = document.createElement('canvas');
+      c.width = Math.round(w * k); c.height = Math.round(h * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      calJpeg.set(img, c.toDataURL('image/jpeg', .9));
+    }
+    el.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', calJpeg.get(img));
+  };
+  return ctx;
+}
+async function calSvgZip(cal, art, imgs, progress) {
+  const [C2S, JSZip] = await Promise.all([loadC2S(), loadZip()]), zip = new JSZip(), pages = calPages(), c = { year: cal.year };
+  for (let i = 0; i < pages.length; i++) {
+    const ctx = calSvgCtx(C2S); calDraw(cal, pages[i], CAL_W, art, imgs, ctx);
+    zip.file(calFileName(c, pages[i], i).replace(/\.jpg$/, '.svg'), ctx.getSerializedSvg(true));
+    if (progress) progress(i + 1, pages.length);
+    await new Promise(r => setTimeout(r));
+  }
+  zip.file('읽어 주세요.txt', CAL_README);
+  saveBlob(await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } }), `hamihamoo-calendar-${cal.year}-svg.zip`);
+  toast(`편집용 SVG ${pages.length}장을 압축 파일로 내려받았어요 · 글꼴 안내는 "읽어 주세요" 파일에 있어요`, 5200);
+}
+// PSD: 한 장을 같은 순서로 네 번 그리면서, 그리는 명령을 종류별로 다른 레이어에만 남겨요
+// (맨 처음 바탕 = 배경, 첫 사진 전 = 아래 장식, 사진 = 사진, 첫 사진 뒤 = 글씨·날짜·장식)
+const CAL_DRAWOPS = new Set(['fillRect', 'strokeRect', 'fill', 'stroke', 'fillText', 'strokeText', 'drawImage']);
+function calLayerCtx(real, keep, seen) {
+  let n = 0, img = false;
+  return new Proxy(real, {
+    get(t, p) {
+      const v = t[p]; if (typeof v !== 'function') return v;
+      if (!CAL_DRAWOPS.has(p)) return v.bind(t);
+      return (...a) => { const kind = n++ === 0 ? 'bg' : p === 'drawImage' ? (img = true, 'photo') : img ? 'ink' : 'under'; seen.add(kind); if (kind === keep) return v.apply(t, a); };
+    },
+    set(t, p, v) { t[p] = v; return true; },
+  });
+}
+async function calPsd(cal, pg, idx, art, imgs) {
+  const ag = await loadAgPsd(), seen = new Set(), names = { bg: '배경', under: '아래 장식', photo: '사진', ink: '글씨 · 날짜 · 장식' };
+  const layers = ['bg', 'under', 'photo', 'ink'].map(k => { const c = document.createElement('canvas'); c.width = CAL_W; c.height = CAL_H; calDraw(cal, pg, CAL_W, art, imgs, calLayerCtx(c.getContext('2d'), k, seen)); return { k, c }; });
+  const psd = { width: CAL_W, height: CAL_H, canvas: calDraw(cal, pg, CAL_W, art, imgs), children: layers.filter(l => seen.has(l.k)).map(l => ({ name: names[l.k], canvas: l.c })) };
+  const buf = ag.writePsd(psd, { generateThumbnail: true });
+  const name = calFileName({ year: cal.year }, pg, idx).replace(/\.jpg$/, '.psd');
+  saveBlob(new Blob([buf], { type: 'image/vnd.adobe.photoshop' }), name);
+  toast(`${calPageName(pg)}을(를) 포토샵 파일(레이어 ${psd.children.length}개)로 내려받았어요`, 4200);
+}
+// 전시된 달력은 함께 저장된 설계도(recipe)로 사진·편집 그림을 다시 준비해요
+async function calPrepare(recipe) {
+  const cal = calFix(JSON.parse(JSON.stringify(recipe))), imgs = new Map(), art = new Map();
+  await Promise.all([calFonts(), Holidays.load()]);
+  const ty = cal.cover.type; if (ty && ty.font !== 'classic') await document.fonts.load(`${ty.weight} 40px ${ty.font === 'sans' ? 'Pretendard' : 'Fraunces'}`, '0123456789').catch(() => {});
+  const files = new Set(calPages().map(pg => calPhotoOf(cal, pg)).concat(cal.months.map(m => m.photo)).filter(Boolean));
+  await Promise.all([...files].map(f => { const p = S.byName.get(f); return p ? calImg(p).then(i => imgs.set(f, i)).catch(() => {}) : null; }));
+  for (const pg of calPages()) {
+    const it = calEditOf(cal, pg), R = calRectOf(cal, pg), p = S.byName.get(calPhotoOf(cal, pg));
+    if (it && it.edit && R && p) { const a = await Postcard.render(p, R[2], R[3], it.edit).catch(() => null); if (a) art.set(calKey(pg), a); }
+  }
+  return { cal, art, imgs };
 }
 // 휴대폰은 공유 창, 컴퓨터는 zip 하나로
 async function calDownload(year, filePromises) {
@@ -1549,6 +1654,8 @@ function renderCalMaker(view) {
       <button class="btn ghost" id="cmView">넘겨 보기</button>
       <button class="btn" id="cmDown">이미지 묶음 내려받기 <span class="arrow">↓</span></button>
       <button class="btn" id="cmPdf">인쇄용 PDF 내려받기 <span class="arrow">↓</span></button>
+      <button class="btn ghost" id="cmSvg">편집용 SVG (전체) <span class="arrow">↓</span></button>
+      <button class="btn ghost" id="cmPsd">포토샵 PSD (지금 보는 면) <span class="arrow">↓</span></button>
       <button class="btn" id="cmPublish" hidden>전시에 올리기 <span class="arrow">↗</span></button>
       <button class="pc-link" id="cmReset">처음부터 다시</button>
     </div>
@@ -1727,6 +1834,10 @@ function renderCalMaker(view) {
     const out = await renderAll(CAL_W, .92), c = { year: cal.year };
     await calPdf(cal.year, out.map((p2, i) => Promise.resolve(new File([p2.blob], calFileName(c, p2, i), { type: 'image/jpeg' }))));
   });
+  // 편집용: 다듬은 사진까지 다 준비된 뒤에 만들어요
+  const readyAll = async () => { await calFonts(); await tyFont(); await ensureImgs(); await ensureArt(); };
+  $('#cmSvg', view).onclick = e => busy(e.currentTarget, '그리는 중…', async () => { await readyAll(); await calSvgZip(cal, art, imgs, progress); });
+  $('#cmPsd', view).onclick = e => busy(e.currentTarget, '만드는 중…', async () => { await readyAll(); await calPsd(cal, pg(), cur, art, imgs); });
   $('#cmView', view).onclick = e => busy(e.currentTarget, '준비 중…', async () => {
     const out = await renderAll(1600, .85);
     openCalendar({ title: cal.title, year: cal.year, pages: out.map(p2 => ({ k: p2.k, m: p2.m, _local: URL.createObjectURL(p2.blob) })) });
