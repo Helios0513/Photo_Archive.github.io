@@ -350,7 +350,7 @@ function renderHome(view) {
 
   view.innerHTML = `
   <section class="hero" id="hero">
-    ${heroList.map((p, i) => `<div class="hero-slide ${i === 0 ? 'on' : ''}" data-f="${esc(p.filename)}"><img src="${esc(imgUrl(p))}" alt="" ${i > 1 ? 'loading="lazy"' : ''}></div>`).join('')}
+    ${heroList.map((p, i) => `<div class="hero-slide ${i === 0 ? 'on' : ''}" data-f="${esc(p.filename)}"><img ${i === 0 ? 'src' : 'data-src'}="${esc(imgUrl(p))}" alt=""></div>`).join('')}
     <div class="hero-inner">
       <div class="hero-kicker mono">${esc(site.archiveKicker || 'THE PHOTOGRAPHIC ARCHIVE')}</div>
       <h1 class="hero-title split">${splitChars(site.heroPrefix || 'A way of', 200)}<br><em>${splitChars(site.heroEmphasis || 'seeing.', 200, [...(site.heroPrefix || 'A way of')].length)}</em></h1>
@@ -422,12 +422,17 @@ function renderHome(view) {
   /* 히어로 슬라이드 */
   const slides = $$('.hero-slide', view), bars = $$('.hero-bar', view);
   let cur = 0, timer;
+  // 첫 사진만 먼저 받고, 나머지는 첫 사진이 화면에 뜬 뒤에 받아요 (화질은 그대로)
+  const loadRest = () => slides.forEach(sl => { const im = $('img', sl); if (im.dataset.src && !im.getAttribute('src')) im.src = im.dataset.src; });
+  const first = slides[0] && $('img', slides[0]);
+  if (first) { if (first.complete && first.naturalWidth) loadRest(); else { first.addEventListener('load', loadRest, { once: true }); first.addEventListener('error', loadRest, { once: true }); } }
+  const restTimer = setTimeout(loadRest, 4000);
   const DUR = 6000;
   const show = i => {
     slides[cur].classList.remove('on');
     cur = (i + slides.length) % slides.length;
     slides[cur].classList.add('on');
-    const img = $('img', slides[cur]); img.style.animation = 'none'; void img.offsetWidth; img.style.animation = '';
+    const img = $('img', slides[cur]); if (img.dataset.src && !img.getAttribute('src')) img.src = img.dataset.src; img.style.animation = 'none'; void img.offsetWidth; img.style.animation = '';
     bars.forEach((b, j) => { b.classList.toggle('done', j < cur); b.classList.remove('on'); });
     void bars[cur].offsetWidth; bars[cur].classList.add('on');
     const p = heroList[cur];
@@ -441,7 +446,7 @@ function renderHome(view) {
     if (e.target.closest('.hero-inner') && !e.target.closest('.hero-title')) return;
     Lightbox.open(heroList, cur, $('img', slides[cur]));
   });
-  pageCleanup.push(() => clearTimeout(timer));
+  pageCleanup.push(() => { clearTimeout(timer); clearTimeout(restTimer); });
 
   /* 숫자가 0부터 세어 올라가기 */
   const countIO = new IntersectionObserver(es => es.forEach(en => {
