@@ -933,7 +933,7 @@ function calFix(cal) {
   return cal;
 }
 const CF = { serif: '"Instrument Serif", "Noto Serif KR", Georgia, serif', sans: 'Pretendard, sans-serif', mono: '"JetBrains Mono", monospace' };
-const calFonts = () => Promise.all(['italic 40px "Instrument Serif"', '40px "Instrument Serif"', '400 40px Pretendard', '700 40px Pretendard', '900 40px Pretendard', '100 40px Pretendard', '400 40px Fraunces', '900 40px Fraunces', '40px "JetBrains Mono"', '40px "Noto Serif KR"'].map(f => document.fonts.load(f, 'Aa가1').catch(() => {})));
+const calFonts = () => loadPosterFonts().then(() => Promise.all(['italic 40px "Instrument Serif"', '40px "Instrument Serif"', '400 40px Pretendard', '700 40px Pretendard', '900 40px Pretendard', '100 40px Pretendard', '400 40px Fraunces', '900 40px Fraunces', '40px "JetBrains Mono"', '40px "Noto Serif KR"'].map(f => document.fonts.load(f, 'Aa가1').catch(() => {}))));
 
 // 사진 불러오기 · 사진에서 색 뽑기 (한 번 불러온 건 기억해 둬요)
 const calImgs = new Map(), calPal = new Map();
@@ -2799,6 +2799,14 @@ function rtInit(ed) {
   ed.addEventListener('paste', e => { e.preventDefault(); const t = (e.clipboardData || window.clipboardData).getData('text/plain'); const room = (+ed.dataset.max || 9999) - rtPlain(ed).length; document.execCommand('insertText', false, t.slice(0, Math.max(0, room))); });
   ed.addEventListener('beforeinput', e => { if (/^insert(Text|LineBreak|Paragraph)/.test(e.inputType) && rtPlain(ed).length >= (+ed.dataset.max || 9999)) e.preventDefault(); });
 }
+// 엽서·포스터 편집기와 달력에서만 쓰는 글꼴 25종은 처음 쓸 때만 불러와요 (첫 화면을 가볍게)
+const POSTER_FONTS = 'https://fonts.googleapis.com/css2?family=Anton&family=Gothic+A1:wght@100;300;500;700;800;900&family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@100;300;500;600;700&family=Orbit&family=Playfair+Display:ital,wght@1,400..900&family=Fraunces:wght@100..900&family=Cormorant+Garamond:ital,wght@1,300..700&family=DM+Serif+Display&family=Syne:wght@400..800&family=Archivo+Black&family=Bebas+Neue&family=Inter+Tight:wght@100..900&family=Space+Mono:wght@400;700&family=Major+Mono+Display&family=UnifrakturMaguntia&family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..900&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@100..900&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@200..900&display=swap';
+let posterFontsP = null;
+const loadPosterFonts = () => posterFontsP || (posterFontsP = new Promise(res => {
+  const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = POSTER_FONTS;
+  l.onload = () => res(true); l.onerror = () => { posterFontsP = null; res(false); };
+  document.head.appendChild(l);
+}));
 const Postcard = (() => {
   // 휴대폰 배경: 휴대폰으로 열면 그 폰의 실제 화면 픽셀 그대로, 컴퓨터에서는 아이폰 17 Pro(1206×2622)
   const PHONE = (() => {
@@ -3917,7 +3925,7 @@ const Postcard = (() => {
     if (!reduced) $('.pc-panel', el).animate([{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: 'cubic-bezier(.22,1,.36,1)' });
   };
   api.close = () => { el.hidden = true; onUse = null; };
-  const fontsReady = () => Promise.all(['italic 40px "Instrument Serif"', '40px Anton', '900 40px Pretendard', '40px "Noto Serif KR"', '40px "JetBrains Mono"'].map(f => document.fonts.load(f).catch(() => {})));
+  const fontsReady = () => loadPosterFonts().then(() => Promise.all(['italic 40px "Instrument Serif"', '40px Anton', '900 40px Pretendard', '40px "Noto Serif KR"', '40px "JetBrains Mono"'].map(f => document.fonts.load(f).catch(() => {}))));
   // ---------- 달력 만들기에서 쓰는 편집 모드 ----------
   // 정해진 사진 칸 크기(w×h)로 열고, "이 달에 쓰기"를 누르면 다 그린 그림과 설정을 돌려줘요
   const home = el.parentNode;
