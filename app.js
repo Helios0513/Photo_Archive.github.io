@@ -305,9 +305,14 @@ function currentRoute() {
 }
 function render() {
   const r = currentRoute();
+  if (Studio.authed && !Drafts.pulled) Drafts.pull().then(got => {
+    if (!got.length) return;
+    toast(`다른 기기에서 임시저장한 ${got.map(k => Drafts.NAME[k]).join(' · ')}을(를) 불러왔어요`, 4200);
+    if (/^#\/(calendars\/new|exhibitions\/new|exhibitions\/[^/]+\/edit|studio)/.test(location.hash)) render();
+  });
   const go = () => {
     pageCleanup.forEach(f => { try { f(); } catch (e) {} });
-    pageCleanup = []; pageScroll = [];
+    pageCleanup = []; pageScroll = []; Drafts.flush();
     const view = $('#view');
     view.innerHTML = '';
     document.body.dataset.route = r.name;
@@ -731,6 +736,7 @@ function renderPrints(view, key) {
   const picked = new Set();
   view.innerHTML = `<section class="page">
     ${worksHead('prints', all.length)}
+    ${Postcard.draftOf() ? `<div class="draft-bar"><span>임시저장된 엽서가 있어요</span><button class="btn small" id="prResume">이어서 만들기</button><button class="pc-link" id="prDrop">지우기</button></div>` : ''}
     ${all.length ? `<div class="toolbar-row prints-bar"><div class="seg" id="prKind"><span class="seg-ind"></span>${kinds.map(k => `<button data-v="${k}" class="${k === 'all' ? 'on' : ''}">${PRINT_KIND_KO[k]} <span class="mono">${count(k)}</span></button>`).join('')}</div><button class="pill" id="prSelect">선택해서 내려받기</button></div>` : ''}
     <div class="prints-wall" id="prWall"></div>
     ${all.length ? '' : '<div class="empty">아직 전시된 엽서·포스터가 없어요. 사진을 열고 엽서 버튼으로 만들어 보세요.</div>'}
@@ -741,6 +747,8 @@ function renderPrints(view, key) {
     </div>
   </section>`;
   const wall = $('#prWall', view);
+  if ($('#prResume', view)) $('#prResume', view).onclick = () => Postcard.open(S.byName.get(Postcard.draftOf().photo));
+  if ($('#prDrop', view)) $('#prDrop', view).onclick = () => { if (!confirm('임시저장된 엽서를 지울까요?')) return; Drafts.clear('print'); $('.draft-bar', view).remove(); };
   const list = () => kind === 'all' ? all : all.filter(p => printKind(p.fmt) === kind);
   function paint() {
     wall.classList.toggle('selecting', selecting);
@@ -1816,12 +1824,13 @@ function renderCalMaker(view) {
   let editing = (S.calendars || []).find(c => c.id === store.get('hm-cal-edit', null)) || null;
   let cur = 0, alive = true, guide = store.get('hm-cal-guide', true);
   pageCleanup.push(() => { alive = false; });
-  const save = () => store.set('hm-cal-draft', cal);
+  const save = () => { store.set('hm-cal-draft', cal); Drafts.touch('cal'); };
   view.innerHTML = `<section class="page cal-make">
     <div class="page-head">
       <div><div class="page-kicker mono"><a href="#/calendars" class="faint">← Calendars</a></div><h1 class="page-title split">${splitChars('New calendar')}</h1></div>
       ${editing ? `<p class="cm-editing" id="cmEditing"><b>「${esc(editing.title || editing.year)}」 달력을 고치는 중</b> · 올리면 원래 달력이 이 버전으로 바뀌어요 <button class="pc-link" id="cmEditOff">새 달력으로 만들기</button></p>` : ''}
-      <p class="page-sub">탁상 달력(가로) 한 권: 표지와 그 뒷면, 열두 달 앞·뒷면, 뒷표지와 그 뒷면. 장마다 구도를 고르거나 모든 달에 한 번에 적용할 수 있어요. 만드는 중인 달력은 이 기기에 저장돼요.</p>
+      <p class="page-sub">탁상 달력(가로) 한 권: 표지와 그 뒷면, 열두 달 앞·뒷면, 뒷표지와 그 뒷면. 장마다 구도를 고르거나 모든 달에 한 번에 적용할 수 있어요. 만드는 중인 달력은 자동으로 임시저장돼요.</p>
+      ${Drafts.tag('cal')}
     </div>
     <div class="cm-top">
       <label class="field"><span>제목</span><input id="cmTitle" maxlength="40" placeholder="예: 연기처럼 지나간 날들"></label>
@@ -2009,7 +2018,7 @@ function renderCalMaker(view) {
     const d = $('#cmAddD', view).value, n = $('#cmAddN', view).value.trim(); if (!d || !n) return;
     (cal.extra = cal.extra || []).push({ d, n }); save(); refresh(); toast(`${+d.slice(5, 7)}월 ${+d.slice(8)}일을 쉬는 날로 넣었어요`);
   });
-  function editOff() { editing = null; store.set('hm-cal-edit', null); const n = $('#cmEditing', view); if (n) n.remove(); $('#cmPublish', view).innerHTML = '전시에 올리기 <span class="arrow">↗</span>'; }
+  function editOff() { editing = null; store.set('hm-cal-edit', null); Drafts.touch('cal'); const n = $('#cmEditing', view); if (n) n.remove(); $('#cmPublish', view).innerHTML = '전시에 올리기 <span class="arrow">↗</span>'; }
   if ($('#cmEditOff', view)) $('#cmEditOff', view).onclick = () => { editOff(); toast('이제 올리면 새 달력으로 더해져요'); };
   $('#cmReset', view).onclick = async () => { if (!confirm('지금 만든 달력을 지우고 새로 시작할까요?')) return; editOff(); cal = calFix(calNew()); art.clear(); save(); tEl.value = ''; yEl.value = cal.year; paintPaper(); cur = 0; await ensureImgs(); refresh(); };
 
@@ -2180,15 +2189,16 @@ function renderExEditor(view, id) {
   const blank = () => ({ id: null, title: '', subtitle: '', statement: '', from: iso, to: '', wall: 'light', cover: null, rooms: [{ title: '', text: '', works: [] }] });
   const DKEY = 'hm-ex-draft';
   // 미리 보기를 다녀와도 고치던 내용이 그대로 남아 있게
-  let ex = orig ? (S._exDraft && S._exDraft.id === id ? S._exDraft : JSON.parse(JSON.stringify(orig))) : (S._exDraft && !S._exDraft.id ? S._exDraft : store.get(DKEY, null) || blank());
+  const dr = store.get(DKEY, null);
+  let ex = orig ? (S._exDraft && S._exDraft.id === id ? S._exDraft : dr && dr.id === id ? dr : JSON.parse(JSON.stringify(orig))) : (S._exDraft && !S._exDraft.id ? S._exDraft : dr && !dr.id ? dr : blank());
   let room = 0, fSeries = 'all', fColor = 'all', hideUsed = false;
-  const save = () => { S._exDraft = ex; if (!ex.id) store.set(DKEY, ex); };
+  const save = () => { S._exDraft = ex; store.set(DKEY, ex); Drafts.touch('ex'); };
   const used = () => new Set(ex.rooms.flatMap(r => r.works.map(w => w.f)));
   const series = S.projects.filter(pr => projectPhotos(pr).length);
   const COLORS = { all: '모든 색', ...Object.fromEntries(FAMILIES.map(([k, t]) => [k, t])) };
   view.innerHTML = `<section class="page ex-ed">
     <div class="page-head"><div><div class="page-kicker mono"><a href="#/exhibitions" class="faint">← Exhibitions</a></div><h1 class="page-title split">${splitChars(orig ? 'Edit exhibition' : 'New exhibition')}</h1></div>
-      <p class="page-sub">여러 시리즈에서 사진을 골라 주제로 엮어요. 방을 나누고, 서문과 작품 제목을 쓰면 하나의 전시가 돼요.</p></div>
+      <p class="page-sub">여러 시리즈에서 사진을 골라 주제로 엮어요. 방을 나누고, 서문과 작품 제목을 쓰면 하나의 전시가 돼요.</p>${Drafts.tag('ex')}</div>
     <div class="ex-ed-grid">
       <div class="ex-ed-main">
         <div class="ex-ed-basic">
@@ -2239,7 +2249,8 @@ function renderExEditor(view, id) {
   }
   function paintGrid() {
     const u = used(), sp = fSeries === 'all' ? null : series.find(pr => pr.id === fSeries);
-    let list = sp ? projectPhotos(sp) : S.photos;
+    // 찍은 날짜 순서: 최근 사진이 맨 앞
+    let list = [...(sp ? projectPhotos(sp) : S.photos)].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     if (fColor !== 'all') list = list.filter(p => familyShare(p, fColor) >= minShare(fColor));
     if (hideUsed) list = list.filter(p => !u.has(p.filename));
     $v('#exGrid').innerHTML = list.map(p => `<button data-f="${esc(p.filename)}" class="${u.has(p.filename) ? 'on' : ''}"><img src="${esc(thumbUrl(p))}" alt="" loading="lazy"><span class="ex-ck" aria-hidden="true">✓</span></button>`).join('') || '<p class="faint">조건에 맞는 사진이 없어요.</p>';
@@ -2292,7 +2303,7 @@ function renderExEditor(view, id) {
       out.cover = out.cover && exWorks(out).some(w => w.f === out.cover) ? out.cover : exWorks(out)[0].f;
       out.id = out.id || `ex-${iso}-${Date.now().toString(36)}`; out.created = out.created || new Date().toISOString(); out.updated = new Date().toISOString();
       await publishExhibition(out);
-      if (!orig) store.set(DKEY, null);
+      Drafts.clear('ex');
       S._exDraft = null;
       toast(orig ? '전시를 고쳤어요 · 1~2분 뒤 홈페이지에도 반영돼요' : '전시를 열었어요 · 1~2분 뒤 홈페이지에도 반영돼요', 4200);
       location.hash = '#/exhibitions/' + encodeURIComponent(out.id);
@@ -2302,7 +2313,7 @@ function renderExEditor(view, id) {
     if (!confirm('이 전시를 내릴까요? 전시만 사라지고 사진은 그대로 남아요.')) return;
     try { await unpublishExhibition(orig.id); toast('전시를 내렸어요'); location.hash = '#/exhibitions'; } catch (err) { toast('내리지 못했어요: ' + err.message, 6000); }
   };
-  if ($v('#exReset')) $v('#exReset').onclick = () => { if (!confirm('지금 기획 중인 전시를 지우고 새로 시작할까요?')) return; ex = blank(); room = 0; store.set(DKEY, null); S._exDraft = null; $v('#exT').value = ''; $v('#exSub').value = ''; $v('#exSt').value = ''; $v('#exFrom').value = iso; $v('#exTo').value = ''; paintWall(); refresh(); };
+  if ($v('#exReset')) $v('#exReset').onclick = () => { if (!confirm('지금 기획 중인 전시를 지우고 새로 시작할까요?')) return; ex = blank(); room = 0; Drafts.clear('ex'); S._exDraft = null; $v('#exT').value = ''; $v('#exSub').value = ''; $v('#exSt').value = ''; $v('#exFrom').value = iso; $v('#exTo').value = ''; paintWall(); refresh(); };
 }
 
 /* 예전 공유 링크(p.html#abc123)에서 쓰던 짧은 코드 */
@@ -3149,6 +3160,27 @@ async function publishPoster(blob, meta) {
   const item = { ...meta, file };
   await updateJson('posters.json', d => [item, ...(Array.isArray(d) ? d : [])], `Add poster: ${meta.title || name}`);
   S.posters = [{ ...item, _local: URL.createObjectURL(blob) }, ...(S.posters || [])];
+}
+// 임시저장: drafts 가지(branch)의 drafts.json 하나에 종류별로 넣어요. 이 가지는 홈페이지를 다시 만들지 않아요
+const DRAFT_REF = 'drafts';
+const draftText = async f => f.content ? b64decode(f.content) : (await fetch(f.download_url, { cache: 'no-store' })).text();
+async function loadDraftsRemote() { const f = await gh('drafts.json?ref=' + DRAFT_REF); return f ? JSON.parse(await draftText(f)) : {}; }
+async function ensureDraftBranch() {
+  const h = { Authorization: `token ${getToken()}`, Accept: 'application/vnd.github+json' };
+  if ((await fetch(`https://api.github.com/repos/${REPO}/git/ref/heads/${DRAFT_REF}`, { headers: h, cache: 'no-store' })).ok) return;
+  const main = await (await fetch(`https://api.github.com/repos/${REPO}/git/ref/heads/main`, { headers: h, cache: 'no-store' })).json();
+  const r = await fetch(`https://api.github.com/repos/${REPO}/git/refs`, { method: 'POST', headers: { ...h, 'Content-Type': 'application/json' }, body: JSON.stringify({ ref: 'refs/heads/' + DRAFT_REF, sha: main.object.sha }) });
+  if (!r.ok && r.status !== 422) throw new Error('임시저장 공간을 만들지 못했어요');
+}
+async function saveDraftRemote(kind, entry) {
+  for (let attempt = 0; ; attempt++) {
+    const f = await gh('drafts.json?ref=' + DRAFT_REF);
+    if (!f) await ensureDraftBranch();
+    const all = f ? JSON.parse(await draftText(f)) : {};
+    all[kind] = entry;
+    try { await gh('drafts.json', { method: 'PUT', body: JSON.stringify({ message: `Draft: ${kind}`, content: b64encode(JSON.stringify(all)), branch: DRAFT_REF, ...(f ? { sha: f.sha } : {}) }) }); return; }
+    catch (e) { if (attempt >= 2 || ![404, 409, 422].includes(e.status)) throw e; }
+  }
 }
 // 저장소의 파일 하나 지우기 (없으면 그냥 넘어가요)
 async function deleteFile(path) {
@@ -4219,6 +4251,7 @@ const Postcard = (() => {
     prepareFile();
     paintSpots(); paintBox();
     ensureFont(title + sub);
+    saveDraft();
   }
   // 고른 글꼴의 한글·영문 글자를 내려받은 뒤 한 번 더 그려요
   const seenFaces = new Set();
@@ -4366,11 +4399,13 @@ const Postcard = (() => {
     if (st.color[0] === 'c' && !cols.length) st.color = 'cream';
   }
   api.open = p => {
-    paintAdmin(); solo(false); st.fixed = null;
+    paintAdmin(); solo(false); st.fixed = null; drafting = true; changed = false;
     st.p = p; el.hidden = false; im = null; cache = {}; pop = {};
     useLayout('full');
     Object.assign(st, { ratio: 'orig', orient: 'p', fx: 'none', zoom: 1, cx: .5, cy: .5, calYear: null, calMonth: null });
     $('#pcText').innerHTML = ''; $('#pcSub').innerHTML = '';
+    const dr = store.get('hm-pc-draft', null);
+    if (dr && dr.photo === p.filename) { restore(dr); toast('만들던 엽서를 이어서 열었어요'); }
     const i = new Image();
     i.onload = () => {
       im = i; cols = photoColors(); if (st.color[0] === 'c' && !cols[+st.color.slice(1)]) st.color = 'cream';
@@ -4386,6 +4421,11 @@ const Postcard = (() => {
   // 정해진 사진 칸 크기(w×h)로 열고, "이 달에 쓰기"를 누르면 다 그린 그림과 설정을 돌려줘요
   const home = el.parentNode;
   let onUse = null;
+  // 임시저장: 직접 연 엽서 창에서, 무언가 바꿨을 때만
+  let drafting = false, changed = false, draftT = 0;
+  ['input', 'click'].forEach(t => el.addEventListener(t, e => { if (drafting && !e.target.closest('#pcClose')) changed = true; }, true));
+  const saveDraft = () => { clearTimeout(draftT); draftT = setTimeout(() => { if (!drafting || !changed || !st.p || el.hidden) return; store.set('hm-pc-draft', { photo: st.p.filename, ...snap() }); Drafts.touch('print'); }, 600); };
+  api.draftOf = () => { const d = store.get('hm-pc-draft', null); return d && S.byName.get(d.photo) ? d : null; };
   function solo(on) {
     el.classList.toggle('solo', on);
     if (on && el.parentNode !== document.body) document.body.appendChild(el);
@@ -4403,7 +4443,7 @@ const Postcard = (() => {
   const loadPhoto = p => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = imgUrl(p); });
   const copyCv = () => { const c = document.createElement('canvas'); c.width = cv.width; c.height = cv.height; c.getContext('2d').drawImage(cv, 0, 0); return c; };
   api.edit = (p, w, h, sv, done) => {
-    paintAdmin(); solo(true);
+    paintAdmin(); solo(true); drafting = false;
     st.p = p; el.hidden = false; im = null; cache = {}; pop = {};
     restore(sv); st.fixed = [Math.round(w), Math.round(h)]; onUse = done;
     loadPhoto(p).then(i => {
@@ -4416,6 +4456,7 @@ const Postcard = (() => {
   // 화면에 띄우지 않고 저장해 둔 설정대로 다시 그려요 (여러 개를 부탁해도 하나씩 차례로)
   let queue = Promise.resolve();
   api.render = (p, w, h, sv) => (queue = queue.catch(() => {}).then(async () => {
+    drafting = false;
     const i = await loadPhoto(p);
     st.p = p; im = i; cache = {}; pop = {}; cols = photoColors();
     restore(sv); st.fixed = [Math.round(w), Math.round(h)];
@@ -4580,6 +4621,7 @@ const Postcard = (() => {
       const d = new Date(), date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
       await publishPoster(blob, { photo: st.p.filename, title: rtPlain($('#pcText')).split('\n')[0], layout: st.layout, fmt: fmtKey(), date, w: o.width, h: o.height });
       toast('전시(Projects › Prints)에 올렸어요 · 1~2분 뒤 홈페이지에도 반영돼요', 4200);
+      Drafts.clear('print'); changed = false;
     } catch (err) { console.error(err); toast('올리지 못했어요: ' + err.message, 6000); paintAdmin(); }
     finally { b.disabled = false; b.innerHTML = label; }
   };
@@ -5028,6 +5070,7 @@ function stFeatured(body) {
 }
 
 /* 4) 프로젝트 */
+const pjDraft = () => store.get('hm-pj-draft', null);
 function stProjects(body) {
   const paint = () => {
     const cur = Studio.pj;
@@ -5041,10 +5084,14 @@ function stProjects(body) {
           <label class="field wide"><span>소개 글</span><textarea id="pjDesc" style="min-height:90px">${esc(cur.description)}</textarea></label>
         </div></div>
         <div id="pjPicker"></div>
-        <div class="st-actions">${cur.origId ? '<button class="link-danger" id="pjDel" style="margin-right:auto">이 프로젝트 삭제</button>' : ''}<button class="btn ghost small" id="pjCancel">닫기</button><button class="btn" id="pjSave">프로젝트 저장</button></div>`
-        : '<div class="empty fx-box">왼쪽에서 프로젝트를 고르거나 새로 만드세요.</div>'}</div>
+        <div class="st-actions">${Drafts.tag('series')}${cur.origId ? '<button class="link-danger" id="pjDel" style="margin-right:auto">이 프로젝트 삭제</button>' : ''}<button class="btn ghost small" id="pjCancel">닫기</button><button class="btn" id="pjSave">프로젝트 저장</button></div>`
+        : (pjDraft() ? `<div class="fx-box draft-bar"><span>임시저장된 시리즈 <b>「${esc(pjDraft().title || '제목 없음')}」</b>${pjDraft().origId ? ' (고치던 중)' : ' (새로 만들던 중)'}</span><button class="btn small" id="pjResume">이어서 하기</button><button class="pc-link" id="pjDrop">지우기</button></div>` : '') + '<div class="empty fx-box">왼쪽에서 프로젝트를 고르거나 새로 만드세요.</div>'}</div>
     </div>`;
     wireImages(body);
+    // 고칠 때마다 임시저장 (사진 고르기·순서 바꾸기도)
+    if (!body._draftHook) { body._draftHook = true; ['input', 'click'].forEach(t => body.addEventListener(t, () => setTimeout(() => { if (Studio.pj && body.isConnected) { store.set('hm-pj-draft', Studio.pj); Drafts.touch('series'); } }))); }
+    if ($('#pjResume', body)) $('#pjResume', body).onclick = () => { const d = pjDraft(); Studio.pj = { ...d, list: (d.list || []).filter(f => S.byName.has(f)) }; paint(); };
+    if ($('#pjDrop', body)) $('#pjDrop', body).onclick = () => { if (!confirm('임시저장된 시리즈를 지울까요?')) return; Drafts.clear('series'); paint(); };
     $('#pjNew', body).onclick = () => { Studio.pj = { origId: null, title: '', subtitle: '', description: '', list: [], cover: '' }; paint(); };
     $$('.pj-item', body).forEach(b => b.onclick = () => { const pr = S.projects[+b.dataset.i]; Studio.pj = { origId: pr.id, title: pr.title || '', subtitle: pr.subtitle || '', description: pr.description || '', list: (pr.photos || []).filter(f => S.byName.has(f)), cover: pr.cover }; paint(); });
     if (!cur) return;
@@ -5065,7 +5112,7 @@ function stProjects(body) {
         }, `Save project: ${data.title}`);
         const local = S.projects.find(p => p.id === id);
         if (local) Object.assign(local, data); else S.projects.unshift({ id, ...data, createdAt: now });
-        cur.origId = id; reindex();
+        cur.origId = id; reindex(); Drafts.clear('series');
       }).then(paint);
     };
     const del = $('#pjDel', body); if (del) del.onclick = () => {
@@ -5073,7 +5120,7 @@ function stProjects(body) {
       const id = cur.origId;
       saving(del, '프로젝트를 삭제했어요', async () => {
         await updateJson('projects.json', arr => (arr || []).filter(p => p.id !== id), 'Delete project');
-        S.projects = S.projects.filter(p => p.id !== id); Studio.pj = null; reindex();
+        S.projects = S.projects.filter(p => p.id !== id); Studio.pj = null; reindex(); Drafts.clear('series');
       }).then(paint);
     };
   };
@@ -5138,6 +5185,51 @@ function stSettings(body) {
     });
   };
 }
+
+/* ---------- 임시저장: 종류마다 하나 ----------
+   고칠 때마다 이 기기에 바로 저장하고, 관리자로 들어와 있으면 잠시 뒤 GitHub에도 저장해요.
+   다른 기기에서 관리자로 들어오면 더 최근 것을 불러와요 */
+const Drafts = {
+  KEYS: { cal: ['hm-cal-draft', 'hm-cal-edit'], ex: ['hm-ex-draft'], series: ['hm-pj-draft'], print: ['hm-pc-draft'] },
+  NAME: { cal: '달력', ex: '전시', series: '시리즈', print: '엽서' },
+  timers: {}, pulled: null,
+  touch(kind) {
+    store.set('hm-draft-at-' + kind, Date.now());
+    if (!Studio.authed) return this.say(kind, '이 기기에 임시저장됨');
+    clearTimeout(this.timers[kind]); this.timers[kind] = setTimeout(() => this.push(kind), 8000);
+    this.say(kind, '이 기기에 임시저장됨 · 곧 GitHub에도 저장해요');
+  },
+  async push(kind) {
+    clearTimeout(this.timers[kind]); delete this.timers[kind];
+    if (!Studio.authed) return;
+    await this.pull();
+    const data = Object.fromEntries(this.KEYS[kind].map(k => [k, store.get(k, null)]));
+    const entry = { at: store.get('hm-draft-at-' + kind, Date.now()), data: this.KEYS[kind].every(k => data[k] == null) ? null : data };
+    this.say(kind, 'GitHub에 임시저장 중…');
+    try { await saveDraftRemote(kind, entry); const d = new Date(); this.say(kind, `GitHub에 임시저장됨 · ${pad(d.getHours())}:${pad(d.getMinutes())}`); }
+    catch (e) { console.warn(e); this.say(kind, 'GitHub 임시저장 실패 · 이 기기에는 저장돼 있어요'); }
+  },
+  clear(kind) { this.KEYS[kind].forEach(k => store.set(k, null)); this.touch(kind); },
+  flush() { Object.keys(this.timers).forEach(k => this.push(k)); },
+  // GitHub에 있는 것이 이 기기 것보다 최근이면 가져와요 (한 번만). 가져온 종류 목록을 돌려줘요
+  pull() {
+    if (!Studio.authed) return Promise.resolve([]);
+    return this.pulled || (this.pulled = loadDraftsRemote().then(all => {
+      const got = [];
+      Object.entries(all || {}).forEach(([kind, r]) => {
+        if (!this.KEYS[kind] || !r || (r.at || 0) <= store.get('hm-draft-at-' + kind, 0)) return;
+        this.KEYS[kind].forEach(k => store.set(k, r.data ? r.data[k] ?? null : null));
+        store.set('hm-draft-at-' + kind, r.at);
+        if (r.data) got.push(kind);
+      });
+      return got;
+    }).catch(e => { console.warn(e); this.pulled = null; return []; }));
+  },
+  say(kind, t) { $$(`[data-draft="${kind}"]`).forEach(el => { el.textContent = t; }); },
+  tag(kind) { return `<span class="mono faint draft-st" data-draft="${kind}">${Studio.authed ? '임시저장: 고치면 자동으로 GitHub에 저장돼요' : '임시저장: 고치면 이 기기에 자동으로 저장돼요'}</span>`; },
+};
+addEventListener('pagehide', () => Drafts.flush());
+document.addEventListener('visibilitychange', () => { if (document.hidden) Drafts.flush(); });
 
 /* ============================================================
    공통: 커서, 테마, 복사, 시작
