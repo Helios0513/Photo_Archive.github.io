@@ -2104,6 +2104,8 @@ const Postcard = (() => {
   function wrap(x, t, maxW, meas = s0 => x.measureText(s0).width) {
     const lines = [];
     t.split('\n').forEach(par => {
+      // 빈 줄은 그대로 한 줄 띄워요 (작가 정보와 작품 정보 사이처럼)
+      if (!par.trim()) { if (lines.length) lines.push(''); return; }
       let cur = '';
       const push = () => { if (cur.trim()) lines.push(cur.trim()); cur = ''; };
       for (const word of par.split(/\s+/).filter(Boolean)) {
@@ -2150,6 +2152,7 @@ const Postcard = (() => {
     const outline = (str, X0, Y0, w0) => { if (!w0) return; x.save(); x.shadowColor = 'transparent'; x.lineJoin = 'round'; x.lineWidth = w0 * 2; x.strokeStyle = oc; x.strokeText(str, X0, Y0); x.restore(); };
     x.fillStyle = titleInk; x.font = f.font;
     lines.forEach((l, i) => {
+      if (!l) return;
       const Y0 = y + size * .8 + i * size * LH;
       if (!ls) { outline(l, X, Y0, ow); fill(x, f, l, X, Y0); ink(l, X, Y0, f.extra / 2 + ow); return; }
       // 자간이 있으면 한 글자씩 놓아요 (어느 브라우저에서나 똑같이 보이게)
@@ -2163,7 +2166,7 @@ const Postcard = (() => {
     y += titleH + (subs.length && titleH ? size * .2 : 0);
     x.fillStyle = subInk; x.font = `400 ${subSize}px Pretendard, sans-serif`;
     const sow = st.outline * subSize * .02;
-    subs.forEach((l, i) => { const Y0 = y + subSize * (1.1 + i * 1.5); outline(l, X, Y0, sow); x.fillText(l, X, Y0); ink(l, X, Y0, sow); });
+    subs.forEach((l, i) => { if (!l) return; const Y0 = y + subSize * (1.1 + i * 1.5); outline(l, X, Y0, sow); x.fillText(l, X, Y0); ink(l, X, Y0, sow); });
     y += subs.length ? subSize * 1.5 * subs.length : 0;
     if (o.meta) { const Y0 = y + metaH - metaSize * .2; x.fillStyle = o.muted; x.font = `${metaSize}px "JetBrains Mono", monospace`; x.fillText(o.meta, X, Y0); ink(o.meta, X, Y0, 0); }
     if (bl < Infinity) markBox(x, bl, bt, br - bl, bb - bt);
