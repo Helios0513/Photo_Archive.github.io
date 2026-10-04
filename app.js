@@ -470,12 +470,12 @@ function renderHome(view) {
   const sizeHs = () => {
     if (!selected.length) return;
     if (innerWidth <= 720) { hs.style.height = ''; track.style.transform = ''; return; }
-    const extra = Math.max(0, track.scrollWidth - hs.clientWidth);
-    hs.style.height = ($('.hs-sticky', hs).offsetHeight + extra) + 'px';
+    const extra = Math.max(0, track.scrollWidth - innerWidth);
+    hs.style.height = (innerHeight + extra) + 'px';
   };
   const hsScroll = () => {
     if (!selected.length || innerWidth <= 720) return;
-    const top = hs.offsetTop, extra = Math.max(0, track.scrollWidth - hs.clientWidth);
+    const top = hs.offsetTop, extra = Math.max(0, track.scrollWidth - innerWidth);
     const p = Math.min(1, Math.max(0, (scrollY - top) / Math.max(1, extra)));
     track.style.transform = `translate3d(${-p * extra}px,0,0)`;
     $('#hsNow').textContent = pad(Math.min(selected.length, Math.floor(p * (selected.length - 1) + 1.5)));
