@@ -2210,12 +2210,13 @@ const Postcard = (() => {
       if ('letterSpacing' in x) x.letterSpacing = `${Math.round(5 * u)}px`;
       x.fillText(p.date ? MONTH_FULL[month].toUpperCase() + ' ' + +p.date.slice(8, 10) + ' · ONLY IN THIS ARCHIVE' : 'COMING SOON', W / 2, H - m - billH - 40 * u);
       if ('letterSpacing' in x) x.letterSpacing = '0px';
-      const who = (from || 'HAMIHAMOO').toUpperCase(), name = (title || 'UNTITLED').replace(/\n/g, ' ').toUpperCase();
-      const credits = [`HAMIHAMOO PICTURES PRESENTS  A ${who} PRODUCTION  "${name}"`, `PHOTOGRAPHED BY HAMIHAMOO   MUSIC BY THE WIND AND THE CITY   EDITED BY LIGHT   PRODUCED BY ${who}   DIRECTED BY HAMIHAMOO`, `${date || ''}   ${host}`];
+      // 크레딧은 짧게 한 줄: 제목은 위에 크게 있으니 다시 넣지 않고, 아래에 사이트 주소만 작게
+      const who = (from || 'HAMIHAMOO').toUpperCase();
+      const credits = [`A HAMIHAMOO PICTURE   ·   PHOTOGRAPHED BY ${who}`, host];
       credits.forEach((line, i) => {
-        const bh = Math.round(billH * (i === 2 ? .2 : .3)); x.font = `400 ${bh}px Anton, sans-serif`;
+        const bh = Math.round(billH * (i ? .2 : .32)); x.font = `400 ${bh}px Anton, sans-serif`;
         const k = Math.min(.5, (W - m * 2) / Math.max(1, x.measureText(line).width));
-        x.save(); x.translate(W / 2, H - m - billH + billH * [.3, .66, .95][i]); x.scale(k, 1); x.fillStyle = mix(ink, '#000000', .1); x.fillText(line, 0, 0); x.restore();
+        x.save(); x.translate(W / 2, H - m - billH + billH * [.5, .92][i]); x.scale(k, 1); x.fillStyle = mix(ink, '#000000', .1); x.fillText(line, 0, 0); x.restore();
       });
       x.textAlign = 'left';
     } else if (st.layout === 'editorial') {
