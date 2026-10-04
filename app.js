@@ -1761,7 +1761,7 @@ const Postcard = (() => {
       ['mono', 'Mono', 'en', "font-family:'JetBrains Mono'"], ['spacemono', 'Space Mono', 'en', "font-family:'Space Mono'"], ['majormono', 'major mono', 'en', "font-family:'Major Mono Display'"]] },
   };
   const PAPER = { white: '#fbfaf6', cream: '#f1e9d8', black: '#141413', orange: '#e2672b' };
-  const st = { p: null, fmt: 'land', layout: 'card', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, calYear: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
+  const st = { p: null, fmt: 'land', layout: 'card', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, calYear: null, calMonth: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
   const el = $('#pcModal'), cv = $('#pcCanvas'), out = $('#pcImg'), sheet = $('#pcSheet');
   const api = { get isOpen() { return !el.hidden; } };
   let im = null, cols = [], cache = {};
@@ -2429,7 +2429,7 @@ const Postcard = (() => {
       put([[Rs, 'bc'], [Rs, 'mc'], [Rb, 'tc']], { ink: '#fff6c8', muted: 'rgba(255,255,255,.6)', subInk: '#fff6c8', shadow: true, meta: '' });
     } else if (st.layout === 'calendar') {
       // 달력: 사진 아래(가로형은 옆)에 그 사진을 찍은 달의 달력, 찍은 날에 동그라미
-      const dd = p.date ? new Date(p.date + 'T12:00:00') : new Date(), yy = st.calYear || dd.getFullYear(), mo = dd.getMonth(), day = yy === dd.getFullYear() ? dd.getDate() : 0;
+      const dd = p.date ? new Date(p.date + 'T12:00:00') : new Date(), yy = st.calYear || dd.getFullYear(), mo = st.calMonth != null ? st.calMonth : dd.getMonth(), day = yy === dd.getFullYear() && mo === dd.getMonth() ? dd.getDate() : 0;
       const first = new Date(yy, mo, 1).getDay(), days = new Date(yy, mo + 1, 0).getDate();
       let Rp, G;
       if (land) { Rp = { x: m, y: m, w: W * .5 - m, h: H - m * 2 }; G = { x: W * .5 + m, y: m, w: W * .5 - m * 2, h: H - m * 2 }; }
@@ -2638,7 +2638,10 @@ const Postcard = (() => {
     paintSummary();
     // 달력 디자인일 때만 연도 고르기가 보여요
     $('#pcCal').hidden = st.layout !== 'calendar';
-    if (st.p) $('#pcCalYear').value = st.calYear || (st.p.date ? +st.p.date.slice(0, 4) : new Date().getFullYear());
+    if (st.p) {
+      $('#pcCalYear').value = st.calYear || (st.p.date ? +st.p.date.slice(0, 4) : new Date().getFullYear());
+      $('#pcCalMonth').value = st.calMonth != null ? st.calMonth : (st.p.date ? +st.p.date.slice(5, 7) - 1 : new Date().getMonth());
+    }
     [['#pcFmt', 'fmt'], ['#pcLayout', 'layout'], ['#pcFx', 'fx'], ['#pcFont', 'font']].forEach(([id, k]) => $$('button', $(id)).forEach(b => b.classList.toggle('on', b.dataset.v === st[k])));
     $$('#pcAlign button').forEach(b => b.classList.toggle('on', b.dataset.v === st.align));
     // 글씨 색: 자동 + 자주 쓰는 색 + 이 사진에서 뽑은 색 + 직접 고르기
@@ -2664,7 +2667,7 @@ const Postcard = (() => {
   }
   api.open = p => {
     paintAdmin();
-    st.p = p; el.hidden = false; im = null; cache = {}; pop = {}; Object.assign(st, { zoom: 1, cx: .5, cy: .5, calYear: null });
+    st.p = p; el.hidden = false; im = null; cache = {}; pop = {}; Object.assign(st, { zoom: 1, cx: .5, cy: .5, calYear: null, calMonth: null });
     $('#pcText').value = $('#pcText').value || (S.site.heroNote || '').replace(/\n/g, ' ');
     const i = new Image();
     i.onload = () => {
@@ -2683,8 +2686,12 @@ const Postcard = (() => {
   chips('#pcFx', v => { if (v === st.fx) st.seed++; st.fx = v; });
   const setYear = y => { st.calYear = Math.max(1900, Math.min(2200, Math.round(y) || new Date().getFullYear())); paintControls(); draw(); };
   $('#pcCalYear').addEventListener('change', e => setYear(+e.target.value));
-  $('#pcCalPrev').onclick = () => setYear(+$('#pcCalYear').value - 1);
-  $('#pcCalNext').onclick = () => setYear(+$('#pcCalYear').value + 1);
+  $('#pcCalMonth').addEventListener('change', e => { st.calMonth = +e.target.value; st.calYear = +$('#pcCalYear').value; paintControls(); draw(); });
+  const stepMonth = d => { let y = +$('#pcCalYear').value, mo = +$('#pcCalMonth').value + d; if (mo < 0) { mo = 11; y--; } if (mo > 11) { mo = 0; y++; } st.calMonth = mo; setYear(y); };
+  $('#pcCalPrev').onclick = () => stepMonth(-1);
+  $('#pcCalNext').onclick = () => stepMonth(1);
+  $('#pcCalToday').onclick = () => { const t = new Date(); st.calMonth = t.getMonth(); setYear(t.getFullYear()); };
+  $('#pcCalPhoto').onclick = () => { st.calYear = null; st.calMonth = null; paintControls(); draw(); };
   chips('#pcFont', v => { st.font = v; st.weight = FONT[v][6]; });
   chips('#pcTColor', v => { st.tcolor = v === 'auto' ? null : v; });
   $('#pcTPick').addEventListener('input', e => { st.tcolor = e.target.value; paintControls(); draw(); });

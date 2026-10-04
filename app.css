@@ -818,6 +818,8 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
 .pc-chips .pill.off { display: none; }
 .pc-cal:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; font-size: 12px; }
 .pc-cal .pill { width: 32px; padding: 0; justify-content: center; }
+.pc-cal .pill.wide { width: auto; padding: 0 10px; }
+.pc-cal select { height: 32px; padding: 0 8px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: #0b0b0a; color: #f1eee6; font: inherit; }
 .pc-cal input { width: 74px; height: 32px; padding: 0 8px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: #0b0b0a; color: #f1eee6; font: inherit; text-align: center; }
 .pc-ctrl .field input, .pc-ctrl .field textarea { background: #0b0b0a; color: #f1eee6; border-color: rgba(255,255,255,.14); }
 .pc-ctrl .field textarea { min-height: 0; }
