@@ -1169,3 +1169,4 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
 @media (max-width: 720px) { .wk-row { grid-template-columns: 64px minmax(0, 1fr); } .wk-img { width: 64px; height: 46px; } .wk-act { grid-column: 1 / -1; justify-content: flex-start; } }
 .cm-editing { margin: 0 0 10px; padding: 10px 14px; border: 1px solid var(--accent); border-radius: 10px; font-size: 13.5px; }
 .ex-closing { margin: -6px 0 48px; }
+button.ex-edit { background: none; border: 0; font: inherit; font-size: 12px; cursor: pointer; }

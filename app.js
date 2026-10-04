@@ -281,14 +281,14 @@ $('#topBtn').addEventListener('click', rewindToTop);
 const ROUTES = [
   [/^\/?$/, 'home', renderHome],
   [/^\/projects\/?$/, 'projects', renderProjects],
-  [/^\/prints\/?$/, 'projects', renderPrints],
+  [/^\/prints(?:\/([^/]+))?\/?$/, 'projects', renderPrints],
   [/^\/exhibitions\/?$/, 'projects', renderExhibitions],
   [/^\/exhibitions\/new\/?$/, 'projects', v => renderExEditor(v, null)],
   [/^\/exhibitions\/preview\/?$/, 'projects', v => renderExhibition(v, null, S._exDraft)],
   [/^\/exhibitions\/([^/]+)\/edit\/?$/, 'projects', renderExEditor],
   [/^\/exhibitions\/([^/]+)\/?$/, 'projects', renderExhibition],
   [/^\/calendars\/new\/?$/, 'projects', renderCalMaker],
-  [/^\/calendars\/?$/, 'projects', renderCalendars],
+  [/^\/calendars(?:\/([^/]+))?\/?$/, 'projects', renderCalendars],
   [/^\/projects\/(.+)$/, 'projects', renderProject],
   [/^\/p\/(\w+)$/, 'projects', renderShortProject],
   [/^\/colors(?:\/(\w+))?\/?$/, 'home', renderColorsRedirect],
@@ -721,7 +721,8 @@ const printKind = f => PRINT_KIND[f] || PRINT_KIND[String(f).split('-')[0]] || '
 const PRINT_KIND = { orig: 'card', sq: 'etc', r45: 'social', r23: 'card', a4: 'poster', r916: 'social', phone: 'social', r25: 'etc', land: 'card', port: 'card', square: 'etc', poster: 'poster', posterL: 'poster', feed: 'social', story: 'social', phone: 'social', wide: 'social', bookmark: 'etc', ticket: 'etc' };
 const PRINT_KIND_KO = { all: '전체', card: '엽서', poster: '포스터', social: 'SNS · 배경화면', etc: '기타' };
 const LAYOUT_KO = { card: '엽서', gallery: '전시 포스터', full: '꽉 찬 사진', type: '글자 속 사진', swiss: '스위스', cover: '잡지 표지', split: '반반', frame: '액자', polaroid: '폴라로이드', circle: '원형', warhol: '팝아트 4분할', repeat: '반복 글자', ticket: '입장권', newspaper: '신문 1면', movie: '영화 포스터', editorial: '잡지 지면', campaign: '캠페인', filmstill: '영화 스틸', calendar: '달력', receipt: '영수증', nowplaying: '음악 재생', arch: '아치 창', triptych: '세 폭', museum: '미술관 배너', cutstrip: '잘린 글자' };
-function renderPrints(view) {
+const printKey = p => (p.file || '').split('/').pop().replace(/\.jpg$/i, '');
+function renderPrints(view, key) {
   const all = [...(S.posters || [])].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   const kinds = ['all', ...['card', 'poster', 'social', 'etc'].filter(k => all.some(p => printKind(p.fmt) === k))];
   const count = k => k === 'all' ? all.length : all.filter(p => printKind(p.fmt) === k).length;
@@ -797,6 +798,9 @@ function renderPrints(view) {
     picked.has(k) ? picked.delete(k) : (picked.add(k), prefetch(p));
     fig.classList.toggle('sel', picked.has(k)); paintBar();
   });
+  // 링크로 들어오면 그 한 장을 바로 크게 보여 줘요
+  const k0 = key ? all.findIndex(p => printKey(p) === decodeURIComponent(key)) : -1;
+  if (k0 >= 0) openPrint(all, k0); else if (key) toast('그 엽서를 찾을 수 없어요');
 }
 // ---------- 엽서·포스터 내려받기 ----------
 const printName = (p, n) => `hamihamoo-${p.date || 'print'}-${p.layout || 'poster'}-${String(n + 1).padStart(2, '0')}.jpg`;
@@ -839,9 +843,9 @@ function openPrint(list, i) {
   const img = $('img', el), cap = $('figcaption', el);
   const show = () => {
     const p = list[i]; img.src = p._local || S.posterBase + p.file;
-    cap.innerHTML = `<b>${esc(p.title || 'Untitled')}</b><span class="mono">${pad(i + 1)} / ${pad(list.length)} · ${LAYOUT_KO[p.layout] || ''}</span>${S.byName.get(p.photo) ? '<button class="btn small ghost" data-src>원본 사진 보기</button>' : ''}`;
+    cap.innerHTML = `<b>${esc(p.title || 'Untitled')}</b><span class="mono">${pad(i + 1)} / ${pad(list.length)} · ${LAYOUT_KO[p.layout] || ''}</span>${S.byName.get(p.photo) ? '<button class="btn small ghost" data-src>원본 사진 보기</button>' : ''}${printKey(p) ? '<button class="btn small ghost" data-link>링크 복사</button>' : ''}`;
   };
-  const close = () => { el.remove(); document.body.classList.remove('locked'); removeEventListener('keydown', key); };
+  const close = () => { el.remove(); document.body.classList.remove('locked'); removeEventListener('keydown', key); if (location.hash.startsWith('#/prints/')) history.replaceState(null, '', '#/prints'); };
   const step = d => { i = (i + d + list.length) % list.length; show(); };
   const key = e => { if (e.key === 'Escape') close(); else if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1); };
   addEventListener('keydown', key);
@@ -849,6 +853,7 @@ function openPrint(list, i) {
     if (e.target === el || e.target.closest('.pview-x')) return close();
     if (e.target.closest('.prev')) return step(-1);
     if (e.target.closest('.next')) return step(1);
+    if (e.target.closest('[data-link]')) return copyText(shareLink('#/prints/' + encodeURIComponent(printKey(list[i]))), '이 엽서의 링크를 복사했어요');
     if (e.target.closest('[data-src]')) { const f = list[i].photo, k = S.photos.findIndex(p => p.filename === f); close(); if (k >= 0) Lightbox.open(S.photos, k); }
   });
   show();
@@ -1579,7 +1584,7 @@ function calFill(mode) {
 const calNew = () => { const f = calFill('season'), y = new Date().getMonth() >= 9 ? new Date().getFullYear() + 1 : new Date().getFullYear(); return calFix({ title: '', year: y, paper: 'ivory', cover: { photo: f.cover.filename, edit: null, layout: 'frame' }, months: f.months.map(p => ({ photo: p.filename, edit: null, quote: p.story || '', layout: 'side', back: calBackDefault() })), extra: [] }); };
 
 // ---------- 목록: Projects › Calendars ----------
-function renderCalendars(view) {
+function renderCalendars(view, id) {
   // 달력은 "몇 년도 달력인지"로 묶어요 (최신 연도부터, 같은 해 안에서는 최근에 올린 것부터)
   const all = [...(S.calendars || [])].sort((a, b) => (+b.year - +a.year) || (b.date || '').localeCompare(a.date || ''));
   const years = [...new Set(all.map(c => +c.year))], ofYear = y => all.filter(c => +c.year === y);
@@ -1609,6 +1614,9 @@ function renderCalendars(view) {
       const make = $('.cal-new', view), first = $('.cal-year:not([hidden]) .cal-wall', view); if (make && first) first.prepend(make);
     });
   }
+  // 링크로 들어오면 그 달력을 바로 넘겨 보기로 열어요
+  const c0 = id && all.find(c => c.id === decodeURIComponent(id));
+  if (c0) openCalendar(c0); else if (id) toast('그 달력을 찾을 수 없어요');
 }
 const calSrc = (c, pg) => pg._local || S.posterBase + pg.file;
 const calFileName = (c, pg, i) => `hamihamoo-calendar-${c.year}-${pad(i, 2)}-${({ cover: 'cover', coverb: 'cover-back', end: 'backcover', endb: 'backcover-back' })[pg.k] || pad(pg.m + 1) + '-' + CAL_MON[pg.m].slice(0, 3).toLowerCase() + '-' + pg.k}.jpg`;
@@ -1633,11 +1641,11 @@ function openCalendar(c) {
     sheet.classList.toggle('flipped', back);
     if (anim && !reduced) $('figure', el).animate([{ opacity: .3, transform: `translateX(${anim * 24}px)` }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'cubic-bezier(.22,1,.36,1)' });
     cap.innerHTML = `<b>${esc(c.title || c.year)}</b><span class="mono">${esc(calPageName(back ? pages[i + 1] : pg))} · ${pad(s + 1)} / ${pad(stops.length)}</span>
-      ${hasBack ? `<button class="btn small ghost" data-flip>${back ? '앞면 보기' : '뒷면 보기'} ↻</button>` : ''}
+      ${hasBack ? `<button class="btn small ghost" data-flip>${back ? '앞면 보기' : '뒷면 보기'} ↻</button>` : ''}${c.id ? '<button class="btn small ghost" data-link>링크 복사</button>' : ''}
       <span class="cal-down"><span class="mono">내려받기</span><button class="btn small" data-down="img">이미지 묶음 (JPG)</button><button class="btn small" data-down="pdf">인쇄용 PDF</button>${c.recipe ? '<button class="btn small" data-down="svg">편집용 SVG (전체)</button><button class="btn small" data-down="psd">포토샵 PSD (이 면)</button>' : ''}</span>`;
   };
   // 뒤로 가기 등으로 페이지가 바뀌면 같이 닫아요
-  const close = () => { el.remove(); document.body.classList.remove('locked'); removeEventListener('keydown', key); removeEventListener('hashchange', close); };
+  const close = () => { el.remove(); document.body.classList.remove('locked'); removeEventListener('keydown', key); removeEventListener('hashchange', close); if (location.hash.startsWith('#/calendars/') && location.hash !== '#/calendars/new') history.replaceState(null, '', '#/calendars'); };
   addEventListener('hashchange', close);
   const step = d => { s = (s + d + stops.length) % stops.length; back = false; show(d); };
   const flip = () => { back = !back; show(0); };
@@ -1647,6 +1655,7 @@ function openCalendar(c) {
     if (e.target === el || e.target.closest('.pview-x')) return close();
     if (e.target.closest('.prev')) return step(-1);
     if (e.target.closest('.next')) return step(1);
+    if (e.target.closest('[data-link]')) return copyText(shareLink('#/calendars/' + encodeURIComponent(c.id)), '이 달력의 링크를 복사했어요');
     if (e.target.closest('[data-flip]') || e.target.closest('.cal-sheet')) return flip();
     const db = e.target.closest('[data-down]');
     if (db) {
@@ -2130,7 +2139,7 @@ function renderExhibition(view, id, draft) {
     <div class="ex-bar">
       <a class="mono" href="${draft ? (draft.id ? '#/exhibitions/' + encodeURIComponent(draft.id) + '/edit' : '#/exhibitions/new') : '#/exhibitions'}">${draft ? '← 기획으로 돌아가기' : '← Exhibitions'}</a>
       <span class="mono" id="exProg">${draft ? '미리 보기 · ' : ''}Entrance</span>
-      <div class="ex-walls" id="exWalls">${Object.entries(EX_WALL).map(([k, t]) => `<button data-v="${k}" class="${(ex.wall || 'light') === k ? 'on' : ''}">${t}</button>`).join('')}${!draft && Studio.authed ? `<a class="ex-edit" href="#/exhibitions/${encodeURIComponent(ex.id)}/edit">수정</a>` : ''}</div>
+      <div class="ex-walls" id="exWalls">${Object.entries(EX_WALL).map(([k, t]) => `<button data-v="${k}" class="${(ex.wall || 'light') === k ? 'on' : ''}">${t}</button>`).join('')}${!draft ? '<button class="ex-edit" id="exLink">링크 복사</button>' : ''}${!draft && Studio.authed ? `<a class="ex-edit" href="#/exhibitions/${encodeURIComponent(ex.id)}/edit">수정</a>` : ''}</div>
     </div>
     <section class="ex-entrance">
       <div class="rv"><div class="mono">Exhibition ${draft ? '—' : exNo(ex)} · ${esc(exPeriod(ex))}</div><h1>${esc(ex.title || '제목 없는 전시')}</h1>${ex.subtitle ? `<div class="ex-sub">${esc(ex.subtitle)}</div>` : ''}</div>
@@ -2148,7 +2157,7 @@ function renderExhibition(view, id, draft) {
   </div>`;
   const root = $('.ex', view), prog = $('#exProg', view), secs = $$('.ex-work', view);
   // 벽 색은 보는 사람이 바꿔 볼 수 있어요 (저장되지는 않아요)
-  $('#exWalls', view).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; root.dataset.wall = b.dataset.v; $$('#exWalls button', view).forEach(x => x.classList.toggle('on', x === b)); });
+  $('#exWalls', view).addEventListener('click', e => { if (e.target.closest('#exLink')) return copyText(shareLink('#/exhibitions/' + encodeURIComponent(ex.id)), '이 전시의 링크를 복사했어요'); const b = e.target.closest('button'); if (!b) return; root.dataset.wall = b.dataset.v; $$('#exWalls button', view).forEach(x => x.classList.toggle('on', x === b)); });
   view.addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b && photos.length) Lightbox.open(photos, +b.dataset.k, $('img', b)); });
   // 지금 몇 번째 작품 앞에 서 있는지
   pageScroll.push(() => {
@@ -5133,6 +5142,7 @@ function stSettings(body) {
 /* ============================================================
    공통: 커서, 테마, 복사, 시작
    ============================================================ */
+const shareLink = hash => location.href.split('#')[0] + hash;
 function copyText(text, msg) {
   (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => toast(msg)).catch(() => {
     const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
