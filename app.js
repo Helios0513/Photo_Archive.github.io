@@ -1683,14 +1683,22 @@ async function publishPoster(blob, meta) {
 }
 /* ---------- 전시에 올리기: 저장 방법 끝 ---------- */
 const Postcard = (() => {
+  // 휴대폰 배경: 휴대폰으로 열면 그 폰의 실제 화면 픽셀 그대로, 컴퓨터에서는 아이폰 17 Pro(1206×2622)
+  const PHONE = (() => {
+    const sw = screen.width, sh = screen.height, dpr = window.devicePixelRatio || 1;
+    if (isTouch && sw && sh) { const a = Math.round(Math.min(sw, sh) * dpr), b = Math.round(Math.max(sw, sh) * dpr); if (b > a * 1.6) return [a, b, '내 폰 배경']; }
+    return [1206, 2622, '아이폰 17 Pro'];
+  })();
   // 형태: [긴 쪽 ÷ 짧은 쪽, 세로일 때 이름, 가로일 때 이름]. "원본"은 사진 비율 그대로예요
   const RATIO = {
     orig: [0, '원본', '사진 비율 그대로'], sq: [1, '1:1', '정사각'], r45: [1.25, '4:5', '인스타 게시물', '5:4', '가로 게시물'],
     r23: [1.5, '2:3', '엽서 · 인화', '3:2', '엽서 · 인화'], a4: [Math.SQRT2, 'A4', '포스터', 'A4', '가로 포스터'],
-    r916: [16 / 9, '9:16', '스토리 · 릴스', '16:9', '와이드 화면'], phone: [19.5 / 9, '9:19.5', '휴대폰 배경', '19.5:9', '파노라마'], r25: [2.5, '2:5', '책갈피', '5:2', '티켓'],
+    r916: [16 / 9, '9:16', '스토리 · 릴스', '16:9', '와이드 화면'], phone: [PHONE[1] / PHONE[0], '9:' + (PHONE[1] / PHONE[0] * 9).toFixed(1), PHONE[2], (PHONE[1] / PHONE[0] * 9).toFixed(1) + ':9', '가로 배경'], r25: [2.5, '2:5', '책갈피', '5:2', '티켓'],
   };
   // 저장해 두는 형태 이름(예: r45-p)으로 실제 크기를 구해요. 긴 쪽은 1800px
   function dims() {
+    // 휴대폰 배경은 화면 픽셀 그대로 만들어요 (확대 없이 딱 맞게)
+    if (st.ratio === 'phone') return st.orient === 'l' ? [PHONE[1], PHONE[0]] : [PHONE[0], PHONE[1]];
     const nw = im ? im.naturalWidth : 3, nh = im ? im.naturalHeight : 2;
     const r = st.ratio === 'orig' ? Math.max(nw, nh) / Math.min(nw, nh) : RATIO[st.ratio][0];
     const landNow = st.ratio === 'orig' ? nw >= nh : st.orient === 'l';
