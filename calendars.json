@@ -59,7 +59,7 @@
       },
       "months": [
         {
-          "photo": "DSC_1847_1775384559624.jpg",
+          "photo": "DSC_1325_1772453729477.jpg",
           "edit": null,
           "quote": "",
           "layout": "numeral",
@@ -78,38 +78,8 @@
           }
         },
         {
-          "photo": "DSC_1568_1772453762704.jpg",
-          "edit": {
-            "st": {
-              "ratio": "orig",
-              "orient": "p",
-              "layout": "full",
-              "fx": "none",
-              "font": "condensed",
-              "spot": 0,
-              "align": null,
-              "size": 1,
-              "weight": 400,
-              "zoom": 1,
-              "cx": 0.3855561638051913,
-              "cy": 0.6054955527063257,
-              "tcolor": null,
-              "track": 0,
-              "lead": 1,
-              "outline": 0,
-              "ocolor": null,
-              "calYear": null,
-              "calMonth": null,
-              "color": "white",
-              "upper": true,
-              "ox": 0,
-              "oy": 0,
-              "seed": 1
-            },
-            "text": "",
-            "sub": "",
-            "from": ""
-          },
+          "photo": "DSC_2243_1790286768944_10.jpg",
+          "edit": null,
           "quote": "",
           "layout": "numeral",
           "back": {
@@ -176,38 +146,8 @@
           }
         },
         {
-          "photo": "DSC_1982_1779449012527.jpg",
-          "edit": {
-            "st": {
-              "ratio": "orig",
-              "orient": "p",
-              "layout": "full",
-              "fx": "none",
-              "font": "condensed",
-              "spot": 0,
-              "align": null,
-              "size": 1,
-              "weight": 400,
-              "zoom": 1,
-              "cx": 0.6799003815404268,
-              "cy": 0.47685912146962794,
-              "tcolor": null,
-              "track": 0,
-              "lead": 1,
-              "outline": 0,
-              "ocolor": null,
-              "calYear": null,
-              "calMonth": null,
-              "color": "white",
-              "upper": true,
-              "ox": 0,
-              "oy": 0,
-              "seed": 1
-            },
-            "text": "",
-            "sub": "",
-            "from": ""
-          },
+          "photo": "DSC_1847_1775384559624.jpg",
+          "edit": null,
           "quote": "",
           "layout": "numeral",
           "back": {
@@ -304,7 +244,7 @@
           }
         },
         {
-          "photo": "IMG_4401.jpeg",
+          "photo": "DSC_2340_1790286772645_12.jpg",
           "edit": null,
           "quote": "",
           "layout": "numeral",
@@ -372,13 +312,13 @@
           }
         },
         {
-          "photo": "DSCF0058_1787541107212.jpg",
+          "photo": "DSCF0066_1787952764365.jpg",
           "edit": null,
           "quote": "",
           "layout": "numeral",
           "back": {
             "layout": "triptych",
-            "photo": "DSCF0224_1790286819005_32.jpg",
+            "photo": "DSCF0066_1787952764365.jpg",
             "edit": null,
             "show": {
               "photo": true,
@@ -410,7 +350,7 @@
           }
         },
         {
-          "photo": "DSC_0524_1769882296049.jpg",
+          "photo": "DSC_0546_1769882297198.jpg",
           "edit": null,
           "quote": "",
           "layout": "numeral",
@@ -478,7 +418,7 @@
           }
         },
         {
-          "photo": "DSCF0244_1790286821035_33.jpg",
+          "photo": "DSC_0524_1769882296049.jpg",
           "edit": null,
           "quote": "",
           "layout": "numeral",
@@ -507,17 +447,17 @@
             "orient": "p",
             "layout": "full",
             "fx": "none",
-            "font": "condensed",
-            "spot": 0,
-            "align": null,
-            "size": 1,
-            "weight": 400,
+            "font": "cormorant",
+            "spot": 3,
+            "align": "r",
+            "size": 0.45,
+            "weight": 900,
             "zoom": 1,
             "cx": 0.6653355159207952,
             "cy": 0.23021509981370242,
             "tcolor": null,
             "track": 0,
-            "lead": 1,
+            "lead": 0.9,
             "outline": 0,
             "ocolor": null,
             "calYear": null,
@@ -528,14 +468,14 @@
             "oy": 0,
             "seed": 1
           },
-          "text": "",
-          "sub": "",
+          "text": "Forsan et haec olim meminisse iuvabit",
+          "sub": "Vergilius, Aeneis I.203",
           "from": ""
         },
         "note": "",
         "show": {
-          "title": true,
-          "note": true,
+          "title": false,
+          "note": false,
           "labels": true,
           "site": true
         }
@@ -586,143 +526,143 @@
     "date": "2026-10-04",
     "w": 2000,
     "h": 1410,
-    "id": "2027-mutttah8",
+    "id": "2027-mutubay6",
     "pages": [
       {
         "k": "cover",
-        "file": "images/calendars/2027-mutttah8/00.jpg"
+        "file": "images/calendars/2027-mutubay6/00.jpg"
       },
       {
         "k": "coverb",
-        "file": "images/calendars/2027-mutttah8/01.jpg"
+        "file": "images/calendars/2027-mutubay6/01.jpg"
       },
       {
         "k": "front",
         "m": 0,
-        "file": "images/calendars/2027-mutttah8/02.jpg"
+        "file": "images/calendars/2027-mutubay6/02.jpg"
       },
       {
         "k": "back",
         "m": 0,
-        "file": "images/calendars/2027-mutttah8/03.jpg"
+        "file": "images/calendars/2027-mutubay6/03.jpg"
       },
       {
         "k": "front",
         "m": 1,
-        "file": "images/calendars/2027-mutttah8/04.jpg"
+        "file": "images/calendars/2027-mutubay6/04.jpg"
       },
       {
         "k": "back",
         "m": 1,
-        "file": "images/calendars/2027-mutttah8/05.jpg"
+        "file": "images/calendars/2027-mutubay6/05.jpg"
       },
       {
         "k": "front",
         "m": 2,
-        "file": "images/calendars/2027-mutttah8/06.jpg"
+        "file": "images/calendars/2027-mutubay6/06.jpg"
       },
       {
         "k": "back",
         "m": 2,
-        "file": "images/calendars/2027-mutttah8/07.jpg"
+        "file": "images/calendars/2027-mutubay6/07.jpg"
       },
       {
         "k": "front",
         "m": 3,
-        "file": "images/calendars/2027-mutttah8/08.jpg"
+        "file": "images/calendars/2027-mutubay6/08.jpg"
       },
       {
         "k": "back",
         "m": 3,
-        "file": "images/calendars/2027-mutttah8/09.jpg"
+        "file": "images/calendars/2027-mutubay6/09.jpg"
       },
       {
         "k": "front",
         "m": 4,
-        "file": "images/calendars/2027-mutttah8/10.jpg"
+        "file": "images/calendars/2027-mutubay6/10.jpg"
       },
       {
         "k": "back",
         "m": 4,
-        "file": "images/calendars/2027-mutttah8/11.jpg"
+        "file": "images/calendars/2027-mutubay6/11.jpg"
       },
       {
         "k": "front",
         "m": 5,
-        "file": "images/calendars/2027-mutttah8/12.jpg"
+        "file": "images/calendars/2027-mutubay6/12.jpg"
       },
       {
         "k": "back",
         "m": 5,
-        "file": "images/calendars/2027-mutttah8/13.jpg"
+        "file": "images/calendars/2027-mutubay6/13.jpg"
       },
       {
         "k": "front",
         "m": 6,
-        "file": "images/calendars/2027-mutttah8/14.jpg"
+        "file": "images/calendars/2027-mutubay6/14.jpg"
       },
       {
         "k": "back",
         "m": 6,
-        "file": "images/calendars/2027-mutttah8/15.jpg"
+        "file": "images/calendars/2027-mutubay6/15.jpg"
       },
       {
         "k": "front",
         "m": 7,
-        "file": "images/calendars/2027-mutttah8/16.jpg"
+        "file": "images/calendars/2027-mutubay6/16.jpg"
       },
       {
         "k": "back",
         "m": 7,
-        "file": "images/calendars/2027-mutttah8/17.jpg"
+        "file": "images/calendars/2027-mutubay6/17.jpg"
       },
       {
         "k": "front",
         "m": 8,
-        "file": "images/calendars/2027-mutttah8/18.jpg"
+        "file": "images/calendars/2027-mutubay6/18.jpg"
       },
       {
         "k": "back",
         "m": 8,
-        "file": "images/calendars/2027-mutttah8/19.jpg"
+        "file": "images/calendars/2027-mutubay6/19.jpg"
       },
       {
         "k": "front",
         "m": 9,
-        "file": "images/calendars/2027-mutttah8/20.jpg"
+        "file": "images/calendars/2027-mutubay6/20.jpg"
       },
       {
         "k": "back",
         "m": 9,
-        "file": "images/calendars/2027-mutttah8/21.jpg"
+        "file": "images/calendars/2027-mutubay6/21.jpg"
       },
       {
         "k": "front",
         "m": 10,
-        "file": "images/calendars/2027-mutttah8/22.jpg"
+        "file": "images/calendars/2027-mutubay6/22.jpg"
       },
       {
         "k": "back",
         "m": 10,
-        "file": "images/calendars/2027-mutttah8/23.jpg"
+        "file": "images/calendars/2027-mutubay6/23.jpg"
       },
       {
         "k": "front",
         "m": 11,
-        "file": "images/calendars/2027-mutttah8/24.jpg"
+        "file": "images/calendars/2027-mutubay6/24.jpg"
       },
       {
         "k": "back",
         "m": 11,
-        "file": "images/calendars/2027-mutttah8/25.jpg"
+        "file": "images/calendars/2027-mutubay6/25.jpg"
       },
       {
         "k": "end",
-        "file": "images/calendars/2027-mutttah8/26.jpg"
+        "file": "images/calendars/2027-mutubay6/26.jpg"
       },
       {
         "k": "endb",
-        "file": "images/calendars/2027-mutttah8/27.jpg"
+        "file": "images/calendars/2027-mutubay6/27.jpg"
       }
     ]
   }
