@@ -515,7 +515,12 @@ function renderHome(view) {
   $('#palette', view).addEventListener('click', e => { const b = e.target.closest('.spec'); if (b) setArchive({ color: S.archive.color === b.dataset.c ? 'all' : b.dataset.c, shade: 'all' }); });
   $('#shades', view).addEventListener('click', e => { const b = e.target.closest('[data-s]'); if (b) setArchive({ shade: S.archive.shade === b.dataset.s ? 'all' : b.dataset.s }); });
   $('#lightSeg', view).addEventListener('click', e => { const b = e.target.closest('button'); if (b) setArchive({ light: b.dataset.v }); });
-  $('#randomBtn', view).addEventListener('click', () => { const l = archiveList(); if (l.length) Lightbox.open(l, Math.floor(Math.random() * l.length)); });
+  // 랜덤: 목록 전체를 섞어서 열어요 (첫 장만이 아니라 넘길 때마다 무작위 순서)
+  $('#randomBtn', view).addEventListener('click', () => {
+    const l = [...archiveList()];
+    for (let i = l.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [l[i], l[j]] = [l[j], l[i]]; }
+    if (l.length) Lightbox.open(l, 0);
+  });
   $('#playAllBtn', view).addEventListener('click', () => { const l = archiveList(); if (l.length) { Lightbox.open(l, 0); Lightbox.play(true); } });
   $('#toTop', view).addEventListener('click', e => { e.preventDefault(); rewindToTop(); });
 
@@ -694,13 +699,14 @@ function worksHead(tab, n) {
     </nav>`;
 }
 // 엽서·포스터 분류: 만든 형태로 나눠요
-const PRINT_KIND = { land: 'card', port: 'card', square: 'etc', poster: 'poster', posterL: 'poster', feed: 'social', story: 'social', phone: 'social', wide: 'social', bookmark: 'etc', ticket: 'etc' };
+const printKind = f => PRINT_KIND[f] || PRINT_KIND[String(f).split('-')[0]] || 'etc';
+const PRINT_KIND = { orig: 'card', sq: 'etc', r45: 'social', r23: 'card', a4: 'poster', r916: 'social', phone: 'social', r25: 'etc', land: 'card', port: 'card', square: 'etc', poster: 'poster', posterL: 'poster', feed: 'social', story: 'social', phone: 'social', wide: 'social', bookmark: 'etc', ticket: 'etc' };
 const PRINT_KIND_KO = { all: '전체', card: '엽서', poster: '포스터', social: 'SNS · 배경화면', etc: '기타' };
 const LAYOUT_KO = { card: '엽서', gallery: '전시 포스터', full: '꽉 찬 사진', type: '글자 속 사진', swiss: '스위스', cover: '잡지 표지', split: '반반', frame: '액자', polaroid: '폴라로이드', circle: '원형', warhol: '팝아트 4분할', repeat: '반복 글자', ticket: '입장권', newspaper: '신문 1면', movie: '영화 포스터', editorial: '잡지 지면', campaign: '캠페인', filmstill: '영화 스틸', calendar: '달력', receipt: '영수증', nowplaying: '음악 재생', arch: '아치 창', triptych: '세 폭', museum: '미술관 배너', cutstrip: '잘린 글자' };
 function renderPrints(view) {
   const all = [...(S.posters || [])].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-  const kinds = ['all', ...['card', 'poster', 'social', 'etc'].filter(k => all.some(p => PRINT_KIND[p.fmt] === k))];
-  const count = k => k === 'all' ? all.length : all.filter(p => PRINT_KIND[p.fmt] === k).length;
+  const kinds = ['all', ...['card', 'poster', 'social', 'etc'].filter(k => all.some(p => printKind(p.fmt) === k))];
+  const count = k => k === 'all' ? all.length : all.filter(p => printKind(p.fmt) === k).length;
   const keyOf = p => p.file || p._local;
   let kind = 'all', selecting = false;
   const picked = new Set();
@@ -716,7 +722,7 @@ function renderPrints(view) {
     </div>
   </section>`;
   const wall = $('#prWall', view);
-  const list = () => kind === 'all' ? all : all.filter(p => PRINT_KIND[p.fmt] === kind);
+  const list = () => kind === 'all' ? all : all.filter(p => printKind(p.fmt) === kind);
   function paint() {
     wall.classList.toggle('selecting', selecting);
     wall.innerHTML = list().map((p, i) => {
@@ -725,7 +731,7 @@ function renderPrints(view) {
         <button class="print-frame" aria-label="${esc(p.title || '포스터')} ${selecting ? '선택' : '크게 보기'}"><img src="${esc(p._local || S.posterBase + p.file)}" alt="" loading="lazy" style="aspect-ratio:${p.w} / ${p.h}"><span class="print-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>
         <figcaption>
           <b>${esc(p.title || 'Untitled')}</b>
-          <span class="mono faint">${[...new Set([PRINT_KIND_KO[PRINT_KIND[p.fmt]], LAYOUT_KO[p.layout]])].filter(Boolean).concat(p.date ? [fmtDate(p.date)] : []).join(' · ')}</span>
+          <span class="mono faint">${[...new Set([PRINT_KIND_KO[printKind(p.fmt)], LAYOUT_KO[p.layout]])].filter(Boolean).concat(p.date ? [fmtDate(p.date)] : []).join(' · ')}</span>
           ${src ? `<span class="print-src"><a href="#" data-photo="${esc(src.filename)}">원본 사진 →</a>${prs.map(pr => `<a href="#/projects/${encodeURIComponent(pr.id)}" class="chip-c">${esc(pr.title)}</a>`).join('')}</span>` : ''}
         </figcaption>
       </figure>`;
@@ -1677,7 +1683,23 @@ async function publishPoster(blob, meta) {
 }
 /* ---------- 전시에 올리기: 저장 방법 끝 ---------- */
 const Postcard = (() => {
-  const FMT = { land: [1800, 1200], port: [1200, 1800], square: [1500, 1500], poster: [1240, 1754], posterL: [1754, 1240], feed: [1440, 1800], story: [1080, 1920], phone: [1179, 2556], wide: [1920, 1080], bookmark: [600, 1800], ticket: [2000, 800] };
+  // 형태: [긴 쪽 ÷ 짧은 쪽, 세로일 때 이름, 가로일 때 이름]. "원본"은 사진 비율 그대로예요
+  const RATIO = {
+    orig: [0, '원본', '사진 비율 그대로'], sq: [1, '1:1', '정사각'], r45: [1.25, '4:5', '인스타 게시물', '5:4', '가로 게시물'],
+    r23: [1.5, '2:3', '엽서 · 인화', '3:2', '엽서 · 인화'], a4: [Math.SQRT2, 'A4', '포스터', 'A4', '가로 포스터'],
+    r916: [16 / 9, '9:16', '스토리 · 릴스', '16:9', '와이드 화면'], phone: [19.5 / 9, '9:19.5', '휴대폰 배경', '19.5:9', '파노라마'], r25: [2.5, '2:5', '책갈피', '5:2', '티켓'],
+  };
+  // 저장해 두는 형태 이름(예: r45-p)으로 실제 크기를 구해요. 긴 쪽은 1800px
+  function dims() {
+    const nw = im ? im.naturalWidth : 3, nh = im ? im.naturalHeight : 2;
+    const r = st.ratio === 'orig' ? Math.max(nw, nh) / Math.min(nw, nh) : RATIO[st.ratio][0];
+    const landNow = st.ratio === 'orig' ? nw >= nh : st.orient === 'l';
+    if (r === 1) return [1500, 1500];
+    const L = 1800, Sh = Math.round(L / r);
+    return landNow ? [L, Sh] : [Sh, L];
+  }
+  const fmtKey = () => st.ratio === 'orig' || st.ratio === 'sq' ? st.ratio : st.ratio + '-' + st.orient;
+  const fmtLabel = () => { const d = RATIO[st.ratio], l = st.orient === 'l' && d[3]; return st.ratio === 'orig' ? '원본 비율' : (l ? d[3] + ' ' + d[4] : d[1] + ' ' + d[2]); };
   // [기울기, 글꼴, 크기 배율, 줄 간격, 가장 가는 두께, 가장 굵은 두께, 기본 두께]
   const FONT = {
     serif: ['italic', '"Instrument Serif", "Noto Serif KR", Georgia, serif', 1, .92, 400, 400, 400],
@@ -1739,12 +1761,9 @@ const Postcard = (() => {
   };
   // 목록: [이름, 보이는 글자, 분류]. 분류 버튼으로 걸러 보고, 안 쓰는 묶음은 접어 둘 수 있어요
   const CAT = {
-    fmt: { cats: { paper: '종이', poster: '포스터', screen: '화면 · SNS', special: '특수' }, items: [
-      ['land', '엽서 가로', 'paper'], ['port', '엽서 세로', 'paper'], ['square', '정사각', 'paper'], ['poster', '포스터', 'poster'], ['posterL', '가로 포스터', 'poster'],
-      ['feed', '인스타 4:5', 'screen'], ['story', '스토리 9:16', 'screen'], ['phone', '휴대폰 배경', 'screen'], ['wide', '와이드 16:9', 'screen'], ['bookmark', '책갈피', 'special'], ['ticket', '티켓', 'special']] },
     layout: { cats: { card: '엽서 · 카드', poster: '포스터', print: '잡지 · 인쇄물', graphic: '그래픽 실험' }, items: [
-      ['card', '엽서', 'card'], ['polaroid', '폴라로이드', 'card'], ['frame', '액자', 'card'], ['arch', '아치 창', 'card'], ['calendar', '달력', 'card'], ['ticket', '입장권', 'card'], ['receipt', '영수증', 'card'],
-      ['gallery', '전시 포스터', 'poster'], ['full', '꽉 찬 사진', 'poster'], ['movie', '영화 포스터', 'poster'], ['filmstill', '영화 스틸', 'poster'], ['campaign', '캠페인', 'poster'], ['museum', '미술관 배너', 'poster'], ['triptych', '세 폭', 'poster'], ['split', '반반', 'poster'],
+      ['full', '꽉 찬 사진 (기본)', 'poster'], ['card', '엽서', 'card'], ['polaroid', '폴라로이드', 'card'], ['frame', '액자', 'card'], ['arch', '아치 창', 'card'], ['calendar', '달력', 'card'], ['ticket', '입장권', 'card'], ['receipt', '영수증', 'card'],
+      ['gallery', '전시 포스터', 'poster'], ['movie', '영화 포스터', 'poster'], ['filmstill', '영화 스틸', 'poster'], ['campaign', '캠페인', 'poster'], ['museum', '미술관 배너', 'poster'], ['triptych', '세 폭', 'poster'], ['split', '반반', 'poster'],
       ['cover', '잡지 표지', 'print'], ['editorial', '잡지 지면', 'print'], ['newspaper', '신문 1면', 'print'], ['nowplaying', '음악 재생', 'print'],
       ['swiss', '스위스', 'graphic'], ['type', '글자 속 사진', 'graphic'], ['cutstrip', '잘린 글자', 'graphic'], ['repeat', '반복 글자', 'graphic'], ['circle', '원형', 'graphic'], ['warhol', '팝아트 4분할', 'graphic']] },
     fx: { cats: { color: '색감', bw: '흑백 · 인쇄', blur: '흐림 · 움직임', warp: '왜곡 · 변형', graphic: '그래픽' }, items: [
@@ -1761,7 +1780,7 @@ const Postcard = (() => {
       ['mono', 'Mono', 'en', "font-family:'JetBrains Mono'"], ['spacemono', 'Space Mono', 'en', "font-family:'Space Mono'"], ['majormono', 'major mono', 'en', "font-family:'Major Mono Display'"]] },
   };
   const PAPER = { white: '#fbfaf6', cream: '#f1e9d8', black: '#141413', orange: '#e2672b' };
-  const st = { p: null, fmt: 'land', layout: 'card', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, calYear: null, calMonth: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
+  const st = { p: null, ratio: 'orig', orient: 'p', layout: 'full', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, calYear: null, calMonth: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
   const el = $('#pcModal'), cv = $('#pcCanvas'), out = $('#pcImg'), sheet = $('#pcSheet');
   const api = { get isOpen() { return !el.hidden; } };
   let im = null, cols = [], cache = {};
@@ -2177,7 +2196,7 @@ const Postcard = (() => {
   // ---------- 그리기 ----------
   function draw() {
     if (!im) return;
-    const [W, H] = FMT[st.fmt], u = Math.min(W, H) / 1200, m = Math.round(Math.min(W, H) * .06), land = W > H;
+    const [W, H] = dims(), u = Math.min(W, H) / 1200, m = Math.round(Math.min(W, H) * .06), land = W > H;
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     const x = cv.getContext('2d'), c = scheme(), p = st.p, L = LAYOUT[st.layout];
     const pic = (X, Y, w, h) => x.drawImage(fxCanvas(w, h, c), X, Y, Math.round(w), Math.round(h));
@@ -2222,9 +2241,9 @@ const Postcard = (() => {
       });
     } else if (st.layout === 'full') {
       pic(0, 0, W, H);
-      const R = inset(1.2), list = [[R, 'bl'], [R, 'tl'], [R, 'mc'], [R, 'bc'], [R, 'tr'], [R, 'br'], [R, 'ml']], r = pick(list)[1][0];
-      if (r === 'b') grad(H, H * .4, .6); else if (r === 't') grad(0, H * .6, .6); else { x.fillStyle = 'rgba(0,0,0,.28)'; x.fillRect(0, 0, W, H); }
-      put(list, { ...onPhoto, shadow: false });
+      const R = inset(1.2), list = [[R, 'bl'], [R, 'tl'], [R, 'mc'], [R, 'bc'], [R, 'tr'], [R, 'br'], [R, 'ml']], r = pick(list)[1][0], has = title || sub;
+      if (has) { if (r === 'b') grad(H, H * .4, .6); else if (r === 't') grad(0, H * .6, .6); else { x.fillStyle = 'rgba(0,0,0,.28)'; x.fillRect(0, 0, W, H); } }
+      put(list, { ...onPhoto, shadow: false, meta: has ? meta : '' });
     } else if (st.layout === 'type') {
       // 큰 글자 모양으로 사진을 오려 내요
       const t = document.createElement('canvas'); t.width = W; t.height = H;
@@ -2600,7 +2619,7 @@ const Postcard = (() => {
   // 추천 자리 버튼: 형태 비율 그대로 작은 그림에, 글씨가 놓일 곳을 막대로 보여 줘요
   let spotSig = '';
   function paintSpots() {
-    const list = st.spots || [], on = st.spot % Math.max(1, list.length), sig = [st.layout, st.fmt, list.length, on].join('|');
+    const list = st.spots || [], on = st.spot % Math.max(1, list.length), sig = [st.layout, fmtKey(), list.length, on].join('|');
     if (sig === spotSig) return; spotSig = sig;
     if (!list.length) { $('#pcPos').innerHTML = '<p class="pc-tip" style="margin:0">이 디자인은 글자가 배경 전체를 채워요. 미리보기를 끌면 글자 띠가 움직여요.</p>'; return; }
     $('#pcPos').innerHTML = list.map(({ R, pos, W, H }, i) => {
@@ -2620,7 +2639,12 @@ const Postcard = (() => {
   // ---------- 조작 ----------
   // 분류 버튼과 목록 버튼을 한 번 그려 둬요 (고른 분류와 접힘 상태는 이 브라우저에 기억해요)
   const ui = store.get('hm-pc-ui', { cats: {}, open: { layout: true, text: true } });
-  const ID = { fmt: '#pcFmt', layout: '#pcLayout', fx: '#pcFx', font: '#pcFont' };
+  const ID = { layout: '#pcLayout', fx: '#pcFx', font: '#pcFont' };
+  // 형태 버튼: 비율 크게, 쓰임새 작게. 세로/가로를 바꾸면 이름도 바뀌어요
+  function paintFmt() {
+    $('#pcFmt').innerHTML = Object.entries(RATIO).map(([k, d]) => { const l = st.orient === 'l' && d[3]; return `<button class="pill fmt${st.ratio === k ? ' on' : ''}" data-v="${k}"><b>${l ? d[3] : d[1]}</b><small>${l ? d[4] : d[2]}</small></button>`; }).join('');
+    $$('#pcOrient button').forEach(b => { b.classList.toggle('on', b.dataset.v === st.orient); b.disabled = st.ratio === 'orig' || st.ratio === 'sq'; });
+  }
   const label = (g, v) => (CAT[g].items.find(it => it[0] === v) || [, v])[1];
   function buildLists() {
     Object.entries(CAT).forEach(([g, { cats, items }]) => {
@@ -2643,7 +2667,7 @@ const Postcard = (() => {
   // 접어 둔 묶음 제목 옆에 지금 고른 것을 보여 줘요
   function paintSummary() {
     const sum = (k, t) => { const e = $('#pcSum-' + k); if (e) e.textContent = t; };
-    sum('fmt', label('fmt', st.fmt) + ' · 사진 ' + Math.round(st.zoom * 100) + '%');
+    sum('fmt', fmtLabel() + ' · 사진 ' + Math.round(st.zoom * 100) + '%');
     sum('layout', label('layout', st.layout));
     sum('fx', label('fx', st.fx));
     sum('text', ($('#pcText').value.trim().split('\n')[0] || '(비어 있음)'));
@@ -2659,7 +2683,8 @@ const Postcard = (() => {
       $('#pcCalYear').value = st.calYear || (st.p.date ? +st.p.date.slice(0, 4) : new Date().getFullYear());
       $('#pcCalMonth').value = st.calMonth != null ? st.calMonth : (st.p.date ? +st.p.date.slice(5, 7) - 1 : new Date().getMonth());
     }
-    [['#pcFmt', 'fmt'], ['#pcLayout', 'layout'], ['#pcFx', 'fx'], ['#pcFont', 'font']].forEach(([id, k]) => $$('button', $(id)).forEach(b => b.classList.toggle('on', b.dataset.v === st[k])));
+    paintFmt();
+    [['#pcLayout', 'layout'], ['#pcFx', 'fx'], ['#pcFont', 'font']].forEach(([id, k]) => $$('button', $(id)).forEach(b => b.classList.toggle('on', b.dataset.v === st[k])));
     $$('#pcAlign button').forEach(b => b.classList.toggle('on', b.dataset.v === st.align));
     // 글씨 색: 자동 + 자주 쓰는 색 + 이 사진에서 뽑은 색 + 직접 고르기
     const tcs = ['#fbfaf6', '#141413', '#f1e9d8', '#d8401e', '#f08a24', '#f6c531', '#2f6fd0', '#ff4f9a', ...cols];
@@ -2689,8 +2714,10 @@ const Postcard = (() => {
   }
   api.open = p => {
     paintAdmin();
-    st.p = p; el.hidden = false; im = null; cache = {}; pop = {}; Object.assign(st, { zoom: 1, cx: .5, cy: .5, calYear: null, calMonth: null });
-    $('#pcText').value = $('#pcText').value || (S.site.heroNote || '').replace(/\n/g, ' ');
+    st.p = p; el.hidden = false; im = null; cache = {}; pop = {};
+    useLayout('full');
+    Object.assign(st, { ratio: 'orig', orient: 'p', fx: 'none', zoom: 1, cx: .5, cy: .5, calYear: null, calMonth: null });
+    $('#pcText').value = ''; $('#pcSub').value = '';
     const i = new Image();
     i.onload = () => {
       im = i; cols = photoColors(); if (st.color[0] === 'c' && !cols[+st.color.slice(1)]) st.color = 'cream';
@@ -2702,7 +2729,8 @@ const Postcard = (() => {
   };
   api.close = () => { el.hidden = true; };
   const chips = (id, fn) => $(id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; fn(b.dataset.v); paintControls(); draw(); });
-  chips('#pcFmt', v => { st.fmt = v; st.ox = st.oy = 0; popIn(); });
+  chips('#pcFmt', v => { st.ratio = v; st.ox = st.oy = 0; popIn(); });
+  chips('#pcOrient', v => { st.orient = v; st.ox = st.oy = 0; popIn(); });
   chips('#pcLayout', v => { useLayout(v); popIn(); });
   // 같은 효과를 한 번 더 누르면 조각 배치·색 묶음이 바뀌어요
   chips('#pcFx', v => { if (v === st.fx) st.seed++; st.fx = v; });
@@ -2852,7 +2880,7 @@ const Postcard = (() => {
       const ox = o.getContext('2d'); ox.fillStyle = '#f1e9d8'; ox.fillRect(0, 0, o.width, o.height); ox.drawImage(cv, 0, 0, o.width, o.height);
       const blob = await new Promise(r => o.toBlob(r, 'image/jpeg', .88));
       const d = new Date(), date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-      await publishPoster(blob, { photo: st.p.filename, title: $('#pcText').value.trim().split('\n')[0], layout: st.layout, fmt: st.fmt, date, w: o.width, h: o.height });
+      await publishPoster(blob, { photo: st.p.filename, title: $('#pcText').value.trim().split('\n')[0], layout: st.layout, fmt: fmtKey(), date, w: o.width, h: o.height });
       toast('전시(Projects › Prints)에 올렸어요 · 1~2분 뒤 홈페이지에도 반영돼요', 4200);
     } catch (err) { console.error(err); toast('올리지 못했어요: ' + err.message, 6000); paintAdmin(); }
     finally { b.disabled = false; b.innerHTML = label; }

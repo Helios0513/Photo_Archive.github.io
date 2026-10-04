@@ -817,6 +817,15 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
 .pc-cats button.on { color: #f1eee6; border-bottom-color: var(--accent); }
 @media (hover: hover) and (pointer: fine) { .pc-cats button:hover { color: #f1eee6; } }
 .pc-chips .pill.off { display: none; }
+/* 형태: 세로/가로 전환 + 비율 버튼 (비율 크게, 쓰임새 작게) */
+.pc-orient { display: inline-flex; gap: 2px; margin: 2px 0 10px; padding: 3px; border: 1px solid rgba(255,255,255,.14); border-radius: 99px; }
+.pc-orient button { height: 28px; padding: 0 14px; border: 0; border-radius: 99px; background: none; color: #b3b0a6; font-size: 12.5px; }
+.pc-orient button.on { background: #f1eee6; color: #0e0e0d; }
+.pc-orient button:disabled { opacity: .35; }
+.pc-fmts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.pc-ctrl .pill.fmt { height: auto; min-height: 46px; padding: 6px 4px; display: grid; place-items: center; gap: 1px; border-radius: 10px; text-align: center; }
+.pill.fmt b { font-family: var(--f-mono); font-size: 12.5px; font-weight: 500; }
+.pill.fmt small { font-size: 10px; line-height: 1.2; opacity: .75; }
 .pc-cal:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; font-size: 12px; }
 .pc-cal .pill { width: 32px; padding: 0; justify-content: center; }
 .pc-cal .pill.wide { width: auto; padding: 0 10px; }
