@@ -3288,12 +3288,18 @@ function rtInit(ed) {
   ed.addEventListener('beforeinput', e => { if (/^insert(Text|LineBreak|Paragraph)/.test(e.inputType) && rtPlain(ed).length >= (+ed.dataset.max || 9999)) e.preventDefault(); });
 }
 // 엽서·포스터 편집기와 달력에서만 쓰는 글꼴 25종은 처음 쓸 때만 불러와요 (첫 화면을 가볍게)
-const POSTER_FONTS = 'https://fonts.googleapis.com/css2?family=Anton&family=Gothic+A1:wght@100;300;500;700;800;900&family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@100;300;500;600;700&family=Orbit&family=Playfair+Display:ital,wght@1,400..900&family=Fraunces:wght@100..900&family=Cormorant+Garamond:ital,wght@1,300..700&family=DM+Serif+Display&family=Syne:wght@400..800&family=Archivo+Black&family=Bebas+Neue&family=Inter+Tight:wght@100..900&family=Space+Mono:wght@400;700&family=Major+Mono+Display&family=UnifrakturMaguntia&family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..900&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@100..900&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@200..900&family=EB+Garamond:wght@400..800&family=Lora:wght@400..700&family=Alegreya:wght@400..900&family=Bitter:wght@100..900&family=Jost:wght@100..900&family=Charis+SIL:wght@400;700&display=swap';
+const POSTER_FONTS = 'https://fonts.googleapis.com/css2?family=Anton&family=Gothic+A1:wght@100;300;500;700;800;900&family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@100;300;500;600;700&family=Orbit&family=Playfair+Display:ital,wght@1,400..900&family=Fraunces:wght@100..900&family=Cormorant+Garamond:ital,wght@1,300..700&family=DM+Serif+Display&family=Syne:wght@400..800&family=Archivo+Black&family=Bebas+Neue&family=Inter+Tight:wght@100..900&family=Space+Mono:wght@400;700&family=Major+Mono+Display&family=UnifrakturMaguntia&family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..900&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@100..900&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@200..900&family=EB+Garamond:wght@400..800&family=Lora:wght@400..700&family=Alegreya:wght@400..900&family=Bitter:wght@100..900&family=Jost:wght@100..900&family=Charis+SIL:wght@400;700&family=Gasoek+One&display=swap';
+// 구글 글꼴에 없는 한글 글꼴: SUIT · 마루 부리(네이버) · 리디 바탕 (모두 무료 오픈소스)
+const POSTER_FONTS_MORE = ['https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css', 'https://hangeul.pstatic.net/hangeul_static/css/maru-buri.css'];
+const POSTER_FONTS_FACE = "@font-face { font-family: 'RIDIBatang'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/RIDIBatang.woff') format('woff'); font-display: swap; }";
 let posterFontsP = null;
 const loadPosterFonts = () => posterFontsP || (posterFontsP = new Promise(res => {
   const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = POSTER_FONTS;
   l.onload = () => res(true); l.onerror = () => { posterFontsP = null; res(false); };
   document.head.appendChild(l);
+  // 나머지 글꼴은 따로 불러와요 (늦게 와도 글꼴을 고르면 다시 그려져요)
+  POSTER_FONTS_MORE.forEach(href => { const m = document.createElement('link'); m.rel = 'stylesheet'; m.href = href; document.head.appendChild(m); });
+  const f = document.createElement('style'); f.textContent = POSTER_FONTS_FACE; document.head.appendChild(f);
 }));
 const Postcard = (() => {
   // 휴대폰 배경: 휴대폰으로 열면 그 폰의 실제 화면 픽셀 그대로, 컴퓨터에서는 아이폰 17 Pro(1206×2622)
@@ -3360,6 +3366,11 @@ const Postcard = (() => {
     charter: ['', '"Charis SIL", "Noto Serif KR", serif', .84, 1.1, 400, 700, 700],
     bitter: ['', 'Bitter, "Noto Serif KR", serif', .84, 1.08, 100, 900, 800],
     jost: ['', 'Jost, Pretendard, sans-serif', .8, 1.05, 100, 900, 600],
+    // 한글 글꼴 추가 (무료 오픈소스)
+    suit: ['', 'SUIT, Pretendard, sans-serif', .8, 1.05, 100, 900, 800],
+    maruburi: ['', 'MaruBuri, "Noto Serif KR", serif', .8, 1.2, 200, 700, 600],
+    ridi: ['', 'RIDIBatang, "Noto Serif KR", serif', .8, 1.25, 400, 400, 400],
+    gasoek: ['', '"Gasoek One", "Black Han Sans", sans-serif', .9, 1.05, 400, 400, 400],
   };
   // 디자인마다 처음 쓰는 글꼴, 위치, 크기(1200px 기준), 색
   const LAYOUT = {
@@ -3403,8 +3414,8 @@ const Postcard = (() => {
       ['ripple', '물결 왜곡', 'warp'], ['fisheye', '어안 렌즈', 'warp'], ['glassblock', '유리 블록', 'warp'], ['slitscan', '슬릿 스캔', 'warp'], ['slice', '조각내기', 'warp'], ['mirror', '거울', 'warp'], ['kaleido', '만화경', 'warp'], ['chroma', '색수차', 'warp'],
       ['poster', '팝아트', 'graphic'], ['pixel', '픽셀', 'graphic'], ['glitch', '글리치', 'graphic'], ['neon', '네온 윤곽', 'graphic'], ['emboss', '엠보싱', 'graphic']] },
     font: { cats: { ko: '한글 되는 글꼴', en: '영문 전용' }, items: [
-      ['gothic', '고딕', 'ko', 'font-weight:900'], ['gothicA1', '고딕 A1', 'ko', "font-family:'Gothic A1';font-weight:800"], ['plexkr', '플렉스', 'ko', "font-family:'IBM Plex Sans KR';font-weight:600"], ['black', '검은고딕', 'ko', "font-family:'Black Han Sans'"], ['dohyeon', '도현', 'ko', "font-family:'Do Hyeon'"], ['dodum', '고운돋움', 'ko', "font-family:'Gowun Dodum'"], ['orbit', '오르빗', 'ko', 'font-family:Orbit'],
-      ['myeongjo', '명조', 'ko', "font-family:'Noto Serif KR'"], ['nanummj', '나눔명조', 'ko', "font-family:'Nanum Myeongjo';font-weight:800"], ['batang', '바탕', 'ko', "font-family:'Gowun Batang';font-weight:700"], ['hahmlet', '함렛', 'ko', 'font-family:Hahmlet;font-weight:600'], ['songmyung', '송명', 'ko', "font-family:'Song Myung'"],
+      ['gothic', '고딕', 'ko', 'font-weight:900'], ['suit', '수트', 'ko', 'font-family:SUIT;font-weight:800'], ['gothicA1', '고딕 A1', 'ko', "font-family:'Gothic A1';font-weight:800"], ['plexkr', '플렉스', 'ko', "font-family:'IBM Plex Sans KR';font-weight:600"], ['black', '검은고딕', 'ko', "font-family:'Black Han Sans'"], ['gasoek', '가석', 'ko', "font-family:'Gasoek One'"], ['dohyeon', '도현', 'ko', "font-family:'Do Hyeon'"], ['dodum', '고운돋움', 'ko', "font-family:'Gowun Dodum'"], ['orbit', '오르빗', 'ko', 'font-family:Orbit'],
+      ['myeongjo', '명조', 'ko', "font-family:'Noto Serif KR'"], ['maruburi', '마루 부리', 'ko', 'font-family:MaruBuri;font-weight:600'], ['ridi', '리디 바탕', 'ko', 'font-family:RIDIBatang'], ['nanummj', '나눔명조', 'ko', "font-family:'Nanum Myeongjo';font-weight:800"], ['batang', '바탕', 'ko', "font-family:'Gowun Batang';font-weight:700"], ['hahmlet', '함렛', 'ko', 'font-family:Hahmlet;font-weight:600'], ['songmyung', '송명', 'ko', "font-family:'Song Myung'"],
       ['serif', 'Serif', 'en', "font-family:'Instrument Serif';font-style:italic;font-size:16px"], ['playfair', 'Playfair', 'en', "font-family:'Playfair Display';font-style:italic;font-weight:700"], ['bodoni', 'Bodoni', 'en', "font-family:'Bodoni Moda';font-style:italic;font-weight:800"], ['fraunces', 'Fraunces', 'en', 'font-family:Fraunces;font-weight:600'], ['cormorant', 'Cormorant', 'en', "font-family:'Cormorant Garamond';font-style:italic;font-size:16px"], ['dmserif', 'DM Serif', 'en', "font-family:'DM Serif Display'"],
       ['garamond', 'Garamond', 'en', "font-family:'EB Garamond';font-weight:500"], ['lora', 'Lora', 'en', 'font-family:Lora;font-weight:600'], ['alegreya', 'Alegreya', 'en', 'font-family:Alegreya;font-weight:700'], ['charter', 'Charter', 'en', "font-family:'Charis SIL';font-weight:700"], ['bitter', 'Bitter', 'en', 'font-family:Bitter;font-weight:800'],
       ['condensed', 'CONDENSED', 'en', 'font-family:Anton'], ['bebas', 'BEBAS', 'en', "font-family:'Bebas Neue';font-size:16px"], ['archivo', 'Archivo', 'en', "font-family:'Archivo Black'"], ['grotesk', 'Grotesk', 'en', "font-family:'Space Grotesk';font-weight:700"], ['intertight', 'Inter Tight', 'en', "font-family:'Inter Tight';font-weight:800"], ['syne', 'Syne', 'en', 'font-family:Syne;font-weight:800'], ['wide', 'WIDE', 'en', 'font-family:Unbounded;font-weight:800'],
