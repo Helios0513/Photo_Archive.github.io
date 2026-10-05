@@ -3288,7 +3288,7 @@ function rtInit(ed) {
   ed.addEventListener('beforeinput', e => { if (/^insert(Text|LineBreak|Paragraph)/.test(e.inputType) && rtPlain(ed).length >= (+ed.dataset.max || 9999)) e.preventDefault(); });
 }
 // 엽서·포스터 편집기와 달력에서만 쓰는 글꼴 25종은 처음 쓸 때만 불러와요 (첫 화면을 가볍게)
-const POSTER_FONTS = 'https://fonts.googleapis.com/css2?family=Anton&family=Gothic+A1:wght@100;300;500;700;800;900&family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@100;300;500;600;700&family=Orbit&family=Playfair+Display:ital,wght@1,400..900&family=Fraunces:wght@100..900&family=Cormorant+Garamond:ital,wght@1,300..700&family=DM+Serif+Display&family=Syne:wght@400..800&family=Archivo+Black&family=Bebas+Neue&family=Inter+Tight:wght@100..900&family=Space+Mono:wght@400;700&family=Major+Mono+Display&family=UnifrakturMaguntia&family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..900&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@100..900&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@200..900&display=swap';
+const POSTER_FONTS = 'https://fonts.googleapis.com/css2?family=Anton&family=Gothic+A1:wght@100;300;500;700;800;900&family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@100;300;500;600;700&family=Orbit&family=Playfair+Display:ital,wght@1,400..900&family=Fraunces:wght@100..900&family=Cormorant+Garamond:ital,wght@1,300..700&family=DM+Serif+Display&family=Syne:wght@400..800&family=Archivo+Black&family=Bebas+Neue&family=Inter+Tight:wght@100..900&family=Space+Mono:wght@400;700&family=Major+Mono+Display&family=UnifrakturMaguntia&family=Black+Han+Sans&family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..900&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@100..900&family=Space+Grotesk:wght@300..700&family=Unbounded:wght@200..900&family=EB+Garamond:wght@400..800&family=Lora:wght@400..700&family=Alegreya:wght@400..900&family=Bitter:wght@100..900&family=Jost:wght@100..900&family=Charis+SIL:wght@400;700&display=swap';
 let posterFontsP = null;
 const loadPosterFonts = () => posterFontsP || (posterFontsP = new Promise(res => {
   const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = POSTER_FONTS;
@@ -3353,6 +3353,13 @@ const Postcard = (() => {
     intertight: ['', '"Inter Tight", Pretendard, sans-serif', .82, 1.0, 100, 900, 800],
     spacemono: ['', '"Space Mono", monospace', .6, 1.15, 400, 700, 700],
     majormono: ['', '"Major Mono Display", monospace', .6, 1.15, 400, 400, 400],
+    // 책 본문 글꼴 (영문 전용, ebook-fonts 추천 원본)
+    garamond: ['', '"EB Garamond", "Noto Serif KR", serif', .8, 1.1, 400, 800, 500],
+    lora: ['', 'Lora, "Noto Serif KR", serif', .82, 1.1, 400, 700, 600],
+    alegreya: ['', 'Alegreya, "Noto Serif KR", serif', .8, 1.1, 400, 900, 700],
+    charter: ['', '"Charis SIL", "Noto Serif KR", serif', .84, 1.1, 400, 700, 700],
+    bitter: ['', 'Bitter, "Noto Serif KR", serif', .84, 1.08, 100, 900, 800],
+    jost: ['', 'Jost, Pretendard, sans-serif', .8, 1.05, 100, 900, 600],
   };
   // 디자인마다 처음 쓰는 글꼴, 위치, 크기(1200px 기준), 색
   const LAYOUT = {
@@ -3399,7 +3406,9 @@ const Postcard = (() => {
       ['gothic', '고딕', 'ko', 'font-weight:900'], ['gothicA1', '고딕 A1', 'ko', "font-family:'Gothic A1';font-weight:800"], ['plexkr', '플렉스', 'ko', "font-family:'IBM Plex Sans KR';font-weight:600"], ['black', '검은고딕', 'ko', "font-family:'Black Han Sans'"], ['dohyeon', '도현', 'ko', "font-family:'Do Hyeon'"], ['dodum', '고운돋움', 'ko', "font-family:'Gowun Dodum'"], ['orbit', '오르빗', 'ko', 'font-family:Orbit'],
       ['myeongjo', '명조', 'ko', "font-family:'Noto Serif KR'"], ['nanummj', '나눔명조', 'ko', "font-family:'Nanum Myeongjo';font-weight:800"], ['batang', '바탕', 'ko', "font-family:'Gowun Batang';font-weight:700"], ['hahmlet', '함렛', 'ko', 'font-family:Hahmlet;font-weight:600'], ['songmyung', '송명', 'ko', "font-family:'Song Myung'"],
       ['serif', 'Serif', 'en', "font-family:'Instrument Serif';font-style:italic;font-size:16px"], ['playfair', 'Playfair', 'en', "font-family:'Playfair Display';font-style:italic;font-weight:700"], ['bodoni', 'Bodoni', 'en', "font-family:'Bodoni Moda';font-style:italic;font-weight:800"], ['fraunces', 'Fraunces', 'en', 'font-family:Fraunces;font-weight:600'], ['cormorant', 'Cormorant', 'en', "font-family:'Cormorant Garamond';font-style:italic;font-size:16px"], ['dmserif', 'DM Serif', 'en', "font-family:'DM Serif Display'"],
+      ['garamond', 'Garamond', 'en', "font-family:'EB Garamond';font-weight:500"], ['lora', 'Lora', 'en', 'font-family:Lora;font-weight:600'], ['alegreya', 'Alegreya', 'en', 'font-family:Alegreya;font-weight:700'], ['charter', 'Charter', 'en', "font-family:'Charis SIL';font-weight:700"], ['bitter', 'Bitter', 'en', 'font-family:Bitter;font-weight:800'],
       ['condensed', 'CONDENSED', 'en', 'font-family:Anton'], ['bebas', 'BEBAS', 'en', "font-family:'Bebas Neue';font-size:16px"], ['archivo', 'Archivo', 'en', "font-family:'Archivo Black'"], ['grotesk', 'Grotesk', 'en', "font-family:'Space Grotesk';font-weight:700"], ['intertight', 'Inter Tight', 'en', "font-family:'Inter Tight';font-weight:800"], ['syne', 'Syne', 'en', 'font-family:Syne;font-weight:800'], ['wide', 'WIDE', 'en', 'font-family:Unbounded;font-weight:800'],
+      ['jost', 'Jost', 'en', 'font-family:Jost;font-weight:600'],
       ['mono', 'Mono', 'en', "font-family:'JetBrains Mono'"], ['spacemono', 'Space Mono', 'en', "font-family:'Space Mono'"], ['majormono', 'major mono', 'en', "font-family:'Major Mono Display'"]] },
   };
   const PAPER = { white: '#fbfaf6', cream: '#f1e9d8', black: '#141413', orange: '#e2672b' };
