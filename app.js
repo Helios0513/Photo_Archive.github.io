@@ -5246,7 +5246,7 @@ const Drafts = {
     }).catch(e => { console.warn(e); this.pulled = null; return []; }));
   },
   say(kind, t) { $$(`[data-draft="${kind}"]`).forEach(el => { el.textContent = t; }); },
-  tag(kind) { return `<span class="mono faint draft-st" data-draft="${kind}">${Studio.authed ? '임시저장: 고치면 자동으로 GitHub에 저장돼요' : '임시저장: 고치면 이 기기에 자동으로 저장돼요'}</span>`; },
+  tag(kind) { return `<span class="faint draft-st" data-draft="${kind}">${Studio.authed ? '임시저장: 고치면 자동으로 GitHub에 저장돼요' : '임시저장: 고치면 이 기기에 자동으로 저장돼요'}</span>`; },
 };
 addEventListener('pagehide', () => Drafts.flush());
 document.addEventListener('visibilitychange', () => { if (document.hidden) Drafts.flush(); });
