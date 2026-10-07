@@ -3331,6 +3331,7 @@ const Postcard = (() => {
   const fmtLabel = () => { if (st.fixed) return '달력 사진 칸'; const d = RATIO[st.ratio], l = st.orient === 'l' && d[3]; return st.ratio === 'orig' ? '원본 비율' : (l ? d[3] + ' ' + d[4] : d[1] + ' ' + d[2]); };
   // [기울기, 글꼴, 크기 배율, 줄 간격, 가장 가는 두께, 가장 굵은 두께, 기본 두께]
   const FONT = {
+    ransom: ['', '"Black Han Sans", Pretendard, sans-serif', .62, 1.5, 400, 400, 400],
     serif: ['italic', '"Instrument Serif", "Noto Serif KR", Georgia, serif', 1, .92, 400, 400, 400],
     myeongjo: ['', '"Noto Serif KR", Georgia, serif', .78, 1.22, 200, 900, 400],
     gothic: ['', 'Pretendard, sans-serif', .8, 1.04, 100, 900, 900],
@@ -3414,7 +3415,7 @@ const Postcard = (() => {
       ['ripple', '물결 왜곡', 'warp'], ['fisheye', '어안 렌즈', 'warp'], ['glassblock', '유리 블록', 'warp'], ['slitscan', '슬릿 스캔', 'warp'], ['slice', '조각내기', 'warp'], ['mirror', '거울', 'warp'], ['kaleido', '만화경', 'warp'], ['chroma', '색수차', 'warp'],
       ['poster', '팝아트', 'graphic'], ['pixel', '픽셀', 'graphic'], ['glitch', '글리치', 'graphic'], ['neon', '네온 윤곽', 'graphic'], ['emboss', '엠보싱', 'graphic']] },
     font: { cats: { ko: '한글 되는 글꼴', en: '영문 전용' }, items: [
-      ['gothic', '고딕', 'ko', 'font-weight:900'], ['suit', '수트', 'ko', 'font-family:SUIT;font-weight:800'], ['gothicA1', '고딕 A1', 'ko', "font-family:'Gothic A1';font-weight:800"], ['plexkr', '플렉스', 'ko', "font-family:'IBM Plex Sans KR';font-weight:600"], ['black', '검은고딕', 'ko', "font-family:'Black Han Sans'"], ['gasoek', '가석', 'ko', "font-family:'Gasoek One'"], ['dohyeon', '도현', 'ko', "font-family:'Do Hyeon'"], ['dodum', '고운돋움', 'ko', "font-family:'Gowun Dodum'"], ['orbit', '오르빗', 'ko', 'font-family:Orbit'],
+      ['ransom', '✂ 오려 붙인 글자', 'ko', 'font-weight:800'], ['gothic', '고딕', 'ko', 'font-weight:900'], ['suit', '수트', 'ko', 'font-family:SUIT;font-weight:800'], ['gothicA1', '고딕 A1', 'ko', "font-family:'Gothic A1';font-weight:800"], ['plexkr', '플렉스', 'ko', "font-family:'IBM Plex Sans KR';font-weight:600"], ['black', '검은고딕', 'ko', "font-family:'Black Han Sans'"], ['gasoek', '가석', 'ko', "font-family:'Gasoek One'"], ['dohyeon', '도현', 'ko', "font-family:'Do Hyeon'"], ['dodum', '고운돋움', 'ko', "font-family:'Gowun Dodum'"], ['orbit', '오르빗', 'ko', 'font-family:Orbit'],
       ['myeongjo', '명조', 'ko', "font-family:'Noto Serif KR'"], ['maruburi', '마루 부리', 'ko', 'font-family:MaruBuri;font-weight:600'], ['ridi', '리디 바탕', 'ko', 'font-family:RIDIBatang'], ['nanummj', '나눔명조', 'ko', "font-family:'Nanum Myeongjo';font-weight:800"], ['batang', '바탕', 'ko', "font-family:'Gowun Batang';font-weight:700"], ['hahmlet', '함렛', 'ko', 'font-family:Hahmlet;font-weight:600'], ['songmyung', '송명', 'ko', "font-family:'Song Myung'"],
       ['serif', 'Serif', 'en', "font-family:'Instrument Serif';font-style:italic;font-size:16px"], ['playfair', 'Playfair', 'en', "font-family:'Playfair Display';font-style:italic;font-weight:700"], ['bodoni', 'Bodoni', 'en', "font-family:'Bodoni Moda';font-style:italic;font-weight:800"], ['fraunces', 'Fraunces', 'en', 'font-family:Fraunces;font-weight:600'], ['cormorant', 'Cormorant', 'en', "font-family:'Cormorant Garamond';font-style:italic;font-size:16px"], ['dmserif', 'DM Serif', 'en', "font-family:'DM Serif Display'"],
       ['garamond', 'Garamond', 'en', "font-family:'EB Garamond';font-weight:500"], ['lora', 'Lora', 'en', 'font-family:Lora;font-weight:600'], ['alegreya', 'Alegreya', 'en', 'font-family:Alegreya;font-weight:700'], ['charter', 'Charter', 'en', "font-family:'Charis SIL';font-weight:700"], ['bitter', 'Bitter', 'en', 'font-family:Bitter;font-weight:800'],
@@ -3423,7 +3424,7 @@ const Postcard = (() => {
       ['mono', 'Mono', 'en', "font-family:'JetBrains Mono'"], ['spacemono', 'Space Mono', 'en', "font-family:'Space Mono'"], ['majormono', 'major mono', 'en', "font-family:'Major Mono Display'"]] },
   };
   const PAPER = { white: '#fbfaf6', cream: '#f1e9d8', black: '#141413', orange: '#e2672b' };
-  const st = { p: null, ratio: 'orig', orient: 'p', layout: 'full', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, calYear: null, calMonth: null, fixed: null, ov: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
+  const st = { p: null, ratio: 'orig', orient: 'p', layout: 'full', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, calYear: null, calMonth: null, fixed: null, ov: null, rseed: 7, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
   const el = $('#pcModal'), cv = $('#pcCanvas'), out = $('#pcImg'), sheet = $('#pcSheet');
   const api = { get isOpen() { return !el.hidden; } };
   let im = null, cols = [], cache = {};
@@ -3581,6 +3582,59 @@ const Postcard = (() => {
     }
     x.restore();
     ovCount = pts.length;
+  }
+  // ---------- 오려 붙인 글자: 글자마다 다른 글꼴·종이 조각·색·기울기 ----------
+  // 같은 글자는 전에 쓴 (글꼴, 종이)를 피하고, 바로 옆 글자와도 겹치지 않게 골라요
+  const RN_EN = [['Playfair Display', 900], ['Playfair Display', 700, 'italic'], ['Bodoni Moda', 900], ['Anton', 400], ['Archivo Black', 400], ['Bebas Neue', 400, '', 1], ['Abril Fatface', 400], ['DM Serif Display', 400], ['Courier Prime', 700], ['Oswald', 600], ['Alfa Slab One', 400], ['Rubik Mono One', 400, '', 1], ['Fraunces', 900], ['Ultra', 400], ['Rye', 400], ['Special Elite', 400], ['Georgia', 700], ['Times New Roman', 700]];
+  const RN_KO = [['Black Han Sans', 400], ['Do Hyeon', 400], ['Gowun Batang', 700], ['Nanum Myeongjo', 800], ['Song Myung', 400], ['Noto Serif KR', 900], ['Gothic A1', 900], ['Hahmlet', 800], ['Gasoek One', 400], ['Jua', 400], ['Yeon Sung', 400], ['Nanum Pen Script', 400], ['Pretendard', 900]];
+  const RN_PAPER = [['#ebe6d8', '#151515', '#c8443b'], ['#f7f3ea', '#151515', '#1f3a5f'], ['#d9cbb0', '#151515'], ['#c79a5f', '#151515', '#fbf7ee'], ['#c8443b', '#fbf7ee', '#151515'], ['#e3b23c', '#151515'], ['#2f7f86', '#fbf7ee', '#151515'], ['#e07a8b', '#151515', '#fbf7ee'], ['#29384d', '#fbf7ee', '#e3b23c'], ['#151515', '#fbf7ee', '#e3b23c'], ['#5e8c61', '#fbf7ee', '#151515'], ['#7a4a2a', '#fbf7ee'], ['#8fb7c9', '#151515'], ['#f2d6a2', '#151515', '#c8443b']];
+  const RN_FONTS = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Bodoni+Moda:wght@700;900&family=Anton&family=Archivo+Black&family=Bebas+Neue&family=Abril+Fatface&family=DM+Serif+Display&family=Courier+Prime:wght@700&family=Oswald:wght@600&family=Alfa+Slab+One&family=Rubik+Mono+One&family=Fraunces:wght@900&family=Ultra&family=Rye&family=Special+Elite&family=Black+Han+Sans&family=Do+Hyeon&family=Gowun+Batang:wght@700&family=Nanum+Myeongjo:wght@800&family=Song+Myung&family=Noto+Serif+KR:wght@900&family=Gothic+A1:wght@900&family=Hahmlet:wght@800&family=Gasoek+One&family=Jua&family=Yeon+Sung&family=Nanum+Pen+Script&display=swap';
+  let rnReady = null;
+  // 처음 쓸 때만 글꼴 30여 종을 받아요. 다 받으면 한 번 더 그려요
+  const loadRansom = () => rnReady || (rnReady = new Promise(res => {
+    const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = RN_FONTS;
+    l.onload = () => Promise.all([...RN_EN, ...RN_KO].map(f => document.fonts.load(`${f[2] || ''} ${f[1]} 40px "${f[0]}"`, 'Aa가1').catch(() => {}))).then(() => res(true));
+    l.onerror = () => { rnReady = null; res(false); };
+    document.head.appendChild(l);
+  }));
+  const rnIsKo = ch => /[ㄱ-힝]/.test(ch);
+  // 글자 목록(띄어쓰기·줄바꿈 뺀 순서)에 맞춰 모양을 정해요
+  function ransomPlan(chars, seed, mixCase) {
+    const R = ovRand(seed), pick = a => a[Math.floor(R() * a.length)], seen = new Map(), out = [];
+    let prev = null;
+    for (const raw of chars) {
+      const ko = rnIsKo(raw), pool = ko ? RN_KO : (R() < .18 ? RN_KO : RN_EN), used = seen.get(raw.toLowerCase()) || [];
+      let f, p, n = 0;
+      do { f = pick(pool); p = Math.floor(R() * RN_PAPER.length); n++; }
+      while (n < 60 && ((prev && (prev.f[0] === f[0] || prev.p === p)) || used.some(u2 => u2.f[0] === f[0] || u2.p === p)));
+      let ch = raw; if (!ko && mixCase) ch = f[3] || R() < .45 ? raw.toUpperCase() : raw.toLowerCase();
+      const paper = RN_PAPER[p];
+      const it = { ch, f, p, paper: paper[0], ink: paper[1 + Math.floor(R() * (paper.length - 1))], outline: R() < .14, rot: (R() - .5) * 14, dy: (R() - .5) * .14, scale: .86 + R() * .3, dots: R() < .25, pad: .16 + R() * .12, seed: Math.floor(R() * 1e9) };
+      used.push(it); seen.set(raw.toLowerCase(), used); out.push(it); prev = it;
+    }
+    return out;
+  }
+  // 한 글자 조각의 너비 (줄 나누기·정렬용)
+  const ransomPieceW = (x, it, size) => { x.font = `${it.f[2] || ''} ${it.f[1]} ${Math.round(size * it.scale)}px "${it.f[0]}"`; return Math.max(x.measureText(it.ch).width, size * .3) * (1 + it.pad * 2) + size * .05; };
+  // 미리 재기: 글꼴이 정해지기 전에 줄을 나눌 때는 굵은 고딕으로 어림해요
+  const ransomEstW = (x, l, size, ls) => { x.font = `900 ${size}px Pretendard, sans-serif`; return [...l].reduce((a, ch) => a + (ch === ' ' ? size * .38 : Math.max(x.measureText(ch).width, size * .3) * 1.5 + size * .05), 0) + ls * Math.max(0, [...l].length - 1); };
+  function ransomGlyph(x, it, cx, Y0, size) {
+    const R = ovRand(it.seed), fs = Math.round(size * it.scale);
+    x.save(); x.translate(cx, Y0 + it.dy * size); x.rotate(it.rot * Math.PI / 180);
+    x.font = `${it.f[2] || ''} ${it.f[1]} ${fs}px "${it.f[0]}"`; x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+    const m = x.measureText(it.ch), asc = m.actualBoundingBoxAscent || fs * .72, desc = m.actualBoundingBoxDescent || 0, gw = Math.max((m.actualBoundingBoxLeft + m.actualBoundingBoxRight) || m.width, fs * .3);
+    const px = fs * it.pad, top = -asc - px, bot = desc + px, left = -gw / 2 - px, right = gw / 2 + px, j = () => (R() - .5) * fs * .12;
+    const pts = [[left + j(), top + j()], [(left + right) / 2 + j(), top + j() * .5], [right + j(), top + j()], [right + j() * .5, (top + bot) / 2 + j()], [right + j(), bot + j()], [(left + right) / 2 + j(), bot + j() * .5], [left + j(), bot + j()], [left + j() * .5, (top + bot) / 2 + j()]];
+    x.shadowColor = 'rgba(0,0,0,.28)'; x.shadowBlur = fs * .08; x.shadowOffsetX = fs * .03; x.shadowOffsetY = fs * .05;
+    x.beginPath(); pts.forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b)); x.closePath(); x.fillStyle = it.paper; x.fill();
+    x.shadowColor = 'transparent'; x.shadowBlur = 0; x.shadowOffsetX = x.shadowOffsetY = 0;
+    x.save(); x.clip();
+    if (it.dots) { x.fillStyle = 'rgba(0,0,0,.09)'; const g = fs * .07; for (let yy = top; yy < bot; yy += g) for (let xx = left + ((Math.round(yy / g)) % 2) * g / 2; xx < right; xx += g) { x.beginPath(); x.arc(xx, yy, g * .22, 0, Math.PI * 2); x.fill(); } }
+    x.globalAlpha = .07; x.fillStyle = '#000'; for (let k = 0; k < 140; k++) x.fillRect(left + R() * (right - left), top + R() * (bot - top), fs * .012, fs * .012);
+    x.restore();
+    if (it.outline) { x.lineWidth = Math.max(2, fs * .06); x.lineJoin = 'round'; x.strokeStyle = '#151515'; x.fillStyle = '#fbf7ee'; x.strokeText(it.ch, 0, 0); x.fillText(it.ch, 0, 0); }
+    else { x.fillStyle = it.ink; x.fillText(it.ch, 0, 0); }
+    x.restore();
   }
   function fxCanvas(w, h, c) {
     w = Math.round(w); h = Math.round(h);
@@ -3892,11 +3946,12 @@ const Postcard = (() => {
     x.font = f.font;
     // 자간(글자 사이)은 글씨 크기에 대한 비율, 행간(줄 사이)은 글꼴 기본값에 곱해요
     const ls = st.track * size, LH = lh * st.lead;
-    const lineW = l => ls ? [...l].reduce((a, ch) => a + x.measureText(ch).width, 0) + ls * Math.max(0, [...l].length - 1) : x.measureText(l).width;
+    const RANS = st.font === 'ransom';
+    const lineW = l => RANS ? ransomEstW(x, l, size, ls) : ls ? [...l].reduce((a, ch) => a + x.measureText(ch).width, 0) + ls * Math.max(0, [...l].length - 1) : x.measureText(l).width;
     // 부분 서식이 있으면(굵게·기울임·크기) 서식 있는 줄로, 없으면 지금까지처럼 그려요
     const titleFont = (r, sz) => { const [sty, fam, , , lo, hi] = FONT[st.font], want = r.w || st.weight, w = Math.max(lo, Math.min(hi, want)); return { font: `${r.i === true ? 'italic' : r.i === false ? '' : sty} ${w} ${sz}px ${fam}`, extra: want > hi ? (want - hi) / 100 * sz * .014 : 0 }; };
     const subFont = (r, sz) => ({ font: `${r.i ? 'italic ' : ''}${r.w || 400} ${sz}px Pretendard, sans-serif`, extra: 0 });
-    const richT = o.rt && o.title === o.rtText ? richLayout(x, o.rt, size, R.w, titleFont, ls, st.upper) : null;
+    const richT = !RANS && o.rt && o.title === o.rtText ? richLayout(x, o.rt, size, R.w, titleFont, ls, st.upper) : null;
     x.font = f.font;
     const lines = richT ? [] : wrap(x, t, R.w, lineW);
     const subSize = Math.max(Math.round(size * .24), Math.round(26 * u)), metaSize = Math.round(21 * u);
@@ -3919,9 +3974,22 @@ const Postcard = (() => {
     const ow = st.outline * size * .012, oc = st.ocolor || (lum(titleInk) > .5 ? '#141413' : '#fbfaf6');
     const outline = (str, X0, Y0, w0) => { if (!w0) return; x.save(); x.shadowColor = 'transparent'; x.lineJoin = 'round'; x.lineWidth = w0 * 2; x.strokeStyle = oc; x.strokeText(str, X0, Y0); x.restore(); };
     x.fillStyle = titleInk; x.font = f.font;
+    // 오려 붙인 글자: 띄어쓰기를 뺀 글자 순서대로 모양을 정해 두고, 줄마다 실제 조각 너비로 정렬해요
+    const rplan = RANS ? ransomPlan([...lines.join('')].filter(ch => ch.trim()), st.rseed, !st.upper) : null;
+    let rk = 0;
+    if (RANS && !rnReady) loadRansom().then(ok => { if (ok && im) { cache = {}; draw(); } });
     lines.forEach((l, i) => {
       if (!l) return;
       const Y0 = y + size * .8 + i * size * LH;
+      if (RANS) {
+        const items = [...l].map(ch => ch.trim() ? rplan[rk++] : null), ws = items.map(it => it ? ransomPieceW(x, it, size) : size * .38), w = ws.reduce((a, b) => a + b, 0) + ls * Math.max(0, items.length - 1);
+        let cx = col === 'l' ? X : col === 'c' ? X - w / 2 : X - w; const sx = cx;
+        const sh = x.shadowColor; x.shadowColor = 'transparent';
+        items.forEach((it, k2) => { if (it) ransomGlyph(x, it, cx + ws[k2] / 2, Y0, size); cx += ws[k2] + ls; });
+        x.shadowColor = sh; x.font = f.font;
+        bl = Math.min(bl, sx); br = Math.max(br, sx + w); bt = Math.min(bt, Y0 - size * 1.05); bb = Math.max(bb, Y0 + size * .35);
+        return;
+      }
       if (!ls) { outline(l, X, Y0, ow); fill(x, f, l, X, Y0); ink(l, X, Y0, f.extra / 2 + ow); return; }
       // 자간이 있으면 한 글자씩 놓아요 (어느 브라우저에서나 똑같이 보이게)
       const w = lineW(l), mt = x.measureText(l); let cx = col === 'l' ? X : col === 'c' ? X - w / 2 : X - w;
@@ -4505,6 +4573,7 @@ const Postcard = (() => {
     $('#pcUpper').classList.toggle('on', st.upper);
     $('#pcSize').value = Math.round(st.size * 100); $('#pcSizeN').textContent = Math.round(st.size * 100) + '%';
     $('#pcWeight').value = st.weight; paintWeight();
+    $('#pcRecut').hidden = st.font !== 'ransom';
     $('#pcTrack').value = Math.round(st.track * 100); $('#pcTrackN').textContent = (st.track > 0 ? '+' : '') + Math.round(st.track * 100);
     $('#pcLead').value = Math.round(st.lead * 100); $('#pcLeadN').textContent = Math.round(st.lead * 100) + '%';
     $('#pcOut').value = st.outline; $('#pcOutN').textContent = st.outline ? st.outline + (st.ocolor ? '' : ' · 자동 색') : '없음';
@@ -4534,7 +4603,7 @@ const Postcard = (() => {
     ['원 사슬', [['chain', 'tog', '사슬 보이기'], ['count', 'range', '원 개수', 1, 25, 1], ['angle', 'range', '방향 (0 세로 · 90 가로)', 0, 180, 1], ['base', 'range', '가운데 원 크기', 20, 600, 5], ['ratio', 'range', '이어질수록 크기 배율', 0.4, 1.2, 0.01], ['chainX', 'range', '가로 위치 %', 0, 100, 1], ['chainY', 'range', '세로 위치 %', 0, 100, 1], ['inter', 'tog', '만나는 점 표시'], ['marker', 'range', '점 크기', 1, 15, 0.5]]],
     ['점선 액자', [['frame', 'tog', '액자 보이기'], ['frameSize', 'range', '액자 크기 %', 10, 100, 1], ['dash', 'range', '점선 길이 (0이면 실선)', 0, 40, 1], ['frameStroke', 'range', '선 두께', 0.2, 4, 0.1], ['star', 'range', '가운데 별 크기 (0이면 숨김)', 0, 200, 1], ['points', 'range', '별 줄 수 (2는 +, 4는 8각 별)', 1, 8, 1]]],
     ['귀퉁이 글씨', [['corner', 'tog', '귀퉁이 글씨 보이기'], ['cornerSize', 'range', '글씨 크기', 6, 40, 1], ['texts', 'texts', '네 귀퉁이 (왼쪽 위 · 오른쪽 위 · 왼쪽 아래 · 오른쪽 아래)']]],
-    ['모자이크 칸', [['zones', 'zones', '사진을 눌러 모자이크 칸 찍기'], ['pix', 'range', '모자이크 크기', 4, 64, 1], ['zone', 'range', '칸 크기', 20, 400, 5], ['zoneStroke', 'tog', '칸 테두리']]],
+    ['모자이크 칸', [['zones', 'zones', '사진 눌러 칸 찍기'], ['pix', 'range', '모자이크 크기', 4, 64, 1], ['zone', 'range', '칸 크기', 20, 400, 5], ['zoneStroke', 'tog', '칸 테두리']]],
     ['질감', [['noise', 'range', '노이즈 질감 진하기 (0이면 없음)', 0, 1, 0.05], ['tex', 'tex', '내 질감 사진']]],
   ];
   let ovPick = false;
@@ -4555,7 +4624,7 @@ const Postcard = (() => {
   }
   function paintOv() {
     const o = st.ov, on = !!(o && o.on);
-    $('#pcOvOn').textContent = on ? '✓ 켜짐 (누르면 끄기)' : '켜기'; $('#pcOvOn').classList.toggle('on', on);
+    $('#pcOvOn').textContent = on ? '✓ 켜짐' : '켜기'; $('#pcOvOn').title = on ? '누르면 꺼져요' : ''; $('#pcOvOn').classList.toggle('on', on);
     $('#pcOvBody').classList.toggle('pc-off', !on);
     if (!o) return;
     $$('[data-ov]', el).forEach(i => { i.value = o[i.dataset.ov]; });
@@ -4563,7 +4632,7 @@ const Postcard = (() => {
     $$('[data-ovp]', el).forEach(g => $$('button', g).forEach(b => b.classList.toggle('on', b.dataset.v === o[g.dataset.ovp])));
     $$('[data-ovt]', el).forEach(b => { const v = o[b.dataset.ovt]; b.classList.toggle('on', v); b.textContent = (v ? '✓ ' : '') + b.textContent.replace(/^✓ /, ''); });
     $$('[data-ovx]', el).forEach(i => { if (document.activeElement !== i) i.value = o.texts[+i.dataset.ovx] || ''; });
-    $('#pcOvPick').classList.toggle('on', ovPick); $('#pcOvPick').textContent = ovPick ? '✓ 사진을 눌러 찍는 중 (누르면 끝)' : '사진을 눌러 모자이크 칸 찍기';
+    $('#pcOvPick').classList.toggle('on', ovPick); $('#pcOvPick').textContent = ovPick ? '✓ 찍는 중 · 끝내기' : '사진 눌러 칸 찍기';
     $('#pcOvZn').textContent = `${o.zones.length}칸 찍음${ovPick ? ' · 미리보기 사진을 누르세요' : ''}`;
     sheet.classList.toggle('ov-picking', ovPick);
   }
@@ -4677,7 +4746,9 @@ const Postcard = (() => {
   $('#pcCalNext').onclick = () => stepMonth(1);
   $('#pcCalToday').onclick = () => { const t = new Date(); st.calMonth = t.getMonth(); setYear(t.getFullYear()); };
   $('#pcCalPhoto').onclick = () => { st.calYear = null; st.calMonth = null; paintControls(); draw(); };
-  chips('#pcFont', v => { st.font = v; st.weight = FONT[v][6]; });
+  chips('#pcFont', v => { if (v === 'ransom' && st.font !== 'ransom') st.rseed = Math.floor(Math.random() * 1e6); st.font = v; st.weight = FONT[v][6]; });
+  // 다시 오리기: 글자마다 글꼴·종이를 새로 섞어요
+  $('#pcRecut').onclick = () => { st.rseed = Math.floor(Math.random() * 1e6); draw(); };
   chips('#pcTColor', v => { st.tcolor = v === 'auto' ? null : v; });
   $('#pcTPick').addEventListener('input', e => { st.tcolor = e.target.value; paintControls(); draw(); });
   chips('#pcPos', v => { st.spot = +v; st.ox = st.oy = 0; });

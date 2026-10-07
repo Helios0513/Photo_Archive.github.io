@@ -1000,7 +1000,10 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
 .pc-sub > summary::before { content: "▸ "; color: #75736b; }
 .pc-sub[open] > summary::before { content: "▾ "; }
 #pcOvBody.pc-off { opacity: .45; }
-.pc-ovtexts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+/* 버튼 줄은 폭이 모자라면 다음 줄로 (잘리지 않게) */
+#pcOv .pc-row, .pc-sec-body > .pc-row:has(> .pill) { flex-wrap: wrap; gap: 6px; }
+.pc-ovtexts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.pc-ovtexts input { min-width: 0; width: 100%; box-sizing: border-box; }
 .pc-ovtexts input { height: 32px; padding: 0 8px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: rgba(255,255,255,.04); color: #f1eee6; font: 12px "JetBrains Mono", monospace; }
 .pc-file { cursor: pointer; }
 .pc-sheet.ov-picking, .pc-sheet.ov-picking canvas, .pc-sheet.ov-picking img { cursor: crosshair !important; }
