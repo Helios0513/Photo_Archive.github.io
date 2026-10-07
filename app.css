@@ -994,6 +994,16 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
 .pc-modal.solo { position: fixed; z-index: 130; }
 .pc-modal.solo #pcOrient, .pc-modal.solo #pcFmt, .pc-modal.solo #pcSave, .pc-modal.solo #pcPublish, .pc-modal.solo .pc-admin, .pc-modal.solo .pc-hint { display: none !important; }
 .pc-use { margin-bottom: 8px; }
+/* 그래픽 오버레이 조절 칸 */
+.pc-sub { margin: 8px 0 0; border-top: 1px solid rgba(255,255,255,.08); padding-top: 6px; }
+.pc-sub > summary { cursor: pointer; padding: 6px 0; color: #e8e5dd; font-size: 13px; list-style: none; }
+.pc-sub > summary::before { content: "▸ "; color: #75736b; }
+.pc-sub[open] > summary::before { content: "▾ "; }
+#pcOvBody.pc-off { opacity: .45; }
+.pc-ovtexts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pc-ovtexts input { height: 32px; padding: 0 8px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: rgba(255,255,255,.04); color: #f1eee6; font: 12px "JetBrains Mono", monospace; }
+.pc-file { cursor: pointer; }
+.pc-sheet.ov-picking, .pc-sheet.ov-picking canvas, .pc-sheet.ov-picking img { cursor: crosshair !important; }
 /* 창 크기는 항상 같게: 묶음을 펼쳐도 커지지 않고, 오른쪽 조작판만 안에서 스크롤돼요 */
 .pc-panel { position: relative; width: min(1320px, 100%); height: min(100%, 760px); overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: minmax(0, 1fr); gap: 22px; background: #121211; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 22px; color: #f1eee6; }
 .pc-close { position: absolute; top: 10px; right: 10px; color: #f1eee6; z-index: 2; }

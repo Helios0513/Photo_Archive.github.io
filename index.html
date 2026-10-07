@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@100..800&family=Noto+Serif+KR:wght@200..900&display=swap">
-<link rel="stylesheet" href="app.css?v=43">
+<link rel="stylesheet" href="app.css?v=44">
 <script>
   // 저장된 밝기 모드를 화면이 그려지기 전에 적용해 깜빡임을 막아요.
   try { var t = localStorage.getItem('hm-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -101,6 +101,7 @@
           <div class="pc-cats" id="pcFxCats"></div><div class="pc-chips" id="pcFx"></div>
           <p class="pc-tip">같은 사진 효과를 한 번 더 누르면 조각 배치나 색 묶음이 바뀌어요.</p>
         </div></details>
+        <details class="pc-sec" data-sec="ov"><summary><span>그래픽 오버레이</span><em id="pcSum-ov"></em></summary><div class="pc-sec-body" id="pcOv"></div></details>
         <details class="pc-sec" data-sec="text"><summary><span>글씨</span><em id="pcSum-text"></em></summary><div class="pc-sec-body">
           <div class="pc-rtbar" id="pcRtBar" role="toolbar" aria-label="고른 글자만 서식 바꾸기">
             <button type="button" data-rt="w" data-v="300" style="font-weight:300">얇게</button><button type="button" data-rt="w" data-v="400">보통</button><button type="button" data-rt="w" data-v="600" style="font-weight:600">세미볼드</button><button type="button" data-rt="w" data-v="700" style="font-weight:700">볼드</button><button type="button" data-rt="w" data-v="900" style="font-weight:900">아주 굵게</button>
@@ -162,6 +163,6 @@
 <div class="toast" id="toast"></div>
 <div class="curtain" id="curtain"></div>
 
-<script src="app.js?v=43" defer></script>
+<script src="app.js?v=44" defer></script>
 </body>
 </html>

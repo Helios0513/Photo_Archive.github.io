@@ -3423,7 +3423,7 @@ const Postcard = (() => {
       ['mono', 'Mono', 'en', "font-family:'JetBrains Mono'"], ['spacemono', 'Space Mono', 'en', "font-family:'Space Mono'"], ['majormono', 'major mono', 'en', "font-family:'Major Mono Display'"]] },
   };
   const PAPER = { white: '#fbfaf6', cream: '#f1e9d8', black: '#141413', orange: '#e2672b' };
-  const st = { p: null, ratio: 'orig', orient: 'p', layout: 'full', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, calYear: null, calMonth: null, fixed: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
+  const st = { p: null, ratio: 'orig', orient: 'p', layout: 'full', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, calYear: null, calMonth: null, fixed: null, ov: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
   const el = $('#pcModal'), cv = $('#pcCanvas'), out = $('#pcImg'), sheet = $('#pcSheet');
   const api = { get isOpen() { return !el.hidden; } };
   let im = null, cols = [], cache = {};
@@ -3478,11 +3478,115 @@ const Postcard = (() => {
     bx.drawImage(im, (w - dw) * st.cx, (h - dh) * st.cy, dw, dh);
     return b;
   }
+  // ---------- 그래픽 오버레이: 사진 위에 데이터 지도처럼 원·선·좌표·사슬·액자를 얹어요 ----------
+  // 크기 값은 짧은 변 1200px 기준이에요 (사진 칸 크기에 맞춰 같이 커지고 작아져요)
+  const OV_DEF = () => ({
+    on: false, ink: 'white', alpha: 1, fade: .85,
+    detect: 'combined', block: 16, thresh: 30, max: 80, minDist: 40,
+    shape: 'circle', rMin: 4, rMax: 24, stroke: 1, seed: 42, label: 8,
+    link: 150, linkW: .8,
+    chain: true, count: 11, angle: 45, base: 250, ratio: .79, chainX: 70, chainY: 30, inter: true, marker: 5,
+    frame: true, frameSize: 60, dash: 8, frameStroke: 1, star: 40, points: 4,
+    corner: true, cornerSize: 12, texts: ['', '', '', ''],
+    pix: 16, zone: 100, zoneStroke: true, zones: [],
+    noise: .3,
+  });
+  let ovTex = null, ovTexId = 0, ovCount = 0; // 직접 올린 질감 사진 (저장 파일에는 안 들어가요)
+  const ovRand = seed => { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
+  let ovNoise = null;
+  const noiseTile = () => {
+    if (ovNoise) return ovNoise;
+    const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'), d = g.createImageData(256, 256);
+    for (let i = 0; i < d.data.length; i += 4) { const v = Math.random() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+    g.putImageData(d, 0, 0); return (ovNoise = c);
+  };
+  function drawOverlay(x, W0, H0, c) {
+    // 사진을 줄여서 칸 안에 빈 곳이 생기면, 실제 사진이 있는 곳에만 그려요 (placed()와 같은 계산)
+    const nw = im.naturalWidth, nh = im.naturalHeight, kk = Math.max(W0 / nw, H0 / nh) * st.zoom, px0 = (W0 - nw * kk) * st.cx, py0 = (H0 - nh * kk) * st.cy;
+    const rx = Math.max(0, Math.round(px0)), ry = Math.max(0, Math.round(py0)), w = Math.min(W0, Math.round(px0 + nw * kk)) - rx, h = Math.min(H0, Math.round(py0 + nh * kk)) - ry;
+    if (w < 8 || h < 8) return;
+    const o = st.ov, u = Math.min(w, h) / 1200, R = ovRand(o.seed);
+    const ink = o.ink === 'black' ? '#141413' : o.ink === 'accent' ? '#ff5a36' : o.ink === 'photo' ? c.vivid : '#fbfaf6';
+    x.save(); x.beginPath(); x.rect(rx, ry, w, h); x.clip(); x.translate(rx, ry);
+    // 1) 모자이크 칸: 사진에서 누른 자리만 굵은 픽셀로
+    const P = Math.max(2, o.pix * u), Z = o.zone * u;
+    o.zones.forEach(([zu, zv]) => {
+      const cx = zu * W0 - rx, cy = zv * H0 - ry, X0 = Math.max(0, Math.round(cx - Z)), Y0 = Math.max(0, Math.round(cy - Z)), X1 = Math.min(w, Math.round(cx + Z)), Y1 = Math.min(h, Math.round(cy + Z)), zw = X1 - X0, zh = Y1 - Y0;
+      if (!(zw >= 2 && zh >= 2)) return; // 잘못 찍힌 칸(숫자가 아닌 위치)은 건너뛰어요
+      const t = document.createElement('canvas'); t.width = Math.max(1, Math.round(zw / P)); t.height = Math.max(1, Math.round(zh / P));
+      t.getContext('2d').drawImage(x.canvas, X0 + rx, Y0 + ry, zw, zh, 0, 0, t.width, t.height);
+      x.imageSmoothingEnabled = false; x.drawImage(t, X0, Y0, zw, zh); x.imageSmoothingEnabled = true;
+      if (o.zoneStroke) { x.strokeStyle = ink; x.globalAlpha = o.alpha; x.lineWidth = Math.max(1, o.stroke * u); x.strokeRect(X0 + .5, Y0 + .5, zw - 1, zh - 1); x.globalAlpha = 1; }
+    });
+    // 2) 원을 찍을 자리 찾기: 사진을 칸으로 나눠 밝기·대비 점수를 매겨요 (흐리게 하기 전의 사진으로)
+    const B = Math.max(4, Math.round(o.block * u)), cols = Math.floor(w / B), rows = Math.floor(h / B), cand = [];
+    if (o.max > 0 && cols && rows) {
+      const d = x.getImageData(rx, ry, w, h).data;
+      for (let gy = 0; gy < rows; gy++) for (let gx = 0; gx < cols; gx++) {
+        let s = 0, s2 = 0, n = 0;
+        for (let yy = gy * B; yy < (gy + 1) * B; yy += 2) for (let xx = gx * B; xx < (gx + 1) * B; xx += 2) { const i = (yy * w + xx) * 4, l = .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]; s += l; s2 += l * l; n++; }
+        const m = s / n, sd = Math.sqrt(Math.max(0, s2 / n - m * m)), con = Math.min(100, sd / 64 * 100), br = m / 2.55, dk = 100 - br;
+        const sc = o.detect === 'bright' ? br : o.detect === 'dark' ? dk : o.detect === 'contrast' ? con : con * .6 + Math.abs(m - 128) / 1.28 * .4;
+        if (sc >= o.thresh) cand.push({ x: (gx + .5) * B, y: (gy + .5) * B, sc });
+      }
+    }
+    cand.sort((a, b) => b.sc - a.sc);
+    const pts = [], md = o.minDist * u;
+    for (const p of cand) { if (pts.length >= o.max) break; if (pts.every(q => Math.hypot(q.x - p.x, q.y - p.y) >= md)) pts.push(p); }
+    pts.forEach(p => { const k = Math.max(0, Math.min(1, (p.sc - o.thresh) / Math.max(1, 100 - o.thresh))); p.r = (o.rMin + (o.rMax - o.rMin) * k * (.6 + .8 * R())) * u; });
+    // 3) 사진 흐리게 + 질감
+    if (o.fade < 1) { x.globalAlpha = 1 - o.fade; x.fillStyle = '#7d7b77'; x.fillRect(0, 0, w, h); x.globalAlpha = 1; }
+    if (o.noise > 0) {
+      x.globalCompositeOperation = 'screen'; x.globalAlpha = o.noise;
+      if (ovTex) { const k = Math.max(w / ovTex.naturalWidth, h / ovTex.naturalHeight); x.drawImage(ovTex, (w - ovTex.naturalWidth * k) / 2, (h - ovTex.naturalHeight * k) / 2, ovTex.naturalWidth * k, ovTex.naturalHeight * k); }
+      else { x.fillStyle = x.createPattern(noiseTile(), 'repeat'); x.fillRect(0, 0, w, h); }
+      x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1;
+    }
+    // 4) 그래픽 (모두 같은 색, 같은 투명도)
+    x.globalAlpha = o.alpha; x.strokeStyle = x.fillStyle = ink;
+    const lw = v => Math.max(.5, v * u);
+    // 연결선
+    if (o.link > 0) { x.lineWidth = lw(o.linkW); x.beginPath(); const L = o.link * u; for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) { const a = pts[i], b = pts[j]; if (Math.hypot(a.x - b.x, a.y - b.y) <= L) { x.moveTo(a.x, a.y); x.lineTo(b.x, b.y); } } x.stroke(); }
+    // 원·네모 + 가운데 점 + 좌표
+    x.lineWidth = lw(o.stroke);
+    pts.forEach(p => {
+      x.beginPath(); if (o.shape === 'square') x.rect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2); else x.arc(p.x, p.y, p.r, 0, Math.PI * 2); x.stroke();
+      x.beginPath(); x.arc(p.x, p.y, Math.max(1, 1.6 * u), 0, Math.PI * 2); x.fill();
+      if (o.label > 0) { x.font = `${Math.max(5, o.label * u)}px "JetBrains Mono", monospace`; x.fillText(`${Math.round(p.x / u)},${Math.round(p.y / u)}`, p.x + p.r + 3 * u, p.y - 2 * u); }
+    });
+    // 원 사슬: 가운데 원에서 양쪽으로 크기가 변하며 이어지고, 맞닿은 원끼리 만나는 곳에 점
+    if (o.chain && o.count > 0) {
+      const th = o.angle * Math.PI / 180, dx = Math.sin(th), dy = Math.cos(th), C = [{ x: w * o.chainX / 100, y: h * o.chainY / 100, r: o.base * u }];
+      const nL = Math.floor((o.count - 1) / 2), nR = o.count - 1 - nL;
+      for (const [side, nn] of [[1, nR], [-1, nL]]) { let prev = C[side === 1 ? C.length - 1 : 0]; for (let k = 0; k < nn; k++) { const r = prev.r * o.ratio, dist = (prev.r + r) * .72; const nx = prev.x + dx * dist * side, ny = prev.y + dy * dist * side; const cc = { x: nx, y: ny, r }; side === 1 ? C.push(cc) : C.unshift(cc); prev = cc; } }
+      x.lineWidth = lw(o.stroke * .8);
+      C.forEach(q => { x.beginPath(); x.arc(q.x, q.y, q.r, 0, Math.PI * 2); x.stroke(); });
+      if (o.inter) for (let i = 0; i < C.length - 1; i++) {
+        const a = C[i], b = C[i + 1], d2 = Math.hypot(b.x - a.x, b.y - a.y); if (d2 >= a.r + b.r || d2 <= Math.abs(a.r - b.r)) continue;
+        const l = (a.r * a.r - b.r * b.r + d2 * d2) / (2 * d2), hh = Math.sqrt(Math.max(0, a.r * a.r - l * l)), mx = a.x + (b.x - a.x) * l / d2, my = a.y + (b.y - a.y) * l / d2;
+        [[mx + hh * (b.y - a.y) / d2, my - hh * (b.x - a.x) / d2], [mx - hh * (b.y - a.y) / d2, my + hh * (b.x - a.x) / d2]].forEach(([ix, iy]) => { x.beginPath(); x.arc(ix, iy, o.marker * u, 0, Math.PI * 2); x.fill(); });
+      }
+    }
+    // 점선 액자 + 가운데 별
+    if (o.frame) {
+      const S = Math.min(w, h) * o.frameSize / 100; x.lineWidth = lw(o.frameStroke); x.setLineDash(o.dash > 0 ? [o.dash * u, o.dash * u] : []);
+      x.strokeRect((w - S) / 2, (h - S) / 2, S, S); x.beginPath(); x.moveTo(w / 2, 0); x.lineTo(w / 2, h); x.moveTo(0, h / 2); x.lineTo(w, h / 2); x.globalAlpha = o.alpha * .5; x.stroke(); x.globalAlpha = o.alpha; x.setLineDash([]);
+      if (o.star > 0) { const sr = o.star * u / 2; x.beginPath(); for (let k = 0; k < o.points; k++) { const a = Math.PI * k / o.points; x.moveTo(w / 2 - Math.cos(a) * sr, h / 2 - Math.sin(a) * sr); x.lineTo(w / 2 + Math.cos(a) * sr, h / 2 + Math.sin(a) * sr); } x.stroke(); }
+    }
+    // 네 귀퉁이 글씨
+    if (o.corner) {
+      const fs = Math.max(6, o.cornerSize * u), m = 28 * u; x.font = `${fs}px "JetBrains Mono", monospace`;
+      [[m, m + fs, 'left'], [w - m, m + fs, 'right'], [m, h - m, 'left'], [w - m, h - m, 'right']].forEach(([X, Y, al], k) => { const t = o.texts[k]; if (!t) return; x.textAlign = al; x.fillText(t, X, Y); });
+      x.textAlign = 'left';
+    }
+    x.restore();
+    ovCount = pts.length;
+  }
   function fxCanvas(w, h, c) {
     w = Math.round(w); h = Math.round(h);
     // 가장 큰 사진 틀을 기억해 두면, 사진을 끌 때 얼마나 움직일지 계산할 수 있어요
     if (!st.frame || w * h > st.frame.w * st.frame.h) st.frame = { w, h, s: Math.max(w / w, h / h) * st.zoom };
-    const key = [st.fx, w, h, st.seed, c.dark, c.light, c.vivid, st.zoom, st.cx, st.cy].join('|');
+    const key = [st.fx, w, h, st.seed, c.dark, c.light, c.vivid, st.zoom, st.cx, st.cy, st.ov && st.ov.on ? JSON.stringify(st.ov) + ovTexId : ''].join('|');
     if (cache.key === key) return cache.c;
     const can = document.createElement('canvas'); can.width = w; can.height = h;
     const x = can.getContext('2d', { willReadFrequently: true });
@@ -3731,6 +3835,7 @@ const Postcard = (() => {
       });
       x.globalCompositeOperation = 'source-over';
     }
+    if (st.ov && st.ov.on) drawOverlay(x, w, h, c);
     cache = { key, c: can };
     return can;
   }
@@ -3892,7 +3997,7 @@ const Postcard = (() => {
     const [W, H] = dims(), u = Math.min(W, H) / 1200, m = Math.round(Math.min(W, H) * .06), land = W > H;
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
     const x = cv.getContext('2d'), c = scheme(), p = st.p, L = LAYOUT[st.layout];
-    const pic = (X, Y, w, h) => x.drawImage(fxCanvas(w, h, c), X, Y, Math.round(w), Math.round(h));
+    const pic = (X, Y, w, h) => { if (!st.picR || w * h > st.picR[2] * st.picR[3]) st.picR = [X, Y, w, h]; x.drawImage(fxCanvas(w, h, c), X, Y, Math.round(w), Math.round(h)); };
     const from = $('#pcFrom').value.trim(), date = fmtDate(p.date), host = (location.hostname || 'hamihamoo.com').toUpperCase();
     const meta = [date, from ? 'FROM ' + from.toUpperCase() : ''].filter(Boolean).join('   ·   ');
     const month = p.date ? +p.date.slice(5, 7) - 1 : new Date().getMonth(), idx = S.photos.indexOf(p) + 1;
@@ -3911,7 +4016,7 @@ const Postcard = (() => {
     const flat = (ctx, R) => { const M = ctx.getTransform(), xs = [R.x, R.x + R.w].flatMap(a => [R.y, R.y + R.h].map(b => [M.a * a + M.c * b + M.e, M.b * a + M.d * b + M.f])); const X = xs.map(q => q[0]), Y = xs.map(q => q[1]); return { x: Math.min(...X), y: Math.min(...Y), w: Math.max(...X) - Math.min(...X), h: Math.max(...Y) - Math.min(...Y) }; };
     const put = (list, o = {}, ctx = x) => { list.forEach(s => spots.push({ R: flat(ctx, s[0]), pos: s[1] })); const s = pick(list); block(ctx, s[0], { ...T, ...o, ...(s[2] || {}), pos: s[1] }); return s; };
     const inset = (k = 1) => ({ x: m * k, y: m * k, w: W - m * k * 2, h: H - m * k * 2 });
-    st.box = null; st.frame = null;
+    st.box = null; st.frame = null; st.picR = null;
     x.fillStyle = c.bg; x.fillRect(0, 0, W, H);
 
     if (st.layout === 'card') {
@@ -4376,6 +4481,7 @@ const Postcard = (() => {
     sum('fmt', fmtLabel() + ' · 사진 ' + Math.round(st.zoom * 100) + '%');
     sum('layout', label('layout', st.layout));
     sum('fx', label('fx', st.fx));
+    sum('ov', st.ov && st.ov.on ? `켜짐 · 원 ${ovCount}개${st.ov.zones.length ? ' · 모자이크 ' + st.ov.zones.length + '칸' : ''}` : '꺼짐');
     sum('text', (rtPlain($('#pcText')).split('\n')[0] || '(비어 있음)') + (rtStyled($('#pcText')) || rtStyled($('#pcSub')) ? ' · 부분 서식' : ''));
     sum('font', label('font', st.font) + ' · ' + Math.round(st.size * 100) + '% · ' + st.weight + (st.track ? ' · 자간 ' + Math.round(st.track * 100) : ''));
     sum('pos', st.ox || st.oy ? '직접 옮김' : '추천 ' + (st.spot % Math.max(1, (st.spots || []).length) + 1) + '번');
@@ -4389,7 +4495,7 @@ const Postcard = (() => {
       $('#pcCalYear').value = st.calYear || (st.p.date ? +st.p.date.slice(0, 4) : new Date().getFullYear());
       $('#pcCalMonth').value = st.calMonth != null ? st.calMonth : (st.p.date ? +st.p.date.slice(5, 7) - 1 : new Date().getMonth());
     }
-    paintFmt();
+    paintFmt(); paintOv();
     [['#pcLayout', 'layout'], ['#pcFx', 'fx'], ['#pcFont', 'font']].forEach(([id, k]) => $$('button', $(id)).forEach(b => b.classList.toggle('on', b.dataset.v === st[k])));
     $$('#pcAlign button').forEach(b => b.classList.toggle('on', b.dataset.v === st.align));
     // 글씨 색: 자동 + 자주 쓰는 색 + 이 사진에서 뽑은 색 + 직접 고르기
@@ -4418,11 +4524,85 @@ const Postcard = (() => {
     Object.assign(st, { layout: l, font: L.font, spot: 0, align: null, color: L.color, upper: !!L.upper, size: 1, weight: L.weight || FONT[L.font][6], ox: 0, oy: 0 });
     if (st.color[0] === 'c' && !cols.length) st.color = 'cream';
   }
+  // ---------- 그래픽 오버레이 조절 칸 ----------
+  // [이름, 종류, 보이는 글자, (범위: 최소, 최대, 간격) 또는 (고르기: [[값, 글자]...])]
+  const OV_UI = [
+    ['기본', [['ink', 'pick', '색', [['white', '흰색'], ['black', '검정'], ['accent', '주황'], ['photo', '사진 색']]], ['alpha', 'range', '그래픽 진하기', 0.1, 1, 0.05], ['fade', 'range', '사진 진하기 (낮을수록 흐리게)', 0.2, 1, 0.05]]],
+    ['찾아서 찍기', [['detect', 'pick', '찾는 기준', [['combined', '섞어서'], ['contrast', '대비'], ['bright', '밝은 곳'], ['dark', '어두운 곳']]], ['block', 'range', '세밀도 (작을수록 촘촘)', 6, 48, 1], ['thresh', 'range', '기준 점수 (높을수록 적게)', 0, 100, 1], ['max', 'range', '최대 개수', 0, 200, 1], ['minDist', 'range', '원 사이 간격', 0, 200, 1]]],
+    ['모양', [['shape', 'pick', '모양', [['circle', '원'], ['square', '네모']]], ['rMin', 'range', '가장 작은 크기', 1, 40, 1], ['rMax', 'range', '가장 큰 크기', 4, 80, 1], ['stroke', 'range', '선 두께', 0.2, 4, 0.1], ['seed', 'range', '크기 섞기 (숫자를 바꾸면 다르게)', 1, 999, 1], ['label', 'range', '좌표 글씨 크기 (0이면 숨김)', 0, 24, 1]]],
+    ['연결선', [['link', 'range', '이을 거리 (0이면 선 없음)', 0, 400, 5], ['linkW', 'range', '선 두께', 0.2, 4, 0.1]]],
+    ['원 사슬', [['chain', 'tog', '사슬 보이기'], ['count', 'range', '원 개수', 1, 25, 1], ['angle', 'range', '방향 (0 세로 · 90 가로)', 0, 180, 1], ['base', 'range', '가운데 원 크기', 20, 600, 5], ['ratio', 'range', '이어질수록 크기 배율', 0.4, 1.2, 0.01], ['chainX', 'range', '가로 위치 %', 0, 100, 1], ['chainY', 'range', '세로 위치 %', 0, 100, 1], ['inter', 'tog', '만나는 점 표시'], ['marker', 'range', '점 크기', 1, 15, 0.5]]],
+    ['점선 액자', [['frame', 'tog', '액자 보이기'], ['frameSize', 'range', '액자 크기 %', 10, 100, 1], ['dash', 'range', '점선 길이 (0이면 실선)', 0, 40, 1], ['frameStroke', 'range', '선 두께', 0.2, 4, 0.1], ['star', 'range', '가운데 별 크기 (0이면 숨김)', 0, 200, 1], ['points', 'range', '별 줄 수 (2는 +, 4는 8각 별)', 1, 8, 1]]],
+    ['귀퉁이 글씨', [['corner', 'tog', '귀퉁이 글씨 보이기'], ['cornerSize', 'range', '글씨 크기', 6, 40, 1], ['texts', 'texts', '네 귀퉁이 (왼쪽 위 · 오른쪽 위 · 왼쪽 아래 · 오른쪽 아래)']]],
+    ['모자이크 칸', [['zones', 'zones', '사진을 눌러 모자이크 칸 찍기'], ['pix', 'range', '모자이크 크기', 4, 64, 1], ['zone', 'range', '칸 크기', 20, 400, 5], ['zoneStroke', 'tog', '칸 테두리']]],
+    ['질감', [['noise', 'range', '노이즈 질감 진하기 (0이면 없음)', 0, 1, 0.05], ['tex', 'tex', '내 질감 사진']]],
+  ];
+  let ovPick = false;
+  const ovAuto = () => { const p = st.p || {}, inf = parseInfo(p.info); return ['HAMIHAMOO', fmtDate(p.date), inf.camera !== '—' ? inf.camera : '', 'NO. ' + (p._n || '')]; };
+  const ovFmt = (k, v) => k === 'alpha' || k === 'fade' || k === 'noise' ? Math.round(v * 100) + '%' : k === 'ratio' ? (+v).toFixed(2) : String(Math.round(v * 10) / 10);
+  function buildOv() {
+    $('#pcOv').innerHTML = `<div class="pc-row"><button type="button" class="pill" id="pcOvOn">켜기</button><button type="button" class="pill" id="pcOvDice">오버레이 무작위</button><button type="button" class="pill" id="pcOvReset">처음 값으로</button></div>
+      <p class="pc-tip">사진의 밝고 어둡거나 대비가 강한 곳을 찾아 원을 찍고, 가까운 원끼리 선으로 이어요. 어떤 디자인·사진 효과와도 함께 쓸 수 있어요.</p>
+      <div id="pcOvBody">${OV_UI.map(([g, items], gi) => `<details class="pc-sub"${gi < 1 ? ' open' : ''}><summary>${g}</summary>${items.map(([k, t, label, a, b, c]) => {
+        if (t === 'range') return `<div class="mono faint pc-l">${label} <span data-ovn="${k}"></span></div><input type="range" class="pc-range" data-ov="${k}" min="${a}" max="${b}" step="${c}">`;
+        if (t === 'pick') return `<div class="mono faint pc-l">${label}</div><div class="pc-chips" data-ovp="${k}">${a.map(([v, tt]) => `<button type="button" class="pill" data-v="${v}">${tt}</button>`).join('')}</div>`;
+        if (t === 'tog') return `<div class="pc-row" style="margin-top:8px"><button type="button" class="pill" data-ovt="${k}">${label}</button></div>`;
+        if (t === 'texts') return `<div class="mono faint pc-l">${label}</div><div class="pc-ovtexts">${[0, 1, 2, 3].map(i => `<input data-ovx="${i}" maxlength="40">`).join('')}</div>`;
+        if (t === 'zones') return `<div class="pc-row"><button type="button" class="pill" id="pcOvPick">${label}</button><button type="button" class="pill" id="pcOvUndo">되돌리기</button><button type="button" class="pill" id="pcOvClear">모두 지우기</button></div><p class="pc-tip" id="pcOvZn"></p>`;
+        if (t === 'tex') return `<div class="pc-row"><label class="pill pc-file">${label} 올리기<input type="file" accept="image/*" id="pcOvTex" hidden></label><button type="button" class="pill" id="pcOvTexX">기본 노이즈로</button></div>`;
+        return '';
+      }).join('')}</details>`).join('')}</div>`;
+  }
+  function paintOv() {
+    const o = st.ov, on = !!(o && o.on);
+    $('#pcOvOn').textContent = on ? '✓ 켜짐 (누르면 끄기)' : '켜기'; $('#pcOvOn').classList.toggle('on', on);
+    $('#pcOvBody').classList.toggle('pc-off', !on);
+    if (!o) return;
+    $$('[data-ov]', el).forEach(i => { i.value = o[i.dataset.ov]; });
+    $$('[data-ovn]', el).forEach(s => { s.textContent = ovFmt(s.dataset.ovn, o[s.dataset.ovn]); });
+    $$('[data-ovp]', el).forEach(g => $$('button', g).forEach(b => b.classList.toggle('on', b.dataset.v === o[g.dataset.ovp])));
+    $$('[data-ovt]', el).forEach(b => { const v = o[b.dataset.ovt]; b.classList.toggle('on', v); b.textContent = (v ? '✓ ' : '') + b.textContent.replace(/^✓ /, ''); });
+    $$('[data-ovx]', el).forEach(i => { if (document.activeElement !== i) i.value = o.texts[+i.dataset.ovx] || ''; });
+    $('#pcOvPick').classList.toggle('on', ovPick); $('#pcOvPick').textContent = ovPick ? '✓ 사진을 눌러 찍는 중 (누르면 끝)' : '사진을 눌러 모자이크 칸 찍기';
+    $('#pcOvZn').textContent = `${o.zones.length}칸 찍음${ovPick ? ' · 미리보기 사진을 누르세요' : ''}`;
+    sheet.classList.toggle('ov-picking', ovPick);
+  }
+  buildOv();
+  const ovSet = (fn, again = true) => { if (!st.ov) st.ov = OV_DEF(); fn(st.ov); cache = {}; if (again) draw(); paintOv(); paintSummary(); };
+  $('#pcOvOn').onclick = () => ovSet(o => { if (st.ov && !o.texts.some(Boolean)) o.texts = ovAuto(); o.on = !o.on; if (!o.on) ovPick = false; });
+  $('#pcOvReset').onclick = () => { const z = st.ov ? st.ov.zones : []; st.ov = OV_DEF(); st.ov.on = true; st.ov.texts = ovAuto(); st.ov.zones = z; ovSet(() => {}); };
+  $('#pcOvDice').onclick = () => ovSet(o => {
+    const r = (a, b, s = 1) => Math.round((a + Math.random() * (b - a)) / s) * s, pk = a => a[Math.floor(Math.random() * a.length)];
+    Object.assign(o, { on: true, ink: pk(['white', 'white', 'black', 'accent', 'photo']), detect: pk(['combined', 'contrast', 'bright', 'dark']), block: r(10, 30), thresh: r(15, 55), max: r(20, 140), minDist: r(20, 90), shape: pk(['circle', 'circle', 'square']), rMin: r(2, 8), rMax: r(12, 40), seed: r(1, 999), label: pk([0, 7, 8, 10]), link: r(0, 260, 5), chain: Math.random() < .7, count: r(3, 15), angle: r(0, 180), base: r(120, 380, 5), ratio: r(.6, .95, .01), chainX: r(20, 80), chainY: r(15, 85), frame: Math.random() < .6, frameSize: r(35, 85), star: r(0, 80), points: r(2, 6), fade: r(.6, 1, .05) });
+    if (!o.texts.some(Boolean)) o.texts = ovAuto();
+  });
+  el.addEventListener('input', e => {
+    const k = e.target.dataset.ov; if (k) return ovSet(o => { o[k] = +e.target.value; });
+    const tx = e.target.dataset.ovx; if (tx != null) ovSet(o => { o.texts[+tx] = e.target.value; });
+  });
+  el.addEventListener('click', e => {
+    const p = e.target.closest('[data-ovp] button'); if (p) return ovSet(o => { o[p.parentNode.dataset.ovp] = p.dataset.v; });
+    const t = e.target.closest('[data-ovt]'); if (t) return ovSet(o => { o[t.dataset.ovt] = !o[t.dataset.ovt]; });
+  });
+  $('#pcOvPick').onclick = () => { ovPick = !ovPick; ovSet(o => { o.on = true; if (!o.texts.some(Boolean)) o.texts = ovAuto(); }, false); };
+  $('#pcOvUndo').onclick = () => ovSet(o => { o.zones.pop(); });
+  $('#pcOvClear').onclick = () => ovSet(o => { o.zones = []; });
+  $('#pcOvTex').onchange = e => { const f = e.target.files[0]; if (!f) return; const i = new Image(); i.onload = () => { ovTex = i; ovTexId++; ovSet(o => { o.on = true; if (!o.noise) o.noise = .5; }); }; i.src = URL.createObjectURL(f); };
+  $('#pcOvTexX').onclick = () => { ovTex = null; ovTexId++; ovSet(() => {}); };
+  // 모자이크 찍기: 미리보기 사진을 누른 자리 (가장 큰 사진 칸 기준 0~1 위치)
+  const ovZoneAt = e => {
+    if (!ovPick || !st.ov) return false;
+    const r = cv.getBoundingClientRect(), k = cv.width / r.width, px = (e.clientX - r.left) * k, py = (e.clientY - r.top) * k, [X, Y, w, h] = st.picR || [0, 0, cv.width, cv.height], zu = (px - X) / w, zv = (py - Y) / h;
+    if (!(zu >= 0 && zu <= 1 && zv >= 0 && zv <= 1)) { toast('사진 칸 안을 눌러 주세요'); return true; }
+    ovSet(o => { o.zones.push([+zu.toFixed(4), +zv.toFixed(4)]); });
+    return true;
+  };
   api.open = p => {
     paintAdmin(); solo(false); st.fixed = null; drafting = true; changed = false;
     st.p = p; el.hidden = false; im = null; cache = {}; pop = {};
     useLayout('full');
     Object.assign(st, { ratio: 'orig', orient: 'p', fx: 'none', zoom: 1, cx: .5, cy: .5, calYear: null, calMonth: null });
+    if (st.ov) Object.assign(st.ov, { on: false, zones: [], texts: ['', '', '', ''] }); ovPick = false;
     $('#pcText').innerHTML = ''; $('#pcSub').innerHTML = '';
     const dr = store.get('hm-pc-draft', null);
     if (dr && dr.photo === p.filename) { restore(dr); toast('만들던 엽서를 이어서 열었어요'); }
@@ -4456,7 +4636,7 @@ const Postcard = (() => {
   const snap = () => { const { p, frame, box, spots, fixed, ...rest } = st; return { st: JSON.parse(JSON.stringify(rest)), text: $('#pcText').innerHTML, sub: $('#pcSub').innerHTML, from: $('#pcFrom').value }; };
   function restore(sv) {
     useLayout('full');
-    Object.assign(st, { ratio: 'orig', orient: 'p', fx: 'none', zoom: 1, cx: .5, cy: .5, calYear: null, calMonth: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, seed: 1 });
+    Object.assign(st, { ratio: 'orig', orient: 'p', fx: 'none', zoom: 1, cx: .5, cy: .5, calYear: null, calMonth: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, seed: 1, ov: null }); ovPick = false;
     $('#pcText').innerHTML = ''; $('#pcSub').innerHTML = ''; $('#pcFrom').value = '';
     if (sv) { Object.assign(st, sv.st); $('#pcText').innerHTML = sv.text || ''; $('#pcSub').innerHTML = sv.sub || ''; $('#pcFrom').value = sv.from || ''; }
   }
@@ -4566,6 +4746,7 @@ const Postcard = (() => {
   }
   sheet.addEventListener('pointerdown', e => {
     if (!im) return;
+    if (ovZoneAt(e)) return;
     touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
     try { sheet.setPointerCapture(e.pointerId); } catch (err) {}
     if (touches.size === 2) {
