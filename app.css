@@ -1249,3 +1249,9 @@ button.ex-edit { background: none; border: 0; font: inherit; font-size: 12px; cu
   .topbar .dock-ind { display: none; }
 }
 
+
+/* 고정 로고(도장 SVG): 동그라미 테두리는 로고 안에 있어서 바깥 테두리는 빼요 */
+.logo-mark.is-logo { border: 0; }
+.logo-mark.is-logo svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.topbar .logo-mark.is-logo { width: 38px; height: 38px; }
+.gate-box .logo-mark.is-logo { width: 72px; height: 72px; }

@@ -89,6 +89,36 @@ const S = {
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* ---------- 로고: 도장 (바깥 테두리 · 글자를 비워 낸 띠 · 안쪽 눈금 · h와 주황 점) ---------- */
+const LOGO_TXT = 'HAMIHAMOO · PHOTOGRAPHY · ';
+let logoN = 0;
+// 화면용: 글자는 띠에서 비워 내서(마스크) 어떤 바탕 위에서도 뒤가 비쳐요
+function logoSvg() {
+  const k = ++logoN, tk = Array.from({ length: 24 }, (_, i) => { const a = i / 24 * Math.PI * 2 - Math.PI / 2, c = Math.cos(a), si = Math.sin(a); return `M${(50 + 28 * c).toFixed(2)} ${(50 + 28 * si).toFixed(2)}L${(50 + 31 * c).toFixed(2)} ${(50 + 31 * si).toFixed(2)}`; }).join('');
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><path id="lgP${k}" d="M50 50m-35.8 0a35.8 35.8 0 1 1 71.6 0a35.8 35.8 0 1 1-71.6 0"/>
+    <mask id="lgM${k}"><rect width="100" height="100" fill="#fff"/><text font-family="JetBrains Mono, monospace" font-weight="600" font-size="7.6" fill="#000"><textPath href="#lgP${k}" textLength="224" lengthAdjust="spacing">${LOGO_TXT}</textPath></text></mask></defs>
+    <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <circle cx="50" cy="50" r="38.5" fill="none" stroke="currentColor" stroke-width="12" mask="url(#lgM${k})"/>
+    <path d="${tk}" stroke="currentColor" stroke-width=".9"/>
+    <text x="50" y="62" text-anchor="middle" font-family="Instrument Serif, Georgia, serif" font-style="italic" font-size="40" fill="currentColor">h</text>
+    <circle cx="59" cy="58.5" r="2.6" fill="var(--accent, #ff5a36)"/></svg>`;
+}
+// 그림(캔버스)용: 같은 모양을 size 크기로 (cx, cy)가 가운데가 되게
+function drawLogo(x, cx, cy, size, color, accent = '#ff5a36') {
+  const S0 = Math.max(64, Math.ceil(size * 2)), c = document.createElement('canvas'); c.width = c.height = S0;
+  const g = c.getContext('2d'); g.scale(S0 / 100, S0 / 100); g.strokeStyle = g.fillStyle = color;
+  g.lineWidth = 12; g.beginPath(); g.arc(50, 50, 38.5, 0, Math.PI * 2); g.stroke();
+  // 띠 글자: 왼쪽에서 시작해 시계 방향으로 한 바퀴를 꽉 채워요 (화면용과 같은 자리)
+  g.save(); g.globalCompositeOperation = 'destination-out'; g.font = '600 7.6px "JetBrains Mono", monospace'; g.textAlign = 'center';
+  const ch = [...LOGO_TXT], ws = ch.map(t => g.measureText(t).width), sum = ws.reduce((a, b) => a + b, 0), gap = (Math.PI * 2 * 35.8 - sum) / ch.length;
+  let d = 0; ch.forEach((t, i) => { const a = Math.PI + (d + ws[i] / 2) / 35.8; g.save(); g.translate(50 + 35.8 * Math.cos(a), 50 + 35.8 * Math.sin(a)); g.rotate(a + Math.PI / 2); g.fillText(t, 0, 0); g.restore(); d += ws[i] + gap; });
+  g.restore();
+  g.lineWidth = 1.2; g.beginPath(); g.arc(50, 50, 48, 0, Math.PI * 2); g.stroke();
+  g.lineWidth = .9; g.beginPath(); for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2 - Math.PI / 2; g.moveTo(50 + 28 * Math.cos(a), 50 + 28 * Math.sin(a)); g.lineTo(50 + 31 * Math.cos(a), 50 + 31 * Math.sin(a)); } g.stroke();
+  g.font = 'italic 40px "Instrument Serif", Georgia, serif'; g.textAlign = 'center'; g.fillText('h', 50, 62);
+  g.fillStyle = accent; g.beginPath(); g.arc(59, 58.5, 2.6, 0, Math.PI * 2); g.fill();
+  x.drawImage(c, cx - size / 2, cy - size / 2, size, size);
+}
 const pad = (n, l = 2) => String(n).padStart(l, '0');
 const fmtDate = d => (d || '').replace(/-/g, '.');
 const monthKey = d => (d || '').slice(0, 7);
@@ -1383,7 +1413,7 @@ function calDraw(cal, pg, W, art, imgs, ext) {
       calText(x, `HM — ${y}`, bx, SB, { px: 20, color: T.ink, track: 6 });
     } else if (L === 'brand') {
       // 로고 · 주소: 가운데에 작게, 나머지는 비워 둬요
-      calText(x, S.site.brandMark || 'h.', W0 / 2, H / 2 + 40, { px: 220, fam: CF.serif, sty: 'italic', color: T.ink, align: 'center' });
+      drawLogo(x, W0 / 2, H / 2 - 50, 280, T.ink);
       calText(x, host, W0 / 2, H / 2 + 160, { px: 30, color: T.ink, align: 'center', track: 16 });
       if (txt) wrapQ(txt, W0 / 2, H / 2 + 280, 1400, 32, 2, T.muted, 'center');
       calText(x, `DESK CALENDAR ${y}  ·  HAMIHAMOO.COM`, W0 / 2, SB, { px: 20, color: T.muted, align: 'center', track: 5 });
@@ -4171,8 +4201,7 @@ const Postcard = (() => {
       pic(m, m, W - m * 2, H - m - bottom);
       const sw2 = 112 * u, sh2 = 132 * u, sx = W - m - sw2, sy = H - bottom + bottom * .18;
       x.strokeStyle = c.muted; x.setLineDash([5 * u, 5 * u]); x.lineWidth = 2 * u; x.strokeRect(sx, sy, sw2, sh2); x.setLineDash([]);
-      x.fillStyle = c.ink; x.textAlign = 'center'; x.font = `italic ${Math.round(56 * u)}px "Instrument Serif", Georgia, serif`;
-      x.fillText(S.site.brandMark || 'h.', sx + sw2 / 2, sy + sh2 * .6);
+      drawLogo(x, sx + sw2 / 2, sy + sh2 / 2, 88 * u, c.ink); x.textAlign = 'center';
       mono(x, 13 * u, c.muted); x.fillText(host, sx + sw2 / 2, sy + sh2 + 24 * u); x.textAlign = 'left';
       const Rb = { x: m, y: H - bottom + 16 * u, w: W - m * 2 - sw2 - 40 * u, h: bottom - 32 * u }, Rp = { x: m * 1.7, y: m * 1.7, w: W - m * 3.4, h: H - bottom - m * 2.4 };
       put([[Rb, 'ml'], [Rb, 'mc'], [Rp, 'bl', onPhoto], [Rp, 'tl', onPhoto], [Rp, 'mc', onPhoto]]);
@@ -5150,7 +5179,7 @@ const Studio = { authed: !!getToken(), tab: 'upload', queue: [], dirty: new Map(
 function renderStudio(view) {
   if (!Studio.authed) {
     view.innerHTML = `<section class="studio"><div class="gate"><form class="gate-box rv" id="gate" autocomplete="off">
-      <div class="logo-mark">${esc(S.site.brandMark || 'h.')}</div>
+      <div class="logo-mark is-logo">${logoSvg()}</div>
       <h1>Studio</h1>
       <p>사진을 올리고, 정보를 고치고, 대표작과 프로젝트를 정리하는 곳이에요.</p>
       <label class="field"><span>GitHub 열쇠 (토큰)</span><input type="password" id="gateToken" required placeholder="ghp_… 또는 github_pat_…"></label>
@@ -5533,7 +5562,7 @@ function stWorks(body) {
 /* 6) 사이트 문구 */
 function stSettings(body) {
   const F = [
-    ['h', '이름과 로고'], ['brandMark', '로고 글자'], ['brandName', '사이트 이름'], ['brandSubtitle', '이름 아래 작은 글씨'],
+    ['h', '이름'], ['brandName', '사이트 이름'], ['brandSubtitle', '이름 아래 작은 글씨'],
     ['h', '첫 화면'], ['archiveKicker', '맨 위 작은 문구'], ['heroCredit', '사진가 표기'], ['heroPrefix', '큰 제목 앞부분'], ['heroEmphasis', '큰 제목 기울임 부분'], ['heroNote', '짧은 소개 (줄바꿈 가능)', 'wide', 'area'],
     ['galleryTitle', '사진 목록 제목'], ['featuredTitle', '대표작 제목'], ['featuredDescription', '대표작 설명', 'wide'],
     ['h', '작가 소개'], ['aboutKicker', '작은 머리말'], ['aboutTitle', '이름'], ['aboutRole', '역할'], ['aboutIntro', '한 줄 소개'], ['aboutBody', '본문', 'wide', 'area'], ['aboutSignoff', '마무리 문장'],
@@ -5621,7 +5650,7 @@ function setupCursor() {
   });
 }
 function applyBrand() {
-  $('#brandMark').textContent = S.site.brandMark || 'h.';
+  $('#brandMark').innerHTML = logoSvg();
   $('#brandName').textContent = S.site.brandName || 'Hamihamoo';
   $('#brandSub').textContent = S.site.brandSubtitle || 'PHOTOGRAPHY';
   document.title = `${S.site.brandName || 'Hamihamoo'} — Photographs`;
