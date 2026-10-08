@@ -151,7 +151,7 @@ body.locked .to-top { opacity: 0; pointer-events: none; }
 #view { min-height: 100vh; transition: transform .4s var(--ease), filter .4s ease; }
 /* 사진을 열면 뒤 페이지가 살짝 물러나고 흐려져요 */
 body.lb-on #view { transform: scale(.955); filter: blur(6px) brightness(.6); }
-.page { padding: calc(var(--top-h) + 40px) var(--gutter) 140px; }
+.page { padding: calc(var(--top-h) + 40px) var(--gutter) 72px; }
 .page-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 24px; margin-bottom: clamp(28px, 5vw, 56px); }
 .page-kicker { margin-bottom: 14px; color: var(--accent); }
 .page-title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(52px, 9vw, 132px); line-height: .88; letter-spacing: -.035em; }
@@ -204,7 +204,7 @@ body.lb-on #view { transform: scale(.955); filter: blur(6px) brightness(.6); }
 .hero-slide.on img { animation: kenburns 9s linear forwards; }
 @keyframes kenburns { from { transform: scale(1.12) translate3d(0, 0, 0); } to { transform: scale(1.0) translate3d(-1.5%, -1%, 0); } }
 .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,0) 28%, rgba(0,0,0,0) 45%, rgba(0,0,0,.7) 100%); pointer-events: none; }
-.hero-inner { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 var(--gutter) clamp(96px, 13vh, 140px); }
+.hero-inner { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 var(--gutter) clamp(44px, 7vh, 80px); }
 .hero-kicker { margin-bottom: 18px; opacity: .8; }
 .hero-title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(64px, 13.5vw, 230px); line-height: .82; letter-spacing: -.045em; }
 .hero-title em { font-style: italic; }
@@ -218,7 +218,7 @@ body.lb-on #view { transform: scale(.955); filter: blur(6px) brightness(.6); }
 .hero-bar.on i { animation: bar var(--dur, 6s) linear forwards; }
 @keyframes bar { to { transform: scaleX(1); } }
 .hero-meta { display: flex; gap: 22px; margin-top: 14px; opacity: .75; justify-content: flex-end; }
-.scroll-cue { position: absolute; left: 50%; bottom: 96px; z-index: 2; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: .7; }
+.scroll-cue { position: absolute; left: 50%; bottom: clamp(44px, 7vh, 80px); z-index: 2; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: .7; }
 .scroll-cue i { width: 1px; height: 38px; background: linear-gradient(#fff, transparent); animation: cue 2s var(--ease) infinite; transform-origin: top; }
 @keyframes cue { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
 
@@ -755,7 +755,7 @@ body.top-visible .toolbar { top: var(--top-h); }
 @media (hover: none), (pointer: coarse) { .cursor { display: none; } }
 
 /* ---------- 알림 ---------- */
-.toast { position: fixed; left: 50%; bottom: 96px; z-index: 130; transform: translate(-50%, 20px); opacity: 0; background: var(--ink); color: var(--bg); padding: 11px 18px; border-radius: 999px; font-size: 13.5px; transition: opacity .5s var(--ease), transform .5s var(--ease); pointer-events: none; max-width: calc(100vw - 32px); text-align: center; }
+.toast { position: fixed; left: 50%; bottom: max(28px, env(safe-area-inset-bottom)); z-index: 130; transform: translate(-50%, 20px); opacity: 0; background: var(--ink); color: var(--bg); padding: 11px 18px; border-radius: 999px; font-size: 13.5px; transition: opacity .5s var(--ease), transform .5s var(--ease); pointer-events: none; max-width: calc(100vw - 32px); text-align: center; }
 .toast.on { opacity: 1; transform: translate(-50%, 0); }
 
 /* ---------- 페이지 전환 ---------- */
@@ -772,7 +772,7 @@ html.theme-vt::view-transition-old(root), html.theme-vt::view-transition-new(roo
 
 
 /* ---------- 관리 (스튜디오) ---------- */
-.studio { padding: calc(var(--top-h) + 30px) var(--gutter) 140px; }
+.studio { padding: calc(var(--top-h) + 30px) var(--gutter) 72px; }
 .gate { min-height: 70vh; display: grid; place-items: center; }
 .gate-box { width: min(420px, 100%); text-align: center; }
 .gate-box .logo-mark { margin: 0 auto 22px; width: 54px; height: 54px; font-size: 32px; }
