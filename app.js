@@ -774,7 +774,7 @@ function renderPrints(view, key) {
     ${Postcard.draftOf() ? `<div class="draft-bar"><span>임시저장된 엽서가 있어요</span><button class="btn small" id="prResume">이어서 만들기</button><button class="pc-link" id="prDrop">지우기</button></div>` : ''}
     ${all.length ? `<div class="toolbar-row prints-bar"><div class="seg" id="prKind"><span class="seg-ind"></span>${kinds.map(k => `<button data-v="${k}" class="${k === 'all' ? 'on' : ''}">${PRINT_KIND_KO[k]} <span class="mono">${count(k)}</span></button>`).join('')}</div><button class="pill" id="prSelect">선택해서 내려받기</button></div>` : ''}
     <div class="prints-wall" id="prWall"></div>
-    ${all.length ? '' : '<div class="empty">아직 전시된 엽서·포스터가 없어요. 사진을 열고 엽서 버튼으로 만들어 보세요.</div>'}
+    ${all.length ? '' : '<div class="empty">아직 전시된 엽서·포스터가 없어요.</div>'}
     <div class="pr-selbar" id="prBar" hidden>
       <span class="mono" id="prCount">0장 선택</span>
       <button id="prAll">전체 선택</button><button id="prNone">선택 해제</button>
@@ -782,12 +782,13 @@ function renderPrints(view, key) {
     </div>
   </section>`;
   const wall = $('#prWall', view);
-  if ($('#prResume', view)) $('#prResume', view).onclick = () => Postcard.open(S.byName.get(Postcard.draftOf().photo));
+  if ($('#prResume', view)) $('#prResume', view).onclick = () => Postcard.open(S.byName.get(Postcard.draftOf().photo), true);
   if ($('#prDrop', view)) $('#prDrop', view).onclick = () => { if (!confirm('임시저장된 엽서를 지울까요?')) return; Drafts.clear('print'); $('.draft-bar', view).remove(); };
   const list = () => kind === 'all' ? all : all.filter(p => printKind(p.fmt) === kind);
   function paint() {
     wall.classList.toggle('selecting', selecting);
-    wall.innerHTML = list().map((p, i) => {
+    const make = selecting ? '' : '<button type="button" class="print-new rv" id="prNew"><span class="cal-new-plus" aria-hidden="true">+</span><b>새 엽서 · 포스터 만들기</b><small>사진을 하나 고르면<br>편집기가 열려요</small></button>';
+    wall.innerHTML = make + list().map((p, i) => {
       const src = S.byName.get(p.photo), prs = src ? (S.photoProjects.get(src.filename) || []) : [];
       return `<figure class="print rv ${picked.has(keyOf(p)) ? 'sel' : ''}" data-i="${i}" style="--d:${(i % 6) * 60}ms">
         <button class="print-frame" aria-label="${esc(p.title || '포스터')} ${selecting ? '선택' : '크게 보기'}"><img src="${esc(p._local || S.posterBase + p.file)}" alt="" loading="lazy" style="aspect-ratio:${p.w} / ${p.h}"><span class="print-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>
@@ -832,6 +833,7 @@ function renderPrints(view, key) {
     };
   }
   wall.addEventListener('click', e => {
+    if (e.target.closest('#prNew')) return pickPhoto(null, p => p && Postcard.open(p, true));
     const ph = e.target.closest('[data-photo]');
     if (ph) { e.preventDefault(); const i = S.photos.findIndex(p => p.filename === ph.dataset.photo); if (i >= 0) Lightbox.open(S.photos, i); return; }
     const fr = e.target.closest('.print-frame'); if (!fr) return;
@@ -4782,8 +4784,10 @@ const Postcard = (() => {
     ovSet(o => { o.zones.push([+zu.toFixed(4), +zv.toFixed(4)]); });
     return true;
   };
-  api.open = p => {
-    paintAdmin(); solo(false); st.fixed = null; drafting = true; changed = false;
+  api.open = (p, alone) => {
+    paintAdmin(); solo(false);
+    // alone: 사진 크게 보기 밖에서 혼자 열어요 (프린트 페이지의 만들기 · 이어서 만들기)
+    if (alone) { document.body.appendChild(el); el.classList.add('alone'); document.body.classList.add('locked'); } st.fixed = null; drafting = true; changed = false;
     st.p = p; el.hidden = false; im = null; cache = {}; pop = {};
     useLayout('full');
     Object.assign(st, { ratio: 'orig', orient: 'p', fx: 'none', zoom: 1, cx: .5, cy: .5, calYear: null, calMonth: null });
@@ -4800,7 +4804,7 @@ const Postcard = (() => {
     i.src = imgUrl(p);
     if (!reduced) $('.pc-panel', el).animate([{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: 'cubic-bezier(.22,1,.36,1)' });
   };
-  api.close = () => { el.hidden = true; onUse = null; };
+  api.close = () => { el.hidden = true; onUse = null; if (el.classList.contains('alone') && !Lightbox.isOpen) document.body.classList.remove('locked'); };
   const fontsReady = () => loadPosterFonts().then(() => Promise.all(['italic 40px "Instrument Serif"', '40px Anton', '900 40px Pretendard', '40px "Noto Serif KR"', '40px "JetBrains Mono"'].map(f => document.fonts.load(f).catch(() => {}))));
   // ---------- 달력 만들기에서 쓰는 편집 모드 ----------
   // 정해진 사진 칸 크기(w×h)로 열고, "이 달에 쓰기"를 누르면 다 그린 그림과 설정을 돌려줘요
@@ -4812,7 +4816,7 @@ const Postcard = (() => {
   const saveDraft = () => { clearTimeout(draftT); draftT = setTimeout(() => { if (!drafting || !changed || !st.p || el.hidden) return; store.set('hm-pc-draft', { photo: st.p.filename, ...snap() }); Drafts.touch('print'); }, 600); };
   api.draftOf = () => { const d = store.get('hm-pc-draft', null); return d && S.byName.get(d.photo) ? d : null; };
   function solo(on) {
-    el.classList.toggle('solo', on);
+    el.classList.toggle('solo', on); el.classList.remove('alone');
     if (on && el.parentNode !== document.body) document.body.appendChild(el);
     if (!on && el.parentNode !== home) home.appendChild(el);
     $('#pcUse').hidden = !on;

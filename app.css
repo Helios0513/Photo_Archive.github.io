@@ -1258,3 +1258,10 @@ button.ex-edit { background: none; border: 0; font: inherit; font-size: 12px; cu
 .prow-new { border-bottom-style: dashed; color: var(--ink-3); }
 .prow-new h3 { font-size: clamp(26px, 3vw, 40px); }
 .prow-new:hover { color: var(--ink); }
+
+/* 프린트: 새로 만들기 칸 (달력 만들기 칸과 같은 모양) + 혼자 연 편집기 */
+.print-new { display: grid; place-content: center; justify-items: center; gap: 6px; width: 100%; aspect-ratio: 3 / 4; margin: 0 0 clamp(28px, 4vw, 52px); break-inside: avoid; border: 1px dashed var(--line-2); border-radius: 4px; background: none; color: var(--ink-2); text-align: center; cursor: pointer; transition: border-color .15s ease, color .15s ease; }
+.print-new:hover { border-color: var(--ink-3); color: var(--ink); }
+.print-new b { font-family: var(--f-display); font-weight: 400; font-size: 24px; color: var(--ink); }
+.print-new small { font-size: 12px; line-height: 1.5; color: var(--ink-3); }
+.pc-modal.alone { position: fixed; z-index: 130; }
