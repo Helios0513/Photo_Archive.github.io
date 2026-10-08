@@ -22,13 +22,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@100..800&family=Noto+Serif+KR:wght@200..900&display=swap">
-<link rel="stylesheet" href="app.css?v=53">
+<link rel="stylesheet" href="app.css?v=54">
 <script>
   // 저장된 밝기 모드를 화면이 그려지기 전에 적용해 깜빡임을 막아요.
   try { var t = localStorage.getItem('hm-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  // 입장 화면: 이 탭에서 처음 들어올 때만 (새로고침·페이지 이동 때는 다시 안 나와요)
+  // 주소 끝에 ?intro=1 을 붙이면 언제든 다시 볼 수 있어요
+  try { if (!sessionStorage.getItem('hm-intro') || /[?&]intro=1/.test(location.search)) document.documentElement.classList.add('intro-on'); } catch (e) {}
 </script>
 </head>
 <body>
+<div class="intro" id="intro" aria-hidden="true"><div class="intro-bg"></div><div class="intro-logo" id="introLogo"></div><span class="intro-skip">눌러서 건너뛰기</span></div>
 
 <div class="progress" aria-hidden="true"><i id="progress"></i></div>
 
@@ -182,6 +186,6 @@
 <div class="toast" id="toast"></div>
 <div class="curtain" id="curtain"></div>
 
-<script src="app.js?v=53" defer></script>
+<script src="app.js?v=54" defer></script>
 </body>
 </html>

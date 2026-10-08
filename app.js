@@ -90,15 +90,23 @@ const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const LOGO_TXT = 'HAMIHAMOO · PHOTOGRAPHY · ';
 let logoN = 0;
 // 화면용: 글자는 띠에서 비워 내서(마스크) 어떤 바탕 위에서도 뒤가 비쳐요
-function logoSvg() {
-  const k = ++logoN, tk = Array.from({ length: 24 }, (_, i) => { const a = i / 24 * Math.PI * 2 - Math.PI / 2, c = Math.cos(a), si = Math.sin(a); return `M${(50 + 28 * c).toFixed(2)} ${(50 + 28 * si).toFixed(2)}L${(50 + 31 * c).toFixed(2)} ${(50 + 31 * si).toFixed(2)}`; }).join('');
-  return `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><path id="lgP${k}" d="M50 50m-35.8 0a35.8 35.8 0 1 1 71.6 0a35.8 35.8 0 1 1-71.6 0"/>
-    <mask id="lgM${k}"><rect width="100" height="100" fill="#fff"/><text font-family="JetBrains Mono, monospace" font-weight="600" font-size="7.6" fill="#000"><textPath href="#lgP${k}" textLength="224" lengthAdjust="spacing">${LOGO_TXT}</textPath></text></mask></defs>
-    <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="1.2"/>
-    <circle cx="50" cy="50" r="38.5" fill="none" stroke="currentColor" stroke-width="12" mask="url(#lgM${k})"/>
-    <path d="${tk}" stroke="currentColor" stroke-width=".9"/>
-    <text x="50" y="62" text-anchor="middle" font-family="Instrument Serif, Georgia, serif" font-style="italic" font-size="40" fill="currentColor">h</text>
-    <circle cx="59" cy="58.5" r="2.6" fill="var(--accent, #ff5a36)"/></svg>`;
+// anim: 입장 화면용 (테두리 → 글자 띠 → 눈금 → h 쓰기 → 주황 점)
+// h 쓰기 펜 길: 원본 글꼴 h를 크게 펼쳐 획 가운데를 따라 찍었어요 (① 삐침 → 세로획, 이어서 바로 ② 어깨 → 오른쪽 다리 — 한 번에 쓰듯이)
+const LOGO_PEN = ['M44.5 34.4 Q47.5 33.8 49.3 32.6 L42.2 61.6', 'M46 50.5 C48.5 45 51.5 42 54.4 42.2 C56.5 42.4 56.5 45 55.6 48 L52.6 58 C51.8 61 52.8 62.4 54.3 62.2 C56.3 62 57.6 58.5 58.4 55.6'];
+function logoSvg(anim = false) {
+  const k = ++logoN, tick = i => { const a = i / 24 * Math.PI * 2 - Math.PI / 2, c = Math.cos(a), si = Math.sin(a); return [(50 + 28 * c).toFixed(2), (50 + 28 * si).toFixed(2), (50 + 31 * c).toFixed(2), (50 + 31 * si).toFixed(2)]; };
+  const ticks = anim
+    ? `<g class="t" stroke="currentColor" stroke-width=".9">${Array.from({ length: 24 }, (_, i) => { const [x1, y1, x2, y2] = tick(i); return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" style="animation-delay:${(.9 + i * .02).toFixed(2)}s"/>`; }).join('')}</g>`
+    : `<path d="${Array.from({ length: 24 }, (_, i) => { const [x1, y1, x2, y2] = tick(i); return `M${x1} ${y1}L${x2} ${y2}`; }).join('')}" stroke="currentColor" stroke-width=".9"/>`;
+  const h = `<text x="50" y="62" text-anchor="middle" font-family="Instrument Serif, Georgia, serif" font-style="italic" font-size="40" fill="currentColor">h</text>`;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"${anim ? ' class="lg-anim"' : ''}><defs><path id="lgP${k}" d="M50 50m-35.8 0a35.8 35.8 0 1 1 71.6 0a35.8 35.8 0 1 1-71.6 0"/>
+    <mask id="lgM${k}"><rect width="100" height="100" fill="#fff"/><text font-family="JetBrains Mono, monospace" font-weight="600" font-size="7.6" fill="#000"><textPath href="#lgP${k}" textLength="224" lengthAdjust="spacing">${LOGO_TXT}</textPath></text></mask>${anim ? `
+    <mask id="lgW${k}" maskUnits="userSpaceOnUse"><g fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path class="s1" pathLength="1" d="${LOGO_PEN[0]}"/><path class="s2" pathLength="1" d="${LOGO_PEN[1]}"/></g></mask>` : ''}</defs>
+    <circle class="o" cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <g mask="url(#lgM${k})"><circle class="b" cx="50" cy="50" r="38.5" fill="none" stroke="currentColor" stroke-width="12"/></g>
+    ${ticks}
+    ${anim ? `<g mask="url(#lgW${k})">${h}</g>` : h}
+    <circle class="dot" cx="59" cy="58.5" r="2.6" fill="var(--accent, #ff5a36)" style="transform-origin:59px 58.5px"/></svg>`;
 }
 // 그림(캔버스)용: 같은 모양을 size 크기로 (cx, cy)가 가운데가 되게
 function drawLogo(x, cx, cy, size, color, accent = '#ff5a36') {
@@ -5679,7 +5687,39 @@ function setupChrome() {
   $('#drawerBack').onclick = closeDrawer;
 }
 
+// ---------- 입장 화면 ----------
+// 들어올 때마다(브라우저 탭마다) 한 번: 빈 바탕에 로고가 그려진 뒤, 메뉴 막대의 로고 자리로 날아가 앉아요. 누르면 바로 넘어가요
+function runIntro() {
+  const root = document.documentElement, box = $('#intro'), logo = $('#introLogo');
+  if (!box) return;
+  if (!root.classList.contains('intro-on')) { box.remove(); return; }
+  try { sessionStorage.setItem('hm-intro', '1'); } catch (e) {}
+  let leaving = false, timer = 0;
+  const end = () => { box.remove(); root.classList.remove('intro-on'); removeEventListener('keydown', leave); };
+  function leave() {
+    if (leaving) return; leaving = true; clearTimeout(timer);
+    logo.getAnimations({ subtree: true }).forEach(a => a.finish());
+    const to = $('#brandMark').getBoundingClientRect(), from = logo.getBoundingClientRect();
+    const fly = !reduced && to.width > 0 && from.width > 0 && !Lightbox.isOpen && !$('#topbar').classList.contains('hidden');
+    $('.intro-bg', box).animate([{ opacity: 1 }, { opacity: 0 }], { duration: fly ? 700 : 450, easing: 'ease', fill: 'forwards' });
+    $('.intro-skip', box).remove();
+    if (fly) {
+      // 지금 자리에 그대로 고정해 두고, 왼쪽 위 기준으로 줄이며 옮겨요
+      Object.assign(logo.style, { left: from.left + 'px', top: from.top + 'px', width: from.width + 'px', transform: 'none', transformOrigin: '0 0' });
+      logo.animate([{ transform: 'none' }, { transform: `translate(${to.left - from.left}px, ${to.top - from.top}px) scale(${to.width / from.width})` }], { duration: 750, easing: 'cubic-bezier(.65, 0, .25, 1)', fill: 'forwards' }).finished.then(end, end);
+    } else logo.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 450, fill: 'forwards' }).finished.then(end, end);
+  }
+  box.addEventListener('click', leave); addEventListener('keydown', leave);
+  // 글꼴이 준비되면(늦어도 1.5초) 그리기 시작해요
+  Promise.race([Promise.all([document.fonts.load('italic 40px "Instrument Serif"', 'h'), document.fonts.load('600 10px "JetBrains Mono"')]), new Promise(r => setTimeout(r, 1500))]).then(() => {
+    if (leaving) return;
+    logo.innerHTML = logoSvg(!reduced);
+    timer = setTimeout(leave, reduced ? 900 : 2850);
+  });
+}
+
 (async function start() {
+  runIntro();
   setupChrome(); setupCursor();
   await loadData();
   applyBrand();
