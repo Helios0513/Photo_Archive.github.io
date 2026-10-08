@@ -8,9 +8,6 @@
 const DATA_BASE = './';
 const IMG_BASE = 'images/digital/';
 
-const COLOR_ORDER = ['Black', 'White', 'Gray', 'Brown', 'Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Purple', 'Pink'];
-const COLOR_HEX = { Black: '#202020', White: '#f4f2ec', Gray: '#a7a7a1', Brown: '#8b684f', Red: '#bf463e', Orange: '#d8843c', Yellow: '#d9b440', Green: '#5f8a4f', Blue: '#4a73a8', Purple: '#7c5ca3', Pink: '#d98aa6' };
-const COLOR_KO = { Black: '검정', White: '흰색', Gray: '회색', Brown: '갈색', Red: '빨강', Orange: '주황', Yellow: '노랑', Green: '초록', Blue: '파랑', Purple: '보라', Pink: '분홍' };
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /* ---------- 색 탐색기 ----------
