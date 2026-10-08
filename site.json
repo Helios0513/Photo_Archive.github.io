@@ -26,5 +26,12 @@
   "aboutIntro": "일상 기록들",
   "aboutBody": "안녕하세요! 사진 찍기 좋아하는 하미하무입니다.\n부족한 실력으로 찍은 사진들 감상해 주셔서 감사합니다.",
   "aboutSignoff": "A way of seeing.",
-  "footerCopyright": "© 2026 Hamihamoo"
+  "footerCopyright": "© 2026 Hamihamoo",
+  "webp": [
+    "DSCF0224_1790286819005_32.jpg",
+    "DSCF0334_1790514108576_0.jpg",
+    "DSCF0336_1790514111732_1.jpg",
+    "DSC_1568_1772453762704.jpg",
+    "DSC_test.jpg"
+  ]
 }
