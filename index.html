@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@100..800&family=Noto+Serif+KR:wght@200..900&display=swap">
-<link rel="stylesheet" href="app.css?v=45">
+<link rel="stylesheet" href="app.css?v=46">
 <script>
   // 저장된 밝기 모드를 화면이 그려지기 전에 적용해 깜빡임을 막아요.
   try { var t = localStorage.getItem('hm-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -115,6 +115,14 @@
         <details class="pc-sec" data-sec="font"><summary><span>글꼴</span><em id="pcSum-font"></em></summary><div class="pc-sec-body">
           <div class="pc-cats" id="pcFontCats"></div><div class="pc-chips" id="pcFont"></div>
           <div class="pc-row" style="margin-top:8px"><button type="button" class="pill" id="pcRecut" hidden>다시 오리기 ✂</button></div>
+          <div class="pc-row" style="margin-top:8px"><button type="button" class="pill" id="pcVine">🌹 장미 덩굴 감기</button><button type="button" class="pill" id="pcVineRe" hidden>다시 감기</button></div>
+          <div id="pcVineBody" hidden>
+            <div class="mono faint pc-l">덩굴 색</div><div class="pc-chips" id="pcVinePal"></div>
+            <div class="mono faint pc-l">장미 양</div><input type="range" class="pc-range" data-vine="roses" min="0" max="2.5" step=".05">
+            <div class="mono faint pc-l">잎 양</div><input type="range" class="pc-range" data-vine="leaves" min="0" max=".9" step=".01">
+            <div class="mono faint pc-l">덩굴 가닥</div><input type="range" class="pc-range" data-vine="stems" min="1" max="4" step="1">
+            <div class="mono faint pc-l">덩굴 굵기</div><input type="range" class="pc-range" data-vine="thick" min=".4" max="2.5" step=".05">
+          </div>
           <div class="pc-row">
             <div style="flex:1"><div class="mono faint pc-l">크기 <span id="pcSizeN">100%</span></div><input type="range" id="pcSize" min="40" max="240" value="100" class="pc-range"></div>
             <div style="flex:1"><div class="mono faint pc-l">두께 <span id="pcWeightN">400</span></div><input type="range" id="pcWeight" min="100" max="900" step="100" value="400" class="pc-range"></div>
@@ -164,6 +172,6 @@
 <div class="toast" id="toast"></div>
 <div class="curtain" id="curtain"></div>
 
-<script src="app.js?v=45" defer></script>
+<script src="app.js?v=46" defer></script>
 </body>
 </html>

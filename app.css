@@ -1189,3 +1189,9 @@ button.ex-edit { background: none; border: 0; font: inherit; font-size: 12px; cu
 .pc-draft { margin-top: 6px; }
 .draft-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 16px; padding: 12px 16px; border: 1px solid var(--accent); border-radius: 12px; font-size: 14px; }
 .draft-bar > span { margin-right: auto; }
+
+/* 장미 덩굴 색 고르기: 장미·잎 색 점 두 개 */
+.pc-vdot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 3px; vertical-align: -1px; box-shadow: 0 0 0 1px rgba(0,0,0,.2); }
+.pc-vdot + .pc-vdot { margin-right: 6px; }
+/* 숨김 버튼이 알약 모양 설정 때문에 보이지 않게 */
+#pcRecut[hidden], #pcVineRe[hidden] { display: none; }

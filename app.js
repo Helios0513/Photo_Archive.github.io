@@ -3424,7 +3424,7 @@ const Postcard = (() => {
       ['mono', 'Mono', 'en', "font-family:'JetBrains Mono'"], ['spacemono', 'Space Mono', 'en', "font-family:'Space Mono'"], ['majormono', 'major mono', 'en', "font-family:'Major Mono Display'"]] },
   };
   const PAPER = { white: '#fbfaf6', cream: '#f1e9d8', black: '#141413', orange: '#e2672b' };
-  const st = { p: null, ratio: 'orig', orient: 'p', layout: 'full', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, calYear: null, calMonth: null, fixed: null, ov: null, rseed: 7, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
+  const st = { p: null, ratio: 'orig', orient: 'p', layout: 'full', fx: 'none', font: 'serif', spot: 0, align: null, box: null, spots: [], size: 1, weight: 400, zoom: 1, cx: .5, cy: .5, frame: null, tcolor: null, track: 0, lead: 1, outline: 0, ocolor: null, calYear: null, calMonth: null, fixed: null, ov: null, rseed: 7, vine: null, color: 'white', upper: false, ox: 0, oy: 0, seed: 1 };
   const el = $('#pcModal'), cv = $('#pcCanvas'), out = $('#pcImg'), sheet = $('#pcSheet');
   const api = { get isOpen() { return !el.hidden; } };
   let im = null, cols = [], cache = {};
@@ -3635,6 +3635,71 @@ const Postcard = (() => {
     if (it.outline) { x.lineWidth = Math.max(2, fs * .06); x.lineJoin = 'round'; x.strokeStyle = '#151515'; x.fillStyle = '#fbf7ee'; x.strokeText(it.ch, 0, 0); x.fillText(it.ch, 0, 0); }
     else { x.fillStyle = it.ink; x.fillText(it.ch, 0, 0); }
     x.restore();
+  }
+  // ---------- 장미 덩굴: 큰 글씨 줄마다 줄기·잎·덩굴손·장미를 감아요 ----------
+  // 줄기를 토막으로 나눠 글자 앞·뒤를 번갈아 지나가게 해요 (back은 글씨 전에, front는 글씨 뒤에 그려요)
+  const VINE_PAL = {
+    classic: ['빨강 · 파랑', { stem: '#2b4bff', leaf: '#2b4bff', vein: '#7f97ff', rose: '#ff2a1a', petal: '#ffb79e' }],
+    pink: ['분홍 · 초록', { stem: '#2f6b3a', leaf: '#3f8a4a', vein: '#9fd3a6', rose: '#f48fb1', petal: '#fff0f4' }],
+    night: ['하양 · 초록', { stem: '#3e7d4e', leaf: '#4f9a5f', vein: '#c9e8cf', rose: '#fbf7ee', petal: '#c9b9a6' }],
+    gold: ['노랑 · 남색', { stem: '#1f2f6b', leaf: '#2a3f8f', vein: '#8fa3e0', rose: '#ffc93c', petal: '#b7791f' }],
+    mono: ['하얀 덩굴', { stem: '#f1eee6', leaf: '#f1eee6', vein: '#222', rose: '#f1eee6', petal: '#222' }],
+    ink: ['검은 덩굴', { stem: '#151515', leaf: '#151515', vein: '#8a8a8a', rose: '#151515', petal: '#e8e4da' }],
+  };
+  const VINE_DEF = () => ({ on: false, pal: 'classic', roses: 1, leaves: .55, stems: 2, thick: 1, seed: 11 });
+  // spans: 줄마다 [왼쪽 x, 너비, 글자 바닥선 y, 글씨 크기]
+  function vinePlan(x, spans, v) {
+    const R = ovRand(v.seed), c = VINE_PAL[v.pal] ? VINE_PAL[v.pal][1] : VINE_PAL.classic[1], back = [], front = [];
+    const put = (f, inFront) => (inFront ? front : back).push(f);
+    spans.forEach(([sx, w, Y0, size]) => {
+      const L = sx - size * .3, Rt = sx + w + size * .3, mid = Y0 - size * .35, stemW = size * .022 * v.thick;
+      // 줄은 이리저리 휘며 나아가요 (방향이 조금씩 바뀌고, 글자 줄에서 너무 멀어지면 돌아와요)
+      const walk = (x0, y0, a0, len, pull, curl) => { const pts = [[x0, y0]]; let a = a0, da = 0, X = x0, Y = y0;
+        for (let d = 0; d < len; d += 4) { da = da * .92 + (R() - .5) * .025; a += da + (pull ? -(Y - mid) / size * .035 - Math.sin(a) * .03 : 0) + curl * (d / len) ** 3 * .25; X += Math.cos(a) * 4; Y += Math.sin(a) * 4; pts.push([X, Y]); }
+        return pts; };
+      const leaf = (px, py, ang, len) => { const lw = len * (.32 + R() * .12), bend = (R() - .5) * .5;
+        return () => { x.save(); x.translate(px, py); x.rotate(ang);
+          x.strokeStyle = c.stem; x.lineWidth = stemW * .7; x.beginPath(); x.moveTo(0, 0); x.lineTo(len * .2, 0); x.stroke();
+          x.translate(len * .18, 0); x.beginPath(); x.moveTo(0, 0);
+          x.quadraticCurveTo(len * .45, -lw + bend * len * .3, len, bend * len * .4); x.quadraticCurveTo(len * .45, lw + bend * len * .3, 0, 0);
+          x.fillStyle = c.leaf; x.fill();
+          x.beginPath(); x.moveTo(len * .05, 0); x.quadraticCurveTo(len * .5, bend * len * .2, len * .85, bend * len * .35); x.strokeStyle = c.vein; x.lineWidth = Math.max(1, len * .025); x.stroke();
+          x.restore(); }; };
+      const tendril = (px, py, ang, len, side) => () => { x.beginPath(); x.moveTo(px, py); let a = ang, X = px, Y = py;
+        for (let s = 0; s < 40; s++) { const t = s / 40; a += side * (.02 + t * t * .5); const st0 = len / 40 * (1 - t * .6); X += Math.cos(a) * st0; Y += Math.sin(a) * st0; x.lineTo(X, Y); }
+        x.strokeStyle = c.stem; x.lineWidth = stemW * .6; x.lineCap = 'round'; x.stroke(); };
+      const rose = (cx, cy, r) => { const ph = R() * 6, bumps = 5 + Math.floor(R() * 3), rot = R() * 6, lw = Math.max(1.2, r * .055);
+        return () => {
+          x.beginPath(); for (let i = 0; i <= 72; i++) { const t = i / 72 * Math.PI * 2, rr = r * (1 + .1 * Math.sin(bumps * t + ph) + .05 * Math.sin(11 * t)); x.lineTo(cx + Math.cos(t) * rr, cy + Math.sin(t) * rr * .9); }
+          x.fillStyle = c.rose; x.fill();
+          x.strokeStyle = c.petal; x.lineWidth = lw; x.lineCap = 'round'; x.beginPath();
+          for (let i = 0; i <= 60; i++) { const t = i / 60, a = rot + t * Math.PI * 4.2, rr = r * .55 * t; x.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * .85); }
+          x.stroke();
+          for (let k = 0; k < 3; k++) { const a0 = rot + k * 2.1 + .4; x.beginPath(); x.arc(cx, cy, r * (.68 + k * .06), a0, a0 + 1.1); x.stroke(); }
+        }; };
+      const grow = (pts, depth) => {
+        let i = 0, inF = R() < .5;
+        while (i < pts.length - 1) {
+          const n = 10 + Math.floor(R() * 35), seg = pts.slice(i, Math.min(pts.length, i + n + 1)), lw = stemW * (depth ? .75 : 1);
+          put(() => { x.beginPath(); seg.forEach(([a, b], k) => k ? x.lineTo(a, b) : x.moveTo(a, b)); x.strokeStyle = c.stem; x.lineWidth = lw; x.lineCap = x.lineJoin = 'round'; x.stroke(); }, inF);
+          i += n; inF = !inF;
+        }
+        let side = 1;
+        for (let k = 4; k < pts.length - 3; k += Math.max(2, Math.round(size * (.06 + R() * .08) / 4))) {
+          const [px, py] = pts[k], [qx, qy] = pts[k + 2], ang = Math.atan2(qy - py, qx - px); side = -side;
+          const r = R();
+          if (r < v.leaves) put(leaf(px, py, ang + side * (.5 + R() * .8), size * (.12 + R() * .16)), R() < .45);
+          else if (r < v.leaves + .1) put(tendril(px, py, ang + side * .9, size * (.12 + R() * .18), side), R() < .5);
+          // 곁가지: 위로 솟거나 아래로 늘어져요
+          if (!depth && R() < .16) grow(walk(px, py, ang + side * (.7 + R() * .9), size * (.25 + R() * .45), false, side), 1);
+        }
+        const nr = depth ? (R() < v.roses * .3 ? 1 : 0) : Math.round(pts.length * 4 / size * v.roses * .9);
+        for (let j = 0; j < nr; j++) { const [px, py] = depth ? pts[pts.length - 1] : pts[Math.floor(R() * pts.length)]; put(rose(px, py, size * (.09 + R() * .14)), R() < .45); }
+      };
+      for (let s = 0; s < v.stems; s++) grow(walk(L - R() * size * .4, mid + (R() - .5) * size * .6, (R() - .5) * .5, Rt - L + size * .6, true, 0), 0);
+    });
+    const run = list => () => { x.save(); x.shadowColor = 'transparent'; x.shadowBlur = 0; x.globalAlpha = 1; list.forEach(f => f()); x.restore(); };
+    return { back: run(back), front: run(front) };
   }
   function fxCanvas(w, h, c) {
     w = Math.round(w); h = Math.round(h);
@@ -3977,6 +4042,14 @@ const Postcard = (() => {
     // 오려 붙인 글자: 띄어쓰기를 뺀 글자 순서대로 모양을 정해 두고, 줄마다 실제 조각 너비로 정렬해요
     const rplan = RANS ? ransomPlan([...lines.join('')].filter(ch => ch.trim()), st.rseed, !st.upper) : null;
     let rk = 0;
+    let vine = null;
+    if (st.vine && st.vine.on) {
+      const spans = [], at = w => col === 'l' ? X : col === 'c' ? X - w / 2 : X - w;
+      if (richT) { let Y0 = y; richT.forEach((ln, i) => { Y0 += i ? ln.sz * LH : ln.sz * .8; if (!ln.gap && ln.items.length) spans.push([at(ln.w), ln.w, Y0, ln.sz]); }); }
+      else { let k0 = 0; lines.forEach((l, i) => { if (!l) return; const w = RANS ? [...l].reduce((a, ch) => a + (ch.trim() ? ransomPieceW(x, rplan[k0++], size) : size * .38), 0) + ls * Math.max(0, [...l].length - 1) : lineW(l); spans.push([at(w), w, y + size * .8 + i * size * LH, size]); }); }
+      x.font = f.font;
+      vine = vinePlan(x, spans, st.vine); vine.back(); x.fillStyle = titleInk; x.font = f.font;
+    }
     if (RANS && !rnReady) loadRansom().then(ok => { if (ok && im) { cache = {}; draw(); } });
     lines.forEach((l, i) => {
       if (!l) return;
@@ -4017,6 +4090,7 @@ const Postcard = (() => {
       });
     };
     if (richT) { x.fillStyle = titleInk; drawRich(richT, y, LH, .8, ow); }
+    if (vine) vine.front();
     y += titleH + ((subs.length || richS) && titleH ? size * .2 : 0);
     x.fillStyle = subInk; x.font = `400 ${subSize}px Pretendard, sans-serif`;
     const sow = st.outline * subSize * .02;
@@ -4574,6 +4648,7 @@ const Postcard = (() => {
     $('#pcSize').value = Math.round(st.size * 100); $('#pcSizeN').textContent = Math.round(st.size * 100) + '%';
     $('#pcWeight').value = st.weight; paintWeight();
     $('#pcRecut').hidden = st.font !== 'ransom';
+    paintVine();
     $('#pcTrack').value = Math.round(st.track * 100); $('#pcTrackN').textContent = (st.track > 0 ? '+' : '') + Math.round(st.track * 100);
     $('#pcLead').value = Math.round(st.lead * 100); $('#pcLeadN').textContent = Math.round(st.lead * 100) + '%';
     $('#pcOut').value = st.outline; $('#pcOutN').textContent = st.outline ? st.outline + (st.ocolor ? '' : ' · 자동 색') : '없음';
@@ -4621,6 +4696,13 @@ const Postcard = (() => {
         if (t === 'tex') return `<div class="pc-row"><label class="pill pc-file">${label} 올리기<input type="file" accept="image/*" id="pcOvTex" hidden></label><button type="button" class="pill" id="pcOvTexX">기본 노이즈로</button></div>`;
         return '';
       }).join('')}</details>`).join('')}</div>`;
+  }
+  function paintVine() {
+    const v = st.vine || VINE_DEF(), on = v.on;
+    $('#pcVine').textContent = on ? '✓ 🌹 장미 덩굴 켜짐' : '🌹 장미 덩굴 감기'; $('#pcVine').classList.toggle('on', on);
+    $('#pcVineRe').hidden = $('#pcVineBody').hidden = !on;
+    $$('button', $('#pcVinePal')).forEach(b => b.classList.toggle('on', b.dataset.v === v.pal));
+    $$('[data-vine]', el).forEach(i => { i.value = v[i.dataset.vine]; });
   }
   function paintOv() {
     const o = st.ov, on = !!(o && o.on);
@@ -4749,6 +4831,13 @@ const Postcard = (() => {
   chips('#pcFont', v => { if (v === 'ransom' && st.font !== 'ransom') st.rseed = Math.floor(Math.random() * 1e6); st.font = v; st.weight = FONT[v][6]; });
   // 다시 오리기: 글자마다 글꼴·종이를 새로 섞어요
   $('#pcRecut').onclick = () => { st.rseed = Math.floor(Math.random() * 1e6); draw(); };
+  // 장미 덩굴: 켜기/끄기 · 다시 감기 · 색 · 막대들
+  $('#pcVinePal').innerHTML = Object.entries(VINE_PAL).map(([k, [t, c]]) => `<button type="button" class="pill" data-v="${k}"><i class="pc-vdot" style="background:${c.rose}"></i><i class="pc-vdot" style="background:${c.leaf}"></i>${t}</button>`).join('');
+  const vineSet = fn => { if (!st.vine) st.vine = VINE_DEF(); fn(st.vine); draw(); paintVine(); };
+  $('#pcVine').onclick = () => vineSet(v => { v.on = !v.on; });
+  $('#pcVineRe').onclick = () => vineSet(v => { v.seed = 1 + Math.floor(Math.random() * 1e6); });
+  $('#pcVinePal').onclick = e => { const b = e.target.closest('button'); if (b) vineSet(v => { v.pal = b.dataset.v; }); };
+  $$('[data-vine]', el).forEach(i => i.addEventListener('input', () => vineSet(v => { v[i.dataset.vine] = +i.value; })));
   chips('#pcTColor', v => { st.tcolor = v === 'auto' ? null : v; });
   $('#pcTPick').addEventListener('input', e => { st.tcolor = e.target.value; paintControls(); draw(); });
   chips('#pcPos', v => { st.spot = +v; st.ox = st.oy = 0; });
