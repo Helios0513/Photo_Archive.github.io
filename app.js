@@ -1,7 +1,7 @@
 /* ============================================================
    Hamihamoo — "Darkroom" (한 페이지 앱)
    - photos.json / projects.json / site.json / profile.json 을 읽어 화면을 그려요.
-   - 관리(Studio)에서 고친 내용은 GitHub 저장소에 바로 저장돼요.
+   - 관리(Studio)에서 고친 내용은 저장소에 바로 저장돼요.
    - 위치·지도 관련 기능은 없어요.
    ============================================================ */
 
@@ -2215,8 +2215,8 @@ function renderExhibition(view, id, draft) {
 // ---------- 전시 기획 (관리자) ----------
 function renderExEditor(view, id) {
   if (!Studio.authed) {
-    view.innerHTML = `<section class="page"><div class="ex-gate"><h2>전시 기획은 관리자만 할 수 있어요</h2><p class="faint">GitHub 열쇠(토큰)로 들어오면 전시를 기획하고 열 수 있어요.</p>
-      <form id="exGate" autocomplete="off"><input type="password" id="exTok" placeholder="GitHub 열쇠 (토큰)" required><button class="btn small">확인</button></form><p class="faint" id="exGateMsg"></p></div></section>`;
+    view.innerHTML = `<section class="page"><div class="ex-gate"><h2>전시 기획은 관리자만 할 수 있어요</h2><p class="faint">열쇠(토큰)로 들어오면 전시를 기획하고 열 수 있어요.</p>
+      <form id="exGate" autocomplete="off"><input type="password" id="exTok" placeholder="열쇠 (토큰)" required><button class="btn small">확인</button></form><p class="faint" id="exGateMsg"></p></div></section>`;
     $('#exGate', view).addEventListener('submit', async e => { e.preventDefault(); $('#exGateMsg', view).textContent = '확인하는 중…'; const ok = await adminLogin($('#exTok', view).value.trim()).catch(() => false); if (ok) render(); else $('#exGateMsg', view).textContent = '열쇠가 맞지 않거나, 저장할 권한이 없어요.'; });
     return;
   }
@@ -3183,7 +3183,7 @@ const Lightbox = (() => {
    엽서 만들기
    ============================================================ */
 /* ---------- 전시에 올리기: 저장 방법 ---------- */
-// 엽서 창에서 관리자 로그인: Studio와 같은 GitHub 열쇠를 확인해요 (창을 닫으면 잊어요)
+// 엽서 창에서 관리자 로그인: Studio와 같은 열쇠를 확인해요 (창을 닫으면 잊어요)
 async function adminLogin(token) {
   const r = await fetch(`https://api.github.com/repos/${REPO}`, { headers: { Authorization: `token ${token}` }, cache: 'no-store' });
   const j = await r.json().catch(() => ({}));
@@ -5109,10 +5109,10 @@ function renderSeasons(view) {
 }
 
 /* ============================================================
-   관리 (스튜디오) — GitHub 저장소에 직접 저장해요
+   관리 (스튜디오) — 저장소에 직접 저장해요
    ============================================================ */
 const REPO = 'Helios0513/Photo_Archive.github.io';
-const TOKEN_KEY = 'photoArchiveGithubToken';
+const TOKEN_KEY = 'photoArchiveToken';
 const getToken = () => { try { return sessionStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } };
 const setToken = t => { try { t ? sessionStorage.setItem(TOKEN_KEY, t) : sessionStorage.removeItem(TOKEN_KEY); } catch (e) {} };
 const b64encode = str => { const b = new TextEncoder().encode(str); let s = ''; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(s); };
@@ -5124,7 +5124,7 @@ async function gh(file, opt = {}) {
   });
   if (r.status === 404 && !opt.method) return null;
   if (r.status === 401) { setToken(''); Studio.authed = false; throw new Error('열쇠(토큰)가 맞지 않거나 만료됐어요. 다시 들어와 주세요.'); }
-  if (!r.ok) { const e = await r.json().catch(() => ({})); const err = new Error(e.message || `GitHub 오류 ${r.status}`); err.status = r.status; throw err; }
+  if (!r.ok) { const e = await r.json().catch(() => ({})); const err = new Error(e.message || `저장 오류 ${r.status}`); err.status = r.status; throw err; }
   return r.json();
 }
 async function readJson(file) {
@@ -5132,7 +5132,7 @@ async function readJson(file) {
   const text = f.content ? b64decode(f.content) : await (await fetch(f.download_url, { cache: 'no-store' })).text();
   return { sha: f.sha, data: JSON.parse(text) };
 }
-// 항상 GitHub의 최신 내용을 받아서 고친 뒤 저장해요 (다른 곳에서 바꾼 내용을 덮어쓰지 않게)
+// 항상 서버의 최신 내용을 받아서 고친 뒤 저장해요 (다른 곳에서 바꾼 내용을 덮어쓰지 않게)
 async function updateJson(file, mutate, message) {
   for (let attempt = 0; ; attempt++) {
     const { sha, data } = await readJson(file);
@@ -5186,7 +5186,7 @@ function renderStudio(view) {
       <div class="logo-mark is-logo">${logoSvg()}</div>
       <h1>Studio</h1>
       <p>사진을 올리고, 정보를 고치고, 대표작과 프로젝트를 정리하는 곳이에요.</p>
-      <label class="field"><span>GitHub 열쇠 (토큰)</span><input type="password" id="gateToken" required placeholder="ghp_… 또는 github_pat_…"></label>
+      <label class="field"><span>열쇠 (토큰)</span><input type="password" id="gateToken" required placeholder="열쇠(토큰)를 붙여 넣으세요"></label>
       <button class="btn block" id="gateBtn">들어가기 <span class="arrow">→</span></button>
       <p class="mono faint" style="margin-top:16px;text-transform:none;letter-spacing:0" id="gateMsg">열쇠는 이 브라우저 창을 닫으면 잊어버려요.</p>
     </form></div></section>`;
@@ -5229,7 +5229,7 @@ function stUpload(body, view) {
     <div class="st-actions" id="qActions" style="display:none">
       <span class="mono faint" id="qInfo"></span>
       <button class="btn ghost small" id="qClear">모두 비우기</button>
-      <button class="btn" id="qGo">GitHub에 올리기 <span class="arrow">→</span></button>
+      <button class="btn" id="qGo">사이트에 올리기 <span class="arrow">→</span></button>
     </div>`;
   const drop = $('#drop', body), q = $('#queue', body);
   ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
@@ -5586,7 +5586,7 @@ function stSettings(body) {
 }
 
 /* ---------- 임시저장: 종류마다 하나 ----------
-   고칠 때마다 이 기기에 바로 저장하고, 관리자로 들어와 있으면 잠시 뒤 GitHub에도 저장해요.
+   고칠 때마다 이 기기에 바로 저장하고, 관리자로 들어와 있으면 잠시 뒤 서버에도 저장해요.
    다른 기기에서 관리자로 들어오면 더 최근 것을 불러와요 */
 const Drafts = {
   KEYS: { cal: ['hm-cal-draft', 'hm-cal-edit'], ex: ['hm-ex-draft'], series: ['hm-pj-draft'], print: ['hm-pc-draft'] },
@@ -5596,7 +5596,7 @@ const Drafts = {
     store.set('hm-draft-at-' + kind, Date.now());
     if (!Studio.authed) return this.say(kind, '이 기기에 임시저장됨');
     clearTimeout(this.timers[kind]); this.timers[kind] = setTimeout(() => this.push(kind), 8000);
-    this.say(kind, '이 기기에 임시저장됨 · 곧 GitHub에도 저장해요');
+    this.say(kind, '이 기기에 임시저장됨 · 곧 서버에도 저장해요');
   },
   async push(kind) {
     clearTimeout(this.timers[kind]); delete this.timers[kind];
@@ -5604,13 +5604,13 @@ const Drafts = {
     await this.pull();
     const data = Object.fromEntries(this.KEYS[kind].map(k => [k, store.get(k, null)]));
     const entry = { at: store.get('hm-draft-at-' + kind, Date.now()), data: this.KEYS[kind].every(k => data[k] == null) ? null : data };
-    this.say(kind, 'GitHub에 임시저장 중…');
-    try { await saveDraftRemote(kind, entry); const d = new Date(); this.say(kind, `GitHub에 임시저장됨 · ${pad(d.getHours())}:${pad(d.getMinutes())}`); }
-    catch (e) { console.warn(e); this.say(kind, 'GitHub 임시저장 실패 · 이 기기에는 저장돼 있어요'); }
+    this.say(kind, '서버에 임시저장 중…');
+    try { await saveDraftRemote(kind, entry); const d = new Date(); this.say(kind, `서버에 임시저장됨 · ${pad(d.getHours())}:${pad(d.getMinutes())}`); }
+    catch (e) { console.warn(e); this.say(kind, '서버 임시저장 실패 · 이 기기에는 저장돼 있어요'); }
   },
   clear(kind) { this.KEYS[kind].forEach(k => store.set(k, null)); this.touch(kind); },
   flush() { Object.keys(this.timers).forEach(k => this.push(k)); },
-  // GitHub에 있는 것이 이 기기 것보다 최근이면 가져와요 (한 번만). 가져온 종류 목록을 돌려줘요
+  // 서버에 있는 것이 이 기기 것보다 최근이면 가져와요 (한 번만). 가져온 종류 목록을 돌려줘요
   pull() {
     if (!Studio.authed) return Promise.resolve([]);
     return this.pulled || (this.pulled = loadDraftsRemote().then(all => {
@@ -5625,7 +5625,7 @@ const Drafts = {
     }).catch(e => { console.warn(e); this.pulled = null; return []; }));
   },
   say(kind, t) { $$(`[data-draft="${kind}"]`).forEach(el => { el.textContent = t; }); },
-  tag(kind) { return `<span class="faint draft-st" data-draft="${kind}">${Studio.authed ? '임시저장: 고치면 자동으로 GitHub에 저장돼요' : '임시저장: 고치면 이 기기에 자동으로 저장돼요'}</span>`; },
+  tag(kind) { return `<span class="faint draft-st" data-draft="${kind}">${Studio.authed ? '임시저장: 고치면 자동으로 서버에 저장돼요' : '임시저장: 고치면 이 기기에 자동으로 저장돼요'}</span>`; },
 };
 addEventListener('pagehide', () => Drafts.flush());
 document.addEventListener('visibilitychange', () => { if (document.hidden) Drafts.flush(); });
