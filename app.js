@@ -337,15 +337,20 @@ function render() {
 }
 addEventListener('hashchange', () => { if (Lightbox.isOpen) Lightbox.close(true); closeDrawer(); render(); });
 
+// 메뉴 밑줄: 지금 페이지 메뉴 밑에 있다가, 마우스를 올린 메뉴로 따라가요
+const dockInd = a => { const ind = $('#dockInd'); if (!a || !a.offsetWidth) { ind.style.width = '0px'; return; } ind.style.width = a.offsetWidth + 'px'; ind.style.transform = `translateX(${a.offsetLeft}px)`; };
 function setDock(name) {
   const dock = $('#dock');
   $$('a', dock).forEach(a => a.classList.toggle('active', a.dataset.route === name));
-  const a = $('a.active', dock), ind = $('#dockInd');
-  if (!a) { ind.style.width = '0px'; return; }
-  ind.style.width = a.offsetWidth + 'px';
-  ind.style.transform = `translateX(${a.offsetLeft}px)`;
-  if (dock.scrollWidth > dock.clientWidth) dock.scrollTo({ left: a.offsetLeft - dock.clientWidth / 2 + a.offsetWidth / 2, behavior: 'smooth' });
+  dockInd($('a.active', dock));
 }
+$('#dock').addEventListener('pointerover', e => { const a = e.target.closest('a'); if (a && e.pointerType === 'mouse') dockInd(a); });
+$('#dock').addEventListener('pointerleave', () => dockInd($('a.active', $('#dock'))));
+// 좁은 화면: 메뉴 버튼(☰)을 누르면 유리 막대 아래로 메뉴가 펼쳐져요
+const navOpen = on => { $('#topbar').classList.toggle('open', on); $('#navBtn').setAttribute('aria-expanded', on); };
+$('#navBtn').onclick = e => { e.stopPropagation(); navOpen(!$('#topbar').classList.contains('open')); };
+addEventListener('click', e => { if (!e.target.closest('#topbar')) navOpen(false); });
+addEventListener('hashchange', () => navOpen(false));
 addEventListener('resize', () => setDock(document.body.dataset.route));
 
 /* ============================================================
