@@ -1253,3 +1253,8 @@ button.ex-edit { background: none; border: 0; font: inherit; font-size: 12px; cu
 .logo-mark.is-logo svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .topbar .logo-mark.is-logo { width: 38px; height: 38px; }
 .gate-box .logo-mark.is-logo { width: 72px; height: 72px; }
+
+/* 새 시리즈 만들기 줄: 시리즈 목록과 같은 모양, 점선과 옅은 글씨 */
+.prow-new { border-bottom-style: dashed; color: var(--ink-3); }
+.prow-new h3 { font-size: clamp(26px, 3vw, 40px); }
+.prow-new:hover { color: var(--ink); }

@@ -709,6 +709,7 @@ function renderProjects(view) {
         </a>`;
       }).join('')}
     </div>
+    <a class="prow prow-new rv" href="#/studio" id="newSeries"><span class="mono">+</span><h3>새 시리즈 만들기</h3><span class="prow-desc">사진을 골라 장소·계절·주제로 묶어요 · 관리자 전용</span><span class="prow-count"></span><span class="arrow">→</span></a>
     <div class="pcards">
       ${prs.map(pr => { const c = projectCover(pr); return `<a class="pcard rv" href="#/projects/${encodeURIComponent(pr.id)}"><figure class="ph" data-f="${esc(c.filename)}" style="--tint:${tint(c)}"><div class="ph-frame"><img src="${esc(thumbUrl(c))}" data-full="${esc(imgUrl(c))}" alt="" loading="lazy"></div></figure><h3>${esc(pr.title)}</h3><span class="mono faint">${projectPhotos(pr).length} frames · ${esc(pr.subtitle || '')}</span></a>`; }).join('')}
     </div>
@@ -721,6 +722,8 @@ function renderProjects(view) {
   let tx = 0, ty = 0, x = 0, y = 0, raf;
   const loop = () => { x += (tx - x) * 0.14; y += (ty - y) * 0.14; pf.style.left = x + 'px'; pf.style.top = y + 'px'; raf = requestAnimationFrame(loop); };
   loop();
+  // 새 시리즈: 관리의 프로젝트 탭에서 빈 시리즈를 열어 둬요 (로그인 전이면 로그인 화면이 먼저 나와요)
+  $('#newSeries', view).onclick = () => { Studio.tab = 'projects'; Studio.pj = { origId: null, title: '', subtitle: '', description: '', list: [], cover: '' }; };
   const plist = $('#plist', view);
   plist.addEventListener('mousemove', e => { tx = e.clientX + 170; ty = e.clientY; });
   plist.addEventListener('mouseover', e => {
@@ -2153,9 +2156,9 @@ function renderExhibitions(view) {
   view.innerHTML = `<section class="page">
     ${worksHead('exhibitions', all.length)}
     <div class="ex-list">${all.map(card).join('')}
-      ${Studio.authed ? '<a class="ex-new rv" href="#/exhibitions/new"><span class="cal-new-plus" aria-hidden="true">+</span><b>새 전시 기획하기</b><small>여러 시리즈에서 사진을 골라<br>주제로 엮고, 방을 나누고, 글을 붙여요</small></a>' : ''}
+      <a class="ex-new rv" href="#/exhibitions/new"><span class="cal-new-plus" aria-hidden="true">+</span><b>새 전시 기획하기</b><small>여러 시리즈에서 사진을 골라<br>주제로 엮고, 방을 나누고, 글을 붙여요<br>· 관리자 전용 ·</small></a>
     </div>
-    ${all.length ? '' : `<div class="empty">아직 열린 전시가 없어요.${Studio.authed ? '' : ' <a class="accent" href="#/exhibitions/new">관리자라면 첫 전시를 기획해 보세요</a>'}</div>`}
+    ${all.length ? '' : '<div class="empty">아직 열린 전시가 없어요.</div>'}
   </section>`;
 }
 
