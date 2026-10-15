@@ -1290,3 +1290,10 @@ html.intro-on #brandMark { visibility: hidden; }
 /* 펜 끝이 둥글어서, 쓰기 전에는 숨겨 둬요 (안 그러면 시작점이 점으로 보여요) */
 @keyframes lgWrite { 0% { stroke-dashoffset: 1; opacity: 0; } 1% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 1; } }
 @keyframes lgDot { from { transform: scale(0); } to { transform: scale(1); } }
+
+/* ---------- 액체 움직임 ---------- */
+/* 움직이는 표시는 스크립트가 물방울처럼 움직여요 (예전 미끄럼 전환은 꺼요) */
+.seg .seg-ind, .topbar .dock-ind { transition: none; transform-origin: 50% 50%; }
+/* 누른 자리에서 퍼지는 물방울 */
+.lq-host { overflow: hidden; isolation: isolate; }
+.lq-drop { position: absolute; z-index: -1; pointer-events: none; background: currentColor; }
