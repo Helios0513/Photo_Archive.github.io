@@ -1101,26 +1101,8 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
 #pcAdminForm input { flex: 1; min-width: 140px; padding: 8px 10px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: #0b0b0a; color: #f1eee6; font: inherit; }
 #pcAdminMsg { width: 100%; }
 
-/* 계절 지도 */
-.season { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 34px; align-items: center; }
-.season-chart svg { width: 100%; max-width: 640px; display: block; margin: 0 auto; overflow: visible; }
-.sea-seg { cursor: pointer; outline: none; }
-.sea-seg .bar { transform-origin: 0 0; transition: opacity .3s; animation: seaGrow .9s var(--ease) both; animation-delay: var(--dl); }
-@keyframes seaGrow { from { transform: scale(.35); opacity: 0; } }
-#seaSvg:hover .sea-seg:not(:hover):not(.sel) .bar { opacity: .45; }
-.sea-seg.sel .bar, .sea-seg:focus-visible .bar { stroke: var(--accent); stroke-width: 2; }
-.season-side h2 { margin: 6px 0 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(56px, 6vw, 84px); line-height: .9; letter-spacing: -.02em; }
-.season-side .sub { color: var(--ink-2); margin: 10px 0 16px; }
-.season-side .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
 .chip-c { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 99px; font-size: 12px; color: var(--ink-2); }
 .chip-c i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); border: 1px solid rgba(127,127,127,.4); }
-.sea-thumbs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-.sea-thumbs .ph-frame { aspect-ratio: 1; }
-.sea-thumbs .ph-info { display: none; }
-.sea-thumbs .story-tag { display: none; }
-.season-table { margin-top: 26px; color: var(--ink-3); }
-.season-table table { border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-.season-table th, .season-table td { padding: 4px 18px 4px 0; text-align: left; }
 
 @media (max-width: 1000px) {
   .lb-note-bar { padding: 10px 12px; }
@@ -1131,7 +1113,6 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
   .pc-stage { min-height: 300px; padding: 16px; }
   .pc-sheet canvas { max-height: 56vh; }
   .pc-ctrl { max-height: none; overflow: visible; }
-  .season { grid-template-columns: 1fr; }
   .loved { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .loved > div:nth-child(n+4) { display: none; }
 }
@@ -1139,7 +1120,6 @@ body.social-on .ph-info .ph-exif, body.social-on .ph-info .ph-story { padding-ri
   .loved-sec { padding-top: 70px; }
   .loved-rank b { font-size: 26px; }
 }
-@media (prefers-reduced-motion: reduce) { html:not(.force-motion) .sea-seg .bar { animation: none; } }
 @media (max-width: 720px) {
   #lbFull, #lbInfoBtn { display: none; }
   .lb.no-info .lb-info { display: block; }
