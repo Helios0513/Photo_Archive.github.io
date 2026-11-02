@@ -1432,7 +1432,7 @@ body.top-visible { --bl-head: 76px; }
 .bl-act { display: flex; gap: 8px; flex-wrap: wrap; }
 .bl-box .draft-st { margin: 0; }
 /* 메뉴 · 고르기 창 */
-.bl-menu { position: fixed; z-index: 400; display: grid; min-width: 150px; background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 12px; padding: 6px; box-shadow: 0 20px 40px -20px rgba(0,0,0,.8); }
+.bl-menu { position: fixed; z-index: 400; display: grid; min-width: 150px; background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 12px; padding: 6px; box-shadow: 0 20px 40px -20px rgba(0,0,0,.8); overflow-y: auto; overscroll-behavior: contain; }
 .bl-menu button { text-align: left; background: none; border: 0; border-radius: 8px; padding: 8px 12px; cursor: pointer; font: inherit; font-size: 14px; color: var(--ink); }
 .bl-menu button:hover { background: var(--bg); }
 .bl-menu.grid { grid-template-columns: repeat(10, 1fr); width: 308px; } .bl-menu.grid button { text-align: center; padding: 6px 0; font-size: 16px; }
