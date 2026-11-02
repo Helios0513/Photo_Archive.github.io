@@ -1383,19 +1383,29 @@ html.intro-on #brandMark { visibility: hidden; }
 .bl-ins i { font-style: normal; font-size: 19px; color: var(--ink); line-height: 1; }
 .bl-ins:hover { background: var(--bg-2); }
 .bl-fmt { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 8px 0 10px; }
-.bl-fmt button, .bl-fmt select { border: 1px solid transparent; background: none; border-radius: 6px; padding: 5px 9px; cursor: pointer; font: inherit; font-size: 13px; color: var(--ink); }
+.bl-fmt button, .bl-fmt select { border: 1px solid transparent; background: none; border-radius: 6px; padding: 4px 8px; min-width: 30px; cursor: pointer; font: inherit; font-size: 13px; color: var(--ink); }
 .bl-fmt button:hover { border-color: var(--line-2); }
 .bl-fmt select { border-color: var(--line); background: var(--bg-2); }
 .bl-fmt label { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--ink-2); padding: 0 6px; }
 .bl-fmt input[type=color] { width: 26px; height: 26px; padding: 0; border: 0; background: none; cursor: pointer; }
-.bl-paper { padding-top: 26px; min-width: 0; }
+.bl-paper { position: relative; padding-top: 26px; min-width: 0; }
 .bl-title-in { width: 100%; border: 0; background: none; color: var(--ink); font-family: var(--f-display), "Noto Serif KR", serif; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.1; outline: none; padding: 0 0 16px; border-bottom: 1px solid var(--line); }
-.bl-blocks { margin-top: 18px; }
-.bl-blk { position: relative; padding: 6px 4px; border-radius: 8px; }
-.bl-blk:hover { box-shadow: 0 0 0 1px var(--line); }
-.bl-blk.cur { box-shadow: 0 0 0 1px var(--accent); }
-.bl-bctl { position: absolute; right: 6px; top: -14px; display: none; gap: 2px; background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 8px; padding: 2px; z-index: 5; }
-.bl-blk:hover .bl-bctl, .bl-blk.cur .bl-bctl { display: flex; }
+.bl-doc { margin-top: 18px; min-height: 60vh; outline: none; padding-bottom: 30vh; cursor: text; }
+.bl-doc > div, .bl-doc > h2, .bl-doc > h3 { min-height: 1.85em; }
+.bl-doc.is-empty > div:first-child::before { content: '내용을 입력하세요'; color: var(--ink-3); position: absolute; pointer-events: none; }
+.bl-comp { position: relative; margin: 6px -10px; padding: 4px 10px; border-radius: 10px; cursor: default; }
+@media (hover: hover) { .bl-comp:hover { box-shadow: 0 0 0 1px var(--line); } }
+.bl-comp.sel { box-shadow: 0 0 0 1px var(--line-2); }
+.bl-comp .bl-bctl { display: none; }
+.bl-comp.sel .bl-bctl { display: flex; }
+.bl-plus { position: absolute; left: -46px; width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--line-2); background: var(--bg); color: var(--ink-2); font-size: 18px; line-height: 1; cursor: pointer; z-index: 6; }
+.bl-plus:hover { color: var(--ink); border-color: var(--ink-2); }
+.bl-sep { width: 1px; height: 18px; background: var(--line-2); margin: 0 4px; }
+.bl-col { position: relative; padding: 0 !important; width: 30px; height: 28px; display: inline-grid !important; place-items: center; cursor: pointer; border-radius: 6px; }
+.bl-col span { font-weight: 700; font-size: 14px; color: var(--ink); border-bottom: 3px solid var(--accent); line-height: 1.1; }
+.bl-col.bg span { background: #5a4a12; padding: 0 3px; border: 0; }
+.bl-col input { position: absolute; inset: 0; opacity: 0; width: 100% !important; height: 100% !important; cursor: pointer; }
+.bl-bctl { position: absolute; right: 6px; top: -14px; gap: 2px; background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 8px; padding: 2px; z-index: 5; }
 .bl-bctl button { border: 0; background: none; padding: 3px 8px; cursor: pointer; font: inherit; font-size: 12px; color: var(--ink-2); border-radius: 6px; }
 .bl-bctl button:hover { background: var(--bg); color: var(--ink); }
 .bl-bctl select { background: var(--bg); color: var(--ink); border: 0; font: inherit; font-size: 12px; border-radius: 6px; }
@@ -1445,3 +1455,6 @@ html.intro-on #brandMark { visibility: hidden; }
   .bl-lcard { grid-template-columns: 1fr 96px; }
   .bl-stk-grid { grid-template-columns: repeat(6, 1fr); }
 }
+/* 화면이 좁으면 글 영역을 들여서 줄 왼쪽 ＋ 버튼이 잘리지 않게 */
+@media (max-width: 1360px) { .bl-paper { padding-left: 42px; } .bl-plus { left: 2px; } }
+@media (max-width: 600px) { .bl-paper { padding-left: 36px; } .bl-plus { left: 0; width: 28px; height: 28px; } }
