@@ -1422,7 +1422,8 @@ body.top-visible { --bl-head: 76px; }
 .bl-mono { font-family: "JetBrains Mono", monospace; font-size: 13px; }
 .bl-file-in { cursor: pointer; text-align: center; color: var(--ink-2); }
 .bl-ev-ed { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8px; } .bl-ev-ed input:first-child, .bl-ev-ed input:last-child { grid-column: 1 / -1; }
-.bl-side { position: sticky; top: 200px; align-self: start; display: grid; gap: 14px; padding-top: 26px; }
+.bl-side { position: sticky; top: 200px; align-self: start; display: grid; gap: 14px; padding-top: 26px; max-height: calc(100vh - 216px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.bl-side > * { min-width: 0; }
 .bl-box { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: grid; gap: 10px; }
 .bl-box h4 { margin: 0; font-size: 13px; color: var(--ink-2); font-weight: 600; }
 .bl-chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -1452,7 +1453,7 @@ body.top-visible { --bl-head: 76px; }
 .bl-stk-grid button:hover { background: var(--bg); }
 @media (max-width: 900px) {
   .bl-ed { grid-template-columns: 1fr; }
-  .bl-side { position: static; }
+  .bl-side { position: static; max-height: none; overflow: visible; }
   .bl-tools { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .bl-fmt { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .bl-read .bl-ph.wide, .bl-cover { margin-left: 0; margin-right: 0; }
@@ -1489,3 +1490,8 @@ body.top-visible { --bl-head: 76px; }
 .bl-lay button:hover { color: var(--ink); background: var(--bg); }
 .bl-lay button.on { background: var(--ink); color: var(--bg); } .bl-lay button.on i { color: var(--bg); }
 .bl-lay-sep { width: 1px; height: 18px; background: var(--line-2); margin: 0 4px; }
+/* 블로그: 주소 이름 */
+.bl-slug { display: flex; align-items: center; margin: 4px 0; background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; font-size: 13px; }
+.bl-slug:focus-within { border-color: var(--line-2); }
+.bl-slug span { color: var(--ink-3, var(--ink-2)); white-space: nowrap; }
+.bl-slug input { flex: 1; width: 0; min-width: 0; background: none; border: 0; outline: 0; padding: 8px 0; color: var(--ink); font: inherit; font-size: 14px; }

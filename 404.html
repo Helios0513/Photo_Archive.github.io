@@ -18,6 +18,9 @@
     else if (page === 'graph.html') to = '/#/constellation';
     else if (page === 'guestbook.html') to = '/#/guestbook';
     else if (page === 'upload.html') to = '/#/studio';
+    // 블로그 글 주소(/blog/주소이름)는 그 글로
+    var bl = location.pathname.match(/^\/blog\/([^/]+)\/?$/);
+    if (bl) to = '/#/blog/' + bl[1];
     if (q.get('photo')) to = '/?photo=' + encodeURIComponent(q.get('photo')) + (to.indexOf('#') >= 0 ? to.slice(to.indexOf('#')) : '');
     location.replace(to);
   })();
