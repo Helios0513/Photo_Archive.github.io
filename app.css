@@ -1459,3 +1459,8 @@ html.intro-on #brandMark { visibility: hidden; }
 @media (max-width: 1360px) { .bl-paper { padding-left: 42px; } .bl-plus { left: 2px; } }
 @media (max-width: 600px) { .bl-paper { padding-left: 36px; } .bl-plus { left: 0; width: 28px; height: 28px; } }
 @media (max-width: 600px) { .bl-pgrid { grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 10px; } }
+/* 사진 고르기: 날짜로 거르기 */
+.bl-pdate input { background: var(--bg); border: 1px solid var(--line-2); border-radius: 99px; padding: 6px 12px; color: var(--ink); font: inherit; font-size: 13px; color-scheme: dark; }
+:root[data-theme="light"] .bl-pdate input { color-scheme: light; }
+.bl-pinfo { font-size: 12.5px; }
+.bl-pnone { grid-column: 1 / -1; text-align: center; padding: 40px 0; }
