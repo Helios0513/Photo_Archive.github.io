@@ -1478,3 +1478,14 @@ body.top-visible { --bl-head: 76px; }
 @media (hover: hover) { a.bl-place-main[href]:hover { background: var(--bg-2); } }
 .bl-place-app { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-2); }
 .bl-place-app select { width: auto; margin: 4px 0; }
+/* 블로그: 여러 장 사진 배치 */
+.bl-row { display: flex; gap: 6px; }
+.bl-row + .bl-row { margin-top: 6px; }
+.bl-row img { display: block; min-width: 0; width: 100%; height: auto; object-fit: cover; border-radius: 3px; cursor: zoom-in; }
+.bl-feat > img { display: block; width: 100%; border-radius: 4px; margin-bottom: 6px; cursor: zoom-in; }
+.bl-lay { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 0 0 10px; padding: 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg-2); }
+.bl-lay button { display: inline-flex; align-items: center; gap: 6px; border: 1px solid transparent; background: none; border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 12.5px; color: var(--ink-2); cursor: pointer; }
+.bl-lay button i { font-style: normal; font-size: 15px; color: var(--ink); }
+.bl-lay button:hover { color: var(--ink); background: var(--bg); }
+.bl-lay button.on { background: var(--ink); color: var(--bg); } .bl-lay button.on i { color: var(--bg); }
+.bl-lay-sep { width: 1px; height: 18px; background: var(--line-2); margin: 0 4px; }
