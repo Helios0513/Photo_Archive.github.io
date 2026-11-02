@@ -6545,5 +6545,28 @@
       ]
     ],
     "light": "bright"
+  },
+  {
+    "filename": "DSCF0479_1793585004536_0.jpg",
+    "info": "FUJIFILM X-M5 23mm f4 1/220s iso 320",
+    "date": "2026-10-19",
+    "time": "16:08:13",
+    "color": "white",
+    "palette": [
+      [
+        "white",
+        0.554
+      ],
+      [
+        "gray",
+        0.315
+      ],
+      [
+        "black",
+        0.091
+      ]
+    ],
+    "light": "bright",
+    "hidden": true
   }
 ]
