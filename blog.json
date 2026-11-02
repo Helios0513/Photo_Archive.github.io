@@ -1960,11 +1960,6 @@
         "align": "center"
       },
       {
-        "t": "p",
-        "html": "<br>",
-        "align": "center"
-      },
-      {
         "t": "photos",
         "layout": "one",
         "files": [
@@ -2415,8 +2410,9 @@
         "style": "line"
       },
       {
-        "t": "p",
-        "html": "<font size=\"6\" style=\"font-family:&quot;Noto Serif KR&quot;;font-weight:bold;font-style:italic\">2026. 10. 23.(금), 도쿄 여행 다섯 번째 날</font>"
+        "t": "h",
+        "level": 2,
+        "text": "2026. 10. 23.(금), 도쿄 여행 다섯 번째 날"
       },
       {
         "t": "p",
@@ -2466,8 +2462,9 @@
         "style": "line"
       },
       {
-        "t": "p",
-        "html": "<span style=\"font-family:&quot;Noto Serif KR&quot;;font-weight:bold;font-style:italic\"><font size=\"6\">마무리</font></span>"
+        "t": "h",
+        "level": 2,
+        "text": "마무리"
       },
       {
         "t": "p",
@@ -2521,6 +2518,6 @@
       }
     ],
     "created": "2026-11-02T05:34:04.642Z",
-    "updated": "2026-11-02T05:34:04.642Z"
+    "updated": "2026-11-02T05:37:46.185Z"
   }
 ]
