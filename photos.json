@@ -6568,5 +6568,36 @@
     ],
     "light": "bright",
     "hidden": true
+  },
+  {
+    "filename": "KakaoTalk_20261102_110423268_1793585103898_0.jpg",
+    "info": "Apple iPhone 17 Pro 17mm f2.798828125 1/50s iso 320",
+    "date": "2026-10-19",
+    "time": "17:03:56",
+    "color": "blue",
+    "palette": [
+      [
+        "sky",
+        0.428
+      ],
+      [
+        "navy",
+        0.225
+      ],
+      [
+        "sea",
+        0.177
+      ],
+      [
+        "forest",
+        0.048
+      ],
+      [
+        "yellow",
+        0.047
+      ]
+    ],
+    "light": "bright",
+    "hidden": true
   }
 ]
